@@ -5,7 +5,8 @@ import (
 )
 
 type Country struct {
-	Id            uuid.UUID `json:"id"`
+	UUID          uuid.UUID `json:"id"`
+	Name          string    `json:"name"`
 	BandName      string    `json:"bandName"`
 	SongName      string    `json:"songName"`
 	Flag          string    `json:"flag"`
