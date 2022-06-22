@@ -14,163 +14,163 @@ import (
 )
 
 var initCountries = []domain.Country{
-	domain.Country{
+	{
 		Name: "Italy",
 		Flag: "🇮🇹",
 	},
-	domain.Country{
+	{
 		Name: "France",
 		Flag: "🇫🇷",
 	},
-	domain.Country{
+	{
 		Name: "Germany",
 		Flag: "🇩🇪",
 	},
-	domain.Country{
+	{
 		Name: "Spain",
 		Flag: "🇪🇸",
 	},
-	domain.Country{
+	{
 		Name: "United Kingdom",
 		Flag: "🇬🇧",
 	},
-	domain.Country{
+	{
 		Name: "Albania",
 		Flag: "🇦🇱",
 	},
-	domain.Country{
+	{
 		Name: "Latvia",
 		Flag: "🇱🇻",
 	},
-	domain.Country{
+	{
 		Name: "Lithuania",
 		Flag: "🇱🇹",
 	},
-	domain.Country{
+	{
 		Name: "Switzerland",
 		Flag: "🇨🇭",
 	},
-	domain.Country{
+	{
 		Name: "Slovenia",
 		Flag: "🇸🇮",
 	},
-	domain.Country{
+	{
 		Name: "Ukrain",
 		Flag: "🇺🇦",
 	},
-	domain.Country{
+	{
 		Name: "Bulgaria",
 		Flag: "🇧🇬",
 	},
-	domain.Country{
+	{
 		Name: "Netherlands",
 		Flag: "🇳🇱",
 	},
-	domain.Country{
+	{
 		Name: "Moldova",
 		Flag: "🇲🇩",
 	},
-	domain.Country{
+	{
 		Name: "Portugal",
 		Flag: "🇵🇹",
 	},
-	domain.Country{
+	{
 		Name: "Croatia",
 		Flag: "🇭🇷",
 	},
-	domain.Country{
+	{
 		Name: "Denmark",
 		Flag: "🇩🇰",
 	},
-	domain.Country{
+	{
 		Name: "Austria",
 		Flag: "🇦🇹",
 	},
-	domain.Country{
+	{
 		Name: "Iceland",
 		Flag: "🇮🇸",
 	},
-	domain.Country{
+	{
 		Name: "Greece",
 		Flag: "🇬🇷",
 	},
-	domain.Country{
+	{
 		Name: "Norway",
 		Flag: "🇳🇴",
 	},
-	domain.Country{
+	{
 		Name: "Armenia",
 		Flag: "🇦🇲",
 	},
-	domain.Country{
+	{
 		Name: "Finland",
 		Flag: "🇫🇮",
 	},
-	domain.Country{
+	{
 		Name: "Israel",
 		Flag: "🇮🇱",
 	},
-	domain.Country{
+	{
 		Name: "Serbia",
 		Flag: "🇷🇸",
 	},
-	domain.Country{
+	{
 		Name: "Azerbaijan",
 		Flag: "🇦🇿",
 	},
-	domain.Country{
+	{
 		Name: "Georgia",
 		Flag: "🇬🇪",
 	},
-	domain.Country{
+	{
 		Name: "Malta",
 		Flag: "🇲🇹",
 	},
-	domain.Country{
+	{
 		Name: "San Marino",
 		Flag: "🇸🇲",
 	},
-	domain.Country{
+	{
 		Name: "Australia",
 		Flag: "🇦🇺",
 	},
-	domain.Country{
+	{
 		Name: "Cyprus",
 		Flag: "🇨🇾",
 	},
-	domain.Country{
+	{
 		Name: "Ireland",
 		Flag: "🇮🇪",
 	},
-	domain.Country{
+	{
 		Name: "North Macedonia",
 		Flag: "🇲🇰",
 	},
-	domain.Country{
+	{
 		Name: "Estonia",
 		Flag: "🇪🇪",
 	},
-	domain.Country{
+	{
 		Name: "Romania",
 		Flag: "🇷🇴",
 	},
-	domain.Country{
+	{
 		Name: "Poland",
 		Flag: "🇵🇱",
 	},
-	domain.Country{
+	{
 		Name: "Montenegro",
 		Flag: "🇲🇪",
 	},
-	domain.Country{
+	{
 		Name: "Belgium",
 		Flag: "🇧🇪",
 	},
-	domain.Country{
+	{
 		Name: "Sweden",
 		Flag: "🇸🇪",
 	},
-	domain.Country{
+	{
 		Name: "Czech Republic",
 		Flag: "🇨🇿",
 	},
