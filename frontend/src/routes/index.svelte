@@ -1,5 +1,6 @@
 <script lang="ts">
     import { onMount } from "svelte";
+import { loop_guard } from "svelte/internal";
 
     type Country = {
         id: string
@@ -35,7 +36,7 @@
         <p>hello</p>
     {:then countries}
         {#each countries as country}
-            <li>{country.flag} {country.name} {#if country.participating } is in the final 🎉 {:else} is out of the running 😢 {/if}</li>
+            <li>{country.flag} {country.name} {#if country.participating } is in the running 🎉 {:else} is out of the running 😢 {/if}</li>
         {/each}
     {:catch error}
         <p>{error.message}</p>

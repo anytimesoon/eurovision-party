@@ -37,7 +37,7 @@ func Countries(db *sql.DB) ([]domain.Country, error) {
 			fmt.Println("scan FAILED!")
 			return countries, err
 		}
-		countries = append(countries, domain.Country{UUID: id, Name: name})
+		countries = append(countries, domain.Country{UUID: id, Name: name, Flag: flag})
 	}
 
 	return countries, err

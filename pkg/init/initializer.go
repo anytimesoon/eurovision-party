@@ -3,9 +3,9 @@ package init
 import (
 	"context"
 	"database/sql"
+	domain "eurovision/pkg/domain"
 	"time"
 
-	// domain "eurovision/pkg/domain"
 	"fmt"
 	"log"
 
@@ -13,7 +13,168 @@ import (
 	"github.com/google/uuid"
 )
 
-var countryNames = [40]string{"Italy", "France", "Germany", "Spain", "United Kingdom", "Albania", "Latvia", "Lithuania", "Switzerland", "Slovenia", "Ukraine", "Bulgaria", "Netherlands", "Moldova", "Portugal", "Croatia", "Denmark", "Austria", "Iceland", "Greece", "Norway", "Armenia", "Finland", "Israel", "Serbia", "Azerbaijan", "Georgia", "Malta", "San Marino", "Australia", "Cyprus", "Ireland", "North Macedonia", "Estonia", "Romania", "Poland", "Montenegro", "Belgium", "Sweden", "Czech Republic"}
+var initCountries = []domain.Country{
+	domain.Country{
+		Name: "Italy",
+		Flag: "🇮🇹",
+	},
+	domain.Country{
+		Name: "France",
+		Flag: "🇫🇷",
+	},
+	domain.Country{
+		Name: "Germany",
+		Flag: "🇩🇪",
+	},
+	domain.Country{
+		Name: "Spain",
+		Flag: "🇪🇸",
+	},
+	domain.Country{
+		Name: "United Kingdom",
+		Flag: "🇬🇧",
+	},
+	domain.Country{
+		Name: "Albania",
+		Flag: "🇦🇱",
+	},
+	domain.Country{
+		Name: "Latvia",
+		Flag: "🇱🇻",
+	},
+	domain.Country{
+		Name: "Lithuania",
+		Flag: "🇱🇹",
+	},
+	domain.Country{
+		Name: "Switzerland",
+		Flag: "🇨🇭",
+	},
+	domain.Country{
+		Name: "Slovenia",
+		Flag: "🇸🇮",
+	},
+	domain.Country{
+		Name: "Ukrain",
+		Flag: "🇺🇦",
+	},
+	domain.Country{
+		Name: "Bulgaria",
+		Flag: "🇧🇬",
+	},
+	domain.Country{
+		Name: "Netherlands",
+		Flag: "🇳🇱",
+	},
+	domain.Country{
+		Name: "Moldova",
+		Flag: "🇲🇩",
+	},
+	domain.Country{
+		Name: "Portugal",
+		Flag: "🇵🇹",
+	},
+	domain.Country{
+		Name: "Croatia",
+		Flag: "🇭🇷",
+	},
+	domain.Country{
+		Name: "Denmark",
+		Flag: "🇩🇰",
+	},
+	domain.Country{
+		Name: "Austria",
+		Flag: "🇦🇹",
+	},
+	domain.Country{
+		Name: "Iceland",
+		Flag: "🇮🇸",
+	},
+	domain.Country{
+		Name: "Greece",
+		Flag: "🇬🇷",
+	},
+	domain.Country{
+		Name: "Norway",
+		Flag: "🇳🇴",
+	},
+	domain.Country{
+		Name: "Armenia",
+		Flag: "🇦🇲",
+	},
+	domain.Country{
+		Name: "Finland",
+		Flag: "🇫🇮",
+	},
+	domain.Country{
+		Name: "Israel",
+		Flag: "🇮🇱",
+	},
+	domain.Country{
+		Name: "Serbia",
+		Flag: "🇷🇸",
+	},
+	domain.Country{
+		Name: "Azerbaijan",
+		Flag: "🇦🇿",
+	},
+	domain.Country{
+		Name: "Georgia",
+		Flag: "🇬🇪",
+	},
+	domain.Country{
+		Name: "Malta",
+		Flag: "🇲🇹",
+	},
+	domain.Country{
+		Name: "San Marino",
+		Flag: "🇸🇲",
+	},
+	domain.Country{
+		Name: "Australia",
+		Flag: "🇦🇺",
+	},
+	domain.Country{
+		Name: "Cyprus",
+		Flag: "🇨🇾",
+	},
+	domain.Country{
+		Name: "Ireland",
+		Flag: "🇮🇪",
+	},
+	domain.Country{
+		Name: "North Macedonia",
+		Flag: "🇲🇰",
+	},
+	domain.Country{
+		Name: "Estonia",
+		Flag: "🇪🇪",
+	},
+	domain.Country{
+		Name: "Romania",
+		Flag: "🇷🇴",
+	},
+	domain.Country{
+		Name: "Poland",
+		Flag: "🇵🇱",
+	},
+	domain.Country{
+		Name: "Montenegro",
+		Flag: "🇲🇪",
+	},
+	domain.Country{
+		Name: "Belgium",
+		Flag: "🇧🇪",
+	},
+	domain.Country{
+		Name: "Sweden",
+		Flag: "🇸🇪",
+	},
+	domain.Country{
+		Name: "Czech Republic",
+		Flag: "🇨🇿",
+	},
+}
 
 const (
 	username = "eurovision"
@@ -35,7 +196,7 @@ func Connect() (*sql.DB, error) {
 
 	ctx, cancelfunc := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancelfunc()
-	res, err := db.ExecContext(ctx, "CREATE DATABASE IF NOT EXISTS "+dbname)
+	res, err := db.ExecContext(ctx, "CREATE DATABASE IF NOT EXISTS "+dbname+" CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;")
 	if err != nil {
 		log.Printf("Error %s when creating DB\n", err)
 		return nil, err
@@ -69,7 +230,7 @@ func Connect() (*sql.DB, error) {
 }
 
 func CreateCountriesTable(db *sql.DB) error {
-	query := `DROP TABLE IF EXISTS country;` // `CREATE TABLE country(uuid VARCHAR(255) NOT NULL, name VARCHAR(255) NOT NULL, bandName VARCHAR(255) NOT NULL, songName VARCHAR(255) NOT NULL, flag VARCHAR(255) NOT NULL, participating BOOLEAN NOT NULL);`
+	query := `DROP TABLE IF EXISTS country;`
 	ctx, cancelfunc := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancelfunc()
 	res, err := db.ExecContext(ctx, query)
@@ -79,7 +240,7 @@ func CreateCountriesTable(db *sql.DB) error {
 	}
 	log.Printf("%d tables were dropped", res)
 
-	query = `CREATE TABLE country(uuid VARCHAR(255) NOT NULL, name VARCHAR(255) NOT NULL, bandName VARCHAR(255), songName VARCHAR(255), flag VARCHAR(255), participating BOOLEAN NOT NULL);`
+	query = `CREATE TABLE country(uuid VARCHAR(191) NOT NULL, name VARCHAR(191) NOT NULL, bandName VARCHAR(191), songName VARCHAR(191), flag BLOB, participating BOOLEAN NOT NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci;`
 	ctx, cancelfunc = context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancelfunc()
 	res, err = db.ExecContext(ctx, query)
@@ -108,14 +269,14 @@ func AddCountries(db *sql.DB) error {
 	}
 	defer stmt.Close()
 
-	for _, countryName := range countryNames {
+	for _, country := range initCountries {
 		newId, err := uuid.NewUUID()
 		if err != nil {
 			log.Printf("Error %s when creating new UUID", err)
 			return err
 		}
 
-		res, err := stmt.ExecContext(ctx, newId, countryName, "", "", "", false)
+		res, err := stmt.ExecContext(ctx, newId, country.Name, "", "", country.Flag, false)
 		if err != nil {
 			log.Printf("Error %s when inserting row into countries table", err)
 			return err
@@ -125,7 +286,7 @@ func AddCountries(db *sql.DB) error {
 			log.Printf("Error %s when finding rows affected", err)
 			return err
 		}
-		log.Printf("%s created %d time", countryName, rows)
+		log.Printf("%s %s created %d time", country.Flag, country.Name, rows)
 	}
 
 	return nil
