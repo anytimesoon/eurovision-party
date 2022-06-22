@@ -5,10 +5,11 @@ import (
 	"encoding/json"
 	dao "eurovision/pkg/dao"
 	initializer "eurovision/pkg/init"
-	"fmt"
 	"log"
 	"mime"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 var db *sql.DB
@@ -40,22 +41,42 @@ func init() {
 func main() {
 	mime.AddExtensionType(".js", "application/javascript")
 
-	http.Handle("/", http.HandlerFunc(home))
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	router := mux.NewRouter()
+	router.HandleFunc("/", home).Methods(http.MethodGet)
+	router.HandleFunc("/country", updateCountry).Methods(http.MethodPost)
+	router.Use(mux.CORSMethodMiddleware(router), addHeaders, logging)
+
+	log.Fatal(http.ListenAndServe(":8080", router)) //keeps the server alive on port 8080
 
 	db.Close()
 }
 
-func home(writer http.ResponseWriter, req *http.Request) {
-	writer.Header().Set("Content-Type", "application/json")
-	writer.Header().Set("Access-Control-Allow-Origin", "*")
-	writer.WriteHeader(http.StatusOK)
+func addHeaders(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.WriteHeader(http.StatusOK)
+		next.ServeHTTP(w, r)
+	})
+}
 
+func logging(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Printf("%s was requested by %q", r.RequestURI, r.RemoteAddr)
+		next.ServeHTTP(w, r)
+	})
+}
+
+func home(writer http.ResponseWriter, req *http.Request) {
 	countries, err := dao.Countries(db)
 	if err != nil {
-		fmt.Println("home FAILED!")
+		log.Println("home FAILED!")
 		return
 	}
 
 	json.NewEncoder(writer).Encode(countries)
+}
+
+func updateCountry(writer http.ResponseWriter, req *http.Request) {
+	log.Println(req)
 }
