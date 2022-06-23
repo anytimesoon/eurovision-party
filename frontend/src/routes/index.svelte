@@ -23,19 +23,23 @@
 
     onMount( () => promise = getCountries() );
 
-    function updateParticipating(countryName: string, participatingStatus: boolean) {
-        fetch("http://localhost:8080/country",{
+    function updateParticipating(country: Country) {
+        fetch('http://localhost:8080/country',{
             method: "POST",
+            mode: 'cors',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                "name": countryName,
-                "participating": participatingStatus
-            })
+            body: JSON.stringify(country)
+        }).then(response => response.json())
+        .then(data => {
+            console.log(data)
         })
-    }  
+        .catch((err) => {
+           console.log(err)
+        })
+    };
 </script>
 
 <h1>List of all Eurovision countries</h1>
@@ -53,7 +57,7 @@
                 {:else} 
                     is out of the running 😢
                 {/if}
-                <button on:click="{() => updateParticipating(country.name, country.participating)}">toggle</button>
+                <button on:click="{() => updateParticipating(country)}">toggle</button>
             </li>
         {/each}
     {:catch error}
