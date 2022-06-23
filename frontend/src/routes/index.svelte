@@ -25,7 +25,7 @@
 
     function updateParticipating(country: Country) {
         fetch('http://localhost:8080/country',{
-            method: "POST",
+            method: "PUT",
             mode: 'cors',
             headers: {
                 'Accept': 'application/json',

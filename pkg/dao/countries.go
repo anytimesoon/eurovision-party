@@ -1,17 +1,17 @@
 package dao
 
 import (
-	"database/sql"
+	db "eurovision/db"
 	domain "eurovision/pkg/domain"
 	"fmt"
 
 	"github.com/google/uuid"
 )
 
-func Countries(db *sql.DB) ([]domain.Country, error) {
+func Countries() ([]domain.Country, error) {
 	var countries []domain.Country
 
-	stmt, err := db.Prepare("SELECT * FROM country")
+	stmt, err := db.Conn.Prepare("SELECT * FROM country")
 	if err != nil {
 		fmt.Println("stmt FAILED!")
 		return countries, err
