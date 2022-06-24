@@ -4,6 +4,8 @@ import (
 	db "eurovision/db"
 	domain "eurovision/pkg/domain"
 	"fmt"
+	"log"
+	"strconv"
 
 	"github.com/google/uuid"
 )
@@ -40,5 +42,30 @@ func Countries() ([]domain.Country, error) {
 		countries = append(countries, domain.Country{UUID: id, Name: name, Flag: flag})
 	}
 
-	return countries, err
+	return countries, nil
+}
+
+func CountriesUpdate(country domain.Country) (domain.Country, error) {
+
+	stmt, err := db.Conn.Prepare(
+		"UPDATE country" +
+			"SET participating = " + strconv.FormatBool(country.Participating) +
+			" WHERE uuid = " + country.UUID.String() +
+			" LIMIT 1;")
+	if err != nil {
+		log.Println("stmt FAILED!", stmt, err)
+		country.Participating = !country.Participating
+		return country, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query()
+	if err != nil {
+		fmt.Println("rows FAILED!")
+		country.Participating = !country.Participating
+		return country, err
+	}
+	defer rows.Close()
+
+	return country, nil
 }

@@ -34,5 +34,7 @@ func Update(writer http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	log.Printf("%+v", country)
+	updatedCountry, err := dao.CountriesUpdate(country)
+
+	json.NewEncoder(writer).Encode(updatedCountry)
 }

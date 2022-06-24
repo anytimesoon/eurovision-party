@@ -34,7 +34,7 @@
             body: JSON.stringify(country)
         }).then(response => response.json())
         .then(data => {
-            console.log(data)
+            countries.find((country) => {if(data.id == country.id){country = data}})
         })
         .catch((err) => {
            console.log(err)
