@@ -5,7 +5,6 @@ import (
 	domain "eurovision/pkg/domain"
 	"fmt"
 	"log"
-	"strconv"
 
 	"github.com/google/uuid"
 )
@@ -46,26 +45,23 @@ func Countries() ([]domain.Country, error) {
 }
 
 func CountriesUpdate(country domain.Country) (domain.Country, error) {
+	log.Printf("Country in: %+v \n", country)
 
-	stmt, err := db.Conn.Prepare(
-		"UPDATE country" +
-			"SET participating = " + strconv.FormatBool(country.Participating) +
-			" WHERE uuid = " + country.UUID.String() +
-			" LIMIT 1;")
+	query := fmt.Sprintf(`UPDATE country SET participating = %t WHERE uuid = '%s'`, country.Participating, country.UUID.String())
+	res, err := db.Conn.Exec(query)
 	if err != nil {
-		log.Println("stmt FAILED!", stmt, err)
+		log.Println("sql execution FAILED!", country.Name, "was not updated", err)
 		country.Participating = !country.Participating
 		return country, err
 	}
-	defer stmt.Close()
 
-	rows, err := stmt.Query()
-	if err != nil {
-		fmt.Println("rows FAILED!")
+	rowsAffected, err := res.RowsAffected()
+	if err != nil || rowsAffected == 0 {
+		log.Println("FAILED to affect rows!", err)
 		country.Participating = !country.Participating
 		return country, err
 	}
-	defer rows.Close()
 
+	log.Println("Country rows affected:", rowsAffected)
 	return country, nil
 }

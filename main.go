@@ -7,7 +7,7 @@ import (
 )
 
 func init() {
-	db.Connect()
+	db.Start()
 }
 
 func main() {
