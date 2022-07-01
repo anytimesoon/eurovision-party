@@ -3,7 +3,6 @@ package main
 import (
 	db "eurovision/db"
 	"eurovision/pkg/routes"
-	"mime"
 )
 
 func init() {
@@ -11,8 +10,6 @@ func init() {
 }
 
 func main() {
-	mime.AddExtensionType(".js", "application/javascript")
-
 	routes.Start()
 
 	db.Conn.Close()
