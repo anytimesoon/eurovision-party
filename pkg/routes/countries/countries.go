@@ -7,6 +7,8 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 func All(writer http.ResponseWriter, req *http.Request) {
@@ -19,8 +21,21 @@ func All(writer http.ResponseWriter, req *http.Request) {
 	json.NewEncoder(writer).Encode(countries)
 }
 
+func FindOne(writer http.ResponseWriter, req *http.Request) {
+	params := mux.Vars(req)
+	countryName := params["name"]
+
+	partialCountry := domain.Country{Name: countryName}
+	country, err := dao.Country(partialCountry)
+	if err != nil {
+		log.Printf("FAILED to find %s", countryName)
+	}
+
+	json.NewEncoder(writer).Encode(country)
+}
+
 func Update(writer http.ResponseWriter, req *http.Request) {
-	var country domain.Country
+	var receivedCountry domain.Country
 
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
@@ -28,13 +43,21 @@ func Update(writer http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	err = json.Unmarshal(body, &country)
+	err = json.Unmarshal(body, &receivedCountry)
 	if err != nil {
-		log.Println("country FAILED to UPDATE!")
+		log.Println("FAILED to unmarshal json!")
 		return
 	}
 
-	updatedCountry, err := dao.CountriesUpdate(country)
+	country, err := dao.Country(receivedCountry)
+	if err != nil {
+		log.Printf("FAILED to find %s", receivedCountry.Name)
+	}
+
+	updatedCountry, err := dao.CountriesUpdate(country, receivedCountry)
+	if err != nil {
+		log.Printf("FAILED to update %s", receivedCountry.Name)
+	}
 
 	json.NewEncoder(writer).Encode(updatedCountry)
 }

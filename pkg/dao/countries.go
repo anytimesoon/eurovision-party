@@ -1,41 +1,46 @@
 package dao
 
 import (
+	"context"
 	db "eurovision/db"
 	domain "eurovision/pkg/domain"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/google/uuid"
 )
 
+var id uuid.UUID
+var name string
+var bandName string
+var songName string
+var flag string
+var participating bool
+
 func Countries() ([]domain.Country, error) {
 	var countries []domain.Country
+	ctx, cancelFunc := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancelFunc()
 
-	stmt, err := db.Conn.Prepare("SELECT * FROM country")
+	stmt, err := db.Conn.PrepareContext(ctx, "SELECT * FROM country")
 	if err != nil {
-		fmt.Println("stmt FAILED!")
+		fmt.Println("FAILED to build query!")
 		return countries, err
 	}
 	defer stmt.Close()
 
-	rows, err := stmt.Query()
+	rows, err := stmt.QueryContext(ctx)
 	if err != nil {
-		fmt.Println("rows FAILED!")
+		log.Println("rows FAILED!")
 		return countries, err
 	}
 	defer rows.Close()
 
-	var id uuid.UUID
-	var name string
-	var bandName string
-	var songName string
-	var flag string
-	var participating bool
 	for rows.Next() {
 		err = rows.Scan(&id, &name, &bandName, &songName, &flag, &participating)
 		if err != nil {
-			fmt.Println("scan FAILED!")
+			log.Println("scan FAILED!")
 			return countries, err
 		}
 		countries = append(countries, domain.Country{UUID: id, Name: name, Flag: flag})
@@ -44,24 +49,56 @@ func Countries() ([]domain.Country, error) {
 	return countries, nil
 }
 
-func CountriesUpdate(country domain.Country) (domain.Country, error) {
-	log.Printf("Country in: %+v \n", country)
+func Country(country domain.Country) (domain.Country, error) {
+	ctx, cancelFunc := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancelFunc()
 
-	query := fmt.Sprintf(`UPDATE country SET participating = %t WHERE uuid = '%s'`, country.Participating, country.UUID.String())
-	res, err := db.Conn.Exec(query)
+	query := fmt.Sprintf(`SELECT * FROM country WHERE name = '%s'`, country.Name)
+	stmt, err := db.Conn.PrepareContext(ctx, query)
 	if err != nil {
-		log.Println("sql execution FAILED!", country.Name, "was not updated", err)
-		country.Participating = !country.Participating
+		log.Printf("Error %s when preparing SQL statement", err)
+		return country, err
+	}
+
+	row := stmt.QueryRowContext(ctx)
+
+	err = row.Scan(&id, &name, &bandName, &songName, &flag, &participating)
+	if err != nil {
+		log.Println("scan FAILED!")
+		return country, err
+	}
+
+	return domain.Country{UUID: id, Name: name, BandName: bandName, SongName: songName, Flag: flag, Participating: participating}, nil
+}
+
+func CountriesUpdate(country domain.Country, receivedCountry domain.Country) (domain.Country, error) {
+	if country.Name != receivedCountry.Name || country.UUID != receivedCountry.UUID {
+		log.Println("Tried to update countries that are not the same")
+		return country, nil
+	}
+
+	ctx, cancelFunc := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancelFunc()
+
+	query := fmt.Sprintf(`UPDATE country SET bandName = '%s', songName = '%s', participating = %t WHERE uuid = '%s'`, receivedCountry.BandName, receivedCountry.SongName, receivedCountry.Participating, receivedCountry.UUID.String())
+	stmt, err := db.Conn.PrepareContext(ctx, query)
+	if err != nil {
+		log.Printf("Error %s when preparing SQL statement", err)
+		return country, err
+	}
+
+	res, err := stmt.ExecContext(ctx)
+	if err != nil {
+		log.Printf("sql execution FAILED! %s was not updated %s", country.Name, err)
 		return country, err
 	}
 
 	rowsAffected, err := res.RowsAffected()
 	if err != nil || rowsAffected == 0 {
-		log.Println("FAILED to affect rows!", err)
-		country.Participating = !country.Participating
+		log.Printf("Error %s when finding rows affected", err)
 		return country, err
 	}
 
 	log.Println("Country rows affected:", rowsAffected)
-	return country, nil
+	return receivedCountry, nil
 }
