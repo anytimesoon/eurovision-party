@@ -72,11 +72,6 @@ func Country(country domain.Country) (domain.Country, error) {
 }
 
 func CountriesUpdate(country domain.Country, receivedCountry domain.Country) (domain.Country, error) {
-	if country.Name != receivedCountry.Name || country.UUID != receivedCountry.UUID {
-		log.Println("Tried to update countries that are not the same")
-		return country, nil
-	}
-
 	ctx, cancelFunc := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancelFunc()
 
