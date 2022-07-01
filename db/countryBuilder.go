@@ -21,7 +21,7 @@ func CreateCountriesTable(db *sql.DB) error {
 	}
 	log.Printf("%d table was dropped", res)
 
-	query = `CREATE TABLE country(uuid char(36) NOT NULL, name VARCHAR(191) NOT NULL, bandName VARCHAR(191), songName VARCHAR(191), flag BLOB, participating BOOLEAN NOT NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci;`
+	query = `CREATE TABLE country(uuid char(36) NOT NULL, name VARCHAR(191) NOT NULL, bandName VARCHAR(191), songName VARCHAR(191), flag BLOB NOT NULL, participating BOOLEAN NOT NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci;`
 	ctx, cancelfunc = context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancelfunc()
 	res, err = db.ExecContext(ctx, query)
@@ -41,9 +41,10 @@ func CreateCountriesTable(db *sql.DB) error {
 }
 
 func AddCountries(db *sql.DB) error {
-	query := "INSERT INTO country(uuid, name, bandName, songName, flag, participating) VALUES (?, ?, ?, ?, ?, ?)"
 	ctx, cancelfunc := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancelfunc()
+
+	query := "INSERT INTO country(uuid, name, bandName, songName, flag, participating) VALUES (?, ?, ?, ?, ?, ?)"
 	stmt, err := db.PrepareContext(ctx, query)
 	if err != nil {
 		log.Printf("Error %s when preparing SQL statement", err)
@@ -68,7 +69,7 @@ func AddCountries(db *sql.DB) error {
 			log.Printf("Error %s when finding rows affected", err)
 			return err
 		}
-		log.Printf("%s %s created %d time", country.Flag, country.Name, rows)
+		log.Printf("id: %s, flag: %s, name: %s, participating: %t, songName: %s, bandName: %s, created %d time", newId.String(), country.Flag, country.Name, country.Participating, country.SongName, country.BandName, rows)
 	}
 
 	return nil
