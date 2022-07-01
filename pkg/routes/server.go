@@ -3,6 +3,7 @@ package routes
 import (
 	"eurovision/pkg/routes/countries"
 	"log"
+	"mime"
 	"net/http"
 
 	"github.com/gorilla/handlers"
@@ -10,9 +11,12 @@ import (
 )
 
 func Start() {
+	mime.AddExtensionType(".js", "application/javascript")
+
 	router := mux.NewRouter()
 	router.HandleFunc("/", countries.All).Methods(http.MethodGet)
 	router.HandleFunc("/country", countries.Update).Methods(http.MethodPut)
+	router.HandleFunc("/country/{name}", countries.FindOne).Methods(http.MethodGet)
 	router.Use(addHeaders, logging)
 
 	headersOk := handlers.AllowedHeaders([]string{"Content-type", "Authorization", "Origin", "Access-Control-Allow-Origin", "Accept", "Options", "X-Requested-With"})
