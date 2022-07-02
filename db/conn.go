@@ -22,13 +22,25 @@ func Start() {
 
 	err = CreateCountriesTable(sqlDb)
 	if err != nil {
-		log.Printf("Create country table failed with error %s", err)
+		log.Printf("FAILED to create country table %s", err)
 		return
 	}
 
 	err = AddCountries(sqlDb)
 	if err != nil {
-		log.Printf("Adding countries failed with error %s", err)
+		log.Printf("FAILED to add countries %s", err)
+		return
+	}
+
+	err = CreateUsersTable(sqlDb)
+	if err != nil {
+		log.Printf("FAILED to create user table %s", err)
+		return
+	}
+
+	err = AddAdminUser(sqlDb)
+	if err != nil {
+		log.Printf("FAILED to add countries %s", err)
 		return
 	}
 

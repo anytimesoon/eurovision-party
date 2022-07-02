@@ -16,7 +16,7 @@ func CreateCountriesTable(db *sql.DB) error {
 	defer cancelfunc()
 	res, err := db.ExecContext(ctx, query)
 	if err != nil {
-		log.Printf("Error %s when creating product table", err)
+		log.Printf("Error %s when creating country table", err)
 		return err
 	}
 	log.Printf("%d table was dropped", res)
@@ -26,7 +26,7 @@ func CreateCountriesTable(db *sql.DB) error {
 	defer cancelfunc()
 	res, err = db.ExecContext(ctx, query)
 	if err != nil {
-		log.Printf("Error %s when creating product table", err)
+		log.Printf("Error %s when creating country table", err)
 		return err
 	}
 
