@@ -11,8 +11,8 @@ import (
 	"github.com/google/uuid"
 )
 
-var id uuid.UUID
-var name string
+var countryID uuid.UUID
+var countryName string
 var bandName string
 var songName string
 var flag string
@@ -38,12 +38,12 @@ func Countries() ([]domain.Country, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		err = rows.Scan(&id, &name, &bandName, &songName, &flag, &participating)
+		err = rows.Scan(&countryID, &countryName, &bandName, &songName, &flag, &participating)
 		if err != nil {
 			log.Println("scan FAILED!")
 			return countries, err
 		}
-		countries = append(countries, domain.Country{UUID: id, Name: name, Flag: flag})
+		countries = append(countries, domain.Country{UUID: countryID, Name: countryName, Flag: flag})
 	}
 
 	return countries, nil
@@ -62,13 +62,13 @@ func Country(country domain.Country) (domain.Country, error) {
 
 	row := stmt.QueryRowContext(ctx)
 
-	err = row.Scan(&id, &name, &bandName, &songName, &flag, &participating)
+	err = row.Scan(&countryID, &countryName, &bandName, &songName, &flag, &participating)
 	if err != nil {
 		log.Println("scan FAILED!")
 		return country, err
 	}
 
-	return domain.Country{UUID: id, Name: name, BandName: bandName, SongName: songName, Flag: flag, Participating: participating}, nil
+	return domain.Country{UUID: countryID, Name: countryName, BandName: bandName, SongName: songName, Flag: flag, Participating: participating}, nil
 }
 
 func CountriesUpdate(country domain.Country, receivedCountry domain.Country) (domain.Country, error) {
