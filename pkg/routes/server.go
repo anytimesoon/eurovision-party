@@ -2,6 +2,7 @@ package routes
 
 import (
 	"eurovision/pkg/routes/countries"
+	"eurovision/pkg/routes/users"
 	"log"
 	"mime"
 	"net/http"
@@ -14,9 +15,16 @@ func Start() {
 	mime.AddExtensionType(".js", "application/javascript")
 
 	router := mux.NewRouter()
+
+	// Country
 	router.HandleFunc("/", countries.All).Methods(http.MethodGet)
 	router.HandleFunc("/country", countries.Update).Methods(http.MethodPut)
 	router.HandleFunc("/country/{name}", countries.FindOne).Methods(http.MethodGet)
+
+	// User
+	router.HandleFunc("/user", users.All).Methods(http.MethodGet, http.MethodPut)
+	router.HandleFunc("/user/{name}", users.FindOne).Methods(http.MethodGet)
+
 	router.Use(addHeaders, logging)
 
 	headersOk := handlers.AllowedHeaders([]string{"Content-type", "Authorization", "Origin", "Access-Control-Allow-Origin", "Accept", "Options", "X-Requested-With"})

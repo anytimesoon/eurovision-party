@@ -21,6 +21,7 @@ func CreateUsersTable(db *sql.DB) error {
 	}
 	log.Println("User table was dropped")
 
+	// TODO add default value to icon
 	query = `CREATE TABLE user(uuid char(36) NOT NULL, name VARCHAR(191) NOT NULL, authLvl TINYINT DEFAULT 0, icon VARCHAR(191));`
 	ctx, cancelfunc = context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancelfunc()
@@ -44,7 +45,7 @@ func AddAdminUser(db *sql.DB) error {
 	ctx, cancelfunc := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancelfunc()
 
-	query := fmt.Sprintf(`INSERT INTO user(uuid, name, authLvl) VALUES ('%s', 'admin', 1)`, uuid.New().String())
+	query := fmt.Sprintf(`INSERT INTO user(uuid, name, authLvl, icon) VALUES ('%s', 'admin', 1, '')`, uuid.New().String())
 	stmt, err := db.PrepareContext(ctx, query)
 	if err != nil {
 		log.Printf("Error %s when preparing SQL statement", err)
