@@ -13,6 +13,7 @@ import (
 
 var countryID uuid.UUID
 var countryName string
+var countrySlug string
 var bandName string
 var songName string
 var flag string
@@ -53,7 +54,7 @@ func Country(country domain.Country) (domain.Country, error) {
 	ctx, cancelFunc := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancelFunc()
 
-	query := fmt.Sprintf(`SELECT * FROM country WHERE name = '%s'`, country.Name)
+	query := fmt.Sprintf(`SELECT * FROM country WHERE slug = '%s'`, country.Slug)
 	stmt, err := db.Conn.PrepareContext(ctx, query)
 	if err != nil {
 		log.Printf("Error %s when preparing SQL statement", err)
@@ -62,13 +63,13 @@ func Country(country domain.Country) (domain.Country, error) {
 
 	row := stmt.QueryRowContext(ctx)
 
-	err = row.Scan(&countryID, &countryName, &bandName, &songName, &flag, &participating)
+	err = row.Scan(&countryID, &countryName, &countrySlug, &bandName, &songName, &flag, &participating)
 	if err != nil {
-		log.Println("scan FAILED!")
+		log.Printf("FAILED to scan because %s", err)
 		return country, err
 	}
 
-	return domain.Country{UUID: countryID, Name: countryName, BandName: bandName, SongName: songName, Flag: flag, Participating: participating}, nil
+	return domain.Country{UUID: countryID, Name: countryName, Slug: countrySlug, BandName: bandName, SongName: songName, Flag: flag, Participating: participating}, nil
 }
 
 func CountriesUpdate(country domain.Country, receivedCountry domain.Country) (domain.Country, error) {

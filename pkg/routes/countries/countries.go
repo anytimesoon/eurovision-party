@@ -23,12 +23,12 @@ func All(writer http.ResponseWriter, req *http.Request) {
 
 func FindOne(writer http.ResponseWriter, req *http.Request) {
 	params := mux.Vars(req)
-	countryName := params["name"]
+	countrySlug := params["slug"]
 
-	partialCountry := domain.Country{Name: countryName}
+	partialCountry := domain.Country{Slug: countrySlug}
 	country, err := dao.Country(partialCountry)
 	if err != nil {
-		log.Printf("FAILED to find %s", countryName)
+		log.Printf("FAILED to find %s", countrySlug)
 	}
 
 	json.NewEncoder(writer).Encode(country)

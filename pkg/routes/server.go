@@ -19,12 +19,12 @@ func Start() {
 	// Country
 	router.HandleFunc("/", countries.All).Methods(http.MethodGet)
 	router.HandleFunc("/country", countries.Update).Methods(http.MethodPut)
-	router.HandleFunc("/country/{name}", countries.FindOne).Methods(http.MethodGet)
+	router.HandleFunc("/country/{slug}", countries.FindOne).Methods(http.MethodGet)
 
 	// User
 	router.HandleFunc("/user", users.All).Methods(http.MethodGet)
 	router.HandleFunc("/user", users.Update).Methods(http.MethodPut)
-	router.HandleFunc("/user/{name}", users.FindOne).Methods(http.MethodGet)
+	router.HandleFunc("/user/{slug}", users.FindOne).Methods(http.MethodGet)
 
 	router.Use(addHeaders, logging)
 
