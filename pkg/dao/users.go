@@ -46,3 +46,52 @@ func Users() ([]domain.User, error) {
 
 	return users, nil
 }
+
+func User(user domain.User) (domain.User, error) {
+	ctx, cancelFunc := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancelFunc()
+
+	query := fmt.Sprintf(`SELECT * FROM user WHERE name = '%s'`, user.Name)
+	stmt, err := db.Conn.PrepareContext(ctx, query)
+	if err != nil {
+		log.Printf("Error %s when preparing SQL statement", err)
+		return user, err
+	}
+
+	row := stmt.QueryRowContext(ctx)
+
+	err = row.Scan(&userID, &userName, &authLvl, &icon)
+	if err != nil {
+		log.Println("scan FAILED!")
+		return user, err
+	}
+
+	return domain.User{UUID: userID, Name: userName, AuthLvl: authLvl, Icon: icon}, nil
+}
+
+func UsersUpdate(user domain.User, receivedUser domain.User) (domain.User, error) {
+	ctx, cancelFunc := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancelFunc()
+
+	query := fmt.Sprintf(`UPDATE user SET name = '%s', icon = '%s' WHERE uuid = '%s'`, receivedUser.Name, receivedUser.Icon, receivedUser.UUID.String())
+	stmt, err := db.Conn.PrepareContext(ctx, query)
+	if err != nil {
+		log.Printf("Error %s when preparing SQL statement", err)
+		return user, err
+	}
+
+	res, err := stmt.ExecContext(ctx)
+	if err != nil {
+		log.Printf("sql execution FAILED! %s was not updated %s", user.Name, err)
+		return user, err
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil || rowsAffected == 0 {
+		log.Printf("Error %s when finding rows affected", err)
+		return user, err
+	}
+
+	log.Println("User rows affected:", rowsAffected)
+	return receivedUser, nil
+}

@@ -23,41 +23,41 @@ func All(writer http.ResponseWriter, req *http.Request) {
 
 func FindOne(writer http.ResponseWriter, req *http.Request) {
 	params := mux.Vars(req)
-	countryName := params["name"]
+	userName := params["name"]
 
-	partialCountry := domain.Country{Name: countryName}
-	country, err := dao.Country(partialCountry)
+	partialUser := domain.User{Name: userName}
+	user, err := dao.User(partialUser)
 	if err != nil {
-		log.Printf("FAILED to find %s", countryName)
+		log.Printf("FAILED to find %s", userName)
 	}
 
-	json.NewEncoder(writer).Encode(country)
+	json.NewEncoder(writer).Encode(user)
 }
 
 func Update(writer http.ResponseWriter, req *http.Request) {
-	var receivedCountry domain.Country
+	var receivedUser domain.User
 
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
-		log.Println("FAILED to read body of COUNTRY UPDATE!")
+		log.Println("FAILED to read body of USER UPDATE!")
 		return
 	}
 
-	err = json.Unmarshal(body, &receivedCountry)
+	err = json.Unmarshal(body, &receivedUser)
 	if err != nil {
 		log.Println("FAILED to unmarshal json!")
 		return
 	}
 
-	country, err := dao.Country(receivedCountry)
+	user, err := dao.User(receivedUser)
 	if err != nil {
-		log.Printf("FAILED to find %s", receivedCountry.Name)
+		log.Printf("FAILED to find %s", receivedUser.Name)
 	}
 
-	updatedCountry, err := dao.CountriesUpdate(country, receivedCountry)
+	updatedUser, err := dao.UsersUpdate(user, receivedUser)
 	if err != nil {
-		log.Printf("FAILED to update %s", receivedCountry.Name)
+		log.Printf("FAILED to update %s", receivedUser.Name)
 	}
 
-	json.NewEncoder(writer).Encode(updatedCountry)
+	json.NewEncoder(writer).Encode(updatedUser)
 }

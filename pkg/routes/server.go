@@ -22,7 +22,8 @@ func Start() {
 	router.HandleFunc("/country/{name}", countries.FindOne).Methods(http.MethodGet)
 
 	// User
-	router.HandleFunc("/user", users.All).Methods(http.MethodGet, http.MethodPut)
+	router.HandleFunc("/user", users.All).Methods(http.MethodGet)
+	router.HandleFunc("/user", users.Update).Methods(http.MethodPut)
 	router.HandleFunc("/user/{name}", users.FindOne).Methods(http.MethodGet)
 
 	router.Use(addHeaders, logging)
