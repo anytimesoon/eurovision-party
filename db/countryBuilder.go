@@ -4,9 +4,7 @@ import (
 	"context"
 	"database/sql"
 	data "eurovision/initialData"
-	"fmt"
 	"log"
-	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -55,11 +53,7 @@ func AddCountries(db *sql.DB) error {
 	defer stmt.Close()
 
 	for _, country := range data.InitCountries {
-		splitName := strings.Split(country.Name, " ")
-		fmt.Println(splitName)
-		slug := strings.Join(splitName, "-")
-		fmt.Println(slug)
-
+		slug := slugify(country.Name)
 		newId, err := uuid.NewUUID()
 		if err != nil {
 			log.Printf("Error %s when creating new UUID", err)

@@ -14,6 +14,7 @@ import (
 var userID uuid.UUID
 var authLvl domain.AuthLvl
 var userName string
+var userSlug string
 var icon string
 
 func Users() ([]domain.User, error) {
@@ -36,12 +37,12 @@ func Users() ([]domain.User, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		err = rows.Scan(&userID, &userName, &authLvl, &icon)
+		err = rows.Scan(&userID, &userName, &userSlug, &authLvl, &icon)
 		if err != nil {
 			log.Printf("FAILED to scan because %s", err)
 			return users, err
 		}
-		users = append(users, domain.User{UUID: userID, Name: userName, AuthLvl: authLvl, Icon: icon})
+		users = append(users, domain.User{UUID: userID, Name: userName, Slug: userSlug, AuthLvl: authLvl, Icon: icon})
 	}
 
 	return users, nil
@@ -60,13 +61,13 @@ func User(user domain.User) (domain.User, error) {
 
 	row := stmt.QueryRowContext(ctx)
 
-	err = row.Scan(&userID, &userName, &authLvl, &icon)
+	err = row.Scan(&userID, &userName, &userSlug, &authLvl, &icon)
 	if err != nil {
 		log.Println("scan FAILED!")
 		return user, err
 	}
 
-	return domain.User{UUID: userID, Name: userName, AuthLvl: authLvl, Icon: icon}, nil
+	return domain.User{UUID: userID, Name: userName, Slug: userSlug, AuthLvl: authLvl, Icon: icon}, nil
 }
 
 func UsersUpdate(user domain.User, receivedUser domain.User) (domain.User, error) {
