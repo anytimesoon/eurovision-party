@@ -23,15 +23,39 @@ func All(writer http.ResponseWriter, req *http.Request) {
 
 func FindOne(writer http.ResponseWriter, req *http.Request) {
 	params := mux.Vars(req)
-	userName := params["name"]
+	userSlug := params["slug"]
 
-	partialUser := domain.User{Name: userName}
+	partialUser := domain.User{Slug: userSlug}
 	user, err := dao.User(partialUser)
 	if err != nil {
-		log.Printf("FAILED to find %s", userName)
+		log.Printf("FAILED to find %s", userSlug)
 	}
 
 	json.NewEncoder(writer).Encode(user)
+}
+
+func Create(writer http.ResponseWriter, req *http.Request) {
+	var receivedUser domain.User
+
+	body, err := ioutil.ReadAll(req.Body)
+	if err != nil {
+		log.Println("FAILED to read body of USER CREATE!", err)
+		return
+	}
+
+	err = json.Unmarshal(body, &receivedUser)
+	if err != nil {
+		log.Println("FAILED to unmarshal json!", err)
+		return
+	}
+
+	newUser, err := dao.CreateUser(receivedUser)
+	if err != nil {
+		log.Println("FAILED to create new user", err)
+		return
+	}
+
+	json.NewEncoder(writer).Encode(newUser)
 }
 
 func Update(writer http.ResponseWriter, req *http.Request) {
@@ -39,13 +63,13 @@ func Update(writer http.ResponseWriter, req *http.Request) {
 
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
-		log.Println("FAILED to read body of USER UPDATE!")
+		log.Println("FAILED to read body of USER UPDATE!", err)
 		return
 	}
 
 	err = json.Unmarshal(body, &receivedUser)
 	if err != nil {
-		log.Println("FAILED to unmarshal json!")
+		log.Println("FAILED to unmarshal json!", err)
 		return
 	}
 

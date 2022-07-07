@@ -4,8 +4,10 @@ import (
 	"context"
 	db "eurovision/db"
 	domain "eurovision/pkg/domain"
+	"eurovision/pkg/utils"
 	"fmt"
 	"log"
+	"strconv"
 	"time"
 
 	"github.com/google/uuid"
@@ -52,7 +54,7 @@ func User(user domain.User) (domain.User, error) {
 	ctx, cancelFunc := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancelFunc()
 
-	query := fmt.Sprintf(`SELECT * FROM user WHERE name = '%s'`, user.Name)
+	query := fmt.Sprintf(`SELECT * FROM user WHERE slug = '%s'`, user.Slug)
 	stmt, err := db.Conn.PrepareContext(ctx, query)
 	if err != nil {
 		log.Printf("Error %s when preparing SQL statement", err)
@@ -68,6 +70,42 @@ func User(user domain.User) (domain.User, error) {
 	}
 
 	return domain.User{UUID: userID, Name: userName, Slug: userSlug, AuthLvl: authLvl, Icon: icon}, nil
+}
+
+func CreateUser(receivedUser domain.User) (domain.User, error) {
+	ctx, cancelFunc := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancelFunc()
+
+	receivedUser.Slug = utils.Slugify(receivedUser.Name)
+
+	query := fmt.Sprintf(`INSERT INTO user(uuid, name, slug, authLvl, icon) VALUES ('%s', '%s', '%s', '%s', '')`, uuid.New().String(), receivedUser.Name, receivedUser.Slug, strconv.Itoa(int(receivedUser.AuthLvl)))
+	stmt, err := db.Conn.PrepareContext(ctx, query)
+	if err != nil {
+		log.Printf("Error %s when preparing SQL statement", err)
+		return receivedUser, err
+	}
+
+	res, err := stmt.ExecContext(ctx)
+	if err != nil {
+		log.Printf("sql execution FAILED! User was not created. %s", err)
+		return receivedUser, err
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		log.Printf("Error %s when finding rows affected", err)
+		return receivedUser, err
+	}
+
+	log.Println("User rows affected:", rowsAffected)
+
+	newUser, err := User(receivedUser)
+	if err != nil {
+		log.Printf("FAILED to find %s in database %s", receivedUser.Name, err)
+		return receivedUser, err
+	}
+
+	return newUser, nil
 }
 
 func UsersUpdate(user domain.User, receivedUser domain.User) (domain.User, error) {
@@ -92,7 +130,13 @@ func UsersUpdate(user domain.User, receivedUser domain.User) (domain.User, error
 		log.Printf("Error %s when finding rows affected", err)
 		return user, err
 	}
-
 	log.Println("User rows affected:", rowsAffected)
-	return receivedUser, nil
+
+	newUser, err := User(receivedUser)
+	if err != nil {
+		log.Printf("FAILED to find %s in database %s", receivedUser.Name, err)
+		return receivedUser, err
+	}
+
+	return newUser, nil
 }

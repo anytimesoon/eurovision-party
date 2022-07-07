@@ -24,6 +24,7 @@ func Start() {
 	// User
 	router.HandleFunc("/user", users.All).Methods(http.MethodGet)
 	router.HandleFunc("/user", users.Update).Methods(http.MethodPut)
+	router.HandleFunc("/user/new", users.Create).Methods((http.MethodPost))
 	router.HandleFunc("/user/{slug}", users.FindOne).Methods(http.MethodGet)
 
 	router.Use(addHeaders, logging)
