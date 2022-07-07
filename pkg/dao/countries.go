@@ -39,12 +39,12 @@ func Countries() ([]domain.Country, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		err = rows.Scan(&countryID, &countryName, &bandName, &songName, &flag, &participating)
+		err = rows.Scan(&countryID, &countryName, &countrySlug, &bandName, &songName, &flag, &participating)
 		if err != nil {
 			log.Println("scan FAILED!")
 			return countries, err
 		}
-		countries = append(countries, domain.Country{UUID: countryID, Name: countryName, Flag: flag})
+		countries = append(countries, domain.Country{UUID: countryID, Name: countryName, Flag: flag, Slug: countrySlug})
 	}
 
 	return countries, nil
