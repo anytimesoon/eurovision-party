@@ -15,24 +15,28 @@ func Start() {
 	mime.AddExtensionType(".js", "application/javascript")
 
 	router := mux.NewRouter()
+	router.Use(addHeaders, logging)
+
+	homeRouter := router.PathPrefix("/").Subrouter()
+	homeRouter.HandleFunc("/", countries.All).Methods(http.MethodGet)
 
 	// Country
-	router.HandleFunc("/", countries.All).Methods(http.MethodGet)
-	router.HandleFunc("/country", countries.Update).Methods(http.MethodPut)
-	router.HandleFunc("/country/{slug}", countries.FindOne).Methods(http.MethodGet)
+	countryRouter := router.PathPrefix("/country").Subrouter()
+	countryRouter.HandleFunc("/", countries.Update).Methods(http.MethodPut)
+	countryRouter.HandleFunc("/{slug}", countries.FindOne).Methods(http.MethodGet)
 
 	// User
-	router.HandleFunc("/user", users.All).Methods(http.MethodGet)
-	router.HandleFunc("/user", users.Update).Methods(http.MethodPut)
-	router.HandleFunc("/user/new", users.Create).Methods((http.MethodPost))
-	router.HandleFunc("/user/{slug}", users.FindOne).Methods(http.MethodGet)
-
-	router.Use(addHeaders, logging)
+	userRouter := router.PathPrefix("/user").Subrouter()
+	userRouter.HandleFunc("/", users.All).Methods(http.MethodGet)
+	userRouter.HandleFunc("/", users.Update).Methods(http.MethodPut)
+	userRouter.HandleFunc("/new", users.Create).Methods((http.MethodPost))
+	userRouter.HandleFunc("/{slug}", users.FindOne).Methods(http.MethodGet)
+	userRouter.HandleFunc("/{slug}/rem", users.RemoveUser).Methods(http.MethodDelete)
 
 	headersOk := handlers.AllowedHeaders([]string{"Content-type", "Authorization", "Origin", "Access-Control-Allow-Origin", "Accept", "Options", "X-Requested-With"})
 	originsOk := handlers.AllowedOrigins([]string{"*"})
 	methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
 
 	log.Println("Server listening on port 8080")
-	log.Fatal(http.ListenAndServe(":8080", handlers.CORS(originsOk, headersOk, methodsOk)(router))) //keeps the server alive on port 8080
+	log.Fatal(http.ListenAndServe(":8080", handlers.CORS(headersOk, originsOk, methodsOk)(router))) //keeps the server alive on port 8080
 }
