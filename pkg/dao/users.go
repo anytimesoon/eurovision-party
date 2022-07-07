@@ -96,7 +96,6 @@ func CreateUser(receivedUser domain.User) (domain.User, error) {
 		log.Printf("Error %s when finding rows affected", err)
 		return receivedUser, err
 	}
-
 	log.Println("User rows affected:", rowsAffected)
 
 	newUser, err := User(receivedUser)
@@ -139,4 +138,31 @@ func UsersUpdate(user domain.User, receivedUser domain.User) (domain.User, error
 	}
 
 	return newUser, nil
+}
+
+func UserDelete(receivedUser domain.User) (domain.User, error) {
+	ctx, cancelFunc := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancelFunc()
+
+	query := fmt.Sprintf(`DELETE FROM user WHERE slug = '%s'`, receivedUser.Slug)
+	stmt, err := db.Conn.PrepareContext(ctx, query)
+	if err != nil {
+		log.Printf("Error %s when preparing SQL statement", err)
+		return receivedUser, err
+	}
+
+	res, err := stmt.ExecContext(ctx)
+	if err != nil {
+		log.Printf("sql execution FAILED! User was not created. %s", err)
+		return receivedUser, err
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		log.Printf("Error %s when finding rows affected", err)
+		return receivedUser, err
+	}
+	log.Println("User rows affected:", rowsAffected)
+
+	return receivedUser, nil
 }

@@ -85,3 +85,16 @@ func Update(writer http.ResponseWriter, req *http.Request) {
 
 	json.NewEncoder(writer).Encode(updatedUser)
 }
+
+func RemoveUser(writer http.ResponseWriter, req *http.Request) {
+	params := mux.Vars(req)
+	userSlug := params["slug"]
+
+	partialUser := domain.User{Slug: userSlug}
+	user, err := dao.UserDelete(partialUser)
+	if err != nil {
+		log.Printf("FAILED to find %s", userSlug)
+	}
+
+	json.NewEncoder(writer).Encode(user)
+}
