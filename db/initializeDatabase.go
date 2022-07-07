@@ -6,7 +6,6 @@ import (
 	data "eurovision/initialData"
 	"fmt"
 	"log"
-	"strings"
 	"time"
 )
 
@@ -46,12 +45,6 @@ func Start() {
 	}
 
 	Conn = sqlDb
-}
-
-func slugify(name string) string {
-	splitName := strings.Split(name, " ")
-	slug := strings.Join(splitName, "-")
-	return slug
 }
 
 func dsn(dbName string) string {
