@@ -35,7 +35,12 @@ func Start() {
 
 	err = AddAdminUser(sqlDb)
 	if err != nil {
-		log.Panicf("FAILED to add countries %s", err)
+		log.Panicf("FAILED to add admin user %s", err)
+	}
+
+	err = CreateCommentsTable(sqlDb)
+	if err != nil {
+		log.Panicf("FAILED to create comment table %s", err)
 	}
 
 	Conn = sqlDb
