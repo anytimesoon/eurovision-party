@@ -1,12 +1,22 @@
-package initialData
+package db
 
 import (
-	domain "eurovision/pkg/domain"
-
 	_ "github.com/go-sql-driver/mysql"
 )
 
-var InitCountries = []domain.Country{
+const (
+	Username string = "eurovision"
+	Password string = "P,PO)+{l4!C{ff"
+	Hostname string = "127.0.0.1:3306"
+	DBName   string = "eurovision"
+)
+
+type initialCountryParams struct {
+	Name string
+	Flag string
+}
+
+var InitCountries = []initialCountryParams{
 	{
 		Name: "Italy",
 		Flag: "🇮🇹",
@@ -168,10 +178,3 @@ var InitCountries = []domain.Country{
 		Flag: "🇨🇿",
 	},
 }
-
-const (
-	Username string = "eurovision"
-	Password string = "P,PO)+{l4!C{ff"
-	Hostname string = "127.0.0.1:3306"
-	DBName   string = "eurovision"
-)

@@ -3,7 +3,6 @@ package db
 import (
 	"context"
 	"database/sql"
-	data "eurovision/initialData"
 	"eurovision/pkg/utils"
 	"log"
 	"time"
@@ -53,7 +52,7 @@ func AddCountries(db *sql.DB) error {
 	}
 	defer stmt.Close()
 
-	for _, country := range data.InitCountries {
+	for _, country := range InitCountries {
 		slug := utils.Slugify(country.Name)
 		newId, err := uuid.NewUUID()
 		if err != nil {
@@ -71,7 +70,7 @@ func AddCountries(db *sql.DB) error {
 			log.Printf("Error %s when finding rows affected", err)
 			return err
 		}
-		log.Printf("id: %s, flag: %s, name: %s, slug: %s, participating: %t, songName: %s, bandName: %s, created %d time", newId.String(), country.Flag, country.Name, slug, country.Participating, country.SongName, country.BandName, rows)
+		log.Printf("id: %s, flag: %s, name: %s, slug: %s, participating: '', songName: '', bandName: '', created %d time", newId.String(), country.Flag, country.Name, slug, rows)
 	}
 
 	return nil

@@ -3,7 +3,7 @@ package countries
 import (
 	"encoding/json"
 	"eurovision/pkg/dao"
-	"eurovision/pkg/domain"
+	dto "eurovision/pkg/dto"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -12,30 +12,47 @@ import (
 )
 
 func All(writer http.ResponseWriter, req *http.Request) {
-	countries, err := dao.Countries()
+	countriesDAO, err := dao.Countries()
 	if err != nil {
 		log.Println("home FAILED!")
 		return
 	}
 
-	json.NewEncoder(writer).Encode(countries)
+	countriesDTO := dto.Countries{
+		Success: true,
+		Message: "",
+	}
+
+	for _, country := range countriesDAO {
+		countriesDTO.Data = append(countriesDTO.Data, dto.CountryData{ID: country.UUID, Flag: country.Flag, Name: country.Name, Slug: country.Slug, BandName: country.BandName, SongName: country.SongName, Participating: country.Participating})
+	}
+
+	json.NewEncoder(writer).Encode(countriesDTO)
 }
 
 func FindOne(writer http.ResponseWriter, req *http.Request) {
 	params := mux.Vars(req)
 	countrySlug := params["slug"]
 
-	partialCountry := domain.Country{Slug: countrySlug}
-	country, err := dao.Country(partialCountry)
+	var countryDTO dto.Country
+	countryDTO.Data.Slug = countrySlug
+
+	country, err := dao.SingleCountry(countryDTO)
 	if err != nil {
 		log.Printf("FAILED to find %s", countrySlug)
 	}
 
-	json.NewEncoder(writer).Encode(country)
+	countryDTO = dto.Country{
+		Success: true,
+		Message: "",
+		Data:    dto.CountryData{ID: country.UUID, Flag: country.Flag, Name: country.Name, Slug: country.Slug, BandName: country.BandName, SongName: country.SongName, Participating: country.Participating},
+	}
+
+	json.NewEncoder(writer).Encode(countryDTO)
 }
 
 func Update(writer http.ResponseWriter, req *http.Request) {
-	var receivedCountry domain.Country
+	var countryDTO dto.Country
 
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
@@ -43,21 +60,27 @@ func Update(writer http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	err = json.Unmarshal(body, &receivedCountry)
+	err = json.Unmarshal(body, &countryDTO.Data)
 	if err != nil {
 		log.Println("FAILED to unmarshal json!")
 		return
 	}
 
-	country, err := dao.Country(receivedCountry)
+	countryDAO, err := dao.SingleCountry(countryDTO)
 	if err != nil {
-		log.Printf("FAILED to find %s", receivedCountry.Name)
+		log.Printf("FAILED to find %s", countryDTO.Data.Name)
 	}
 
-	updatedCountry, err := dao.CountriesUpdate(country, receivedCountry)
+	countryDAO, err = dao.CountriesUpdate(countryDAO, countryDTO)
 	if err != nil {
-		log.Printf("FAILED to update %s", receivedCountry.Name)
+		log.Printf("FAILED to update %s", countryDTO.Data.Name)
 	}
 
-	json.NewEncoder(writer).Encode(updatedCountry)
+	countryDTO = dto.Country{
+		Success: true,
+		Message: "",
+		Data:    dto.CountryData{ID: countryDAO.UUID, Flag: countryDAO.Flag, Name: countryDAO.Name, Slug: countryDAO.Slug, BandName: countryDAO.BandName, SongName: countryDAO.SongName, Participating: countryDAO.Participating},
+	}
+
+	json.NewEncoder(writer).Encode(countryDTO)
 }
