@@ -4,6 +4,7 @@ import (
 	"eurovision/pkg/routes/comments"
 	"eurovision/pkg/routes/countries"
 	"eurovision/pkg/routes/users"
+	"eurovision/pkg/routes/votes"
 	"log"
 	"mime"
 	"net/http"
@@ -39,6 +40,10 @@ func Start() {
 	commentRouter.HandleFunc("/", comments.All).Methods(http.MethodGet)
 	commentRouter.HandleFunc("/new", comments.Create).Methods((http.MethodPost))
 	// commentRouter.HandleFunc("/{uuid}/rem", comments.RemoveComment).Methods(http.MethodDelete)
+
+	// Vote
+	voteRouter := router.PathPrefix("/vote").Subrouter()
+	voteRouter.HandleFunc("/new", votes.Create).Methods(http.MethodPost)
 
 	headersOk := handlers.AllowedHeaders([]string{"Content-type", "Authorization", "Origin", "Access-Control-Allow-Origin", "Accept", "Options", "X-Requested-With"})
 	originsOk := handlers.AllowedOrigins([]string{"*"})

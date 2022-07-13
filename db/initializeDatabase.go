@@ -43,6 +43,11 @@ func Start() {
 		log.Panicf("FAILED to create comment table %s", err)
 	}
 
+	err = CreateVotesTable(sqlDb)
+	if err != nil {
+		log.Panicf("FAILED to create vote table %s", err)
+	}
+
 	Conn = sqlDb
 }
 
