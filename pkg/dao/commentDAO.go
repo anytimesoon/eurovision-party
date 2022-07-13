@@ -99,7 +99,7 @@ func CreateComment(commentDTO dto.Comment) (Comment, error) {
 		log.Printf("Error %s when finding rows affected", err)
 		return commentDAO, err
 	}
-	log.Println("User rows affected:", rowsAffected)
+	log.Println("Comment rows affected:", rowsAffected)
 
 	newComment, err := SingleComment(newUUID)
 	if err != nil {
