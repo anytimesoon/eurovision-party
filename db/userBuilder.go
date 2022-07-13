@@ -19,7 +19,7 @@ func CreateUsersTable(db *sql.DB) error {
 		log.Printf("Error %s when dropping user table", err)
 		return err
 	}
-	log.Println("User table was dropped")
+	log.Printf("%d table was dropped", res)
 
 	// TODO add default value to icon
 	query = `CREATE TABLE user(uuid char(36) NOT NULL, name VARCHAR(191) NOT NULL, slug VARCHAR(191) NOT NULL, authLvl TINYINT DEFAULT 0, icon VARCHAR(191));`
