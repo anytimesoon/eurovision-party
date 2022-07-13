@@ -1,7 +1,7 @@
 # TODO
 
-- refactor to separate DTO from DAO
-- comment CRUD
 - vote CRUD
+- testing
 - Authentication
 - Authorization
+- validations
