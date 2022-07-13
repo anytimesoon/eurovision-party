@@ -38,3 +38,37 @@ func Create(writer http.ResponseWriter, req *http.Request) {
 
 	json.NewEncoder(writer).Encode(voteDTO)
 }
+
+func Update(writer http.ResponseWriter, req *http.Request) {
+	var voteDTO dto.Vote
+
+	body, err := ioutil.ReadAll(req.Body)
+	if err != nil {
+		log.Println("FAILED to read body of VOTE UPDATE!", err)
+		return
+	}
+
+	err = json.Unmarshal(body, &voteDTO)
+	if err != nil {
+		log.Println("FAILED to unmarshal json!", err)
+		return
+	}
+
+	voteDAO, err := dao.SingleVote(voteDTO.Data.UUID)
+	if err != nil {
+		log.Printf("FAILED to find vote %s", voteDTO.Data.UUID.String())
+	}
+
+	voteDAO, err = dao.UpdateVote(voteDAO, voteDTO)
+	if err != nil {
+		log.Printf("FAILED to update vote %s", voteDTO.Data.UUID.String())
+	}
+
+	voteDTO = dto.Vote{
+		Success: true,
+		Message: "",
+		Data:    dto.VoteData{UUID: voteDAO.UUID, UserId: voteDAO.UserId, CountryId: voteDAO.CountryId, Costume: voteDAO.Costume, Song: voteDAO.Song, Performance: voteDAO.Performance, Props: voteDAO.Props},
+	}
+
+	json.NewEncoder(writer).Encode(voteDTO)
+}
