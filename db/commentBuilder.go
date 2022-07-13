@@ -18,7 +18,7 @@ func CreateCommentsTable(db *sql.DB) error {
 	}
 	log.Printf("%d table was dropped", res)
 
-	query = `CREATE TABLE comment(uuid CHAR(36) NOT NULL, userId CHAR(36) NOT NULL, text VARCHAR(191) NOT NULL);`
+	query = `CREATE TABLE comment(uuid CHAR(36) NOT NULL, userId CHAR(36) NOT NULL, text VARCHAR(191) NOT NULL, createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP);`
 	ctx, cancelfunc = context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancelfunc()
 	res, err = db.ExecContext(ctx, query)

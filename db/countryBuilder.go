@@ -70,7 +70,7 @@ func AddCountries(db *sql.DB) error {
 			log.Printf("Error %s when finding rows affected", err)
 			return err
 		}
-		log.Printf("id: %s, flag: %s, name: %s, slug: %s, participating: '', songName: '', bandName: '', created %d time", newId.String(), country.Flag, country.Name, slug, rows)
+		log.Printf("%+v, created %d time", country, rows)
 	}
 
 	return nil

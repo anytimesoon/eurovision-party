@@ -47,7 +47,7 @@ func Start() {
 }
 
 func dsn(dbName string) string {
-	return fmt.Sprintf("%s:%s@tcp(%s)/%s", Username, Password, Hostname, DBName)
+	return fmt.Sprintf("%s:%s@tcp(%s)/%s?parseTime=true", Username, Password, Hostname, DBName)
 }
 
 func connect() (*sql.DB, error) {

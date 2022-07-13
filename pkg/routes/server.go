@@ -37,9 +37,8 @@ func Start() {
 	// Comment
 	commentRouter := router.PathPrefix("/comment").Subrouter()
 	commentRouter.HandleFunc("/", comments.All).Methods(http.MethodGet)
-	// commentRouter.HandleFunc("/new", comments.Create).Methods((http.MethodPost))
-	// commentRouter.HandleFunc("/{slug}", comments.FindOne).Methods(http.MethodGet)
-	// commentRouter.HandleFunc("/{slug}/rem", comments.RemoveUser).Methods(http.MethodDelete)
+	commentRouter.HandleFunc("/new", comments.Create).Methods((http.MethodPost))
+	// commentRouter.HandleFunc("/{uuid}/rem", comments.RemoveComment).Methods(http.MethodDelete)
 
 	headersOk := handlers.AllowedHeaders([]string{"Content-type", "Authorization", "Origin", "Access-Control-Allow-Origin", "Accept", "Options", "X-Requested-With"})
 	originsOk := handlers.AllowedOrigins([]string{"*"})

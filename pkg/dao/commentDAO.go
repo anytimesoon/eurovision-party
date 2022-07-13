@@ -3,6 +3,7 @@ package dao
 import (
 	"context"
 	db "eurovision/db"
+	"eurovision/pkg/dto"
 	"fmt"
 	"log"
 	"time"
@@ -11,9 +12,10 @@ import (
 )
 
 type Comment struct {
-	UUID   uuid.UUID `json:"id"`
-	UserId uuid.UUID `json:"userId"`
-	Text   string    `json:"text"`
+	UUID      uuid.UUID `json:"id"`
+	UserId    uuid.UUID `json:"userId"`
+	Text      string    `json:"text"`
+	CreatedAt time.Time `json:"createdAt"`
 }
 
 func Comments() ([]Comment, error) {
@@ -37,7 +39,7 @@ func Comments() ([]Comment, error) {
 
 	for rows.Next() {
 		var comment Comment
-		err = rows.Scan(&comment.UUID, &comment.UserId, &comment.Text)
+		err = rows.Scan(&comment.UUID, &comment.UserId, &comment.Text, &comment.CreatedAt)
 		if err != nil {
 			log.Println("scan FAILED!")
 			return comments, err
@@ -46,4 +48,64 @@ func Comments() ([]Comment, error) {
 	}
 
 	return comments, nil
+}
+
+func SingleComment(uuid uuid.UUID) (Comment, error) {
+	ctx, cancelFunc := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancelFunc()
+
+	var commentDAO Comment
+
+	query := fmt.Sprintf(`SELECT * FROM comment WHERE uuid = '%s'`, uuid.String())
+	stmt, err := db.Conn.PrepareContext(ctx, query)
+	if err != nil {
+		log.Printf("Error %s when preparing SQL statement", err)
+		return commentDAO, err
+	}
+
+	row := stmt.QueryRowContext(ctx)
+
+	err = row.Scan(&commentDAO.UUID, &commentDAO.UserId, &commentDAO.Text, &commentDAO.CreatedAt)
+	if err != nil {
+		log.Printf("scan FAILED! %s", err)
+		return commentDAO, err
+	}
+
+	return commentDAO, nil
+}
+
+func CreateComment(commentDTO dto.Comment) (Comment, error) {
+	ctx, cancelFunc := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancelFunc()
+
+	var commentDAO Comment
+	newUUID := uuid.New()
+
+	query := fmt.Sprintf(`INSERT INTO comment(uuid, userId, text) VALUES ('%s', '%s', '%s')`, newUUID.String(), commentDTO.Data.UserId, commentDTO.Data.Text)
+	stmt, err := db.Conn.PrepareContext(ctx, query)
+	if err != nil {
+		log.Printf("Error %s when preparing SQL statement", err)
+		return commentDAO, err
+	}
+
+	res, err := stmt.ExecContext(ctx)
+	if err != nil {
+		log.Printf("sql execution FAILED! Comment was not created. %s", err)
+		return commentDAO, err
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		log.Printf("Error %s when finding rows affected", err)
+		return commentDAO, err
+	}
+	log.Println("User rows affected:", rowsAffected)
+
+	newComment, err := SingleComment(newUUID)
+	if err != nil {
+		log.Printf("FAILED to find comment %s in database %s", newUUID, err)
+		return commentDAO, err
+	}
+
+	return newComment, nil
 }
