@@ -12,10 +12,10 @@ import (
 )
 
 type Comment struct {
-	UUID      uuid.UUID `json:"id"`
-	UserId    uuid.UUID `json:"userId"`
-	Text      string    `json:"text"`
-	CreatedAt time.Time `json:"createdAt"`
+	UUID      uuid.UUID `db:"uuid"`
+	UserId    uuid.UUID `db:"userId"`
+	Text      string    `db:"text"`
+	CreatedAt time.Time `db:"createdAt"`
 }
 
 func Comments() ([]Comment, error) {

@@ -13,11 +13,11 @@ import (
 )
 
 type User struct {
-	UUID    uuid.UUID `json:"id"`
-	AuthLvl AuthLvl   `json:"authLvl"`
-	Name    string    `json:"name"`
-	Slug    string    `json:"slug"`
-	Icon    string    `json:"icon"`
+	UUID    uuid.UUID `db:"uuid"`
+	AuthLvl AuthLvl   `db:"authLvl"`
+	Name    string    `db:"name"`
+	Slug    string    `db:"slug"`
+	Icon    string    `db:"icon"`
 }
 
 type AuthLvl int

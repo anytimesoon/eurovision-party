@@ -12,13 +12,13 @@ import (
 )
 
 type Country struct {
-	UUID          uuid.UUID `json:"id"`
-	Name          string    `json:"name"`
-	Slug          string    `json:"slug"`
-	BandName      string    `json:"bandName"`
-	SongName      string    `json:"songName"`
-	Flag          string    `json:"flag"`
-	Participating bool      `json:"participating"`
+	UUID          uuid.UUID `db:"uuid"`
+	Name          string    `db:"name"`
+	Slug          string    `db:"slug"`
+	BandName      string    `db:"bandName"`
+	SongName      string    `db:"songName"`
+	Flag          string    `db:"flag"`
+	Participating bool      `db:"participating"`
 }
 
 func Countries() ([]Country, error) {

@@ -13,7 +13,7 @@ func CreateCommentsTable(db *sql.DB) error {
 	defer cancelfunc()
 	res, err := db.ExecContext(ctx, query)
 	if err != nil {
-		log.Printf("Error %s when creating country table", err)
+		log.Printf("Error %s when creating comment table", err)
 		return err
 	}
 	log.Printf("%d table was dropped", res)
@@ -33,6 +33,6 @@ func CreateCommentsTable(db *sql.DB) error {
 		return err
 	}
 
-	log.Printf("Rows affected when creating countries table: %d", rows)
+	log.Printf("Rows affected when creating comment table: %d", rows)
 	return nil
 }
