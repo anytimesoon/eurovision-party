@@ -1,19 +1,22 @@
 package main
 
 import (
-	db "eurovision/db"
+	"database/sql"
+	initializer "eurovision/db"
 	"eurovision/pkg/routes"
 	"log"
 )
 
-func init() {
-	db.Start()
-	log.Println("Database migrations complete")
-}
+var db sql.DB
 
 func main() {
-	log.Println("Starting server")
-	routes.Start()
+	log.Println("Starting application")
+	db := initializer.StartMigrations()
+	log.Println("Database migrations complete")
 
-	db.Conn.Close()
+	log.Println("Starting server")
+	routes.StartServer(&db)
+
+	db.Close()
+	log.Println("Application closed")
 }

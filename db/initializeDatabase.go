@@ -2,15 +2,14 @@ package db
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"log"
 	"time"
+
+	"github.com/jmoiron/sqlx"
 )
 
-var Conn *sql.DB
-
-func Start() {
+func StartMigrations() sqlx.DB {
 	sqlDb, err := connect()
 	if err != nil {
 		log.Panicf("Error %s when getting db connection", err)
@@ -28,35 +27,35 @@ func Start() {
 		log.Panicf("FAILED to add countries %s", err)
 	}
 
-	err = CreateUsersTable(sqlDb)
-	if err != nil {
-		log.Panicf("FAILED to create user table %s", err)
-	}
+	// err = CreateUsersTable(sqlDb)
+	// if err != nil {
+	// 	log.Panicf("FAILED to create user table %s", err)
+	// }
 
-	err = AddAdminUser(sqlDb)
-	if err != nil {
-		log.Panicf("FAILED to add admin user %s", err)
-	}
+	// err = AddAdminUser(sqlDb)
+	// if err != nil {
+	// 	log.Panicf("FAILED to add admin user %s", err)
+	// }
 
-	err = CreateCommentsTable(sqlDb)
-	if err != nil {
-		log.Panicf("FAILED to create comment table %s", err)
-	}
+	// err = CreateCommentsTable(sqlDb)
+	// if err != nil {
+	// 	log.Panicf("FAILED to create comment table %s", err)
+	// }
 
-	err = CreateVotesTable(sqlDb)
-	if err != nil {
-		log.Panicf("FAILED to create vote table %s", err)
-	}
+	// err = CreateVotesTable(sqlDb)
+	// if err != nil {
+	// 	log.Panicf("FAILED to create vote table %s", err)
+	// }
 
-	Conn = sqlDb
+	return *sqlDb
 }
 
 func dsn(dbName string) string {
 	return fmt.Sprintf("%s:%s@tcp(%s)/%s?parseTime=true", Username, Password, Hostname, DBName)
 }
 
-func connect() (*sql.DB, error) {
-	db, err := sql.Open("mysql", dsn(""))
+func connect() (*sqlx.DB, error) {
+	db, err := sqlx.Open("mysql", dsn(""))
 	if err != nil {
 		log.Printf("Error %s when opening DB\n", err)
 		return nil, err
@@ -79,7 +78,7 @@ func connect() (*sql.DB, error) {
 	}
 	log.Printf("Rows affected %d\n", rows)
 
-	db, err = sql.Open("mysql", dsn(DBName))
+	db, err = sqlx.Open("mysql", dsn(DBName))
 	if err != nil {
 		log.Printf("Error %s when opening DB", err)
 		return nil, err

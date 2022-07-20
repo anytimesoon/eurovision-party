@@ -2,15 +2,15 @@ package db
 
 import (
 	"context"
-	"database/sql"
 	"eurovision/pkg/utils"
 	"log"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jmoiron/sqlx"
 )
 
-func CreateCountriesTable(db *sql.DB) error {
+func CreateCountriesTable(db *sqlx.DB) error {
 	query := `DROP TABLE IF EXISTS country;`
 	ctx, cancelfunc := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancelfunc()
@@ -40,7 +40,7 @@ func CreateCountriesTable(db *sql.DB) error {
 	return nil
 }
 
-func AddCountries(db *sql.DB) error {
+func AddCountries(db *sqlx.DB) error {
 	ctx, cancelfunc := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancelfunc()
 
