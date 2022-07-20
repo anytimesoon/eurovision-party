@@ -18,7 +18,7 @@ func StartServer(db *sqlx.DB) {
 
 	// // Country
 	countryRepositoryDb := domain.NewCountryRepositoryDb(db)
-	countryHandler := handler.CountryHandler{service.NewCountryService(countryRepositoryDb)}
+	countryHandler := handler.CountryHandler{Service: service.NewCountryService(countryRepositoryDb)}
 
 	countryRouter := router.PathPrefix("/country").Subrouter()
 	countryRouter.HandleFunc("/", countryHandler.FindAllCountries).Methods(http.MethodGet)
