@@ -8,7 +8,7 @@ import (
 
 func init() {
 	db.Start()
-	log.Println("Database initialization complete")
+	log.Println("Database migrations complete")
 }
 
 func main() {

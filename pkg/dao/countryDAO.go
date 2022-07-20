@@ -2,7 +2,7 @@ package dao
 
 import (
 	"context"
-	db "eurovision/db"
+	"database/sql"
 	"eurovision/pkg/dto"
 	"fmt"
 	"log"
@@ -21,12 +21,12 @@ type Country struct {
 	Participating bool      `db:"participating"`
 }
 
-func Countries() ([]Country, error) {
+func Countries(dbc *sql.DB) ([]Country, error) {
 	var countries []Country
 	ctx, cancelFunc := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancelFunc()
 
-	stmt, err := db.Conn.PrepareContext(ctx, "SELECT * FROM country")
+	stmt, err := dbc.PrepareContext(ctx, "SELECT * FROM country")
 	if err != nil {
 		fmt.Println("FAILED to build query!")
 		return countries, err
@@ -53,13 +53,13 @@ func Countries() ([]Country, error) {
 	return countries, nil
 }
 
-func SingleCountry(countryDTO dto.Country) (Country, error) {
+func SingleCountry(countryDTO dto.Country, dbc *sql.DB) (Country, error) {
 	ctx, cancelFunc := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancelFunc()
 	var countryDAO Country
 
 	query := fmt.Sprintf(`SELECT * FROM country WHERE slug = '%s'`, countryDTO.Data.Slug)
-	stmt, err := db.Conn.PrepareContext(ctx, query)
+	stmt, err := dbc.PrepareContext(ctx, query)
 	if err != nil {
 		log.Printf("Error %s when preparing SQL statement", err)
 		return countryDAO, err
@@ -76,12 +76,12 @@ func SingleCountry(countryDTO dto.Country) (Country, error) {
 	return countryDAO, nil
 }
 
-func CountriesUpdate(countryDAO Country, countryDTO dto.Country) (Country, error) {
+func CountriesUpdate(countryDAO Country, countryDTO dto.Country, dbc *sql.DB) (Country, error) {
 	ctx, cancelFunc := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancelFunc()
 
 	query := fmt.Sprintf(`UPDATE country SET bandName = '%s', songName = '%s', participating = %t WHERE uuid = '%s'`, countryDTO.Data.BandName, countryDTO.Data.SongName, countryDTO.Data.Participating, countryDTO.Data.ID.String())
-	stmt, err := db.Conn.PrepareContext(ctx, query)
+	stmt, err := dbc.PrepareContext(ctx, query)
 	if err != nil {
 		log.Printf("Error %s when preparing SQL statement", err)
 		return countryDAO, err
@@ -99,7 +99,7 @@ func CountriesUpdate(countryDAO Country, countryDTO dto.Country) (Country, error
 		return countryDAO, err
 	}
 
-	countryDAO, err = SingleCountry(countryDTO)
+	countryDAO, err = SingleCountry(countryDTO, dbc)
 	if err != nil {
 		log.Printf("FAILED to find updated country %s", err)
 		return countryDAO, err
