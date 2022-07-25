@@ -1,34 +1,24 @@
 package handler
 
-// import (
-// 	"encoding/json"
-// 	"eurovision/pkg/dao"
-// 	"eurovision/pkg/dto"
-// 	"io/ioutil"
-// 	"log"
-// 	"net/http"
+import (
+	"encoding/json"
+	"eurovision/pkg/service"
+	"log"
+	"net/http"
+)
 
-// 	"github.com/gorilla/mux"
-// )
+type UserHandler struct {
+	Service service.UserService
+}
 
-// func FindAllUsers(writer http.ResponseWriter, req *http.Request) {
-// 	usersDAO, err := dao.Users()
-// 	if err != nil {
-// 		log.Println("FAILED to find all users!")
-// 		return
-// 	}
+func (uh UserHandler) FindAllUsers(resp http.ResponseWriter, req *http.Request) {
+	users, err := uh.Service.GetAllUsers()
+	if err != nil {
+		log.Println("Failed to find all users", err)
+	}
 
-// 	usersDTO := dto.Users{
-// 		Success: true,
-// 		Message: "",
-// 	}
-
-// 	for _, user := range usersDAO {
-// 		usersDTO.Data = append(usersDTO.Data, dto.UserData{UUID: user.UUID, Name: user.Name, Slug: user.Slug, Icon: user.Icon})
-// 	}
-
-// 	json.NewEncoder(writer).Encode(usersDTO)
-// }
+	json.NewEncoder(resp).Encode(users)
+}
 
 // func FindOneUser(writer http.ResponseWriter, req *http.Request) {
 // 	params := mux.Vars(req)

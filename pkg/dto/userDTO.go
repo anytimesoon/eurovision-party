@@ -1,5 +1,7 @@
 package dto
 
+import "github.com/google/uuid"
+
 // import (
 // 	"context"
 // 	db "eurovision/db"
@@ -12,20 +14,12 @@ package dto
 // 	"github.com/google/uuid"
 // )
 
-// type User struct {
-// 	UUID    uuid.UUID `db:"uuid"`
-// 	AuthLvl AuthLvl   `db:"authLvl"`
-// 	Name    string    `db:"name"`
-// 	Slug    string    `db:"slug"`
-// 	Icon    string    `db:"icon"`
-// }
-
-// type AuthLvl int
-
-// const (
-// 	None AuthLvl = iota
-// 	Admin
-// )
+type User struct {
+	UUID uuid.UUID `json:"id"`
+	Name string    `json:"name"`
+	Slug string    `json:"slug"`
+	Icon string    `json:"icon"`
+}
 
 // func Users() ([]User, error) {
 // 	var users []User
