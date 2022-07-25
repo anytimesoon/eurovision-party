@@ -1,6 +1,10 @@
 package domain
 
-import "github.com/google/uuid"
+import (
+	"eurovision/pkg/dto"
+
+	"github.com/google/uuid"
+)
 
 type Country struct {
 	UUID          uuid.UUID `db:"uuid"`
@@ -14,4 +18,21 @@ type Country struct {
 
 type CountryRepository interface {
 	FindAllCountries() ([]Country, error)
+	FindOneCountry(string) (Country, error)
+	UpdateCountry(dto.CountryData) (Country, error)
+}
+
+func (c Country) ToDto() dto.Country {
+	return dto.Country{
+		Success: true,
+		Data: dto.CountryData{
+			ID:            c.UUID,
+			Name:          c.Name,
+			Slug:          c.Slug,
+			BandName:      c.BandName,
+			SongName:      c.SongName,
+			Flag:          c.Flag,
+			Participating: c.Participating,
+		},
+	}
 }

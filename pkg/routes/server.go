@@ -22,8 +22,8 @@ func StartServer(db *sqlx.DB) {
 
 	countryRouter := router.PathPrefix("/country").Subrouter()
 	countryRouter.HandleFunc("/", countryHandler.FindAllCountries).Methods(http.MethodGet)
-	// countryRouter.HandleFunc("/", countries.Update).Methods(http.MethodPut)
-	// countryRouter.HandleFunc("/{slug}", countries.FindOne).Methods(http.MethodGet)
+	countryRouter.HandleFunc("/", countryHandler.UpdateCountry).Methods(http.MethodPut)
+	countryRouter.HandleFunc("/{slug}", countryHandler.FindOneCountry).Methods(http.MethodGet)
 
 	// // User
 	// userRouter := router.PathPrefix("/user").Subrouter()

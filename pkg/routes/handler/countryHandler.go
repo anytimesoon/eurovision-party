@@ -3,75 +3,48 @@ package handler
 import (
 	"encoding/json"
 	"eurovision/pkg/service"
+	"io/ioutil"
+	"log"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 type CountryHandler struct {
 	Service service.CountryService
 }
 
-func (ch *CountryHandler) FindAllCountries(wr http.ResponseWriter, req *http.Request) {
+func (ch *CountryHandler) FindAllCountries(resp http.ResponseWriter, req *http.Request) {
 	countries, err := ch.Service.GetAllCountries()
 	if err != nil {
-		wr.WriteHeader(http.StatusNotFound)
-		json.NewEncoder(wr).Encode(countries)
-	} else {
-		json.NewEncoder(wr).Encode(countries)
+		log.Println("Failed to get all countries", err)
 	}
 
+	json.NewEncoder(resp).Encode(countries)
 }
 
-// func FindOneCountry(writer http.ResponseWriter, req *http.Request) {
-// 	params := mux.Vars(req)
-// 	countrySlug := params["slug"]
+func (ch *CountryHandler) FindOneCountry(resp http.ResponseWriter, req *http.Request) {
+	params := mux.Vars(req)
 
-// 	var countryDTO dto.Country
-// 	countryDTO.Data.Slug = countrySlug
+	country, err := ch.Service.SingleCountry(params["slug"])
+	if err != nil {
+		log.Println("Failed to get single country", err)
+	}
 
-// 	country, err := dao.SingleCountry(countryDTO, db.Conn)
-// 	if err != nil {
-// 		log.Printf("FAILED to find %s", countrySlug)
-// 	}
+	json.NewEncoder(resp).Encode(country)
+}
 
-// 	countryDTO = dto.Country{
-// 		Success: true,
-// 		Message: "",
-// 		Data:    dto.CountryData{ID: country.UUID, Flag: country.Flag, Name: country.Name, Slug: country.Slug, BandName: country.BandName, SongName: country.SongName, Participating: country.Participating},
-// 	}
+func (ch *CountryHandler) UpdateCountry(resp http.ResponseWriter, req *http.Request) {
+	body, err := ioutil.ReadAll(req.Body)
+	if err != nil {
+		log.Println("FAILED to read body of COUNTRY UPDATE!", err)
+		return
+	}
 
-// 	json.NewEncoder(writer).Encode(countryDTO)
-// }
+	country, err := ch.Service.UpdateCountry(body)
+	if err != nil {
+		log.Println("Failed to update country", err)
+	}
 
-// func UpdateCountry(writer http.ResponseWriter, req *http.Request) {
-// 	var countryDTO dto.Country
-
-// 	body, err := ioutil.ReadAll(req.Body)
-// 	if err != nil {
-// 		log.Println("FAILED to read body of COUNTRY UPDATE!")
-// 		return
-// 	}
-
-// 	err = json.Unmarshal(body, &countryDTO.Data)
-// 	if err != nil {
-// 		log.Println("FAILED to unmarshal json!")
-// 		return
-// 	}
-
-// 	countryDAO, err := dao.SingleCountry(countryDTO, db.Conn)
-// 	if err != nil {
-// 		log.Printf("FAILED to find %s", countryDTO.Data.Name)
-// 	}
-
-// 	countryDAO, err = dao.CountriesUpdate(countryDAO, countryDTO, db.Conn)
-// 	if err != nil {
-// 		log.Printf("FAILED to update %s", countryDTO.Data.Name)
-// 	}
-
-// 	countryDTO = dto.Country{
-// 		Success: true,
-// 		Message: "",
-// 		Data:    dto.CountryData{ID: countryDAO.UUID, Flag: countryDAO.Flag, Name: countryDAO.Name, Slug: countryDAO.Slug, BandName: countryDAO.BandName, SongName: countryDAO.SongName, Participating: countryDAO.Participating},
-// 	}
-
-// 	json.NewEncoder(writer).Encode(countryDTO)
-// }
+	json.NewEncoder(resp).Encode(country)
+}
