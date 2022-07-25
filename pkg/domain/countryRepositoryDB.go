@@ -43,7 +43,7 @@ func (db CountryRepositoryDb) FindOneCountry(slug string) (Country, error) {
 	return country, nil
 }
 
-func (db CountryRepositoryDb) UpdateCountry(countryDTO dto.CountryData) (Country, error) {
+func (db CountryRepositoryDb) UpdateCountry(countryDTO dto.Country) (Country, error) {
 	var country Country
 
 	query := fmt.Sprintf(`UPDATE country SET bandName = '%s', songName = '%s', participating = %t WHERE uuid = '%s'`, countryDTO.BandName, countryDTO.SongName, countryDTO.Participating, countryDTO.ID.String())

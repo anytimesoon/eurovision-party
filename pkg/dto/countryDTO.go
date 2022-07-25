@@ -4,7 +4,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type CountryData struct {
+type Country struct {
 	ID            uuid.UUID `json:"id"`
 	Name          string    `json:"name"`
 	Slug          string    `json:"slug"`
@@ -12,16 +12,4 @@ type CountryData struct {
 	SongName      string    `json:"songName"`
 	Flag          string    `json:"flag"`
 	Participating bool      `json:"participating"`
-}
-
-type Countries struct {
-	Success bool      `json:"success"`
-	Message string    `json:"message"`
-	Data    []Country `json:"data"`
-}
-
-type Country struct {
-	Success bool        `json:"success"`
-	Message string      `json:"message"`
-	Data    CountryData `json:"data"`
 }

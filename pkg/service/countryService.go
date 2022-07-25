@@ -8,7 +8,7 @@ import (
 )
 
 type CountryService interface {
-	GetAllCountries() (dto.Countries, error)
+	GetAllCountries() ([]dto.Country, error)
 	UpdateCountry([]byte) (dto.Country, error)
 	SingleCountry(string) (dto.Country, error)
 }
@@ -21,19 +21,18 @@ func NewCountryService(repo domain.CountryRepository) DefaultCountryService {
 	return DefaultCountryService{repo}
 }
 
-func (service DefaultCountryService) GetAllCountries() (dto.Countries, error) {
-	var countriesDTO dto.Countries
+func (service DefaultCountryService) GetAllCountries() ([]dto.Country, error) {
+	countriesDTO := make([]dto.Country, 0)
 
 	countryData, err := service.repo.FindAllCountries()
 	if err != nil {
-		countriesDTO.Message = err.Error()
 		return countriesDTO, err
 	}
 
 	for _, country := range countryData {
-		countriesDTO.Data = append(countriesDTO.Data, country.ToDto())
+		countriesDTO = append(countriesDTO, country.ToDto())
 	}
-	countriesDTO.Success = true
+
 	return countriesDTO, nil
 }
 
@@ -41,7 +40,6 @@ func (service DefaultCountryService) SingleCountry(slug string) (dto.Country, er
 	var countryDTO dto.Country
 	country, err := service.repo.FindOneCountry(slug)
 	if err != nil {
-		countryDTO.Message = err.Error()
 		return countryDTO, err
 	}
 
@@ -50,17 +48,15 @@ func (service DefaultCountryService) SingleCountry(slug string) (dto.Country, er
 
 func (service DefaultCountryService) UpdateCountry(body []byte) (dto.Country, error) {
 	var countryDTO dto.Country
-	err := json.Unmarshal(body, &countryDTO.Data)
+	err := json.Unmarshal(body, &countryDTO)
 	if err != nil {
 		log.Println("FAILED to unmarshal json!", err)
-		countryDTO.Message = err.Error()
 		return countryDTO, err
 	}
 
-	country, err := service.repo.UpdateCountry(countryDTO.Data)
+	country, err := service.repo.UpdateCountry(countryDTO)
 	if err != nil {
 		log.Println("FAILED to update country", err)
-		countryDTO.Message = err.Error()
 		return countryDTO, err
 	}
 
