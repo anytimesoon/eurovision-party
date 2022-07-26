@@ -33,7 +33,7 @@ func StartServer(db *sqlx.DB) {
 	userRouter.HandleFunc("/", userHandler.UpdateUser).Methods(http.MethodPut)
 	userRouter.HandleFunc("/new", userHandler.CreateUser).Methods((http.MethodPost))
 	userRouter.HandleFunc("/{slug}", userHandler.FindOneUser).Methods(http.MethodGet)
-	// userRouter.HandleFunc("/{slug}/rem", users.RemoveUser).Methods(http.MethodDelete)
+	userRouter.HandleFunc("/{slug}/rem", userHandler.RemoveUser).Methods(http.MethodDelete)
 
 	// // Comment
 	// commentRouter := router.PathPrefix("/comment").Subrouter()

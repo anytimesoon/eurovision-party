@@ -12,7 +12,7 @@ type UserService interface {
 	UpdateUser([]byte) (dto.User, error)
 	CreateUser([]byte) (dto.User, error)
 	SingleUser(string) (dto.User, error)
-	// DeleteUser(string)
+	DeleteUser(string) error
 }
 
 type DefaultUserService struct {
@@ -79,4 +79,13 @@ func (service DefaultUserService) SingleUser(slug string) (dto.User, error) {
 	}
 
 	return user.ToDto(), nil
+}
+
+func (service DefaultUserService) DeleteUser(slug string) error {
+	err := service.repo.DeleteUser(slug)
+	if err != nil {
+		log.Println("FAILED to delete user", err)
+	}
+
+	return nil
 }

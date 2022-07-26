@@ -69,6 +69,7 @@ func (db UserRepositoryDb) CreateUser(userDTO dto.User) (User, error) {
 	err = db.client.Get(&user, query)
 	if err != nil {
 		log.Printf("Error when fetching user %s after create %s", userDTO.Name, err)
+		return user, err
 	}
 
 	return user, nil
@@ -81,7 +82,22 @@ func (db UserRepositoryDb) FindOneUser(slug string) (User, error) {
 	err := db.client.Get(&user, query)
 	if err != nil {
 		log.Printf("Error when fetching user: %s", err)
+		return user, err
 	}
 
 	return user, nil
+}
+
+func (db UserRepositoryDb) DeleteUser(slug string) error {
+	var user User
+
+	query := fmt.Sprintf(`DELETE FROM user WHERE slug = '%s'`, slug)
+
+	_, err := db.client.NamedExec(query, user)
+	if err != nil {
+		log.Printf("Error when deleting user")
+		return err
+	}
+
+	return nil
 }

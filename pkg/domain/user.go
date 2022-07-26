@@ -26,7 +26,7 @@ type UserRepository interface {
 	FindOneUser(string) (User, error)
 	CreateUser(dto.User) (User, error)
 	UpdateUser(dto.User) (User, error)
-	// DeleteUser(string)
+	DeleteUser(string) error
 }
 
 func (user User) ToDto() dto.User {
