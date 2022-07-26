@@ -2,9 +2,11 @@ package domain
 
 import (
 	"eurovision/pkg/dto"
+	"eurovision/pkg/utils"
 	"fmt"
 	"log"
 
+	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -45,6 +47,40 @@ func (db UserRepositoryDb) UpdateUser(userDTO dto.User) (User, error) {
 	if err != nil {
 		log.Printf("Error while fetching user %s after update %s", userDTO.Name, err)
 		return user, err
+	}
+
+	return user, nil
+}
+
+func (db UserRepositoryDb) CreateUser(userDTO dto.User) (User, error) {
+	var user User
+
+	slug := utils.Slugify(userDTO.Name)
+
+	query := fmt.Sprintf(`INSERT INTO user(uuid, name, slug, authLvl, icon) VALUES ('%s', '%s', '%s', 0, '')`, uuid.New().String(), userDTO.Name, slug)
+
+	_, err := db.client.NamedExec(query, user)
+	if err != nil {
+		log.Printf("Error when creating new user %s, %s", userDTO.Name, err)
+		return user, err
+	}
+
+	query = fmt.Sprintf(`SELECT * FROM user WHERE slug = '%s'`, slug)
+	err = db.client.Get(&user, query)
+	if err != nil {
+		log.Printf("Error when fetching user %s after create %s", userDTO.Name, err)
+	}
+
+	return user, nil
+}
+
+func (db UserRepositoryDb) FindOneUser(slug string) (User, error) {
+	var user User
+
+	query := fmt.Sprintf(`SELECT * FROM user WHERE slug = '%s'`, slug)
+	err := db.client.Get(&user, query)
+	if err != nil {
+		log.Printf("Error when fetching user: %s", err)
 	}
 
 	return user, nil

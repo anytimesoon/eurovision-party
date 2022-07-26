@@ -23,7 +23,8 @@ const (
 
 type UserRepository interface {
 	FindAllUsers() ([]User, error)
-	// FindOneUser(string) (User, error)
+	FindOneUser(string) (User, error)
+	CreateUser(dto.User) (User, error)
 	UpdateUser(dto.User) (User, error)
 	// DeleteUser(string)
 }

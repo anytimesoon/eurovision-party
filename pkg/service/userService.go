@@ -10,7 +10,8 @@ import (
 type UserService interface {
 	GetAllUsers() ([]dto.User, error)
 	UpdateUser([]byte) (dto.User, error)
-	// SingleUser(string) (dto.User, error)
+	CreateUser([]byte) (dto.User, error)
+	SingleUser(string) (dto.User, error)
 	// DeleteUser(string)
 }
 
@@ -49,6 +50,32 @@ func (service DefaultUserService) UpdateUser(body []byte) (dto.User, error) {
 	if err != nil {
 		log.Println("FAILED to update user", err)
 		return userDTO, err
+	}
+
+	return user.ToDto(), nil
+}
+
+func (service DefaultUserService) CreateUser(body []byte) (dto.User, error) {
+	var userDTO dto.User
+	err := json.Unmarshal(body, &userDTO)
+	if err != nil {
+		log.Println("FAILED to unmarshal json!", err)
+		return userDTO, err
+	}
+
+	user, err := service.repo.CreateUser(userDTO)
+	if err != nil {
+		log.Println("FAILED to create user", err)
+		return userDTO, err
+	}
+
+	return user.ToDto(), nil
+}
+
+func (service DefaultUserService) SingleUser(slug string) (dto.User, error) {
+	user, err := service.repo.FindOneUser(slug)
+	if err != nil {
+		log.Println("FAILED to find user", err)
 	}
 
 	return user.ToDto(), nil
