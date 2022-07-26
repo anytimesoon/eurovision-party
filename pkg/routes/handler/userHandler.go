@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"eurovision/pkg/service"
+	"io/ioutil"
 	"log"
 	"net/http"
 )
@@ -18,6 +19,22 @@ func (uh UserHandler) FindAllUsers(resp http.ResponseWriter, req *http.Request) 
 	}
 
 	json.NewEncoder(resp).Encode(users)
+}
+
+func (uh UserHandler) UpdateUser(resp http.ResponseWriter, req *http.Request) {
+	body, err := ioutil.ReadAll(req.Body)
+	if err != nil {
+		log.Println("FAILED to read body of USER UPDATE!", err)
+		return
+	}
+
+	user, err := uh.Service.UpdateUser(body)
+	if err != nil {
+		log.Println("Failed to update user", err)
+		return
+	}
+
+	json.NewEncoder(resp).Encode(user)
 }
 
 // func FindOneUser(writer http.ResponseWriter, req *http.Request) {

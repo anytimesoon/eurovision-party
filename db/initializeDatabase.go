@@ -27,15 +27,15 @@ func StartMigrations() sqlx.DB {
 		log.Panicf("FAILED to add countries %s", err)
 	}
 
-	// err = CreateUsersTable(sqlDb)
-	// if err != nil {
-	// 	log.Panicf("FAILED to create user table %s", err)
-	// }
+	err = CreateUsersTable(sqlDb)
+	if err != nil {
+		log.Panicf("FAILED to create user table %s", err)
+	}
 
-	// err = AddAdminUser(sqlDb)
-	// if err != nil {
-	// 	log.Panicf("FAILED to add admin user %s", err)
-	// }
+	err = AddAdminUser(sqlDb)
+	if err != nil {
+		log.Panicf("FAILED to add admin user %s", err)
+	}
 
 	// err = CreateCommentsTable(sqlDb)
 	// if err != nil {
