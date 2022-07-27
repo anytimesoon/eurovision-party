@@ -44,8 +44,10 @@ func StartServer(db *sqlx.DB) {
 	commentRouter.HandleFunc("/{uuid}/rem", commentHandler.RemoveComment).Methods(http.MethodDelete)
 
 	// // Vote
-	// voteRouter := router.PathPrefix("/vote").Subrouter()
-	// voteRouter.HandleFunc("/new", votes.Create).Methods(http.MethodPost)
+	voteRepositoryDb := domain.NewVoteRepositoryDb(db)
+	voteHandler := handler.VoteHandler{Service: service.NewVoteService(voteRepositoryDb)}
+	voteRouter := router.PathPrefix("/vote").Subrouter()
+	voteRouter.HandleFunc("/new", voteHandler.CreateVote).Methods(http.MethodPost)
 	// voteRouter.HandleFunc("/", votes.Update).Methods(http.MethodPut)
 
 	headersOk := handlers.AllowedHeaders([]string{"Content-type", "Authorization", "Origin", "Access-Control-Allow-Origin", "Accept", "Options", "X-Requested-With"})
