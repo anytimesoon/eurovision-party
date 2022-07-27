@@ -4,13 +4,14 @@ import (
 	"encoding/json"
 	"eurovision/pkg/domain"
 	"eurovision/pkg/dto"
+	"eurovision/pkg/errs"
 	"log"
 )
 
 type CountryService interface {
-	GetAllCountries() ([]dto.Country, error)
-	UpdateCountry([]byte) (dto.Country, error)
-	SingleCountry(string) (dto.Country, error)
+	GetAllCountries() ([]dto.Country, *errs.AppError)
+	UpdateCountry([]byte) (*dto.Country, *errs.AppError)
+	SingleCountry(string) (*dto.Country, *errs.AppError)
 }
 
 type DefaultCountryService struct {
@@ -21,14 +22,13 @@ func NewCountryService(repo domain.CountryRepository) DefaultCountryService {
 	return DefaultCountryService{repo}
 }
 
-func (service DefaultCountryService) GetAllCountries() ([]dto.Country, error) {
-	countriesDTO := make([]dto.Country, 0)
-
+func (service DefaultCountryService) GetAllCountries() ([]dto.Country, *errs.AppError) {
 	countryData, err := service.repo.FindAllCountries()
 	if err != nil {
-		return countriesDTO, err
+		return nil, err
 	}
 
+	countriesDTO := make([]dto.Country, 0)
 	for _, country := range countryData {
 		countriesDTO = append(countriesDTO, country.ToDto())
 	}
@@ -36,29 +36,31 @@ func (service DefaultCountryService) GetAllCountries() ([]dto.Country, error) {
 	return countriesDTO, nil
 }
 
-func (service DefaultCountryService) SingleCountry(slug string) (dto.Country, error) {
-	var countryDTO dto.Country
+func (service DefaultCountryService) SingleCountry(slug string) (*dto.Country, *errs.AppError) {
 	country, err := service.repo.FindOneCountry(slug)
 	if err != nil {
-		return countryDTO, err
+		return nil, err
 	}
 
-	return country.ToDto(), nil
+	countryDTO := country.ToDto()
+
+	return &countryDTO, nil
 }
 
-func (service DefaultCountryService) UpdateCountry(body []byte) (dto.Country, error) {
+func (service DefaultCountryService) UpdateCountry(body []byte) (*dto.Country, *errs.AppError) {
 	var countryDTO dto.Country
 	err := json.Unmarshal(body, &countryDTO)
 	if err != nil {
 		log.Println("FAILED to unmarshal json!", err)
-		return countryDTO, err
+		return nil, errs.NewUnexpectedError("Unable to read request")
 	}
 
-	country, err := service.repo.UpdateCountry(countryDTO)
+	country, appErr := service.repo.UpdateCountry(countryDTO)
 	if err != nil {
 		log.Println("FAILED to update country", err)
-		return countryDTO, err
+		return nil, appErr
 	}
 
-	return country.ToDto(), nil
+	countryDTO = country.ToDto()
+	return &countryDTO, nil
 }

@@ -2,6 +2,7 @@ package domain
 
 import (
 	"eurovision/pkg/dto"
+	"eurovision/pkg/errs"
 
 	"github.com/google/uuid"
 )
@@ -17,9 +18,9 @@ type Country struct {
 }
 
 type CountryRepository interface {
-	FindAllCountries() ([]Country, error)
-	FindOneCountry(string) (Country, error)
-	UpdateCountry(dto.Country) (Country, error)
+	FindAllCountries() ([]Country, *errs.AppError)
+	FindOneCountry(string) (*Country, *errs.AppError)
+	UpdateCountry(dto.Country) (*Country, *errs.AppError)
 }
 
 func (c Country) ToDto() dto.Country {

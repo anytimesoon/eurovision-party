@@ -2,6 +2,7 @@ package domain
 
 import (
 	"eurovision/pkg/dto"
+	"eurovision/pkg/errs"
 	"fmt"
 	"log"
 
@@ -16,20 +17,20 @@ func NewCountryRepositoryDb(db *sqlx.DB) CountryRepositoryDb {
 	return CountryRepositoryDb{db}
 }
 
-func (db CountryRepositoryDb) FindAllCountries() ([]Country, error) {
+func (db CountryRepositoryDb) FindAllCountries() ([]Country, *errs.AppError) {
 	countries := make([]Country, 0)
 
 	query := "SELECT * FROM country"
 	err := db.client.Select(&countries, query)
 	if err != nil {
 		log.Println("Error while querying country table", err)
-		return nil, err
+		return nil, errs.NewUnexpectedError("Unexpected database error")
 	}
 
 	return countries, nil
 }
 
-func (db CountryRepositoryDb) FindOneCountry(slug string) (Country, error) {
+func (db CountryRepositoryDb) FindOneCountry(slug string) (*Country, *errs.AppError) {
 	var country Country
 
 	query := fmt.Sprintf(`SELECT * FROM country WHERE slug = '%s'`, slug)
@@ -37,13 +38,13 @@ func (db CountryRepositoryDb) FindOneCountry(slug string) (Country, error) {
 	err := db.client.Get(&country, query)
 	if err != nil {
 		log.Println("Error while selecting one country", err)
-		return country, err
+		return nil, errs.NewUnexpectedError("Unexpected database error")
 	}
 
-	return country, nil
+	return &country, nil
 }
 
-func (db CountryRepositoryDb) UpdateCountry(countryDTO dto.Country) (Country, error) {
+func (db CountryRepositoryDb) UpdateCountry(countryDTO dto.Country) (*Country, *errs.AppError) {
 	var country Country
 
 	query := fmt.Sprintf(`UPDATE country SET bandName = '%s', songName = '%s', participating = %t WHERE uuid = '%s'`, countryDTO.BandName, countryDTO.SongName, countryDTO.Participating, countryDTO.ID.String())
@@ -51,16 +52,15 @@ func (db CountryRepositoryDb) UpdateCountry(countryDTO dto.Country) (Country, er
 	_, err := db.client.NamedExec(query, country)
 	if err != nil {
 		log.Println("Error while updating country table", err)
-		return country, err
+		return nil, errs.NewUnexpectedError("Unexpected database error")
 	}
 
 	query = "SELECT * FROM country WHERE slug = ?"
 	err = db.client.Get(&country, query, countryDTO.Slug)
 	if err != nil {
 		log.Println("Error while fetching country after update", err)
-		return country, err
+		return nil, errs.NewUnexpectedError("Unexpected database error")
 	}
 
-	return country, nil
-
+	return &country, nil
 }
