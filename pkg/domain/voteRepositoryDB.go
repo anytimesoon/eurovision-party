@@ -39,3 +39,24 @@ func (db VoteRepositoryDb) CreateVote(voteDTO dto.Vote) (Vote, error) {
 
 	return vote, nil
 }
+
+func (db VoteRepositoryDb) UpdateVote(voteDTO dto.Vote) (Vote, error) {
+	var vote Vote
+
+	query := fmt.Sprintf(`UPDATE vote SET costume = %d, song = %d, performance = %d, props = %d WHERE uuid = '%s'`, voteDTO.Costume, vote.Song, vote.Performance, voteDTO.Props, voteDTO.UUID.String())
+
+	_, err := db.client.NamedExec(query, vote)
+	if err != nil {
+		log.Println("Error while updating vote table", err)
+		return vote, err
+	}
+
+	query = fmt.Sprintf(`SELECT * FROM vote WHERE uuid = '%s'`, voteDTO.UUID.String())
+	err = db.client.Get(&vote, query)
+	if err != nil {
+		log.Println("Error while fetching vote after update", err)
+		return vote, err
+	}
+
+	return vote, nil
+}

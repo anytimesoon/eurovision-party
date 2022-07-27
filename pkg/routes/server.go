@@ -48,7 +48,7 @@ func StartServer(db *sqlx.DB) {
 	voteHandler := handler.VoteHandler{Service: service.NewVoteService(voteRepositoryDb)}
 	voteRouter := router.PathPrefix("/vote").Subrouter()
 	voteRouter.HandleFunc("/new", voteHandler.CreateVote).Methods(http.MethodPost)
-	// voteRouter.HandleFunc("/", votes.Update).Methods(http.MethodPut)
+	voteRouter.HandleFunc("/", voteHandler.UpdateVote).Methods(http.MethodPut)
 
 	headersOk := handlers.AllowedHeaders([]string{"Content-type", "Authorization", "Origin", "Access-Control-Allow-Origin", "Accept", "Options", "X-Requested-With"})
 	originsOk := handlers.AllowedOrigins([]string{"*"})

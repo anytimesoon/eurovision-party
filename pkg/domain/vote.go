@@ -20,7 +20,7 @@ type Vote struct {
 
 type VoteRepository interface {
 	CreateVote(dto.Vote) (Vote, error)
-	// UpdateVote([]byte) (Vote, error)
+	UpdateVote(dto.Vote) (Vote, error)
 }
 
 func (vote Vote) ToDto() dto.Vote {
