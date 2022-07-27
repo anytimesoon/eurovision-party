@@ -36,10 +36,12 @@ func StartServer(db *sqlx.DB) {
 	userRouter.HandleFunc("/{slug}/rem", userHandler.RemoveUser).Methods(http.MethodDelete)
 
 	// // Comment
-	// commentRouter := router.PathPrefix("/comment").Subrouter()
-	// commentRouter.HandleFunc("/", comments.All).Methods(http.MethodGet)
-	// commentRouter.HandleFunc("/new", comments.Create).Methods((http.MethodPost))
-	// // commentRouter.HandleFunc("/{uuid}/rem", comments.RemoveComment).Methods(http.MethodDelete)
+	commentRepositoryDb := domain.NewCommentRepositoryDb(db)
+	commentHandler := handler.CommentHandler{Service: service.NewCommentService(commentRepositoryDb)}
+	commentRouter := router.PathPrefix("/comment").Subrouter()
+	commentRouter.HandleFunc("/", commentHandler.FindAllComments).Methods(http.MethodGet)
+	// commentRouter.HandleFunc("/new", commentHandler.CreateComment).Methods((http.MethodPost))
+	// commentRouter.HandleFunc("/{uuid}/rem", commentHandler.RemoveComment).Methods(http.MethodDelete)
 
 	// // Vote
 	// voteRouter := router.PathPrefix("/vote").Subrouter()

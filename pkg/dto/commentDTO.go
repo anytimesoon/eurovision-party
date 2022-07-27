@@ -1,22 +1,17 @@
 package dto
 
-// import (
-// 	"context"
-// 	db "eurovision/db"
-// 	"eurovision/pkg/dto"
-// 	"fmt"
-// 	"log"
-// 	"time"
+import (
+	"time"
 
-// 	"github.com/google/uuid"
-// )
+	"github.com/google/uuid"
+)
 
-// type Comment struct {
-// 	UUID      uuid.UUID `db:"uuid"`
-// 	UserId    uuid.UUID `db:"userId"`
-// 	Text      string    `db:"text"`
-// 	CreatedAt time.Time `db:"createdAt"`
-// }
+type Comment struct {
+	UUID      uuid.UUID `db:"uuid"`
+	UserId    uuid.UUID `db:"userId"`
+	Text      string    `db:"text"`
+	CreatedAt time.Time `db:"createdAt"`
+}
 
 // func Comments() ([]Comment, error) {
 // 	var comments []Comment

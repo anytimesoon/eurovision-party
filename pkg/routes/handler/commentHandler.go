@@ -1,13 +1,24 @@
 package handler
 
-// import (
-// 	"encoding/json"
-// 	"eurovision/pkg/dao"
-// 	"eurovision/pkg/dto"
-// 	"io/ioutil"
-// 	"log"
-// 	"net/http"
-// )
+import (
+	"encoding/json"
+	"eurovision/pkg/service"
+	"log"
+	"net/http"
+)
+
+type CommentHandler struct {
+	Service service.CommentService
+}
+
+func (ch CommentHandler) FindAllComments(resp http.ResponseWriter, req *http.Request) {
+	comments, err := ch.Service.FindAllComments()
+	if err != nil {
+		log.Println("Error finding all comments", err)
+	}
+
+	json.NewEncoder(resp).Encode(comments)
+}
 
 // func FindAllComments(writer http.ResponseWriter, req *http.Request) {
 // 	commentsDAO, err := dao.Comments()
