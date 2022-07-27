@@ -40,7 +40,7 @@ func StartServer(db *sqlx.DB) {
 	commentHandler := handler.CommentHandler{Service: service.NewCommentService(commentRepositoryDb)}
 	commentRouter := router.PathPrefix("/comment").Subrouter()
 	commentRouter.HandleFunc("/", commentHandler.FindAllComments).Methods(http.MethodGet)
-	// commentRouter.HandleFunc("/new", commentHandler.CreateComment).Methods((http.MethodPost))
+	commentRouter.HandleFunc("/new", commentHandler.CreateComment).Methods((http.MethodPost))
 	// commentRouter.HandleFunc("/{uuid}/rem", commentHandler.RemoveComment).Methods(http.MethodDelete)
 
 	// // Vote
