@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 type CommentHandler struct {
@@ -35,6 +37,17 @@ func (ch CommentHandler) CreateComment(resp http.ResponseWriter, req *http.Reque
 	}
 
 	json.NewEncoder(resp).Encode(comment)
+}
+
+func (ch CommentHandler) RemoveComment(resp http.ResponseWriter, req *http.Request) {
+	params := mux.Vars(req)
+	err := ch.Service.DeleteComment(params["uuid"])
+	if err != nil {
+		log.Println("FAILED to delete comment", err)
+		return
+	}
+
+	json.NewEncoder(resp)
 }
 
 // func FindAllComments(writer http.ResponseWriter, req *http.Request) {

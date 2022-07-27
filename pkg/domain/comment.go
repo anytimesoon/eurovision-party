@@ -17,7 +17,7 @@ type Comment struct {
 type CommentRepository interface {
 	FindAllComments() ([]Comment, error)
 	CreateComment(dto.Comment) (Comment, error)
-	// DeleteComment(string) error
+	DeleteComment(string) error
 }
 
 func (comment Comment) ToDto() dto.Comment {

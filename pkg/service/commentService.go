@@ -10,6 +10,7 @@ import (
 type CommentService interface {
 	FindAllComments() ([]dto.Comment, error)
 	CreateComment([]byte) (dto.Comment, error)
+	DeleteComment(string) error
 }
 
 type DefaultCommentService struct {
@@ -50,4 +51,13 @@ func (service DefaultCommentService) CreateComment(body []byte) (dto.Comment, er
 	}
 
 	return comment.ToDto(), nil
+}
+
+func (service DefaultCommentService) DeleteComment(uuid string) error {
+	err := service.repo.DeleteComment(uuid)
+	if err != nil {
+		log.Println("FAILED to delete comment", err)
+	}
+
+	return nil
 }

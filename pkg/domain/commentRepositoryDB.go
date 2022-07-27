@@ -58,3 +58,17 @@ func (db CommentRepositoryDb) CreateComment(commentDTO dto.Comment) (Comment, er
 
 	return comment, nil
 }
+
+func (db CommentRepositoryDb) DeleteComment(uuid string) error {
+	var comment Comment
+
+	query := fmt.Sprintf(`DELETE FROM comment WHERE uuid = '%s'`, uuid)
+
+	_, err := db.client.NamedExec(query, comment)
+	if err != nil {
+		log.Println("Error when deleting comment", err)
+		return err
+	}
+
+	return nil
+}

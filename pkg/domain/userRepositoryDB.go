@@ -95,7 +95,7 @@ func (db UserRepositoryDb) DeleteUser(slug string) error {
 
 	_, err := db.client.NamedExec(query, user)
 	if err != nil {
-		log.Printf("Error when deleting user")
+		log.Println("Error when deleting user", err)
 		return err
 	}
 
