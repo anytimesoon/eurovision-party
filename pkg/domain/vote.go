@@ -9,7 +9,7 @@ import (
 // import "github.com/google/uuid"
 
 type Vote struct {
-	UUID        uuid.UUID `db:"id"`
+	UUID        uuid.UUID `db:"uuid"`
 	UserId      uuid.UUID `db:"userId"`
 	CountryId   uuid.UUID `db:"countryId"`
 	Costume     uint8     `db:"costume"`
@@ -24,5 +24,13 @@ type VoteRepository interface {
 }
 
 func (vote Vote) ToDto() dto.Vote {
-	return dto.Vote{}
+	return dto.Vote{
+		UUID:        vote.UUID,
+		UserId:      vote.UserId,
+		CountryId:   vote.CountryId,
+		Costume:     vote.Costume,
+		Song:        vote.Song,
+		Performance: vote.Performance,
+		Props:       vote.Props,
+	}
 }

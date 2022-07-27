@@ -2,12 +2,13 @@ package db
 
 import (
 	"context"
-	"database/sql"
 	"log"
 	"time"
+
+	"github.com/jmoiron/sqlx"
 )
 
-func CreateVotesTable(db *sql.DB) error {
+func CreateVotesTable(db *sqlx.DB) error {
 	query := `DROP TABLE IF EXISTS vote;`
 	ctx, cancelfunc := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancelfunc()

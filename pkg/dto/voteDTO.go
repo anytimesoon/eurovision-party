@@ -6,8 +6,8 @@ type Vote struct {
 	UUID        uuid.UUID `json:"id"`
 	UserId      uuid.UUID `json:"userId"`
 	CountryId   uuid.UUID `json:"countryId"`
-	Costume     int8      `json:"costume"`
-	Song        int8      `json:"song"`
-	Performance int8      `json:"performance"`
-	Props       int8      `json:"props"`
+	Costume     uint8     `json:"costume"`
+	Song        uint8     `json:"song"`
+	Performance uint8     `json:"performance"`
+	Props       uint8     `json:"props"`
 }

@@ -31,6 +31,7 @@ func (db VoteRepositoryDb) CreateVote(voteDTO dto.Vote) (Vote, error) {
 	}
 
 	query = fmt.Sprintf(`SELECT * FROM vote WHERE uuid = '%s'`, uuid)
+
 	err = db.client.Get(&vote, query)
 	if err != nil {
 		log.Println("Error when fetching vote after create", err)
@@ -43,7 +44,7 @@ func (db VoteRepositoryDb) CreateVote(voteDTO dto.Vote) (Vote, error) {
 func (db VoteRepositoryDb) UpdateVote(voteDTO dto.Vote) (Vote, error) {
 	var vote Vote
 
-	query := fmt.Sprintf(`UPDATE vote SET costume = %d, song = %d, performance = %d, props = %d WHERE uuid = '%s'`, voteDTO.Costume, vote.Song, vote.Performance, voteDTO.Props, voteDTO.UUID.String())
+	query := fmt.Sprintf(`UPDATE vote SET costume = %d, song = %d, performance = %d, props = %d WHERE uuid = '%s'`, voteDTO.Costume, voteDTO.Song, voteDTO.Performance, voteDTO.Props, voteDTO.UUID.String())
 
 	_, err := db.client.NamedExec(query, vote)
 	if err != nil {

@@ -26,10 +26,10 @@ func NewCommentRepositoryDb(db *sqlx.DB) CommentRepositoryDb {
 func (db CommentRepositoryDb) FindAllComments() ([]Comment, error) {
 	comments := make([]Comment, 0)
 
-	query := "SELECT * FROM country"
+	query := "SELECT * FROM comment"
 	err := db.client.Select(&comments, query)
 	if err != nil {
-		log.Println("Error while querying country table", err)
+		log.Println("Error while querying comment table", err)
 		return nil, err
 	}
 
