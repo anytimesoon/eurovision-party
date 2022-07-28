@@ -26,7 +26,7 @@ func (db UserRepositoryDb) FindAllUsers() ([]User, *errs.AppError) {
 	err := db.client.Select(&users, query)
 	if err != nil {
 		log.Println("Error while querying user table", err)
-		return nil, errs.NewUnexpectedError("Unexpected database error")
+		return nil, errs.NewUnexpectedError(errs.Common.DBFail)
 	}
 
 	return users, nil
@@ -40,14 +40,14 @@ func (db UserRepositoryDb) UpdateUser(userDTO dto.User) (*User, *errs.AppError) 
 	_, err := db.client.NamedExec(query, user)
 	if err != nil {
 		log.Println("Error while updating user table", err)
-		return nil, errs.NewUnexpectedError("Unexpected error when updating user")
+		return nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "user")
 	}
 
 	query = fmt.Sprintf(`SELECT * FROM user WHERE uuid = '%s'`, userDTO.UUID.String())
 	err = db.client.Get(&user, query)
 	if err != nil {
 		log.Printf("Error while fetching user %s after update %s", userDTO.Name, err)
-		return nil, errs.NewNotFoundError("User updated, but not found")
+		return nil, errs.NewNotFoundError("User" + errs.Common.NotFound)
 	}
 
 	return &user, nil
@@ -63,14 +63,14 @@ func (db UserRepositoryDb) CreateUser(userDTO dto.User) (*User, *errs.AppError) 
 	_, err := db.client.NamedExec(query, user)
 	if err != nil {
 		log.Printf("Error when creating new user %s, %s", userDTO.Name, err)
-		return nil, errs.NewUnexpectedError("Unexpected error while creating user")
+		return nil, errs.NewUnexpectedError(errs.Common.NotCreated + "user")
 	}
 
 	query = fmt.Sprintf(`SELECT * FROM user WHERE slug = '%s'`, slug)
 	err = db.client.Get(&user, query)
 	if err != nil {
 		log.Printf("Error when fetching user %s after create %s", userDTO.Name, err)
-		return nil, errs.NewNotFoundError("User created, but not found")
+		return nil, errs.NewNotFoundError("User" + errs.Common.NotFound)
 	}
 
 	return &user, nil
@@ -83,7 +83,7 @@ func (db UserRepositoryDb) FindOneUser(slug string) (*User, *errs.AppError) {
 	err := db.client.Get(&user, query)
 	if err != nil {
 		log.Printf("Error when fetching user: %s", err)
-		return nil, errs.NewNotFoundError("User not found")
+		return nil, errs.NewNotFoundError("User" + errs.Common.NotFound)
 	}
 
 	return &user, nil
@@ -97,7 +97,7 @@ func (db UserRepositoryDb) DeleteUser(slug string) *errs.AppError {
 	_, err := db.client.NamedExec(query, user)
 	if err != nil {
 		log.Println("Error when deleting user", err)
-		return errs.NewUnexpectedError("Unexpected error when removing user")
+		return errs.NewUnexpectedError(errs.Common.NotDeleted + "user")
 	}
 
 	return nil

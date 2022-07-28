@@ -44,7 +44,7 @@ func (service DefaultUserService) UpdateUser(body []byte) (*dto.User, *errs.AppE
 	err := json.Unmarshal(body, &userDTO)
 	if err != nil {
 		log.Println("FAILED to unmarshal json!", err)
-		return nil, errs.NewUnexpectedError("Failed to read request. Please make sure your object is correctly formed.")
+		return nil, errs.NewUnexpectedError(errs.Common.BadlyFormedObject)
 	}
 
 	user, appErr := service.repo.UpdateUser(userDTO)
@@ -62,7 +62,7 @@ func (service DefaultUserService) CreateUser(body []byte) (*dto.User, *errs.AppE
 	err := json.Unmarshal(body, &userDTO)
 	if err != nil {
 		log.Println("FAILED to unmarshal json!", err)
-		return nil, errs.NewUnexpectedError("Failed to read request. Please make sure your object is correctly formed.")
+		return nil, errs.NewUnexpectedError(errs.Common.BadlyFormedObject)
 	}
 
 	user, appErr := service.repo.CreateUser(userDTO)

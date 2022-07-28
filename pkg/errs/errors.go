@@ -29,8 +29,18 @@ func NewUnexpectedError(message string) *AppError {
 
 type commonMessages struct {
 	BadlyFormedObject string
+	DBFail            string
+	NotFound          string
+	NotDeleted        string
+	NotUpdated        string
+	NotCreated        string
 }
 
 var Common commonMessages = commonMessages{
 	BadlyFormedObject: "Failed to read request. Please make sure your object is correctly formed.",
+	DBFail:            "Something went wrong when accessing the database",
+	NotFound:          " not found",
+	NotDeleted:        "Something went wrong when deleting ",
+	NotUpdated:        "Something went wrong when updating ",
+	NotCreated:        "Something went wrong when creating ",
 }

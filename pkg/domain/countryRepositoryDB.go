@@ -24,7 +24,7 @@ func (db CountryRepositoryDb) FindAllCountries() ([]Country, *errs.AppError) {
 	err := db.client.Select(&countries, query)
 	if err != nil {
 		log.Println("Error while querying country table", err)
-		return nil, errs.NewUnexpectedError("Unexpected database error")
+		return nil, errs.NewUnexpectedError(errs.Common.DBFail)
 	}
 
 	return countries, nil
@@ -38,7 +38,7 @@ func (db CountryRepositoryDb) FindOneCountry(slug string) (*Country, *errs.AppEr
 	err := db.client.Get(&country, query)
 	if err != nil {
 		log.Println("Error while selecting one country", err)
-		return nil, errs.NewUnexpectedError("Country not found")
+		return nil, errs.NewUnexpectedError("Country" + errs.Common.NotFound)
 	}
 
 	return &country, nil
@@ -52,14 +52,14 @@ func (db CountryRepositoryDb) UpdateCountry(countryDTO dto.Country) (*Country, *
 	_, err := db.client.NamedExec(query, country)
 	if err != nil {
 		log.Println("Error while updating country table", err)
-		return nil, errs.NewUnexpectedError("Unexpected database error")
+		return nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "country")
 	}
 
 	query = "SELECT * FROM country WHERE slug = ?"
 	err = db.client.Get(&country, query, countryDTO.Slug)
 	if err != nil {
 		log.Println("Error while fetching country after update", err)
-		return nil, errs.NewUnexpectedError("Country updated, but not found")
+		return nil, errs.NewUnexpectedError("Country" + errs.Common.NotFound)
 	}
 
 	return &country, nil

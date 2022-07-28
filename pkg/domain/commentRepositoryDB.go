@@ -47,14 +47,14 @@ func (db CommentRepositoryDb) CreateComment(commentDTO dto.Comment) (*Comment, *
 	_, err := db.client.NamedExec(query, comment)
 	if err != nil {
 		log.Printf("Error when creating comment from user %s, %s", commentDTO.UserId, err)
-		return nil, errs.NewUnexpectedError("Something went wrong when adding your comment")
+		return nil, errs.NewUnexpectedError(errs.Common.NotCreated + "your comment")
 	}
 
 	query = fmt.Sprintf(`SELECT * FROM comment WHERE uuid = '%s'`, uuid)
 	err = db.client.Get(&comment, query)
 	if err != nil {
 		log.Printf("Error when fetching comment after create %s", err)
-		return nil, errs.NewNotFoundError("Comment not found after being added")
+		return nil, errs.NewNotFoundError("Comment" + errs.Common.NotFound)
 	}
 
 	return &comment, nil
@@ -68,7 +68,7 @@ func (db CommentRepositoryDb) DeleteComment(uuid string) *errs.AppError {
 	_, err := db.client.NamedExec(query, comment)
 	if err != nil {
 		log.Println("Error when deleting comment", err)
-		return errs.NewUnexpectedError("Something went wrong when deleting your comment")
+		return errs.NewUnexpectedError(errs.Common.NotDeleted + "your comment")
 	}
 
 	return nil
