@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"encoding/json"
 	"eurovision/pkg/service"
 	"io/ioutil"
 	"log"
@@ -19,13 +18,12 @@ func (vh VoteHandler) CreateVote(resp http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	vote, err := vh.Service.CreateVote(body)
-	if err != nil {
-		log.Println("Failed to create vote", err)
-		return
+	vote, appErr := vh.Service.CreateVote(body)
+	if appErr != nil {
+		writeResponse(resp, appErr.Code, appErr.AsMessage())
+	} else {
+		writeResponse(resp, http.StatusOK, vote)
 	}
-
-	json.NewEncoder(resp).Encode(vote)
 }
 
 func (vh VoteHandler) UpdateVote(resp http.ResponseWriter, req *http.Request) {
@@ -35,11 +33,10 @@ func (vh VoteHandler) UpdateVote(resp http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	vote, err := vh.Service.UpdateVote(body)
-	if err != nil {
-		log.Println("Failed to update vote", err)
-		return
+	vote, appErr := vh.Service.UpdateVote(body)
+	if appErr != nil {
+		writeResponse(resp, appErr.Code, appErr.AsMessage())
+	} else {
+		writeResponse(resp, http.StatusOK, vote)
 	}
-
-	json.NewEncoder(resp).Encode(vote)
 }

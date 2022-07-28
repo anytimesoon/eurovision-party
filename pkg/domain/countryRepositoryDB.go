@@ -38,7 +38,7 @@ func (db CountryRepositoryDb) FindOneCountry(slug string) (*Country, *errs.AppEr
 	err := db.client.Get(&country, query)
 	if err != nil {
 		log.Println("Error while selecting one country", err)
-		return nil, errs.NewUnexpectedError("Country" + errs.Common.NotFound)
+		return nil, errs.NewUnexpectedError(errs.Common.NotFound + "country")
 	}
 
 	return &country, nil
@@ -59,7 +59,7 @@ func (db CountryRepositoryDb) UpdateCountry(countryDTO dto.Country) (*Country, *
 	err = db.client.Get(&country, query, countryDTO.Slug)
 	if err != nil {
 		log.Println("Error while fetching country after update", err)
-		return nil, errs.NewUnexpectedError("Country" + errs.Common.NotFound)
+		return nil, errs.NewUnexpectedError(errs.Common.NotFound + "country")
 	}
 
 	return &country, nil

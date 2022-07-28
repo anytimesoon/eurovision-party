@@ -2,6 +2,7 @@ package domain
 
 import (
 	"eurovision/pkg/dto"
+	"eurovision/pkg/errs"
 	"fmt"
 	"log"
 
@@ -17,7 +18,7 @@ func NewVoteRepositoryDb(db *sqlx.DB) VoteRepositoryDb {
 	return VoteRepositoryDb{db}
 }
 
-func (db VoteRepositoryDb) CreateVote(voteDTO dto.Vote) (Vote, error) {
+func (db VoteRepositoryDb) CreateVote(voteDTO *dto.Vote) (*Vote, *errs.AppError) {
 	var vote Vote
 
 	uuid := uuid.New().String()
@@ -27,21 +28,21 @@ func (db VoteRepositoryDb) CreateVote(voteDTO dto.Vote) (Vote, error) {
 	_, err := db.client.NamedExec(query, vote)
 	if err != nil {
 		log.Println("Error when creating new vote:", err)
-		return vote, err
+		return nil, errs.NewUnexpectedError(errs.Common.NotCreated + "your vote")
 	}
 
 	query = fmt.Sprintf(`SELECT * FROM vote WHERE uuid = '%s'`, uuid)
 
 	err = db.client.Get(&vote, query)
 	if err != nil {
-		log.Println("Error when fetching vote after create", err)
-		return vote, err
+		log.Println("Error when fetching vote after create:", err)
+		return nil, errs.NewNotFoundError(errs.Common.NotFound + "your vote")
 	}
 
-	return vote, nil
+	return &vote, nil
 }
 
-func (db VoteRepositoryDb) UpdateVote(voteDTO dto.Vote) (Vote, error) {
+func (db VoteRepositoryDb) UpdateVote(voteDTO *dto.Vote) (*Vote, *errs.AppError) {
 	var vote Vote
 
 	query := fmt.Sprintf(`UPDATE vote SET costume = %d, song = %d, performance = %d, props = %d WHERE uuid = '%s'`, voteDTO.Costume, voteDTO.Song, voteDTO.Performance, voteDTO.Props, voteDTO.UUID.String())
@@ -49,15 +50,15 @@ func (db VoteRepositoryDb) UpdateVote(voteDTO dto.Vote) (Vote, error) {
 	_, err := db.client.NamedExec(query, vote)
 	if err != nil {
 		log.Println("Error while updating vote table", err)
-		return vote, err
+		return nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "your vote")
 	}
 
 	query = fmt.Sprintf(`SELECT * FROM vote WHERE uuid = '%s'`, voteDTO.UUID.String())
 	err = db.client.Get(&vote, query)
 	if err != nil {
 		log.Println("Error while fetching vote after update", err)
-		return vote, err
+		return nil, errs.NewNotFoundError(errs.Common.NotFound + "your vote")
 	}
 
-	return vote, nil
+	return &vote, nil
 }

@@ -39,7 +39,7 @@ type commonMessages struct {
 var Common commonMessages = commonMessages{
 	BadlyFormedObject: "Failed to read request. Please make sure your object is correctly formed.",
 	DBFail:            "Something went wrong when accessing the database",
-	NotFound:          " not found",
+	NotFound:          "Could not find ",
 	NotDeleted:        "Something went wrong when deleting ",
 	NotUpdated:        "Something went wrong when updating ",
 	NotCreated:        "Something went wrong when creating ",

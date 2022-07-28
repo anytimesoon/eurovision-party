@@ -54,7 +54,7 @@ func (db CommentRepositoryDb) CreateComment(commentDTO dto.Comment) (*Comment, *
 	err = db.client.Get(&comment, query)
 	if err != nil {
 		log.Printf("Error when fetching comment after create %s", err)
-		return nil, errs.NewNotFoundError("Comment" + errs.Common.NotFound)
+		return nil, errs.NewNotFoundError(errs.Common.NotFound + "your comment")
 	}
 
 	return &comment, nil

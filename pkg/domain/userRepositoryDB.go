@@ -47,7 +47,7 @@ func (db UserRepositoryDb) UpdateUser(userDTO dto.User) (*User, *errs.AppError) 
 	err = db.client.Get(&user, query)
 	if err != nil {
 		log.Printf("Error while fetching user %s after update %s", userDTO.Name, err)
-		return nil, errs.NewNotFoundError("User" + errs.Common.NotFound)
+		return nil, errs.NewNotFoundError(errs.Common.NotFound + "user")
 	}
 
 	return &user, nil
@@ -70,7 +70,7 @@ func (db UserRepositoryDb) CreateUser(userDTO dto.User) (*User, *errs.AppError) 
 	err = db.client.Get(&user, query)
 	if err != nil {
 		log.Printf("Error when fetching user %s after create %s", userDTO.Name, err)
-		return nil, errs.NewNotFoundError("User" + errs.Common.NotFound)
+		return nil, errs.NewNotFoundError(errs.Common.NotFound + "user")
 	}
 
 	return &user, nil
@@ -83,7 +83,7 @@ func (db UserRepositoryDb) FindOneUser(slug string) (*User, *errs.AppError) {
 	err := db.client.Get(&user, query)
 	if err != nil {
 		log.Printf("Error when fetching user: %s", err)
-		return nil, errs.NewNotFoundError("User" + errs.Common.NotFound)
+		return nil, errs.NewNotFoundError(errs.Common.NotFound + "user")
 	}
 
 	return &user, nil

@@ -4,12 +4,13 @@ import (
 	"encoding/json"
 	"eurovision/pkg/domain"
 	"eurovision/pkg/dto"
+	"eurovision/pkg/errs"
 	"log"
 )
 
 type VoteService interface {
-	CreateVote([]byte) (dto.Vote, error)
-	UpdateVote([]byte) (dto.Vote, error)
+	CreateVote([]byte) (*dto.Vote, *errs.AppError)
+	UpdateVote([]byte) (*dto.Vote, *errs.AppError)
 }
 
 type DefaultVoteService struct {
@@ -20,36 +21,42 @@ func NewVoteService(repo domain.VoteRepository) DefaultVoteService {
 	return DefaultVoteService{repo}
 }
 
-func (service DefaultVoteService) CreateVote(body []byte) (dto.Vote, error) {
-	var voteDTO dto.Vote
-	err := json.Unmarshal(body, &voteDTO)
+func (service DefaultVoteService) CreateVote(body []byte) (*dto.Vote, *errs.AppError) {
+	voteDTO, err := unmarshalVote(body)
 	if err != nil {
-		log.Println("FAILED to unmarshal json!", err)
-		return voteDTO, err
+		return nil, err
 	}
 
-	vote, err := service.repo.CreateVote(voteDTO)
-	if err != nil {
-		log.Println("FAILED to create vote", err)
-		return voteDTO, err
+	vote, AppError := service.repo.CreateVote(voteDTO)
+	if AppError != nil {
+		return nil, AppError
 	}
 
-	return vote.ToDto(), nil
+	result := vote.ToDto()
+	return &result, nil
 }
 
-func (service DefaultVoteService) UpdateVote(body []byte) (dto.Vote, error) {
-	var voteDTO dto.Vote
-	err := json.Unmarshal(body, &voteDTO)
+func (service DefaultVoteService) UpdateVote(body []byte) (*dto.Vote, *errs.AppError) {
+	voteDTO, err := unmarshalVote(body)
 	if err != nil {
-		log.Println("FAILED to unmarshal json!", err)
-		return voteDTO, err
+		return nil, err
 	}
 
 	vote, err := service.repo.UpdateVote(voteDTO)
 	if err != nil {
-		log.Println("FAILED to update vote", err)
-		return voteDTO, err
+		return nil, err
 	}
 
-	return vote.ToDto(), nil
+	result := vote.ToDto()
+	return &result, nil
+}
+
+func unmarshalVote(body []byte) (*dto.Vote, *errs.AppError) {
+	var voteDTO dto.Vote
+	err := json.Unmarshal(body, &voteDTO)
+	if err != nil {
+		log.Println("FAILED to unmarshal json!", err)
+		return nil, errs.NewUnexpectedError(errs.Common.BadlyFormedObject)
+	}
+	return &voteDTO, nil
 }

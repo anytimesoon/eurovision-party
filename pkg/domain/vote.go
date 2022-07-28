@@ -2,6 +2,7 @@ package domain
 
 import (
 	"eurovision/pkg/dto"
+	"eurovision/pkg/errs"
 
 	"github.com/google/uuid"
 )
@@ -19,8 +20,8 @@ type Vote struct {
 }
 
 type VoteRepository interface {
-	CreateVote(dto.Vote) (Vote, error)
-	UpdateVote(dto.Vote) (Vote, error)
+	CreateVote(*dto.Vote) (*Vote, *errs.AppError)
+	UpdateVote(*dto.Vote) (*Vote, *errs.AppError)
 }
 
 func (vote Vote) ToDto() dto.Vote {
