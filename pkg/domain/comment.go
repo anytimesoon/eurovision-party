@@ -2,6 +2,7 @@ package domain
 
 import (
 	"eurovision/pkg/dto"
+	"eurovision/pkg/errs"
 	"time"
 
 	"github.com/google/uuid"
@@ -15,9 +16,9 @@ type Comment struct {
 }
 
 type CommentRepository interface {
-	FindAllComments() ([]Comment, error)
-	CreateComment(dto.Comment) (Comment, error)
-	DeleteComment(string) error
+	FindAllComments() ([]Comment, *errs.AppError)
+	CreateComment(dto.Comment) (*Comment, *errs.AppError)
+	DeleteComment(string) *errs.AppError
 }
 
 func (comment Comment) ToDto() dto.Comment {
