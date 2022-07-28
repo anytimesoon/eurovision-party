@@ -26,3 +26,11 @@ func NewUnexpectedError(message string) *AppError {
 		Code:    http.StatusInternalServerError,
 	}
 }
+
+type commonMessages struct {
+	BadlyFormedObject string
+}
+
+var Common commonMessages = commonMessages{
+	BadlyFormedObject: "Failed to read request. Please make sure your object is correctly formed.",
+}
