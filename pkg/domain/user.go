@@ -2,6 +2,7 @@ package domain
 
 import (
 	"eurovision/pkg/dto"
+	"eurovision/pkg/errs"
 
 	"github.com/google/uuid"
 )
@@ -22,11 +23,11 @@ const (
 )
 
 type UserRepository interface {
-	FindAllUsers() ([]User, error)
-	FindOneUser(string) (User, error)
-	CreateUser(dto.User) (User, error)
-	UpdateUser(dto.User) (User, error)
-	DeleteUser(string) error
+	FindAllUsers() ([]User, *errs.AppError)
+	FindOneUser(string) (*User, *errs.AppError)
+	CreateUser(dto.User) (*User, *errs.AppError)
+	UpdateUser(dto.User) (*User, *errs.AppError)
+	DeleteUser(string) *errs.AppError
 }
 
 func (user User) ToDto() dto.User {

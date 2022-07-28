@@ -4,15 +4,16 @@ import (
 	"encoding/json"
 	"eurovision/pkg/domain"
 	"eurovision/pkg/dto"
+	"eurovision/pkg/errs"
 	"log"
 )
 
 type UserService interface {
-	GetAllUsers() ([]dto.User, error)
-	UpdateUser([]byte) (dto.User, error)
-	CreateUser([]byte) (dto.User, error)
-	SingleUser(string) (dto.User, error)
-	DeleteUser(string) error
+	GetAllUsers() ([]dto.User, *errs.AppError)
+	UpdateUser([]byte) (*dto.User, *errs.AppError)
+	CreateUser([]byte) (*dto.User, *errs.AppError)
+	SingleUser(string) (*dto.User, *errs.AppError)
+	DeleteUser(string) *errs.AppError
 }
 
 type DefaultUserService struct {
@@ -23,7 +24,7 @@ func NewUserService(repo domain.UserRepository) DefaultUserService {
 	return DefaultUserService{repo}
 }
 
-func (service DefaultUserService) GetAllUsers() ([]dto.User, error) {
+func (service DefaultUserService) GetAllUsers() ([]dto.User, *errs.AppError) {
 	usersDTO := make([]dto.User, 0)
 
 	users, err := service.repo.FindAllUsers()
@@ -38,53 +39,57 @@ func (service DefaultUserService) GetAllUsers() ([]dto.User, error) {
 	return usersDTO, nil
 }
 
-func (service DefaultUserService) UpdateUser(body []byte) (dto.User, error) {
+func (service DefaultUserService) UpdateUser(body []byte) (*dto.User, *errs.AppError) {
 	var userDTO dto.User
 	err := json.Unmarshal(body, &userDTO)
 	if err != nil {
 		log.Println("FAILED to unmarshal json!", err)
-		return userDTO, err
+		return nil, errs.NewUnexpectedError("Failed to read request. Please make sure your object is correctly formed.")
 	}
 
-	user, err := service.repo.UpdateUser(userDTO)
-	if err != nil {
-		log.Println("FAILED to update user", err)
-		return userDTO, err
+	user, appErr := service.repo.UpdateUser(userDTO)
+	if appErr != nil {
+		return nil, appErr
 	}
 
-	return user.ToDto(), nil
+	userDTO = user.ToDto()
+
+	return &userDTO, nil
 }
 
-func (service DefaultUserService) CreateUser(body []byte) (dto.User, error) {
+func (service DefaultUserService) CreateUser(body []byte) (*dto.User, *errs.AppError) {
 	var userDTO dto.User
 	err := json.Unmarshal(body, &userDTO)
 	if err != nil {
 		log.Println("FAILED to unmarshal json!", err)
-		return userDTO, err
+		return nil, errs.NewUnexpectedError("Failed to read request. Please make sure your object is correctly formed.")
 	}
 
-	user, err := service.repo.CreateUser(userDTO)
-	if err != nil {
-		log.Println("FAILED to create user", err)
-		return userDTO, err
+	user, appErr := service.repo.CreateUser(userDTO)
+	if appErr != nil {
+		return nil, appErr
 	}
 
-	return user.ToDto(), nil
+	userDTO = user.ToDto()
+
+	return &userDTO, nil
 }
 
-func (service DefaultUserService) SingleUser(slug string) (dto.User, error) {
+func (service DefaultUserService) SingleUser(slug string) (*dto.User, *errs.AppError) {
 	user, err := service.repo.FindOneUser(slug)
 	if err != nil {
-		log.Println("FAILED to find user", err)
+		return nil, err
 	}
 
-	return user.ToDto(), nil
+	userDTO := user.ToDto()
+
+	return &userDTO, nil
 }
 
-func (service DefaultUserService) DeleteUser(slug string) error {
+func (service DefaultUserService) DeleteUser(slug string) *errs.AppError {
 	err := service.repo.DeleteUser(slug)
 	if err != nil {
-		log.Println("FAILED to delete user", err)
+		return err
 	}
 
 	return nil

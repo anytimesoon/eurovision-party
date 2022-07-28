@@ -2,6 +2,7 @@ package domain
 
 import (
 	"eurovision/pkg/dto"
+	"eurovision/pkg/errs"
 	"eurovision/pkg/utils"
 	"fmt"
 	"log"
@@ -18,41 +19,41 @@ func NewUserRepositoryDb(db *sqlx.DB) UserRepositoryDb {
 	return UserRepositoryDb{db}
 }
 
-func (db UserRepositoryDb) FindAllUsers() ([]User, error) {
+func (db UserRepositoryDb) FindAllUsers() ([]User, *errs.AppError) {
 	users := make([]User, 0)
 
 	query := "SELECT * FROM user"
 	err := db.client.Select(&users, query)
 	if err != nil {
 		log.Println("Error while querying user table", err)
-		return nil, err
+		return nil, errs.NewUnexpectedError("Unexpected database error")
 	}
 
 	return users, nil
 }
 
-func (db UserRepositoryDb) UpdateUser(userDTO dto.User) (User, error) {
+func (db UserRepositoryDb) UpdateUser(userDTO dto.User) (*User, *errs.AppError) {
 	var user User
 
 	query := fmt.Sprintf(`UPDATE user SET name = '%s', icon = '%s' WHERE uuid = '%s'`, userDTO.Name, userDTO.Icon, userDTO.UUID.String())
 
 	_, err := db.client.NamedExec(query, user)
 	if err != nil {
-		log.Println("Error while updating country table", err)
-		return user, err
+		log.Println("Error while updating user table", err)
+		return nil, errs.NewUnexpectedError("Unexpected error when updating user")
 	}
 
 	query = fmt.Sprintf(`SELECT * FROM user WHERE uuid = '%s'`, userDTO.UUID.String())
 	err = db.client.Get(&user, query)
 	if err != nil {
 		log.Printf("Error while fetching user %s after update %s", userDTO.Name, err)
-		return user, err
+		return nil, errs.NewNotFoundError("User updated, but not found")
 	}
 
-	return user, nil
+	return &user, nil
 }
 
-func (db UserRepositoryDb) CreateUser(userDTO dto.User) (User, error) {
+func (db UserRepositoryDb) CreateUser(userDTO dto.User) (*User, *errs.AppError) {
 	var user User
 
 	slug := utils.Slugify(userDTO.Name)
@@ -62,33 +63,33 @@ func (db UserRepositoryDb) CreateUser(userDTO dto.User) (User, error) {
 	_, err := db.client.NamedExec(query, user)
 	if err != nil {
 		log.Printf("Error when creating new user %s, %s", userDTO.Name, err)
-		return user, err
+		return nil, errs.NewUnexpectedError("Unexpected error while creating user")
 	}
 
 	query = fmt.Sprintf(`SELECT * FROM user WHERE slug = '%s'`, slug)
 	err = db.client.Get(&user, query)
 	if err != nil {
 		log.Printf("Error when fetching user %s after create %s", userDTO.Name, err)
-		return user, err
+		return nil, errs.NewNotFoundError("User created, but not found")
 	}
 
-	return user, nil
+	return &user, nil
 }
 
-func (db UserRepositoryDb) FindOneUser(slug string) (User, error) {
+func (db UserRepositoryDb) FindOneUser(slug string) (*User, *errs.AppError) {
 	var user User
 
 	query := fmt.Sprintf(`SELECT * FROM user WHERE slug = '%s'`, slug)
 	err := db.client.Get(&user, query)
 	if err != nil {
 		log.Printf("Error when fetching user: %s", err)
-		return user, err
+		return nil, errs.NewNotFoundError("User not found")
 	}
 
-	return user, nil
+	return &user, nil
 }
 
-func (db UserRepositoryDb) DeleteUser(slug string) error {
+func (db UserRepositoryDb) DeleteUser(slug string) *errs.AppError {
 	var user User
 
 	query := fmt.Sprintf(`DELETE FROM user WHERE slug = '%s'`, slug)
@@ -96,7 +97,7 @@ func (db UserRepositoryDb) DeleteUser(slug string) error {
 	_, err := db.client.NamedExec(query, user)
 	if err != nil {
 		log.Println("Error when deleting user", err)
-		return err
+		return errs.NewUnexpectedError("Unexpected error when removing user")
 	}
 
 	return nil
