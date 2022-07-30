@@ -47,6 +47,11 @@ func (service DefaultUserService) UpdateUser(body []byte) (*dto.User, *errs.AppE
 		return nil, errs.NewUnexpectedError(errs.Common.BadlyFormedObject)
 	}
 
+	appErr := userDTO.Validate()
+	if appErr != nil {
+		return nil, appErr
+	}
+
 	user, appErr := service.repo.UpdateUser(userDTO)
 	if appErr != nil {
 		return nil, appErr
@@ -63,6 +68,11 @@ func (service DefaultUserService) CreateUser(body []byte) (*dto.User, *errs.AppE
 	if err != nil {
 		log.Println("FAILED to unmarshal json!", err)
 		return nil, errs.NewUnexpectedError(errs.Common.BadlyFormedObject)
+	}
+
+	appErr := userDTO.Validate()
+	if appErr != nil {
+		return nil, appErr
 	}
 
 	user, appErr := service.repo.CreateUser(userDTO)

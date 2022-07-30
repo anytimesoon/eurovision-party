@@ -55,6 +55,11 @@ func (service DefaultCountryService) UpdateCountry(body []byte) (*dto.Country, *
 		return nil, errs.NewUnexpectedError("Unable to read request")
 	}
 
+	appErr := countryDTO.Validate()
+	if appErr != nil {
+		return nil, appErr
+	}
+
 	country, appErr := service.repo.UpdateCountry(countryDTO)
 	if err != nil {
 		log.Println("FAILED to update country", err)

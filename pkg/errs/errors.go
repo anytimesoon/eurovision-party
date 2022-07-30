@@ -27,6 +27,13 @@ func NewUnexpectedError(message string) *AppError {
 	}
 }
 
+func NewInvalidError(message string) *AppError {
+	return &AppError{
+		Message: message,
+		Code:    http.StatusBadRequest,
+	}
+}
+
 type commonMessages struct {
 	BadlyFormedObject string
 	DBFail            string

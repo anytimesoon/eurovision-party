@@ -45,6 +45,11 @@ func (service DefaultCommentService) CreateComment(body []byte) (*dto.Comment, *
 		return nil, errs.NewUnexpectedError(errs.Common.BadlyFormedObject)
 	}
 
+	appErr := commentDTO.Validate()
+	if appErr != nil {
+		return nil, appErr
+	}
+
 	comment, appErr := service.repo.CreateComment(commentDTO)
 	if err != nil {
 		return nil, appErr

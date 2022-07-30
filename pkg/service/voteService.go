@@ -27,6 +27,11 @@ func (service DefaultVoteService) CreateVote(body []byte) (*dto.Vote, *errs.AppE
 		return nil, err
 	}
 
+	appErr := voteDTO.Validate()
+	if appErr != nil {
+		return nil, appErr
+	}
+
 	vote, AppError := service.repo.CreateVote(voteDTO)
 	if AppError != nil {
 		return nil, AppError
@@ -40,6 +45,11 @@ func (service DefaultVoteService) UpdateVote(body []byte) (*dto.Vote, *errs.AppE
 	voteDTO, err := unmarshalVote(body)
 	if err != nil {
 		return nil, err
+	}
+
+	appErr := voteDTO.Validate()
+	if appErr != nil {
+		return nil, appErr
 	}
 
 	vote, err := service.repo.UpdateVote(voteDTO)
