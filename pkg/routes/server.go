@@ -13,7 +13,7 @@ import (
 )
 
 func StartServer(db *sqlx.DB) {
-	router := mux.NewRouter()
+	router := mux.NewRouter().StrictSlash(true)
 	router.Use(addHeaders, logging)
 
 	// // Country
