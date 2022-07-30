@@ -1,7 +1,6 @@
 # TODO
 
-- vote CRUD
 - testing
+- basic frontend
 - Authentication
 - Authorization
-- validations
