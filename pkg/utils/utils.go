@@ -1,12 +1,25 @@
 package utils
 
-import "strings"
+import (
+	"log"
+	"regexp"
+	"strings"
+)
 
 func Slugify(name string) string {
-	splitName := strings.Split(name, " ")
-	for i, name := range splitName {
-		splitName[i] = strings.ToLower(name)
+	re, err := regexp.Compile(`[[:^alnum:]]`)
+	if err != nil {
+		log.Fatal(err)
 	}
-	slug := strings.Join(splitName, "-")
+
+	splitName := strings.Split(name, " ")
+	finalName := make([]string, 0)
+	for _, word := range splitName {
+		word = re.ReplaceAllString(word, "")
+		if word != "" {
+			finalName = append(finalName, strings.ToLower(word))
+		}
+	}
+	slug := strings.Join(finalName, "-")
 	return slug
 }
