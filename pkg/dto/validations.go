@@ -20,7 +20,7 @@ func isWithinRange(vote uint8, attrName string) string {
 	if vote > topScore {
 		return fmt.Sprintf("Your vote for %s is too high. The maximum is 10", attrName)
 	} else if vote < 1 {
-		return fmt.Sprintf("Your must vote for %s", attrName)
+		return fmt.Sprintf("Your must vote for %s is too low. The minimum is 1", attrName)
 	} else {
 		return ""
 	}
