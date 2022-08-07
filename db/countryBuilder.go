@@ -21,7 +21,16 @@ func CreateCountriesTable(db *sqlx.DB) error {
 	}
 	log.Printf("%d table was dropped", res)
 
-	query = `CREATE TABLE country(uuid char(36) NOT NULL, name VARCHAR(191) NOT NULL, slug VARCHAR(191) NOT NULL, bandName VARCHAR(191), songName VARCHAR(191), flag BLOB NOT NULL, participating BOOLEAN NOT NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci;`
+	query = `CREATE TABLE country(
+				uuid char(36) NOT NULL, 
+				name VARCHAR(191) NOT NULL, 
+				slug VARCHAR(191) NOT NULL, 
+				bandName VARCHAR(191), 
+				songName VARCHAR(191), 
+				flag BLOB NOT NULL, 
+				participating BOOLEAN NOT NULL,
+				UNIQUE (slug)) 
+			  ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci;`
 	ctx, cancelfunc = context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancelfunc()
 	res, err = db.ExecContext(ctx, query)
