@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"eurovision/assets"
 	"eurovision/pkg/domain"
 	"eurovision/pkg/routes/handler"
 	"eurovision/pkg/service"
@@ -14,43 +15,51 @@ import (
 
 func StartServer(db *sqlx.DB) {
 	router := mux.NewRouter().StrictSlash(true)
-	router.Use(addHeaders, logging)
+	router.Use(logging)
 
-	// // Country
+	apiRouter := router.PathPrefix("/api").Subrouter()
+	apiRouter.Use(jsHeaders)
+
+	// Country
 	countryRepositoryDb := domain.NewCountryRepositoryDb(db)
 	countryHandler := handler.CountryHandler{Service: service.NewCountryService(countryRepositoryDb)}
-
-	countryRouter := router.PathPrefix("/country").Subrouter()
+	countryRouter := apiRouter.PathPrefix("/country").Subrouter()
 	countryRouter.HandleFunc("/", countryHandler.FindAllCountries).Methods(http.MethodGet)
 	countryRouter.HandleFunc("/", countryHandler.UpdateCountry).Methods(http.MethodPut)
 	countryRouter.HandleFunc("/{slug}", countryHandler.FindOneCountry).Methods(http.MethodGet)
 
-	// // User
+	// User
 	userRepositoryDb := domain.NewUserRepositoryDb(db)
 	userHandler := handler.UserHandler{Service: service.NewUserService(userRepositoryDb)}
-	userRouter := router.PathPrefix("/user").Subrouter()
+	userRouter := apiRouter.PathPrefix("/user").Subrouter()
 	userRouter.HandleFunc("/", userHandler.FindAllUsers).Methods(http.MethodGet)
 	userRouter.HandleFunc("/", userHandler.UpdateUser).Methods(http.MethodPut)
 	userRouter.HandleFunc("/new", userHandler.CreateUser).Methods((http.MethodPost))
 	userRouter.HandleFunc("/{slug}", userHandler.FindOneUser).Methods(http.MethodGet)
 	userRouter.HandleFunc("/{slug}/rem", userHandler.RemoveUser).Methods(http.MethodDelete)
 
-	// // Comment
+	// Comment
 	commentRepositoryDb := domain.NewCommentRepositoryDb(db)
 	commentHandler := handler.CommentHandler{Service: service.NewCommentService(commentRepositoryDb)}
-	commentRouter := router.PathPrefix("/comment").Subrouter()
+	commentRouter := apiRouter.PathPrefix("/comment").Subrouter()
 	commentRouter.HandleFunc("/", commentHandler.FindAllComments).Methods(http.MethodGet)
 	commentRouter.HandleFunc("/new", commentHandler.CreateComment).Methods((http.MethodPost))
 	commentRouter.HandleFunc("/{uuid}/rem", commentHandler.RemoveComment).Methods(http.MethodDelete)
 
-	// // Vote
+	// Vote
 	voteRepositoryDb := domain.NewVoteRepositoryDb(db)
 	voteHandler := handler.VoteHandler{Service: service.NewVoteService(voteRepositoryDb)}
-	voteRouter := router.PathPrefix("/vote").Subrouter()
+	voteRouter := apiRouter.PathPrefix("/vote").Subrouter()
 	voteRouter.HandleFunc("/new", voteHandler.CreateVote).Methods(http.MethodPost)
 	voteRouter.HandleFunc("/", voteHandler.UpdateVote).Methods(http.MethodPut)
 	// voteRouter.HandleFunc("/user/{userId}", voteHandler.VoteByUser).Methods(http.MethodGet)
 	// voteRouter.HandleFunc("/country/{countryId}", voteHandler.VoteByUser).Methods(http.MethodGet)
+
+	// Assets
+	fs := assets.NewStaticImageFS()
+	imageRouter := router.PathPrefix("/img").Subrouter()
+	imageRouter.PathPrefix("/static/").Handler(http.StripPrefix("/img/static/", fs)).Methods(http.MethodGet)
+	imageRouter.Use(imgHeaders)
 
 	headersOk := handlers.AllowedHeaders([]string{"Content-type", "Authorization", "Origin", "Access-Control-Allow-Origin", "Accept", "Options", "X-Requested-With"})
 	originsOk := handlers.AllowedOrigins([]string{"*"})
