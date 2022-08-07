@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"eurovision/pkg/utils"
 	"fmt"
 	"log"
 	"time"
@@ -16,13 +17,19 @@ func CreateUsersTable(db *sqlx.DB) error {
 	defer cancelfunc()
 	res, err := db.ExecContext(ctx, query)
 	if err != nil {
-		log.Printf("Error %s when dropping user table", err)
+		log.Fatalf("Error %s when dropping user table", err)
 		return err
 	}
 	log.Printf("%d table was dropped", res)
 
 	// TODO add default value to icon
-	query = `CREATE TABLE user(uuid char(36) NOT NULL, name VARCHAR(191) NOT NULL, slug VARCHAR(191) NOT NULL, authLvl TINYINT DEFAULT 0, icon VARCHAR(191));`
+	query = `CREATE TABLE user(
+				uuid char(36) NOT NULL, 
+				name VARCHAR(191) NOT NULL, 
+				slug VARCHAR(191) NOT NULL, 
+				authLvl TINYINT DEFAULT 0, 
+				icon VARCHAR(191) DEFAULT '/img/static/img/newuser.png',
+				UNIQUE (slug));`
 	ctx, cancelfunc = context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancelfunc()
 	res, err = db.ExecContext(ctx, query)
@@ -45,7 +52,9 @@ func AddAdminUser(db *sqlx.DB) error {
 	ctx, cancelfunc := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancelfunc()
 
-	query := fmt.Sprintf(`INSERT INTO user(uuid, name, slug, authLvl, icon) VALUES ('%s', 'admin', 'admin', 1, '')`, uuid.New().String())
+	name := "admin"
+
+	query := fmt.Sprintf(`INSERT INTO user(uuid, name, slug, authLvl) VALUES ('%s', '%s', '%s', 1)`, uuid.New().String(), name, utils.Slugify(name))
 	stmt, err := db.PrepareContext(ctx, query)
 	if err != nil {
 		log.Printf("Error %s when preparing SQL statement", err)

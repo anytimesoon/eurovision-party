@@ -35,5 +35,6 @@ func (user User) ToDto() dto.User {
 		Name: user.Name,
 		Slug: user.Slug,
 		UUID: user.UUID,
+		Icon: user.Icon,
 	}
 }

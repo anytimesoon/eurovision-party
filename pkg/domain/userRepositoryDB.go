@@ -58,7 +58,7 @@ func (db UserRepositoryDb) CreateUser(userDTO dto.User) (*User, *errs.AppError) 
 
 	slug := utils.Slugify(userDTO.Name)
 
-	query := fmt.Sprintf(`INSERT INTO user(uuid, name, slug, authLvl, icon) VALUES ('%s', '%s', '%s', 0, '')`, uuid.New().String(), userDTO.Name, slug)
+	query := fmt.Sprintf(`INSERT INTO user(uuid, name, slug, authLvl) VALUES ('%s', '%s', '%s', 0)`, uuid.New().String(), userDTO.Name, slug)
 
 	_, err := db.client.NamedExec(query, user)
 	if err != nil {
