@@ -70,6 +70,8 @@ func (service DefaultUserService) CreateUser(body []byte) (*dto.User, *errs.AppE
 		return nil, errs.NewUnexpectedError(errs.Common.BadlyFormedObject)
 	}
 
+	userDTO.Slugify()
+
 	appErr := userDTO.Validate()
 	if appErr != nil {
 		return nil, appErr

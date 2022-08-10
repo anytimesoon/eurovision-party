@@ -2,8 +2,10 @@ package dto
 
 import (
 	"eurovision/pkg/errs"
+	"fmt"
 
 	"github.com/google/uuid"
+	"github.com/jmoiron/sqlx"
 )
 
 type Country struct {
@@ -30,4 +32,25 @@ func (c Country) Validate() *errs.AppError {
 	}
 
 	return messagesToError(messages)
+}
+
+func (c Country) GetName() string {
+	return c.Name
+}
+
+func (c *Country) SetSlug(slug string) {
+	c.Slug = slug
+}
+
+func (c Country) VerifySlug(slug string, db *sqlx.DB) bool {
+	query := fmt.Sprintf("SELECT * FROM country WHERE slug = '%s'", slug)
+	row, err := db.Queryx(query)
+	if err != nil {
+		return false
+	}
+
+	if row.Rows != nil {
+		return false
+	}
+	return true
 }

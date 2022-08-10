@@ -2,7 +2,7 @@ package db
 
 import (
 	"context"
-	"eurovision/pkg/utils"
+	"eurovision/pkg/dto"
 	"log"
 	"time"
 
@@ -50,7 +50,7 @@ func CreateCountriesTable(db *sqlx.DB) error {
 }
 
 func AddCountries(db *sqlx.DB) error {
-	ctx, cancelfunc := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancelfunc := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancelfunc()
 
 	query := "INSERT INTO country(uuid, name, slug, bandName, songName, flag, participating) VALUES (?, ?, ?, ?, ?, ?, ?)"
@@ -62,14 +62,14 @@ func AddCountries(db *sqlx.DB) error {
 	defer stmt.Close()
 
 	for _, country := range InitCountries {
-		slug := utils.Slugify(country.Name)
-		newId, err := uuid.NewUUID()
-		if err != nil {
-			log.Printf("Error %s when creating new UUID", err)
-			return err
+		newCountry := dto.Country{
+			ID:   uuid.New(),
+			Name: country.Name,
+			Flag: country.Flag,
+			Slug: country.Slug,
 		}
 
-		res, err := stmt.ExecContext(ctx, newId, country.Name, slug, "", "", country.Flag, false)
+		res, err := stmt.ExecContext(ctx, newCountry.ID, newCountry.Name, newCountry.Slug, "", "", newCountry.Flag, false)
 		if err != nil {
 			log.Printf("Error %s when inserting row into countries table", err)
 			return err

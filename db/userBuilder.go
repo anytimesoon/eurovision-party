@@ -2,7 +2,7 @@ package db
 
 import (
 	"context"
-	"eurovision/pkg/utils"
+	"eurovision/pkg/dto"
 	"fmt"
 	"log"
 	"time"
@@ -52,9 +52,13 @@ func AddAdminUser(db *sqlx.DB) error {
 	ctx, cancelfunc := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancelfunc()
 
-	name := "admin"
+	adminUser := dto.User{
+		UUID: uuid.New(),
+		Name: "admin",
+		Slug: "admin",
+	}
 
-	query := fmt.Sprintf(`INSERT INTO user(uuid, name, slug, authLvl) VALUES ('%s', '%s', '%s', 1)`, uuid.New().String(), name, utils.Slugify(name))
+	query := fmt.Sprintf(`INSERT INTO user(uuid, name, slug, authLvl) VALUES ('%s', '%s', '%s', 1)`, adminUser.UUID.String(), adminUser.Name, adminUser.Slug)
 	stmt, err := db.PrepareContext(ctx, query)
 	if err != nil {
 		log.Printf("Error %s when preparing SQL statement", err)

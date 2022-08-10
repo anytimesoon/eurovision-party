@@ -3,9 +3,9 @@ package domain
 import (
 	"eurovision/pkg/dto"
 	"eurovision/pkg/errs"
-	"eurovision/pkg/utils"
 	"fmt"
 	"log"
+	"strconv"
 
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
@@ -56,17 +56,21 @@ func (db UserRepositoryDb) UpdateUser(userDTO dto.User) (*User, *errs.AppError) 
 func (db UserRepositoryDb) CreateUser(userDTO dto.User) (*User, *errs.AppError) {
 	var user User
 
-	slug := utils.Slugify(userDTO.Name)
+	err := db.VerifySlug(&userDTO)
+	if err != nil {
+		log.Printf("Error when slufigying user %s with message %s", userDTO.Name, err)
+		return nil, errs.NewUnexpectedError(errs.Common.NotCreated + "user")
+	}
 
-	query := fmt.Sprintf(`INSERT INTO user(uuid, name, slug, authLvl) VALUES ('%s', '%s', '%s', 0)`, uuid.New().String(), userDTO.Name, slug)
+	query := fmt.Sprintf(`INSERT INTO user(uuid, name, slug, authLvl) VALUES ('%s', '%s', '%s', 0)`, uuid.New().String(), userDTO.Name, userDTO.Slug)
 
-	_, err := db.client.NamedExec(query, user)
+	_, err = db.client.NamedExec(query, user)
 	if err != nil {
 		log.Printf("Error when creating new user %s, %s", userDTO.Name, err)
 		return nil, errs.NewUnexpectedError(errs.Common.NotCreated + "user")
 	}
 
-	query = fmt.Sprintf(`SELECT * FROM user WHERE slug = '%s'`, slug)
+	query = fmt.Sprintf(`SELECT * FROM user WHERE slug = '%s'`, userDTO.Slug)
 	err = db.client.Get(&user, query)
 	if err != nil {
 		log.Printf("Error when fetching user %s after create %s", userDTO.Name, err)
@@ -98,6 +102,30 @@ func (db UserRepositoryDb) DeleteUser(slug string) *errs.AppError {
 	if err != nil {
 		log.Println("Error when deleting user", err)
 		return errs.NewUnexpectedError(errs.Common.NotDeleted + "user")
+	}
+
+	return nil
+}
+
+func (db UserRepositoryDb) VerifySlug(userDTO *dto.User) error {
+	// Verify the name is unique or add a number to the end
+	counter := 0
+	for {
+		if counter > 0 {
+			userDTO.Slug = userDTO.Slug + "-" + strconv.Itoa(counter)
+		}
+
+		query := fmt.Sprintf("SELECT * FROM user WHERE slug = '%s'", userDTO.Slug)
+		rows, err := db.client.Query(query)
+		if err != nil {
+			return err
+		}
+
+		if !rows.Next() {
+			break
+		}
+
+		counter++
 	}
 
 	return nil
