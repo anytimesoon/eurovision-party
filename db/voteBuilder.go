@@ -1,39 +1,32 @@
 package db
 
 import (
-	"context"
 	"log"
-	"time"
 
 	"github.com/jmoiron/sqlx"
 )
 
-func CreateVotesTable(db *sqlx.DB) error {
+func CreateVotesTable(db *sqlx.DB) {
 	query := `DROP TABLE IF EXISTS vote;`
-	ctx, cancelfunc := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancelfunc()
-	res, err := db.ExecContext(ctx, query)
+	_, err := db.Exec(query)
 	if err != nil {
-		log.Printf("Error %s when creating vote table", err)
-		return err
+		log.Fatalf("Error when creating vote table %s", err)
 	}
-	log.Printf("%d table was dropped", res)
+	log.Printf("Vote table was dropped ⬇")
 
-	query = `CREATE TABLE vote(uuid CHAR(36) NOT NULL, userId CHAR(36) NOT NULL, countryId CHAR(36) NOT NULL, costume TINYINT, song TINYINT, performance TINYINT, props TINYINT);`
-	ctx, cancelfunc = context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancelfunc()
-	res, err = db.ExecContext(ctx, query)
-	if err != nil {
-		log.Printf("Error %s when creating vote table", err)
-		return err
-	}
+	query = `CREATE TABLE IF NOT EXISTS vote(
+				uuid CHAR(36) NOT NULL, 
+				userId CHAR(36) NOT NULL, 
+				countryId CHAR(36) NOT NULL, 
+				costume TINYINT, 
+				song TINYINT, 
+				performance TINYINT, 
+				props TINYINT);`
 
-	rows, err := res.RowsAffected()
+	_, err = db.Exec(query)
 	if err != nil {
-		log.Printf("Error %s when getting rows affected", err)
-		return err
+		log.Fatalf("Error when creating vote table %s", err)
 	}
 
-	log.Printf("Rows affected when creating vote table: %d", rows)
-	return nil
+	log.Printf("Vote table created 😃")
 }

@@ -1,100 +1,32 @@
 package db
 
 import (
-	"context"
 	"fmt"
 	"log"
-	"time"
 
 	"github.com/jmoiron/sqlx"
 )
 
 func StartMigrations() sqlx.DB {
-	sqlDb, err := connect()
-	if err != nil {
-		log.Panicf("Error %s when getting db connection", err)
-	}
+	sqlDb := sqlx.MustConnect("mysql", dsn())
 
 	log.Printf("Successfully connected to database")
 
-	err = CreateCountriesTable(sqlDb)
-	if err != nil {
-		log.Panicf("FAILED to create country table %s", err)
-	}
+	CreateCountriesTable(sqlDb)
 
-	err = AddCountries(sqlDb)
-	if err != nil {
-		log.Panicf("FAILED to add countries %s", err)
-	}
+	AddCountries(sqlDb)
 
-	err = CreateUsersTable(sqlDb)
-	if err != nil {
-		log.Panicf("FAILED to create user table %s", err)
-	}
+	CreateUsersTable(sqlDb)
 
-	err = AddAdminUser(sqlDb)
-	if err != nil {
-		log.Panicf("FAILED to add admin user %s", err)
-	}
+	AddAdminUser(sqlDb)
 
-	err = CreateCommentsTable(sqlDb)
-	if err != nil {
-		log.Panicf("FAILED to create comment table %s", err)
-	}
+	CreateCommentsTable(sqlDb)
 
-	err = CreateVotesTable(sqlDb)
-	if err != nil {
-		log.Panicf("FAILED to create vote table %s", err)
-	}
+	CreateVotesTable(sqlDb)
 
 	return *sqlDb
 }
 
-func dsn(dbName string) string {
+func dsn() string {
 	return fmt.Sprintf("%s:%s@tcp(%s)/%s?parseTime=true", Username, Password, Hostname, DBName)
-}
-
-func connect() (*sqlx.DB, error) {
-	db, err := sqlx.Open("mysql", dsn(""))
-	if err != nil {
-		log.Printf("Error %s when opening DB\n", err)
-		return nil, err
-	}
-
-	ctx, cancelfunc := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancelfunc()
-
-	query := fmt.Sprintf("CREATE DATABASE IF NOT EXISTS %s CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;", DBName)
-	res, err := db.ExecContext(ctx, query)
-	if err != nil {
-		log.Printf("Error %s when creating DB\n", err)
-		return nil, err
-	}
-
-	rows, err := res.RowsAffected()
-	if err != nil {
-		log.Printf("Error %s when fetching rows", err)
-		return nil, err
-	}
-	log.Printf("Rows affected %d\n", rows)
-
-	db, err = sqlx.Open("mysql", dsn(DBName))
-	if err != nil {
-		log.Printf("Error %s when opening DB", err)
-		return nil, err
-	}
-
-	db.SetMaxOpenConns(20)
-	db.SetMaxIdleConns(20)
-	db.SetConnMaxLifetime(time.Minute * 5)
-
-	ctx, cancelfunc = context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancelfunc()
-	err = db.PingContext(ctx)
-	if err != nil {
-		log.Printf("Errors %s pinging DB", err)
-		return nil, err
-	}
-	log.Printf("Connected to DB %s successfully\n", DBName)
-	return db, nil
 }
