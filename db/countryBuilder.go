@@ -37,7 +37,7 @@ func CreateCountriesTable(db *sqlx.DB) {
 func AddCountries(db *sqlx.DB) {
 	query := "INSERT INTO country(uuid, name, slug, bandName, songName, flag, participating) VALUES (?, ?, ?, ?, ?, ?, ?)"
 
-	for _, country := range InitCountries {
+	for _, country := range initCountries {
 		id := uuid.New()
 
 		_, err := db.Exec(query, id, country.Name, country.Slug, "", "", country.Flag, false)

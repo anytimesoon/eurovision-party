@@ -15,11 +15,12 @@ type User struct {
 	Icon    string    `db:"icon"`
 }
 
-type AuthLvl int
+type AuthLvl uint8
 
 const (
 	None AuthLvl = iota
 	Admin
+	Bot
 )
 
 type UserRepository interface {

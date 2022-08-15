@@ -1,8 +1,6 @@
 package db
 
 import (
-	"eurovision/pkg/domain"
-	"fmt"
 	"log"
 
 	"github.com/google/uuid"
@@ -33,20 +31,25 @@ func CreateUsersTable(db *sqlx.DB) {
 	log.Printf("User table was created 😃")
 }
 
-func AddAdminUser(db *sqlx.DB) {
-	adminUser := domain.User{
-		UUID:    uuid.New(),
-		Name:    "admin",
-		Slug:    "admin",
-		AuthLvl: domain.Admin,
+func AddUsers(db *sqlx.DB) {
+	query := "INSERT INTO user(uuid, name, slug, authLvl) VALUES (?, ?, ?, ?)"
+
+	for _, user := range initUsers {
+		id := uuid.New()
+
+		_, err := db.Exec(query, id, user.Name, user.Slug, user.AuthLvl)
+		if err != nil {
+			log.Fatalf("User %s was not created. %s", user.Name, err)
+		}
+
+		switch user.AuthLvl {
+		case 1:
+			log.Printf("User %s created 👨‍💻", user.Name)
+		case 2:
+			log.Printf("User %s created 🤖", user.Name)
+		default:
+			log.Printf("User %s created 👨", user.Name)
+		}
+
 	}
-
-	query := fmt.Sprintf(`INSERT INTO user(uuid, name, slug, authLvl) VALUES ('%s', '%s', '%s', )`, adminUser.UUID.String(), adminUser.Name, adminUser.Slug)
-
-	_, err := db.Exec(query)
-	if err != nil {
-		log.Fatalf("sql execution FAILED! admin user was not created. %s", err)
-	}
-
-	log.Println("Admin user created 👨‍💼")
 }

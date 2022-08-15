@@ -17,7 +17,26 @@ type initialCountryParams struct {
 	Slug string
 }
 
-var InitCountries = []initialCountryParams{
+type initialUserParams struct {
+	Name    string
+	Slug    string
+	AuthLvl uint8
+}
+
+var initUsers = []initialUserParams{
+	{
+		Name:    "admin",
+		Slug:    "admin",
+		AuthLvl: 1,
+	},
+	{
+		Name:    "bot",
+		Slug:    "bot",
+		AuthLvl: 2,
+	},
+}
+
+var initCountries = []initialCountryParams{
 	{
 		Name: "Italy",
 		Flag: "🇮🇹",

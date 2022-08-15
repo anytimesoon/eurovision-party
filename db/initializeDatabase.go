@@ -9,20 +9,17 @@ import (
 
 func StartMigrations() sqlx.DB {
 	sqlDb := sqlx.MustConnect("mysql", dsn())
+	log.Println("Successfully connected to database")
 
-	log.Printf("Successfully connected to database")
-
+	log.Println("Building tables 🏗")
 	CreateCountriesTable(sqlDb)
-
-	AddCountries(sqlDb)
-
 	CreateUsersTable(sqlDb)
-
-	AddAdminUser(sqlDb)
-
 	CreateCommentsTable(sqlDb)
-
 	CreateVotesTable(sqlDb)
+
+	log.Println("Seeding tables 🌱")
+	AddCountries(sqlDb)
+	AddUsers(sqlDb)
 
 	return *sqlDb
 }
