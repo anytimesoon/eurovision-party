@@ -1,4 +1,4 @@
-package db
+package migrations
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func StartMigrations() sqlx.DB {
+func Start() sqlx.DB {
 	sqlDb := sqlx.MustConnect("mysql", dsn())
 	log.Println("Successfully connected to database")
 
