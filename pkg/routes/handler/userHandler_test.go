@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"encoding/json"
 	"eurovision/mocks/service"
 	"eurovision/pkg/dto"
 	"eurovision/pkg/errs"
@@ -40,7 +41,14 @@ func Test_should_return_users_with_200_code(t *testing.T) {
 	router.ServeHTTP(recorder, req)
 
 	if recorder.Code != http.StatusOK {
-		t.Error("Failed while testing the status code")
+		t.Error("Expected status code 200, but got", recorder.Code)
+	}
+
+	users := make([]dto.User, 0)
+	json.Unmarshal(recorder.Body.Bytes(), &users)
+
+	if len(users) != 2 {
+		t.Error("Expected 2 users, but found", len(users))
 	}
 }
 
@@ -55,6 +63,6 @@ func Test_should_return_500_code(t *testing.T) {
 	router.ServeHTTP(recorder, req)
 
 	if recorder.Code != http.StatusInternalServerError {
-		t.Error("Failed while testing the status code")
+		t.Error("Expected status code 500, but got", recorder.Code)
 	}
 }
