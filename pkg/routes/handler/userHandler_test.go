@@ -25,9 +25,10 @@ func setup(t *testing.T) {
 
 	router = mux.NewRouter()
 	router.HandleFunc("/user", uh.FindAllUsers)
+	router.HandleFunc("/user", uh.CreateUser)
 }
 
-func Test_should_return_users_with_200_code(t *testing.T) {
+func Test_all_user_route_should_return_users_with_200_code(t *testing.T) {
 	setup(t)
 	mockUsers := []dto.User{
 		{UUID: uuid.New(), Name: "tEsTuSeR", Slug: "testuser", Icon: "/img/static/img/newuser.png"},
@@ -52,7 +53,7 @@ func Test_should_return_users_with_200_code(t *testing.T) {
 	}
 }
 
-func Test_should_return_500_code(t *testing.T) {
+func Test_all_user_route_should_return_500_code(t *testing.T) {
 	setup(t)
 
 	mockService.EXPECT().GetAllUsers().Return(nil, errs.NewUnexpectedError("Couldn't find users"))
