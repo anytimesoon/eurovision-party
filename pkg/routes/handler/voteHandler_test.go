@@ -67,3 +67,40 @@ func Test_new_vote_route_returns_200_code(t *testing.T) {
 		t.Error("Expected status code 200, but got", recorder.Code)
 	}
 }
+
+func Test_vote_update_route_returns_500_code(t *testing.T) {
+	setupVoteTest(t)
+
+	mockVoteService.EXPECT().UpdateVote(voteJSON).Return(nil, errs.NewUnexpectedError("Couldn't update vote"))
+
+	req, _ := http.NewRequest(http.MethodPut, "/vote", voteBody)
+
+	recorder := httptest.NewRecorder()
+	voteRouter.ServeHTTP(recorder, req)
+
+	if recorder.Code != http.StatusInternalServerError {
+		t.Error("Expected status code 500, but got", recorder.Code)
+	}
+}
+
+func Test_vote_update_route_returns_updated_vote(t *testing.T) {
+	setupVoteTest(t)
+
+	mockVoteService.EXPECT().UpdateVote(voteJSON).Return(&mockVote, nil)
+
+	req, _ := http.NewRequest(http.MethodPut, "/vote", voteBody)
+
+	recorder := httptest.NewRecorder()
+	voteRouter.ServeHTTP(recorder, req)
+
+	if recorder.Code != http.StatusOK {
+		t.Error("Expected status code 200, but got", recorder.Code)
+	}
+
+	var vote dto.Vote
+	json.Unmarshal(recorder.Body.Bytes(), &vote)
+
+	if vote != mockVote {
+		t.Errorf("Expected %+v to equal %+v", vote, mockVote)
+	}
+}
