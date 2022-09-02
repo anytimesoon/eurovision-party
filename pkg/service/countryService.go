@@ -8,6 +8,7 @@ import (
 	"log"
 )
 
+//go:generate mockgen -source=countryService.go -destination=../../mocks/service/mockCountryService.go -package=service eurovision/pkg/service
 type CountryService interface {
 	GetAllCountries() ([]dto.Country, *errs.AppError)
 	UpdateCountry([]byte) (*dto.Country, *errs.AppError)
