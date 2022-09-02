@@ -34,23 +34,23 @@ func StartServer(db *sqlx.DB) {
 	userRouter := apiRouter.PathPrefix("/user").Subrouter()
 	userRouter.HandleFunc("/", userHandler.FindAllUsers).Methods(http.MethodGet)
 	userRouter.HandleFunc("/", userHandler.UpdateUser).Methods(http.MethodPut)
-	userRouter.HandleFunc("/new", userHandler.CreateUser).Methods((http.MethodPost))
+	userRouter.HandleFunc("/", userHandler.CreateUser).Methods((http.MethodPost))
 	userRouter.HandleFunc("/{slug}", userHandler.FindOneUser).Methods(http.MethodGet)
-	userRouter.HandleFunc("/{slug}/rem", userHandler.RemoveUser).Methods(http.MethodDelete)
+	userRouter.HandleFunc("/{slug}", userHandler.RemoveUser).Methods(http.MethodDelete)
 
 	// Comment
 	commentRepositoryDb := domain.NewCommentRepositoryDb(db)
 	commentHandler := handler.CommentHandler{Service: service.NewCommentService(commentRepositoryDb)}
 	commentRouter := apiRouter.PathPrefix("/comment").Subrouter()
 	commentRouter.HandleFunc("/", commentHandler.FindAllComments).Methods(http.MethodGet)
-	commentRouter.HandleFunc("/new", commentHandler.CreateComment).Methods((http.MethodPost))
-	commentRouter.HandleFunc("/{uuid}/rem", commentHandler.RemoveComment).Methods(http.MethodDelete)
+	commentRouter.HandleFunc("/", commentHandler.CreateComment).Methods((http.MethodPost))
+	commentRouter.HandleFunc("/{uuid}", commentHandler.RemoveComment).Methods(http.MethodDelete)
 
 	// Vote
 	voteRepositoryDb := domain.NewVoteRepositoryDb(db)
 	voteHandler := handler.VoteHandler{Service: service.NewVoteService(voteRepositoryDb)}
 	voteRouter := apiRouter.PathPrefix("/vote").Subrouter()
-	voteRouter.HandleFunc("/new", voteHandler.CreateVote).Methods(http.MethodPost)
+	voteRouter.HandleFunc("/", voteHandler.CreateVote).Methods(http.MethodPost)
 	voteRouter.HandleFunc("/", voteHandler.UpdateVote).Methods(http.MethodPut)
 	// voteRouter.HandleFunc("/user/{userId}", voteHandler.VoteByUser).Methods(http.MethodGet)
 	// voteRouter.HandleFunc("/country/{countryId}", voteHandler.VoteByUser).Methods(http.MethodGet)
