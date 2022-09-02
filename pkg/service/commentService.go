@@ -8,6 +8,7 @@ import (
 	"log"
 )
 
+//go:generate mockgen -source=commentService.go -destination=../../mocks/service/mockCommentService.go -package=service eurovision/pkg/service
 type CommentService interface {
 	FindAllComments() ([]dto.Comment, *errs.AppError)
 	CreateComment([]byte) (*dto.Comment, *errs.AppError)
