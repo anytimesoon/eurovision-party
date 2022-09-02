@@ -8,6 +8,7 @@ import (
 	"log"
 )
 
+//go:generate mockgen -source=voteService.go -destination=../../mocks/service/mockVoteService.go -package=service eurovision/pkg/service
 type VoteService interface {
 	CreateVote([]byte) (*dto.Vote, *errs.AppError)
 	UpdateVote([]byte) (*dto.Vote, *errs.AppError)
