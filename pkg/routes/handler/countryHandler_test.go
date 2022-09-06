@@ -22,6 +22,9 @@ var mockCountries []dto.Country
 var mockCountry dto.Country
 var countryJSON []byte
 var countryBody *bytes.Buffer
+var invalidCountry dto.Country
+var invalidCountryJSON []byte
+var invalidCountryBody *bytes.Buffer
 
 func setupCountryTest(t *testing.T) {
 	ctrl := gomock.NewController(t)
@@ -36,32 +39,14 @@ func setupCountryTest(t *testing.T) {
 	countryJSON, _ = json.Marshal(mockCountry)
 	countryBody = bytes.NewBuffer(countryJSON)
 
+	invalidCountry = dto.Country{ID: uuid.New(), Name: "iVaLiDcOuNtRy", Slug: "invalidcountry", BandName: "", SongName: "", Flag: "🇫🇷", Participating: true}
+	invalidCountryJSON, _ = json.Marshal(invalidCountry)
+	invalidCountryBody = bytes.NewBuffer(invalidCountryJSON)
+
 	countryRouter = mux.NewRouter()
 	countryRouter.HandleFunc("/country", ch.FindAllCountries).Methods(http.MethodGet)
 	countryRouter.HandleFunc("/country", ch.UpdateCountry).Methods(http.MethodPut)
 	countryRouter.HandleFunc("/country/{slug}", ch.FindOneCountry).Methods(http.MethodGet)
-}
-
-func Test_all_countries_route_should_return_countries_with_200_code(t *testing.T) {
-	setupCountryTest(t)
-
-	mockCountryService.EXPECT().GetAllCountries().Return(mockCountries, nil)
-
-	req, _ := http.NewRequest(http.MethodGet, "/country", nil)
-
-	recorder := httptest.NewRecorder()
-	countryRouter.ServeHTTP(recorder, req)
-
-	if recorder.Code != http.StatusOK {
-		t.Error("Expected status code 200, but got", recorder.Code)
-	}
-
-	countries := make([]dto.User, 0)
-	json.Unmarshal(recorder.Body.Bytes(), &countries)
-
-	if len(countries) != 2 {
-		t.Error("Expected 2 countries, but found", len(countries))
-	}
 }
 
 func Test_all_countries_route_should_return_500_code(t *testing.T) {
@@ -79,6 +64,21 @@ func Test_all_countries_route_should_return_500_code(t *testing.T) {
 	}
 }
 
+func Test_all_countries_route_should_return_200_code(t *testing.T) {
+	setupCountryTest(t)
+
+	mockCountryService.EXPECT().GetAllCountries().Return(mockCountries, nil)
+
+	req, _ := http.NewRequest(http.MethodGet, "/country", nil)
+
+	recorder := httptest.NewRecorder()
+	countryRouter.ServeHTTP(recorder, req)
+
+	if recorder.Code != http.StatusOK {
+		t.Error("Expected status code 200, but got", recorder.Code)
+	}
+}
+
 func Test_country_update_route_returns_500_code(t *testing.T) {
 	setupCountryTest(t)
 
@@ -91,6 +91,21 @@ func Test_country_update_route_returns_500_code(t *testing.T) {
 
 	if recorder.Code != http.StatusInternalServerError {
 		t.Error("Expected status code 500, but got", recorder.Code)
+	}
+}
+
+func Test_update_country_route_returns_400_error(t *testing.T) {
+	setupCountryTest(t)
+
+	mockCountryService.EXPECT().UpdateCountry(invalidCountryJSON).Return(nil, errs.NewInvalidError("Band name must not be blank"))
+
+	req, _ := http.NewRequest(http.MethodPut, "/country", invalidCountryBody)
+
+	recorder := httptest.NewRecorder()
+	countryRouter.ServeHTTP(recorder, req)
+
+	if recorder.Code != http.StatusBadRequest {
+		t.Errorf("Expected 400 error, but got %d", recorder.Code)
 	}
 }
 

@@ -19,6 +19,12 @@ var userRouter *mux.Router
 var uh UserHandler
 var mockUserService *service.MockUserService
 var mockUsers []dto.User
+var mockUser dto.User
+var userJSON []byte
+var userBody *bytes.Buffer
+var invalidUser dto.User
+var invalidUserJSON []byte
+var invalidUserBody *bytes.Buffer
 
 func setupUserTest(t *testing.T) {
 	ctrl := gomock.NewController(t)
@@ -29,34 +35,20 @@ func setupUserTest(t *testing.T) {
 		{UUID: uuid.New(), Name: "mOcKuSeR", Slug: "mockuser", Icon: "/img/static/img/newuser.png"},
 	}
 
+	mockUser = mockUsers[0]
+	userJSON, _ = json.Marshal(mockUser)
+	userBody = bytes.NewBuffer(userJSON)
+
+	invalidUser = dto.User{UUID: uuid.New(), Name: "mOcKuSeR", Slug: "mockuser", Icon: "/img/static/img/newuser.png"}
+	invalidUserJSON, _ = json.Marshal(invalidUser)
+	invalidUserBody = bytes.NewBuffer(invalidUserJSON)
+
 	userRouter = mux.NewRouter()
 	userRouter.HandleFunc("/user", uh.FindAllUsers).Methods(http.MethodGet)
 	userRouter.HandleFunc("/user", uh.UpdateUser).Methods(http.MethodPut)
 	userRouter.HandleFunc("/user", uh.CreateUser).Methods(http.MethodPost)
 	userRouter.HandleFunc("/user/{slug}", uh.FindOneUser).Methods(http.MethodGet)
 	userRouter.HandleFunc("/user/{slug}", uh.RemoveUser).Methods(http.MethodDelete)
-}
-
-func Test_all_user_route_should_return_users_with_200_code(t *testing.T) {
-	setupUserTest(t)
-
-	mockUserService.EXPECT().GetAllUsers().Return(mockUsers, nil)
-
-	req, _ := http.NewRequest(http.MethodGet, "/user", nil)
-
-	recorder := httptest.NewRecorder()
-	userRouter.ServeHTTP(recorder, req)
-
-	if recorder.Code != http.StatusOK {
-		t.Error("Expected status code 200, but got", recorder.Code)
-	}
-
-	users := make([]dto.User, 0)
-	json.Unmarshal(recorder.Body.Bytes(), &users)
-
-	if len(users) != 2 {
-		t.Error("Expected 2 users, but found", len(users))
-	}
 }
 
 func Test_all_user_route_should_return_500_code(t *testing.T) {
@@ -74,35 +66,12 @@ func Test_all_user_route_should_return_500_code(t *testing.T) {
 	}
 }
 
-func Test_user_update_route_returns_500_code(t *testing.T) {
+func Test_all_user_route_should_return_200_code(t *testing.T) {
 	setupUserTest(t)
 
-	mockUser := mockUsers[0]
-	userJSON, _ := json.Marshal(mockUser)
-	body := bytes.NewBuffer(userJSON)
+	mockUserService.EXPECT().GetAllUsers().Return(mockUsers, nil)
 
-	mockUserService.EXPECT().UpdateUser(userJSON).Return(nil, errs.NewUnexpectedError("Couldn't update user"))
-
-	req, _ := http.NewRequest(http.MethodPut, "/user", body)
-
-	recorder := httptest.NewRecorder()
-	userRouter.ServeHTTP(recorder, req)
-
-	if recorder.Code != http.StatusInternalServerError {
-		t.Error("Expected status code 500, but got", recorder.Code)
-	}
-}
-
-func Test_user_update_route_returns_updated_user(t *testing.T) {
-	setupUserTest(t)
-
-	mockUser := mockUsers[0]
-	userJSON, _ := json.Marshal(mockUser)
-	body := bytes.NewBuffer(userJSON)
-
-	mockUserService.EXPECT().UpdateUser(userJSON).Return(&mockUser, nil)
-
-	req, _ := http.NewRequest(http.MethodPut, "/user", body)
+	req, _ := http.NewRequest(http.MethodGet, "/user", nil)
 
 	recorder := httptest.NewRecorder()
 	userRouter.ServeHTTP(recorder, req)
@@ -110,25 +79,14 @@ func Test_user_update_route_returns_updated_user(t *testing.T) {
 	if recorder.Code != http.StatusOK {
 		t.Error("Expected status code 200, but got", recorder.Code)
 	}
-
-	var user dto.User
-	json.Unmarshal(recorder.Body.Bytes(), &user)
-
-	if user != mockUser {
-		t.Errorf("Expected %+v to equal %+v", user, mockUser)
-	}
 }
 
-func Test_new_user_route_returns_500_code(t *testing.T) {
+func Test_user_update_route_returns_500_code(t *testing.T) {
 	setupUserTest(t)
 
-	mockUser := mockUsers[0]
-	userJSON, _ := json.Marshal(mockUser)
-	body := bytes.NewBuffer(userJSON)
+	mockUserService.EXPECT().UpdateUser(userJSON).Return(nil, errs.NewUnexpectedError("Couldn't update user"))
 
-	mockUserService.EXPECT().CreateUser(userJSON).Return(nil, errs.NewUnexpectedError("Couldn't create new user"))
-
-	req, _ := http.NewRequest(http.MethodPost, "/user", body)
+	req, _ := http.NewRequest(http.MethodPut, "/user", userBody)
 
 	recorder := httptest.NewRecorder()
 	userRouter.ServeHTTP(recorder, req)
@@ -138,17 +96,72 @@ func Test_new_user_route_returns_500_code(t *testing.T) {
 	}
 }
 
+func Test_update_user_route_returns_400_error(t *testing.T) {
+	setupUserTest(t)
+
+	mockUserService.EXPECT().UpdateUser(invalidUserJSON).Return(nil, errs.NewInvalidError("User name must not be blank"))
+
+	req, _ := http.NewRequest(http.MethodPut, "/user", invalidUserBody)
+
+	recorder := httptest.NewRecorder()
+	userRouter.ServeHTTP(recorder, req)
+
+	if recorder.Code != http.StatusBadRequest {
+		t.Errorf("Expected 400 error, but got %d", recorder.Code)
+	}
+}
+
+func Test_user_update_route_returns_200_code(t *testing.T) {
+	setupUserTest(t)
+
+	mockUserService.EXPECT().UpdateUser(userJSON).Return(&mockUser, nil)
+
+	req, _ := http.NewRequest(http.MethodPut, "/user", userBody)
+
+	recorder := httptest.NewRecorder()
+	userRouter.ServeHTTP(recorder, req)
+
+	if recorder.Code != http.StatusOK {
+		t.Error("Expected status code 200, but got", recorder.Code)
+	}
+}
+
+func Test_new_user_route_returns_500_code(t *testing.T) {
+	setupUserTest(t)
+
+	mockUserService.EXPECT().CreateUser(userJSON).Return(nil, errs.NewUnexpectedError("Couldn't create new user"))
+
+	req, _ := http.NewRequest(http.MethodPost, "/user", userBody)
+
+	recorder := httptest.NewRecorder()
+	userRouter.ServeHTTP(recorder, req)
+
+	if recorder.Code != http.StatusInternalServerError {
+		t.Error("Expected status code 500, but got", recorder.Code)
+	}
+}
+
+func Test_new_user_route_returns_400_error(t *testing.T) {
+	setupUserTest(t)
+
+	mockUserService.EXPECT().CreateUser(invalidUserJSON).Return(nil, errs.NewInvalidError("User name must not be blank"))
+
+	req, _ := http.NewRequest(http.MethodPost, "/user", invalidUserBody)
+
+	recorder := httptest.NewRecorder()
+	userRouter.ServeHTTP(recorder, req)
+
+	if recorder.Code != http.StatusBadRequest {
+		t.Errorf("Expected 400 error, but got %d", recorder.Code)
+	}
+}
+
 func Test_new_user_route_returns_200_code(t *testing.T) {
 	setupUserTest(t)
 
-	resultUser := dto.User{UUID: uuid.New(), Name: "newUser", Slug: "newuser", Icon: "/img/static/img/newuser.png"}
-	mockUser := dto.User{Name: "newUser"}
-	userJSON, _ := json.Marshal(mockUser)
-	body := bytes.NewBuffer(userJSON)
+	mockUserService.EXPECT().CreateUser(userJSON).Return(&mockUser, nil)
 
-	mockUserService.EXPECT().CreateUser(userJSON).Return(&resultUser, nil)
-
-	req, _ := http.NewRequest(http.MethodPost, "/user", body)
+	req, _ := http.NewRequest(http.MethodPost, "/user", userBody)
 
 	recorder := httptest.NewRecorder()
 	userRouter.ServeHTTP(recorder, req)
@@ -176,8 +189,6 @@ func Test_find_one_user_route_returns_500_code(t *testing.T) {
 func Test_find_one_user_route_returns_user(t *testing.T) {
 	setupUserTest(t)
 
-	mockUser := mockUsers[0]
-
 	mockUserService.EXPECT().SingleUser("testuser").Return(&mockUser, nil)
 
 	req, _ := http.NewRequest(http.MethodGet, "/user/testuser", nil)
@@ -187,13 +198,6 @@ func Test_find_one_user_route_returns_user(t *testing.T) {
 
 	if recorder.Code != http.StatusOK {
 		t.Error("Expected status code 500, but got", recorder.Code)
-	}
-
-	var returnedUser dto.User
-	_ = json.Unmarshal(recorder.Body.Bytes(), &returnedUser)
-
-	if returnedUser != mockUser {
-		t.Errorf("Expected %+v to equal %+v", returnedUser, mockUser)
 	}
 }
 

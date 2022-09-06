@@ -23,6 +23,9 @@ var mockComments []dto.Comment
 var mockComment dto.Comment
 var commentJSON []byte
 var commentBody *bytes.Buffer
+var invalidComment dto.Comment
+var invalidCommentJSON []byte
+var invalidCommentBody *bytes.Buffer
 
 func setupCommentTest(t *testing.T) {
 	ctrl := gomock.NewController(t)
@@ -36,6 +39,10 @@ func setupCommentTest(t *testing.T) {
 	mockComment = mockComments[0]
 	commentJSON, _ = json.Marshal(mockComment)
 	commentBody = bytes.NewBuffer(commentJSON)
+
+	invalidComment = dto.Comment{UUID: uuid.New(), UserId: uuid.New(), Text: "", CreatedAt: time.Now()}
+	invalidCommentJSON, _ = json.Marshal(mockComment)
+	invalidCommentBody = bytes.NewBuffer(commentJSON)
 
 	commentRouter = mux.NewRouter()
 	commentRouter.HandleFunc("/comment", comhan.FindAllComments).Methods(http.MethodGet)
@@ -92,6 +99,21 @@ func Test_new_comment_route_returns_500_code(t *testing.T) {
 
 	if recorder.Code != http.StatusInternalServerError {
 		t.Error("Expected status code 500, but got", recorder.Code)
+	}
+}
+
+func Test_new_comment_route_returns_400_error(t *testing.T) {
+	setupCommentTest(t)
+
+	mockCommentService.EXPECT().CreateComment(invalidCommentJSON).Return(nil, errs.NewInvalidError("Comment name must not be blank"))
+
+	req, _ := http.NewRequest(http.MethodPost, "/comment", invalidCommentBody)
+
+	recorder := httptest.NewRecorder()
+	commentRouter.ServeHTTP(recorder, req)
+
+	if recorder.Code != http.StatusBadRequest {
+		t.Errorf("Expected 400 error, but got %d", recorder.Code)
 	}
 }
 

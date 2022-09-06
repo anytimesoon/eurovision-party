@@ -19,10 +19,12 @@ var voteRouter *mux.Router
 var vh VoteHandler
 var mockVoteService *service.MockVoteService
 
-// var mockVotes []dto.Vote
 var mockVote dto.Vote
 var voteJSON []byte
 var voteBody *bytes.Buffer
+var invalidVote dto.Vote
+var invalidVoteJSON []byte
+var invalidVoteBody *bytes.Buffer
 
 func setupVoteTest(t *testing.T) {
 	ctrl := gomock.NewController(t)
@@ -32,6 +34,10 @@ func setupVoteTest(t *testing.T) {
 	mockVote = dto.Vote{UUID: uuid.New(), UserId: uuid.New(), CountryId: uuid.New(), Costume: 2, Song: 4, Performance: 6, Props: 3}
 	voteJSON, _ = json.Marshal(mockVote)
 	voteBody = bytes.NewBuffer(voteJSON)
+
+	invalidVote = dto.Vote{UUID: uuid.New(), UserId: uuid.New(), CountryId: uuid.New(), Costume: 100, Song: 4, Performance: 6, Props: 3}
+	invalidVoteJSON, _ = json.Marshal(mockVote)
+	invalidVoteBody = bytes.NewBuffer(voteJSON)
 
 	voteRouter = mux.NewRouter()
 	voteRouter.HandleFunc("/vote", vh.CreateVote).Methods(http.MethodPost)
@@ -50,6 +56,21 @@ func Test_new_vote_route_returns_500_code(t *testing.T) {
 
 	if recorder.Code != http.StatusInternalServerError {
 		t.Error("Expected status code 500, but got", recorder.Code)
+	}
+}
+
+func Test_new_vote_route_returns_400_error(t *testing.T) {
+	setupVoteTest(t)
+
+	mockVoteService.EXPECT().CreateVote(invalidVoteJSON).Return(nil, errs.NewInvalidError("Vote name must not be blank"))
+
+	req, _ := http.NewRequest(http.MethodPost, "/vote", invalidVoteBody)
+
+	recorder := httptest.NewRecorder()
+	voteRouter.ServeHTTP(recorder, req)
+
+	if recorder.Code != http.StatusBadRequest {
+		t.Errorf("Expected 400 error, but got %d", recorder.Code)
 	}
 }
 
@@ -83,7 +104,22 @@ func Test_vote_update_route_returns_500_code(t *testing.T) {
 	}
 }
 
-func Test_vote_update_route_returns_updated_vote(t *testing.T) {
+func Test_vote_update_route_returns_400_error(t *testing.T) {
+	setupVoteTest(t)
+
+	mockVoteService.EXPECT().UpdateVote(invalidVoteJSON).Return(nil, errs.NewInvalidError("Vote must be less than 5"))
+
+	req, _ := http.NewRequest(http.MethodPut, "/vote", invalidVoteBody)
+
+	recorder := httptest.NewRecorder()
+	voteRouter.ServeHTTP(recorder, req)
+
+	if recorder.Code != http.StatusBadRequest {
+		t.Errorf("Expected 400 error, but got %d", recorder.Code)
+	}
+}
+
+func Test_vote_update_route_returns_200_code(t *testing.T) {
 	setupVoteTest(t)
 
 	mockVoteService.EXPECT().UpdateVote(voteJSON).Return(&mockVote, nil)
@@ -95,12 +131,5 @@ func Test_vote_update_route_returns_updated_vote(t *testing.T) {
 
 	if recorder.Code != http.StatusOK {
 		t.Error("Expected status code 200, but got", recorder.Code)
-	}
-
-	var vote dto.Vote
-	json.Unmarshal(recorder.Body.Bytes(), &vote)
-
-	if vote != mockVote {
-		t.Errorf("Expected %+v to equal %+v", vote, mockVote)
 	}
 }
