@@ -23,6 +23,7 @@ const (
 	Bot
 )
 
+//go:generate mockgen -source=user.go -destination=../../mocks/domain/mockUserRepository.go -package=domain eurovision/pkg/domain
 type UserRepository interface {
 	FindAllUsers() ([]User, *errs.AppError)
 	FindOneUser(string) (*User, *errs.AppError)

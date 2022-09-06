@@ -10,12 +10,6 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-// import (
-// 	"time"
-
-// 	"github.com/google/uuid"
-// )
-
 type CommentRepositoryDb struct {
 	client *sqlx.DB
 }
