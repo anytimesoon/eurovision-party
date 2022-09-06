@@ -1,8 +1,9 @@
 package service
 
 import (
-	"eurovision/mocks/domain"
-	realDomain "eurovision/pkg/domain"
+	"encoding/json"
+	mockDomain "eurovision/mocks/domain"
+	"eurovision/pkg/domain"
 	"eurovision/pkg/dto"
 	"eurovision/pkg/errs"
 	"testing"
@@ -12,26 +13,34 @@ import (
 )
 
 var userService UserService
-var mockUserRepository *domain.MockUserRepository
-var mockUsers []realDomain.User
-var mockUser realDomain.User
+var mockUserRepository *mockDomain.MockUserRepository
+var mockUsers []domain.User
+var mockUser domain.User
 var mockUsersDTO []dto.User
 var mockUserDTO dto.User
+var userJSON []byte
+var invalidUserDTO dto.User
+var invalidUserJSON []byte
 
 func setupUserTest(t *testing.T) {
 	ctrl := gomock.NewController(t)
-	mockUserRepository = domain.NewMockUserRepository(ctrl)
+	mockUserRepository = mockDomain.NewMockUserRepository(ctrl)
 	userService = DefaultUserService{mockUserRepository}
-	mockUsers = []realDomain.User{
-		{UUID: uuid.New(), AuthLvl: realDomain.Admin, Name: "tEsTuSeR", Slug: "testuser", Icon: "/img/static/img/newuser.png"},
-		{UUID: uuid.New(), AuthLvl: realDomain.None, Name: "mOcKuSeR", Slug: "mockuser", Icon: "/img/static/img/newuser.png"},
+	mockUsers = []domain.User{
+		{UUID: uuid.New(), AuthLvl: domain.Admin, Name: "tEsTuSeR", Slug: "testuser", Icon: "/img/static/img/newuser.png"},
+		{UUID: uuid.New(), AuthLvl: domain.None, Name: "mOcKuSeR", Slug: "mockuser", Icon: "/img/static/img/newuser.png"},
 	}
 	mockUser = mockUsers[0]
+
 	mockUsersDTO = []dto.User{
-		{UUID: mockUsers[0].UUID, Name: "tEsTuSeR", Slug: "testuser", Icon: "/img/static/img/newuser.png"},
-		{UUID: mockUsers[1].UUID, Name: "mOcKuSeR", Slug: "mockuser", Icon: "/img/static/img/newuser.png"},
+		mockUser.ToDto(),
+		mockUsers[1].ToDto(),
 	}
 	mockUserDTO = mockUsersDTO[0]
+	userJSON, _ = json.Marshal(mockUserDTO)
+
+	invalidUserDTO = dto.User{UUID: uuid.New(), Name: "", Slug: "mockuser", Icon: "/img/static/img/newuser.png"}
+	invalidUserJSON, _ = json.Marshal(invalidUserDTO)
 }
 
 func Test_user_service_returns_all_users(t *testing.T) {
@@ -46,14 +55,47 @@ func Test_user_service_returns_all_users(t *testing.T) {
 	}
 }
 
-func Test_all_user_service_returns_error(t *testing.T) {
+func Test_all_user_service_returns_500_error(t *testing.T) {
 	setupUserTest(t)
 
 	mockUserRepository.EXPECT().FindAllUsers().Return(nil, errs.NewUnexpectedError("DB error occurred"))
 
 	_, err := userService.GetAllUsers()
 
-	if err == nil {
-		t.Error("Was expecting and error, but got none")
+	if err.Code != 500 {
+		t.Errorf("Expected 500 error, but got %d", err.Code)
+	}
+}
+
+func Test_update_user_service_returns_updated_user(t *testing.T) {
+	setupUserTest(t)
+
+	mockUserRepository.EXPECT().UpdateUser(mockUserDTO).Return(&mockUser, nil)
+
+	result, _ := userService.UpdateUser(userJSON)
+
+	if result.UUID != mockUserDTO.UUID {
+		t.Error("Returned users do not match expected")
+	}
+}
+
+func Test_update_user_service_returns_500_error(t *testing.T) {
+	setupUserTest(t)
+
+	mockUserRepository.EXPECT().UpdateUser(mockUserDTO).Return(nil, errs.NewUnexpectedError("DB error occurred"))
+
+	_, err := userService.UpdateUser(userJSON)
+
+	if err.Code != 500 {
+		t.Errorf("Expected 500 error, but got %d", err.Code)
+	}
+}
+
+func Test_update_user_service_returns_400_error(t *testing.T) {
+	setupUserTest(t)
+	_, err := userService.UpdateUser(invalidUserJSON)
+
+	if err.Code != 400 {
+		t.Errorf("Expected 400 error, but got %d", err.Code)
 	}
 }
