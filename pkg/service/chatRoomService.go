@@ -32,6 +32,15 @@ func (r *Room) Run() {
 		select {
 		case client := <-r.Register:
 			r.clients[client] = true
+			comments, err := r.commentRepo.FindAllComments()
+			if err != nil {
+				return
+			}
+
+			for _, comment := range comments {
+				commentJSON, _ := json.Marshal(comment.ToDto())
+				client.Send <- commentJSON
+			}
 		case client := <-r.unregister:
 			if _, ok := r.clients[client]; ok {
 				delete(r.clients, client)
