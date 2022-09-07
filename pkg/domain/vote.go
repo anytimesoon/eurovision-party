@@ -19,9 +19,10 @@ type Vote struct {
 	Props       uint8     `db:"props"`
 }
 
+//go:generate mockgen -source=vote.go -destination=../../mocks/domain/mockVoteRepository.go -package=domain eurovision/pkg/domain
 type VoteRepository interface {
-	CreateVote(*dto.Vote) (*Vote, *errs.AppError)
-	UpdateVote(*dto.Vote) (*Vote, *errs.AppError)
+	CreateVote(dto.Vote) (*Vote, *errs.AppError)
+	UpdateVote(dto.Vote) (*Vote, *errs.AppError)
 }
 
 func (vote Vote) ToDto() dto.Vote {
