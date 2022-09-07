@@ -38,13 +38,13 @@ func StartServer(db *sqlx.DB) {
 	userRouter.HandleFunc("/{slug}", userHandler.FindOneUser).Methods(http.MethodGet)
 	userRouter.HandleFunc("/{slug}", userHandler.RemoveUser).Methods(http.MethodDelete)
 
-	// Comment
-	commentRepositoryDb := domain.NewCommentRepositoryDb(db)
-	commentHandler := handler.CommentHandler{Service: service.NewCommentService(commentRepositoryDb)}
-	commentRouter := apiRouter.PathPrefix("/comment").Subrouter()
-	commentRouter.HandleFunc("/", commentHandler.FindAllComments).Methods(http.MethodGet)
-	commentRouter.HandleFunc("/", commentHandler.CreateComment).Methods((http.MethodPost))
-	commentRouter.HandleFunc("/{uuid}", commentHandler.RemoveComment).Methods(http.MethodDelete)
+	// // Comment
+	// commentRepositoryDb := domain.NewCommentRepositoryDb(db)
+	// commentHandler := handler.CommentHandler{Service: service.NewCommentService(commentRepositoryDb)}
+	// commentRouter := apiRouter.PathPrefix("/comment").Subrouter()
+	// commentRouter.HandleFunc("/", commentHandler.FindAllComments).Methods(http.MethodGet)
+	// commentRouter.HandleFunc("/", commentHandler.CreateComment).Methods((http.MethodPost))
+	// commentRouter.HandleFunc("/{uuid}", commentHandler.RemoveComment).Methods(http.MethodDelete)
 
 	// Vote
 	voteRepositoryDb := domain.NewVoteRepositoryDb(db)
