@@ -23,9 +23,11 @@ func NewVoteService(repo domain.VoteRepository) DefaultVoteService {
 }
 
 func (service DefaultVoteService) CreateVote(body []byte) (*dto.Vote, *errs.AppError) {
-	voteDTO, err := unmarshalVote(body)
+	var voteDTO dto.Vote
+	err := json.Unmarshal(body, &voteDTO)
 	if err != nil {
-		return nil, err
+		log.Println("FAILED to unmarshal json!", err)
+		return nil, errs.NewUnexpectedError(errs.Common.BadlyFormedObject)
 	}
 
 	appErr := voteDTO.Validate()
@@ -33,9 +35,9 @@ func (service DefaultVoteService) CreateVote(body []byte) (*dto.Vote, *errs.AppE
 		return nil, appErr
 	}
 
-	vote, AppError := service.repo.CreateVote(voteDTO)
-	if AppError != nil {
-		return nil, AppError
+	vote, appErr := service.repo.CreateVote(voteDTO)
+	if appErr != nil {
+		return nil, appErr
 	}
 
 	result := vote.ToDto()
@@ -43,9 +45,11 @@ func (service DefaultVoteService) CreateVote(body []byte) (*dto.Vote, *errs.AppE
 }
 
 func (service DefaultVoteService) UpdateVote(body []byte) (*dto.Vote, *errs.AppError) {
-	voteDTO, err := unmarshalVote(body)
+	var voteDTO dto.Vote
+	err := json.Unmarshal(body, &voteDTO)
 	if err != nil {
-		return nil, err
+		log.Println("FAILED to unmarshal json!", err)
+		return nil, errs.NewUnexpectedError(errs.Common.BadlyFormedObject)
 	}
 
 	appErr := voteDTO.Validate()
@@ -53,21 +57,11 @@ func (service DefaultVoteService) UpdateVote(body []byte) (*dto.Vote, *errs.AppE
 		return nil, appErr
 	}
 
-	vote, err := service.repo.UpdateVote(voteDTO)
-	if err != nil {
-		return nil, err
+	vote, appErr := service.repo.UpdateVote(voteDTO)
+	if appErr != nil {
+		return nil, appErr
 	}
 
 	result := vote.ToDto()
 	return &result, nil
-}
-
-func unmarshalVote(body []byte) (*dto.Vote, *errs.AppError) {
-	var voteDTO dto.Vote
-	err := json.Unmarshal(body, &voteDTO)
-	if err != nil {
-		log.Println("FAILED to unmarshal json!", err)
-		return nil, errs.NewUnexpectedError(errs.Common.BadlyFormedObject)
-	}
-	return &voteDTO, nil
 }
