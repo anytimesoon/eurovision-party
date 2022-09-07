@@ -6,6 +6,7 @@ import (
 	"eurovision/pkg/domain"
 	"eurovision/pkg/dto"
 	"eurovision/pkg/errs"
+	"net/http"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -62,7 +63,7 @@ func Test_all_user_service_returns_500_error(t *testing.T) {
 
 	_, err := userService.GetAllUsers()
 
-	if err.Code != 500 {
+	if err.Code != http.StatusInternalServerError {
 		t.Errorf("Expected 500 error, but got %d", err.Code)
 	}
 }
@@ -86,7 +87,7 @@ func Test_update_user_service_returns_500_error(t *testing.T) {
 
 	_, err := userService.UpdateUser(userJSON)
 
-	if err.Code != 500 {
+	if err.Code != http.StatusInternalServerError {
 		t.Errorf("Expected 500 error, but got %d", err.Code)
 	}
 }
@@ -95,7 +96,7 @@ func Test_update_user_service_returns_400_error(t *testing.T) {
 	setupUserTest(t)
 	_, err := userService.UpdateUser(invalidUserJSON)
 
-	if err.Code != 400 {
+	if err.Code != http.StatusBadRequest {
 		t.Errorf("Expected 400 error, but got %d", err.Code)
 	}
 }
@@ -119,7 +120,7 @@ func Test_create_user_service_returns_500_error(t *testing.T) {
 
 	_, err := userService.CreateUser(userJSON)
 
-	if err.Code != 500 {
+	if err.Code != http.StatusInternalServerError {
 		t.Errorf("Expected 500 error, but got %d", err.Code)
 	}
 }
@@ -128,7 +129,7 @@ func Test_create_user_service_returns_400_error(t *testing.T) {
 	setupUserTest(t)
 	_, err := userService.UpdateUser(invalidUserJSON)
 
-	if err.Code != 400 {
+	if err.Code != http.StatusBadRequest {
 		t.Errorf("Expected 400 error, but got %d", err.Code)
 	}
 }
@@ -156,7 +157,7 @@ func Test_single_user_service_returns_500_error(t *testing.T) {
 
 	_, err := userService.SingleUser(mockUser)
 
-	if err.Code != 500 {
+	if err.Code != http.StatusInternalServerError {
 		t.Errorf("Expected 500 error, but got %d", err.Code)
 	}
 }
@@ -184,7 +185,7 @@ func Test_delete_user_service_returns_500_error(t *testing.T) {
 
 	err := userService.DeleteUser(mockSlug)
 
-	if err.Code != 500 {
+	if err.Code != http.StatusInternalServerError {
 		t.Errorf("Expected 500 error, but got %d", err.Code)
 	}
 }
