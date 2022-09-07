@@ -62,12 +62,10 @@ func StartServer(db *sqlx.DB) {
 	imageRouter.Use(imgHeaders)
 
 	// Chatroom
-	room := service.NewRoom()
-	go room.Run()
+	chatRoomHandler := handler.ChatRoomHandler{Room: service.NewRoom(commentRepositoryDb)}
+	go chatRoomHandler.Room.Run()
 	chatRouter := router.PathPrefix("/chat").Subrouter()
-	chatRouter.HandleFunc("/connect", func(resp http.ResponseWriter, req *http.Request) {
-		service.ServeRoom(room, resp, req)
-	})
+	chatRouter.HandleFunc("/connect", chatRoomHandler.Connect)
 
 	headersOk := handlers.AllowedHeaders([]string{"Content-type", "Authorization", "Origin", "Access-Control-Allow-Origin", "Accept", "Options", "X-Requested-With"})
 	originsOk := handlers.AllowedOrigins([]string{"*"})
