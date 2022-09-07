@@ -18,7 +18,7 @@ func NewVoteRepositoryDb(db *sqlx.DB) VoteRepositoryDb {
 	return VoteRepositoryDb{db}
 }
 
-func (db VoteRepositoryDb) CreateVote(voteDTO *dto.Vote) (*Vote, *errs.AppError) {
+func (db VoteRepositoryDb) CreateVote(voteDTO dto.Vote) (*Vote, *errs.AppError) {
 	var vote Vote
 
 	uuid := uuid.New().String()
@@ -42,7 +42,7 @@ func (db VoteRepositoryDb) CreateVote(voteDTO *dto.Vote) (*Vote, *errs.AppError)
 	return &vote, nil
 }
 
-func (db VoteRepositoryDb) UpdateVote(voteDTO *dto.Vote) (*Vote, *errs.AppError) {
+func (db VoteRepositoryDb) UpdateVote(voteDTO dto.Vote) (*Vote, *errs.AppError) {
 	var vote Vote
 
 	query := fmt.Sprintf(`UPDATE vote SET costume = %d, song = %d, performance = %d, props = %d WHERE uuid = '%s'`, voteDTO.Costume, voteDTO.Song, voteDTO.Performance, voteDTO.Props, voteDTO.UUID.String())
