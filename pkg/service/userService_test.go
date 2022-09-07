@@ -99,3 +99,92 @@ func Test_update_user_service_returns_400_error(t *testing.T) {
 		t.Errorf("Expected 400 error, but got %d", err.Code)
 	}
 }
+
+func Test_create_user_service_returns_new_user(t *testing.T) {
+	setupUserTest(t)
+
+	mockUserRepository.EXPECT().CreateUser(mockUserDTO).Return(&mockUser, nil)
+
+	result, _ := userService.CreateUser(userJSON)
+
+	if result.UUID != mockUserDTO.UUID {
+		t.Error("Returned users do not match expected")
+	}
+}
+
+func Test_create_user_service_returns_500_error(t *testing.T) {
+	setupUserTest(t)
+
+	mockUserRepository.EXPECT().CreateUser(mockUserDTO).Return(nil, errs.NewUnexpectedError("DB error occurred"))
+
+	_, err := userService.CreateUser(userJSON)
+
+	if err.Code != 500 {
+		t.Errorf("Expected 500 error, but got %d", err.Code)
+	}
+}
+
+func Test_create_user_service_returns_400_error(t *testing.T) {
+	setupUserTest(t)
+	_, err := userService.UpdateUser(invalidUserJSON)
+
+	if err.Code != 400 {
+		t.Errorf("Expected 400 error, but got %d", err.Code)
+	}
+}
+
+func Test_single_user_service_returns_one_user(t *testing.T) {
+	setupUserTest(t)
+
+	mockSlug := "testuser"
+
+	mockUserRepository.EXPECT().FindOneUser(mockSlug).Return(&mockUser, nil)
+
+	result, _ := userService.SingleUser(mockSlug)
+
+	if result.UUID != mockUserDTO.UUID {
+		t.Error("Returned users do not match expected")
+	}
+}
+
+func Test_single_user_service_returns_500_error(t *testing.T) {
+	setupUserTest(t)
+
+	mockUser := "testuser"
+
+	mockUserRepository.EXPECT().FindOneUser(mockUser).Return(nil, errs.NewUnexpectedError("DB error occurred"))
+
+	_, err := userService.SingleUser(mockUser)
+
+	if err.Code != 500 {
+		t.Errorf("Expected 500 error, but got %d", err.Code)
+	}
+}
+
+func Test_delete_user_service_returns_nil(t *testing.T) {
+	setupUserTest(t)
+
+	mockSlug := "testuser"
+
+	mockUserRepository.EXPECT().DeleteUser(mockSlug).Return(nil)
+
+	result := userService.DeleteUser(mockSlug)
+
+	if result != nil {
+		t.Error("Returned users do not match expected")
+	}
+}
+
+func Test_delete_user_service_returns_500_error(t *testing.T) {
+	setupUserTest(t)
+
+	mockSlug := "testuser"
+
+	mockUserRepository.EXPECT().DeleteUser(mockSlug).Return(errs.NewUnexpectedError("DB error occurred"))
+
+	err := userService.DeleteUser(mockSlug)
+
+	if err.Code != 500 {
+		t.Errorf("Expected 500 error, but got %d", err.Code)
+	}
+}
