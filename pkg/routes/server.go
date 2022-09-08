@@ -62,6 +62,7 @@ func StartServer(db *sqlx.DB) {
 	imageRouter.Use(imgHeaders)
 
 	// Chatroom
+	commentRepositoryDb := domain.NewCommentRepositoryDb(db)
 	chatRoomHandler := handler.ChatRoomHandler{Room: service.NewRoom(commentRepositoryDb)}
 	go chatRoomHandler.Room.Run()
 	chatRouter := router.PathPrefix("/chat").Subrouter()

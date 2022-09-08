@@ -2,6 +2,9 @@ package service
 
 import (
 	"bytes"
+	"encoding/json"
+	"eurovision/pkg/domain"
+	"eurovision/pkg/dto"
 	"log"
 	"time"
 
@@ -26,9 +29,10 @@ type Client struct {
 	UserId uuid.UUID
 	Conn   *websocket.Conn
 	Send   chan []byte
+	Db     domain.CommentRepository
 }
 
-func (c *Client) Sub() {
+func (c *Client) Pub() {
 	defer func() {
 		c.Room.unregister <- c
 		c.Conn.Close()
@@ -45,11 +49,21 @@ func (c *Client) Sub() {
 			break
 		}
 		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
-		c.Room.broadcast <- message
+		commentDTO := dto.Comment{UUID: uuid.New(), UserId: c.UserId, Text: string(message), CreatedAt: time.Now()}
+		commentJSON, err := json.Marshal(commentDTO)
+		if err != nil {
+			return
+		}
+		c.Room.broadcast <- commentJSON
+
+		_, appErr := c.Db.CreateComment(commentDTO)
+		if appErr != nil {
+			return
+		}
 	}
 }
 
-func (c *Client) Pub() {
+func (c *Client) Sub() {
 	ticker := time.NewTicker(pingPeriod)
 	defer func() {
 		ticker.Stop()
@@ -69,6 +83,7 @@ func (c *Client) Pub() {
 			if err != nil {
 				return
 			}
+
 			writer.Write(commentJSON)
 
 			// Add queued chat messages to the current websocket message.
