@@ -1,6 +1,7 @@
 package main
 
 import (
+	"eurovision/conf"
 	"eurovision/migrations"
 	"eurovision/pkg/routes"
 	"log"
@@ -11,8 +12,11 @@ func main() {
 	db := migrations.Start()
 	log.Println("Database migrations complete 🎉")
 
-	log.Println("Starting server")
-	routes.StartServer(&db)
+	log.Println("Starting configuration 📃")
+	appConf := conf.Setup()
+
+	log.Println("Starting server 🖥")
+	routes.StartServer(&db, appConf)
 
 	db.Close()
 	log.Println("Application closed")

@@ -2,9 +2,11 @@ package routes
 
 import (
 	"eurovision/assets"
+	"eurovision/conf"
 	"eurovision/pkg/domain"
 	"eurovision/pkg/routes/handler"
 	"eurovision/pkg/service"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -13,7 +15,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func StartServer(db *sqlx.DB) {
+func StartServer(db *sqlx.DB, appConf conf.App) {
 	router := mux.NewRouter().StrictSlash(true)
 	router.Use(logging)
 
@@ -68,6 +70,7 @@ func StartServer(db *sqlx.DB) {
 	originsOk := handlers.AllowedOrigins([]string{"*"})
 	methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
 
-	log.Println("Server listening on port 8080")
-	log.Fatal(http.ListenAndServe(":8080", handlers.CORS(headersOk, originsOk, methodsOk)(router))) //keeps the server alive on port 8080
+	log.Printf("Server listening on port %s", appConf.Server.Port)
+	url := fmt.Sprintf("%s:%s", appConf.Server.Url, appConf.Server.Port)
+	log.Fatal(http.ListenAndServe(url, handlers.CORS(headersOk, originsOk, methodsOk)(router)))
 }
