@@ -21,7 +21,7 @@ var (
 	space   = []byte{' '}
 )
 
-type Client struct {
+type ChatClient struct {
 	Room    *Room
 	UserId  uuid.UUID
 	Conn    *websocket.Conn
@@ -29,7 +29,7 @@ type Client struct {
 	ComServ CommentService
 }
 
-func (c *Client) Pub() {
+func (c *ChatClient) Pub() {
 	defer func() {
 		c.Room.unregister <- c
 		c.Conn.Close()
@@ -56,7 +56,7 @@ func (c *Client) Pub() {
 	}
 }
 
-func (c *Client) Sub() {
+func (c *ChatClient) Sub() {
 	ticker := time.NewTicker(pingPeriod)
 	defer func() {
 		ticker.Stop()

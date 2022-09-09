@@ -30,7 +30,7 @@ func (crh ChatRoomHandler) Connect(resp http.ResponseWriter, req *http.Request) 
 		log.Println(err)
 		return
 	}
-	client := &service.Client{Room: crh.RoomService, UserId: uuid.New(), Conn: conn, Send: make(chan []byte, 256), ComServ: crh.CommentService}
+	client := &service.ChatClient{Room: crh.RoomService, UserId: uuid.New(), Conn: conn, Send: make(chan []byte, 256), ComServ: crh.CommentService}
 	client.Room.Register <- client
 
 	go client.Pub()

@@ -6,19 +6,19 @@ import (
 
 type Room struct {
 	CommentService CommentService
-	clients        map[*Client]bool
+	clients        map[*ChatClient]bool
 	broadcast      chan []byte
-	Register       chan *Client
-	unregister     chan *Client
+	Register       chan *ChatClient
+	unregister     chan *ChatClient
 }
 
 func NewRoom(commentService CommentService) *Room {
 	return &Room{
 		CommentService: commentService,
 		broadcast:      make(chan []byte),
-		Register:       make(chan *Client),
-		unregister:     make(chan *Client),
-		clients:        make(map[*Client]bool),
+		Register:       make(chan *ChatClient),
+		unregister:     make(chan *ChatClient),
+		clients:        make(map[*ChatClient]bool),
 	}
 }
 
