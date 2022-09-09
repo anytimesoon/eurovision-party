@@ -38,14 +38,6 @@ func StartServer(db *sqlx.DB) {
 	userRouter.HandleFunc("/{slug}", userHandler.FindOneUser).Methods(http.MethodGet)
 	userRouter.HandleFunc("/{slug}", userHandler.RemoveUser).Methods(http.MethodDelete)
 
-	// // Comment
-	// commentRepositoryDb := domain.NewCommentRepositoryDb(db)
-	// commentHandler := handler.CommentHandler{Service: service.NewCommentService(commentRepositoryDb)}
-	// commentRouter := apiRouter.PathPrefix("/comment").Subrouter()
-	// commentRouter.HandleFunc("/", commentHandler.FindAllComments).Methods(http.MethodGet)
-	// commentRouter.HandleFunc("/", commentHandler.CreateComment).Methods((http.MethodPost))
-	// commentRouter.HandleFunc("/{uuid}", commentHandler.RemoveComment).Methods(http.MethodDelete)
-
 	// Vote
 	voteRepositoryDb := domain.NewVoteRepositoryDb(db)
 	voteHandler := handler.VoteHandler{Service: service.NewVoteService(voteRepositoryDb)}
@@ -63,8 +55,12 @@ func StartServer(db *sqlx.DB) {
 
 	// Chatroom
 	commentRepositoryDb := domain.NewCommentRepositoryDb(db)
-	chatRoomHandler := handler.ChatRoomHandler{Room: service.NewRoom(commentRepositoryDb)}
-	go chatRoomHandler.Room.Run()
+	commentService := service.NewCommentService(commentRepositoryDb)
+	chatRoomHandler := handler.ChatRoomHandler{
+		RoomService:    service.NewRoom(commentService),
+		CommentService: commentService,
+	}
+	go chatRoomHandler.RoomService.Run()
 	chatRouter := router.PathPrefix("/chat").Subrouter()
 	chatRouter.HandleFunc("/connect", chatRoomHandler.Connect)
 

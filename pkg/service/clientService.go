@@ -2,9 +2,6 @@ package service
 
 import (
 	"bytes"
-	"encoding/json"
-	"eurovision/pkg/domain"
-	"eurovision/pkg/dto"
 	"log"
 	"time"
 
@@ -25,11 +22,11 @@ var (
 )
 
 type Client struct {
-	Room   *Room
-	UserId uuid.UUID
-	Conn   *websocket.Conn
-	Send   chan []byte
-	Db     domain.CommentRepository
+	Room    *Room
+	UserId  uuid.UUID
+	Conn    *websocket.Conn
+	Send    chan []byte
+	ComServ CommentService
 }
 
 func (c *Client) Pub() {
@@ -49,17 +46,13 @@ func (c *Client) Pub() {
 			break
 		}
 		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
-		commentDTO := dto.Comment{UUID: uuid.New(), UserId: c.UserId, Text: string(message), CreatedAt: time.Now()}
-		commentJSON, err := json.Marshal(commentDTO)
-		if err != nil {
-			return
-		}
-		c.Room.broadcast <- commentJSON
 
-		_, appErr := c.Db.CreateComment(commentDTO)
+		commentJSON, appErr := c.ComServ.CreateComment(message, c.UserId)
 		if appErr != nil {
 			return
 		}
+
+		c.Room.broadcast <- commentJSON
 	}
 }
 
