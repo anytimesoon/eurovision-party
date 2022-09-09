@@ -1,9 +1,7 @@
 # TODO
 
-
-- set up websocket
-- implement chatroom
 - testing for repository db calls
-- basic frontend
+- testing for websocket
 - Authentication
+- basic frontend
 - Authorization
