@@ -1,14 +1,16 @@
 package migrations
 
 import (
+	"eurovision/conf"
 	"fmt"
 	"log"
 
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 )
 
-func Start() sqlx.DB {
-	sqlDb := sqlx.MustConnect("mysql", dsn())
+func Start(config conf.DB) sqlx.DB {
+	sqlDb := sqlx.MustConnect("mysql", dsn(config))
 	log.Println("Successfully connected to database")
 
 	log.Println("Building tables 🏗")
@@ -24,6 +26,6 @@ func Start() sqlx.DB {
 	return *sqlDb
 }
 
-func dsn() string {
-	return fmt.Sprintf("%s:%s@tcp(%s)/%s?parseTime=true", Username, Password, Hostname, DBName)
+func dsn(config conf.DB) string {
+	return fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", config.Username, config.Password, config.Hostname, config.Port, config.DBName)
 }

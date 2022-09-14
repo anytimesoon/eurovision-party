@@ -3,9 +3,18 @@ package conf
 import "net/smtp"
 
 type App struct {
+	DB     DB
 	Server Server
 	Auth   Auth
 	Email  Email
+}
+
+type DB struct {
+	Username string
+	Password string
+	Hostname string
+	Port     string
+	DBName   string
 }
 
 type Server struct {
@@ -26,6 +35,13 @@ type Email struct {
 }
 
 func Setup() App {
+	var db = DB{
+		Username: "eurovision",
+		Password: "P,PO)+{l4!C{ff",
+		Hostname: "127.0.0.1",
+		Port:     "3306",
+		DBName:   "eurovision",
+	}
 	var server = Server{
 		Port: "8080",
 		Url:  "localhost",
@@ -40,6 +56,7 @@ func Setup() App {
 	}
 
 	return App{
+		DB:     db,
 		Server: server,
 		Auth:   auth,
 		Email:  email,

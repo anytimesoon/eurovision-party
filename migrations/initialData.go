@@ -1,16 +1,5 @@
 package migrations
 
-import (
-	_ "github.com/go-sql-driver/mysql"
-)
-
-const (
-	Username string = "eurovision"
-	Password string = "P,PO)+{l4!C{ff"
-	Hostname string = "127.0.0.1:3306"
-	DBName   string = "eurovision"
-)
-
 type initialCountryParams struct {
 	Name string
 	Flag string

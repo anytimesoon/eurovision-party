@@ -8,12 +8,12 @@ import (
 )
 
 func main() {
-	log.Println("Starting application")
-	db := migrations.Start()
-	log.Println("Database migrations complete 🎉")
-
 	log.Println("Starting configuration 📃")
 	appConf := conf.Setup()
+
+	log.Println("Starting application")
+	db := migrations.Start(appConf.DB)
+	log.Println("Database migrations complete 🎉")
 
 	log.Println("Starting server 🖥")
 	routes.StartServer(&db, appConf)
