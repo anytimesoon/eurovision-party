@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
@@ -70,7 +71,15 @@ func StartServer(db *sqlx.DB, appConf conf.App) {
 	originsOk := handlers.AllowedOrigins([]string{"*"})
 	methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
 
+	server := &http.Server{
+		Addr:    fmt.Sprintf("%s:%s", appConf.Server.Url, appConf.Server.Port),
+		Handler: handlers.CORS(headersOk, originsOk, methodsOk)(router),
+		// Good practice to set timeouts to avoid Slowloris attacks.
+		WriteTimeout: time.Second * 15,
+		ReadTimeout:  time.Second * 15,
+		IdleTimeout:  time.Second * 60,
+	}
+
 	log.Printf("Server listening on port %s", appConf.Server.Port)
-	url := fmt.Sprintf("%s:%s", appConf.Server.Url, appConf.Server.Port)
-	log.Fatal(http.ListenAndServe(url, handlers.CORS(headersOk, originsOk, methodsOk)(router)))
+	log.Fatal(server.ListenAndServe())
 }
