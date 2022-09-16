@@ -11,6 +11,7 @@ type User struct {
 	UUID    uuid.UUID `db:"uuid"`
 	AuthLvl AuthLvl   `db:"authLvl"`
 	Name    string    `db:"name"`
+	Email   string    `db:"email"`
 	Slug    string    `db:"slug"`
 	Icon    string    `db:"icon"`
 }
@@ -27,7 +28,6 @@ const (
 type UserRepository interface {
 	FindAllUsers() ([]User, *errs.AppError)
 	FindOneUser(string) (*User, *errs.AppError)
-	CreateUser(dto.User) (*User, *errs.AppError)
 	UpdateUser(dto.User) (*User, *errs.AppError)
 	DeleteUser(string) *errs.AppError
 }

@@ -46,7 +46,6 @@ func setupUserTest(t *testing.T) {
 	userRouter = mux.NewRouter()
 	userRouter.HandleFunc("/user", uh.FindAllUsers).Methods(http.MethodGet)
 	userRouter.HandleFunc("/user", uh.UpdateUser).Methods(http.MethodPut)
-	userRouter.HandleFunc("/user", uh.CreateUser).Methods(http.MethodPost)
 	userRouter.HandleFunc("/user/{slug}", uh.FindOneUser).Methods(http.MethodGet)
 	userRouter.HandleFunc("/user/{slug}", uh.RemoveUser).Methods(http.MethodDelete)
 }
@@ -117,51 +116,6 @@ func Test_user_update_route_returns_200_code(t *testing.T) {
 	mockUserService.EXPECT().UpdateUser(userJSON).Return(&mockUser, nil)
 
 	req, _ := http.NewRequest(http.MethodPut, "/user", userBody)
-
-	recorder := httptest.NewRecorder()
-	userRouter.ServeHTTP(recorder, req)
-
-	if recorder.Code != http.StatusOK {
-		t.Error("Expected status code 200, but got", recorder.Code)
-	}
-}
-
-func Test_new_user_route_returns_500_code(t *testing.T) {
-	setupUserTest(t)
-
-	mockUserService.EXPECT().CreateUser(userJSON).Return(nil, errs.NewUnexpectedError("Couldn't create new user"))
-
-	req, _ := http.NewRequest(http.MethodPost, "/user", userBody)
-
-	recorder := httptest.NewRecorder()
-	userRouter.ServeHTTP(recorder, req)
-
-	if recorder.Code != http.StatusInternalServerError {
-		t.Error("Expected status code 500, but got", recorder.Code)
-	}
-}
-
-func Test_new_user_route_returns_400_error(t *testing.T) {
-	setupUserTest(t)
-
-	mockUserService.EXPECT().CreateUser(invalidUserJSON).Return(nil, errs.NewInvalidError("User name must not be blank"))
-
-	req, _ := http.NewRequest(http.MethodPost, "/user", invalidUserBody)
-
-	recorder := httptest.NewRecorder()
-	userRouter.ServeHTTP(recorder, req)
-
-	if recorder.Code != http.StatusBadRequest {
-		t.Errorf("Expected 400 error, but got %d", recorder.Code)
-	}
-}
-
-func Test_new_user_route_returns_200_code(t *testing.T) {
-	setupUserTest(t)
-
-	mockUserService.EXPECT().CreateUser(userJSON).Return(&mockUser, nil)
-
-	req, _ := http.NewRequest(http.MethodPost, "/user", userBody)
 
 	recorder := httptest.NewRecorder()
 	userRouter.ServeHTTP(recorder, req)

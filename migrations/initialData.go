@@ -8,6 +8,7 @@ type initialCountryParams struct {
 
 type initialUserParams struct {
 	Name    string
+	Email   string
 	Slug    string
 	AuthLvl uint8
 }
@@ -15,11 +16,13 @@ type initialUserParams struct {
 var initUsers = []initialUserParams{
 	{
 		Name:    "admin",
+		Email:   "admin@admin.com",
 		Slug:    "admin",
 		AuthLvl: 1,
 	},
 	{
 		Name:    "bot",
+		Email:   "bot@bot.com",
 		Slug:    "bot",
 		AuthLvl: 2,
 	},

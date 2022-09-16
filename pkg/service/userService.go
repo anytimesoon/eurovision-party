@@ -12,7 +12,6 @@ import (
 type UserService interface {
 	GetAllUsers() ([]dto.User, *errs.AppError)
 	UpdateUser([]byte) (*dto.User, *errs.AppError)
-	CreateUser([]byte) (*dto.User, *errs.AppError)
 	SingleUser(string) (*dto.User, *errs.AppError)
 	DeleteUser(string) *errs.AppError
 }
@@ -54,31 +53,6 @@ func (service DefaultUserService) UpdateUser(body []byte) (*dto.User, *errs.AppE
 	}
 
 	user, appErr := service.repo.UpdateUser(userDTO)
-	if appErr != nil {
-		return nil, appErr
-	}
-
-	userDTO = user.ToDto()
-
-	return &userDTO, nil
-}
-
-func (service DefaultUserService) CreateUser(body []byte) (*dto.User, *errs.AppError) {
-	var userDTO dto.User
-	err := json.Unmarshal(body, &userDTO)
-	if err != nil {
-		log.Println("FAILED to unmarshal json!", err)
-		return nil, errs.NewUnexpectedError(errs.Common.BadlyFormedObject)
-	}
-
-	userDTO.Slugify()
-
-	appErr := userDTO.Validate()
-	if appErr != nil {
-		return nil, appErr
-	}
-
-	user, appErr := service.repo.CreateUser(userDTO)
 	if appErr != nil {
 		return nil, appErr
 	}

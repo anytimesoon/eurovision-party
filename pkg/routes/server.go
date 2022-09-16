@@ -17,10 +17,30 @@ import (
 )
 
 func StartServer(db *sqlx.DB, appConf conf.App) {
+	auth := authentication{sessions: make(map[string]string)}
 	router := mux.NewRouter().StrictSlash(true)
 	router.Use(logging)
 
-	apiRouter := router.PathPrefix("/api").Subrouter()
+	// Authentication
+	authRepositoryMem := domain.NewAuthRepositoryDB(db)
+	authHandler := handler.AuthHandler{Service: service.NewAuthService(authRepositoryMem)}
+	router.HandleFunc("/register", authHandler.Register).Methods(http.MethodPost) // takes an email address. creates user and responds with auth-token. Possibly a log in link
+	router.HandleFunc("/login", authHandler.Login).Methods(http.MethodGet)        // sets cookie. redirects to home
+	router.HandleFunc("/token", authHandler.Authenticate).Methods(http.MethodGet) // possibly not needed. TBC
+
+	// Assets
+	fs := assets.NewStaticImageFS()
+	imageRouter := router.PathPrefix("/img").Subrouter()
+	imageRouter.PathPrefix("/static/").Handler(http.StripPrefix("/img/static/", fs)).Methods(http.MethodGet)
+	imageRouter.Use(imgHeaders)
+
+	// Restricted
+	auth.sessions["token"] = "testuser" //only for testing!!!!!
+	restrictedRouter := router.PathPrefix("/restricted").Subrouter()
+	restrictedRouter.Use(auth.authenticate)
+
+	// API
+	apiRouter := restrictedRouter.PathPrefix("/api").Subrouter()
 	apiRouter.Use(jsHeaders)
 
 	// Country
@@ -37,7 +57,6 @@ func StartServer(db *sqlx.DB, appConf conf.App) {
 	userRouter := apiRouter.PathPrefix("/user").Subrouter()
 	userRouter.HandleFunc("/", userHandler.FindAllUsers).Methods(http.MethodGet)
 	userRouter.HandleFunc("/", userHandler.UpdateUser).Methods(http.MethodPut)
-	userRouter.HandleFunc("/", userHandler.CreateUser).Methods((http.MethodPost))
 	userRouter.HandleFunc("/{slug}", userHandler.FindOneUser).Methods(http.MethodGet)
 	userRouter.HandleFunc("/{slug}", userHandler.RemoveUser).Methods(http.MethodDelete)
 
@@ -50,12 +69,6 @@ func StartServer(db *sqlx.DB, appConf conf.App) {
 	// voteRouter.HandleFunc("/user/{userId}", voteHandler.VoteByUser).Methods(http.MethodGet)
 	// voteRouter.HandleFunc("/country/{countryId}", voteHandler.VoteByUser).Methods(http.MethodGet)
 
-	// Assets
-	fs := assets.NewStaticImageFS()
-	imageRouter := router.PathPrefix("/img").Subrouter()
-	imageRouter.PathPrefix("/static/").Handler(http.StripPrefix("/img/static/", fs)).Methods(http.MethodGet)
-	imageRouter.Use(imgHeaders)
-
 	// Chatroom
 	commentRepositoryDb := domain.NewCommentRepositoryDb(db)
 	commentService := service.NewCommentService(commentRepositoryDb)
@@ -64,7 +77,7 @@ func StartServer(db *sqlx.DB, appConf conf.App) {
 		CommentService: commentService,
 	}
 	go chatRoomHandler.RoomService.Run()
-	chatRouter := router.PathPrefix("/chat").Subrouter()
+	chatRouter := restrictedRouter.PathPrefix("/chat").Subrouter()
 	chatRouter.HandleFunc("/connect", chatRoomHandler.Connect)
 
 	headersOk := handlers.AllowedHeaders([]string{"Content-type", "Authorization", "Origin", "Access-Control-Allow-Origin", "Accept", "Options", "X-Requested-With"})

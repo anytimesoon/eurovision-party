@@ -101,39 +101,6 @@ func Test_update_user_service_returns_400_error(t *testing.T) {
 	}
 }
 
-func Test_create_user_service_returns_new_user(t *testing.T) {
-	setupUserTest(t)
-
-	mockUserRepository.EXPECT().CreateUser(mockUserDTO).Return(&mockUser, nil)
-
-	result, _ := userService.CreateUser(userJSON)
-
-	if result.UUID != mockUserDTO.UUID {
-		t.Error("Returned users do not match expected")
-	}
-}
-
-func Test_create_user_service_returns_500_error(t *testing.T) {
-	setupUserTest(t)
-
-	mockUserRepository.EXPECT().CreateUser(mockUserDTO).Return(nil, errs.NewUnexpectedError("DB error occurred"))
-
-	_, err := userService.CreateUser(userJSON)
-
-	if err.Code != http.StatusInternalServerError {
-		t.Errorf("Expected 500 error, but got %d", err.Code)
-	}
-}
-
-func Test_create_user_service_returns_400_error(t *testing.T) {
-	setupUserTest(t)
-	_, err := userService.UpdateUser(invalidUserJSON)
-
-	if err.Code != http.StatusBadRequest {
-		t.Errorf("Expected 400 error, but got %d", err.Code)
-	}
-}
-
 func Test_single_user_service_returns_one_user(t *testing.T) {
 	setupUserTest(t)
 

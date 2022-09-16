@@ -17,11 +17,12 @@ func CreateUsersTable(db *sqlx.DB) {
 
 	query = `CREATE TABLE IF NOT EXISTS user(
 				uuid char(36) NOT NULL, 
-				name VARCHAR(191) NOT NULL, 
+				name VARCHAR(191) NOT NULL,
+				email VARCHAR(191) NOT NULL, 
 				slug VARCHAR(191) NOT NULL, 
 				authLvl TINYINT DEFAULT 0, 
 				icon VARCHAR(191) DEFAULT '/img/static/img/newuser.png',
-				UNIQUE (slug));`
+				UNIQUE (slug, email));`
 
 	_, err = db.Exec(query)
 	if err != nil {
@@ -32,12 +33,12 @@ func CreateUsersTable(db *sqlx.DB) {
 }
 
 func AddUsers(db *sqlx.DB) {
-	query := "INSERT INTO user(uuid, name, slug, authLvl) VALUES (?, ?, ?, ?)"
+	query := "INSERT INTO user(uuid, name, email, slug, authLvl) VALUES (?, ?, ?, ?, ?)"
 
 	for _, user := range initUsers {
 		id := uuid.New()
 
-		_, err := db.Exec(query, id, user.Name, user.Slug, user.AuthLvl)
+		_, err := db.Exec(query, id, user.Name, user.Email, user.Slug, user.AuthLvl)
 		if err != nil {
 			log.Fatalf("User %s was not created. %s", user.Name, err)
 		}

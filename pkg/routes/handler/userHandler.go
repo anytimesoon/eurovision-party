@@ -38,21 +38,6 @@ func (uh UserHandler) UpdateUser(resp http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func (uh UserHandler) CreateUser(resp http.ResponseWriter, req *http.Request) {
-	body, err := ioutil.ReadAll(req.Body)
-	if err != nil {
-		log.Println("FAILED to read body of USER CREATE!", err)
-		return
-	}
-
-	user, appErr := uh.Service.CreateUser(body)
-	if appErr != nil {
-		writeResponse(resp, appErr.Code, appErr.AsMessage())
-	} else {
-		writeResponse(resp, http.StatusOK, user)
-	}
-}
-
 func (uh UserHandler) FindOneUser(resp http.ResponseWriter, req *http.Request) {
 	params := mux.Vars(req)
 	user, err := uh.Service.SingleUser(params["slug"])
