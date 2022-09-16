@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"strconv"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
@@ -38,8 +37,9 @@ func (db AuthRepositoryDB) FindOneUserByEmail(email string) *User {
 	return &user
 }
 
-func (db AuthRepositoryDB) CreateUser(userDTO dto.NewUser, authDTO dto.Auth) (*dto.Auth, *errs.AppError) {
+func (db AuthRepositoryDB) CreateUser(userDTO dto.NewUser) (*Auth, *errs.AppError) {
 	var user User
+	var auth Auth
 
 	err := db.VerifySlug(&userDTO)
 	if err != nil {
@@ -57,10 +57,23 @@ func (db AuthRepositoryDB) CreateUser(userDTO dto.NewUser, authDTO dto.Auth) (*d
 		return nil, errs.NewUnexpectedError(errs.Common.NotCreated + "user")
 	}
 
-	authDTO.UserId = user.UUID
-	authDTO.Expiration = time.Now().Add(time.Hour * (24 * 7))
+	auth.GenerateSecureToken()
 
-	return &authDTO, nil
+	query = fmt.Sprintf(`INSERT INTO auth(token, userId) VALUES ('%s', '%s')`, auth.Token, user.UUID)
+	_, err = db.client.NamedExec(query, user)
+	if err != nil {
+		log.Printf("Error when creating new user %s, %s", userDTO.Name, err)
+		return nil, errs.NewUnexpectedError(errs.Common.NotCreated + "user")
+	}
+
+	query = fmt.Sprintf(`SELECT * FROM auth WHERE token = '%s'`, auth.Token)
+	err = db.client.Get(&auth, query)
+	if err != nil {
+		log.Println("Error when fetching auth after create:", err)
+		return nil, errs.NewNotFoundError(errs.Common.NotFound + "your authentication token")
+	}
+
+	return &auth, nil
 }
 
 func (db AuthRepositoryDB) VerifySlug(userDTO *dto.NewUser) error {

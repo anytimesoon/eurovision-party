@@ -1,8 +1,6 @@
 package dto
 
 import (
-	"crypto/rand"
-	"encoding/hex"
 	"log"
 	"regexp"
 	"strings"
@@ -15,22 +13,6 @@ type Auth struct {
 	Token      string    `json:"token"`
 	UserId     uuid.UUID `json:"userId"`
 	Expiration time.Time `json:"exp"`
-}
-
-func (a *Auth) GenerateSecureToken() {
-	b := make([]byte, 256)
-	isNotGenerated := true
-
-	for isNotGenerated {
-		_, err := rand.Read(b)
-		if err != nil {
-			err = nil
-		} else {
-			isNotGenerated = false
-		}
-	}
-
-	a.Token = hex.EncodeToString(b)
 }
 
 type NewUser struct {

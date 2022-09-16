@@ -31,7 +31,6 @@ func (das DefaultAuthService) Token(body []byte) ([]byte, *errs.AppError) {
 }
 
 func (das DefaultAuthService) Register(body []byte) (*dto.Auth, *errs.AppError) {
-	var authDTO dto.Auth
 	var newUserDTO dto.NewUser
 	err := json.Unmarshal(body, &newUserDTO)
 	if err != nil {
@@ -47,14 +46,15 @@ func (das DefaultAuthService) Register(body []byte) (*dto.Auth, *errs.AppError) 
 	}
 
 	newUserDTO.Slugify()
-	authDTO.GenerateSecureToken()
 
 	// create new user
-	result, appErr := das.repo.CreateUser(newUserDTO, authDTO)
+	auth, appErr := das.repo.CreateUser(newUserDTO)
 	if appErr != nil {
 		log.Println("Failed to create user", appErr)
 		return nil, errs.NewUnexpectedError(errs.Common.DBFail)
 	}
 
-	return result, nil
+	authDTO := auth.ToDTO()
+
+	return &authDTO, nil
 }

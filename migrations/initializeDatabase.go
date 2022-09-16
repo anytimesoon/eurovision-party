@@ -14,6 +14,7 @@ func Start(config conf.DB) sqlx.DB {
 	log.Println("Successfully connected to database")
 
 	log.Println("Building tables 🏗")
+	CreateAuthTable(sqlDb)
 	CreateCountriesTable(sqlDb)
 	CreateUsersTable(sqlDb)
 	CreateCommentsTable(sqlDb)
