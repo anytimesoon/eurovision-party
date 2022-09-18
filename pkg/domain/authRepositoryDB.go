@@ -14,6 +14,7 @@ import (
 type AuthRepository interface {
 	FindOneUserByEmail(string) *User
 	CreateUser(dto.User) (*dto.Auth, *errs.AppError)
+	Authenticate(string, string) (*Auth, *errs.AppError)
 }
 
 type AuthRepositoryDB struct {
@@ -26,6 +27,15 @@ func NewAuthRepositoryDB(db *sqlx.DB) AuthRepositoryDB {
 
 func FindOneUserByEmail(email string) (*User, *errs.AppError) {
 	return nil, nil
+}
+
+func (db AuthRepositoryDB) Authenticate(token string, userId string) (*Auth, *errs.AppError) {
+	var auth Auth
+
+	query := fmt.Sprintf(`SELECT * FROM auth WHERE token = '%s'`, token)
+	db.client.Get(&auth, query)
+
+	return &auth, nil
 }
 
 func (db AuthRepositoryDB) FindOneUserByEmail(email string) *User {
