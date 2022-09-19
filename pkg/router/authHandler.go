@@ -1,4 +1,4 @@
-package handler
+package router
 
 import (
 	"eurovision/pkg/service"
@@ -42,6 +42,7 @@ func (ah AuthHandler) Login(resp http.ResponseWriter, req *http.Request) {
 			MaxAge: 432000, // 5 days
 		}
 		http.SetCookie(resp, cookie)
+		currentSessions.sessions[auth.Token] = auth.UserId.String()
 		writeResponse(resp, http.StatusOK, auth)
 	}
 }

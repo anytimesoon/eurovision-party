@@ -1,10 +1,9 @@
-package routes
+package router
 
 import (
 	"eurovision/assets"
 	"eurovision/conf"
 	"eurovision/pkg/domain"
-	"eurovision/pkg/routes/handler"
 	"eurovision/pkg/service"
 	"fmt"
 	"log"
@@ -16,14 +15,16 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+var currentSessions sessionStore
+
 func StartServer(db *sqlx.DB, appConf conf.App) {
-	auth := authentication{sessions: make(map[string]string)}
+	currentSessions = sessionStore{sessions: make(map[string]string)}
 	router := mux.NewRouter().StrictSlash(true)
 	router.Use(logging)
 
 	// Authentication
 	authRepositoryMem := domain.NewAuthRepositoryDB(db)
-	authHandler := handler.AuthHandler{Service: service.NewAuthService(authRepositoryMem)}
+	authHandler := AuthHandler{Service: service.NewAuthService(authRepositoryMem)}
 	router.HandleFunc("/register", authHandler.Register).Methods(http.MethodPost) // takes an email address. creates user and responds with auth-token. Possibly a log in link
 	router.HandleFunc("/login", authHandler.Login).Methods(http.MethodGet)        // sets cookie. redirects to home
 	router.HandleFunc("/token", authHandler.Authenticate).Methods(http.MethodGet) // possibly not needed. TBC
@@ -35,9 +36,9 @@ func StartServer(db *sqlx.DB, appConf conf.App) {
 	imageRouter.Use(imgHeaders)
 
 	// Restricted
-	auth.sessions["token"] = "testuser" //only for testing!!!!!
+	currentSessions.sessions["token"] = "testuser" //only for testing!!!!!
 	restrictedRouter := router.PathPrefix("/restricted").Subrouter()
-	restrictedRouter.Use(auth.authenticate)
+	restrictedRouter.Use(currentSessions.authenticate)
 
 	// API
 	apiRouter := restrictedRouter.PathPrefix("/api").Subrouter()
@@ -45,7 +46,7 @@ func StartServer(db *sqlx.DB, appConf conf.App) {
 
 	// Country
 	countryRepositoryDb := domain.NewCountryRepositoryDb(db)
-	countryHandler := handler.CountryHandler{Service: service.NewCountryService(countryRepositoryDb)}
+	countryHandler := CountryHandler{Service: service.NewCountryService(countryRepositoryDb)}
 	countryRouter := apiRouter.PathPrefix("/country").Subrouter()
 	countryRouter.HandleFunc("/", countryHandler.FindAllCountries).Methods(http.MethodGet)
 	countryRouter.HandleFunc("/", countryHandler.UpdateCountry).Methods(http.MethodPut)
@@ -53,7 +54,7 @@ func StartServer(db *sqlx.DB, appConf conf.App) {
 
 	// User
 	userRepositoryDb := domain.NewUserRepositoryDb(db)
-	userHandler := handler.UserHandler{Service: service.NewUserService(userRepositoryDb)}
+	userHandler := UserHandler{Service: service.NewUserService(userRepositoryDb)}
 	userRouter := apiRouter.PathPrefix("/user").Subrouter()
 	userRouter.HandleFunc("/", userHandler.FindAllUsers).Methods(http.MethodGet)
 	userRouter.HandleFunc("/", userHandler.UpdateUser).Methods(http.MethodPut)
@@ -62,7 +63,7 @@ func StartServer(db *sqlx.DB, appConf conf.App) {
 
 	// Vote
 	voteRepositoryDb := domain.NewVoteRepositoryDb(db)
-	voteHandler := handler.VoteHandler{Service: service.NewVoteService(voteRepositoryDb)}
+	voteHandler := VoteHandler{Service: service.NewVoteService(voteRepositoryDb)}
 	voteRouter := apiRouter.PathPrefix("/vote").Subrouter()
 	voteRouter.HandleFunc("/", voteHandler.CreateVote).Methods(http.MethodPost)
 	voteRouter.HandleFunc("/", voteHandler.UpdateVote).Methods(http.MethodPut)
@@ -72,7 +73,7 @@ func StartServer(db *sqlx.DB, appConf conf.App) {
 	// Chatroom
 	commentRepositoryDb := domain.NewCommentRepositoryDb(db)
 	commentService := service.NewCommentService(commentRepositoryDb)
-	chatRoomHandler := handler.ChatRoomHandler{
+	chatRoomHandler := ChatRoomHandler{
 		RoomService:    service.NewRoom(commentService),
 		CommentService: commentService,
 	}

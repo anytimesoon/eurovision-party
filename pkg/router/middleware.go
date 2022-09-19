@@ -1,11 +1,11 @@
-package routes
+package router
 
 import (
 	"log"
 	"net/http"
 )
 
-type authentication struct {
+type sessionStore struct {
 	sessions map[string]string
 }
 
@@ -32,11 +32,11 @@ func logging(next http.Handler) http.Handler {
 	})
 }
 
-func (auth authentication) authenticate(next http.Handler) http.Handler {
+func (auth sessionStore) authenticate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		token := r.Header.Get("X-Session-Token")
+		token, _ := r.Cookie("token")
 
-		if _, found := auth.sessions[token]; found {
+		if _, found := auth.sessions[token.Value]; found {
 			next.ServeHTTP(w, r)
 		} else {
 			// Write an error and stop the handler chain
