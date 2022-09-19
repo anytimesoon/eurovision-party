@@ -42,7 +42,7 @@ func (ah AuthHandler) Login(resp http.ResponseWriter, req *http.Request) {
 			MaxAge: 432000, // 5 days
 		}
 		http.SetCookie(resp, cookie)
-		currentSessions.sessions[auth.Token] = auth.UserId.String()
+		currentSessions.sessions[auth.Token] = auth.Expiration
 		writeResponse(resp, http.StatusOK, auth)
 	}
 }

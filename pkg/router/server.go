@@ -18,7 +18,7 @@ import (
 var currentSessions sessionStore
 
 func StartServer(db *sqlx.DB, appConf conf.App) {
-	currentSessions = sessionStore{sessions: make(map[string]string)}
+	currentSessions = sessionStore{sessions: make(map[string]time.Time)}
 	router := mux.NewRouter().StrictSlash(true)
 	router.Use(logging)
 
@@ -36,7 +36,6 @@ func StartServer(db *sqlx.DB, appConf conf.App) {
 	imageRouter.Use(imgHeaders)
 
 	// Restricted
-	currentSessions.sessions["token"] = "testuser" //only for testing!!!!!
 	restrictedRouter := router.PathPrefix("/restricted").Subrouter()
 	restrictedRouter.Use(currentSessions.authenticate)
 
