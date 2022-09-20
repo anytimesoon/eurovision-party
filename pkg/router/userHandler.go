@@ -3,7 +3,7 @@ package router
 import (
 	"eurovision/pkg/domain"
 	"eurovision/pkg/service"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 
@@ -24,7 +24,7 @@ func (uh UserHandler) FindAllUsers(resp http.ResponseWriter, req *http.Request) 
 }
 
 func (uh UserHandler) UpdateUser(resp http.ResponseWriter, req *http.Request) {
-	body, err := ioutil.ReadAll(req.Body)
+	body, err := io.ReadAll(req.Body)
 	if err != nil {
 		log.Println("FAILED to read body of USER UPDATE!", err)
 		return

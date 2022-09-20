@@ -2,7 +2,7 @@ package router
 
 import (
 	"eurovision/pkg/service"
-	"io/ioutil"
+	"io"
 	"net/http"
 )
 
@@ -11,7 +11,7 @@ type AuthHandler struct {
 }
 
 func (ah AuthHandler) Register(resp http.ResponseWriter, req *http.Request) {
-	body, err := ioutil.ReadAll(req.Body)
+	body, err := io.ReadAll(req.Body)
 	if err != nil {
 		panic(err)
 	}
@@ -42,7 +42,10 @@ func (ah AuthHandler) Login(resp http.ResponseWriter, req *http.Request) {
 			MaxAge: 432000, // 5 days
 		}
 		http.SetCookie(resp, cookie)
-		currentSessions.sessions[auth.Token] = auth.Expiration
+		currentSessions.sessions[auth.Token] = session{
+			userId: auth.UserId,
+			exp:    auth.Expiration,
+		}
 		writeResponse(resp, http.StatusOK, auth)
 	}
 }

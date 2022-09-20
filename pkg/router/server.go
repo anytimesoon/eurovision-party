@@ -18,7 +18,7 @@ import (
 var currentSessions sessionStore
 
 func StartServer(db *sqlx.DB, appConf conf.App) {
-	currentSessions = sessionStore{sessions: make(map[string]time.Time)}
+	currentSessions = sessionStore{sessions: make(map[string]session)}
 	router := mux.NewRouter().StrictSlash(true)
 	router.Use(logging)
 

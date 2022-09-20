@@ -2,7 +2,7 @@ package router
 
 import (
 	"eurovision/pkg/service"
-	"io/ioutil"
+	"io"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -34,7 +34,7 @@ func (ch *CountryHandler) FindOneCountry(resp http.ResponseWriter, req *http.Req
 }
 
 func (ch *CountryHandler) UpdateCountry(resp http.ResponseWriter, req *http.Request) {
-	body, err := ioutil.ReadAll(req.Body)
+	body, err := io.ReadAll(req.Body)
 	if err != nil {
 		panic(err)
 	}
