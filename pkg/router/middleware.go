@@ -4,10 +4,17 @@ import (
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type sessionStore struct {
-	sessions map[string]time.Time
+	sessions map[string]session
+}
+
+type session struct {
+	userId uuid.UUID
+	exp    time.Time
 }
 
 func jsHeaders(next http.Handler) http.Handler {
@@ -36,12 +43,12 @@ func logging(next http.Handler) http.Handler {
 func (auth sessionStore) authenticate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		token, _ := r.Cookie("token")
-		exp, found := auth.sessions[token.Value]
-		log.Println("Expiration of token is at", exp)
-		if found && exp.Before(time.Now()) {
+		session, found := auth.sessions[token.Value]
+
+		if found && session.exp.Before(time.Now()) {
 			http.Error(w, "Your session has ended, please log in again", http.StatusUnauthorized)
-		} else if found && exp.Before(time.Now()) {
-			auth.sessions[token.Value] = time.Now().Add(432000)
+		} else if found && session.exp.After(time.Now()) {
+			session.exp = time.Now().Add(432000)
 			next.ServeHTTP(w, r)
 		} else {
 			http.Error(w, "Please log in", http.StatusUnauthorized)
