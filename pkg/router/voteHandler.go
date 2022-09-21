@@ -2,7 +2,7 @@ package router
 
 import (
 	"eurovision/pkg/service"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 )
@@ -12,7 +12,7 @@ type VoteHandler struct {
 }
 
 func (vh VoteHandler) CreateVote(resp http.ResponseWriter, req *http.Request) {
-	body, err := ioutil.ReadAll(req.Body)
+	body, err := io.ReadAll(req.Body)
 	if err != nil {
 		log.Println("FAILED to read body of VOTE CREATE!", err)
 		return
@@ -27,7 +27,7 @@ func (vh VoteHandler) CreateVote(resp http.ResponseWriter, req *http.Request) {
 }
 
 func (vh VoteHandler) UpdateVote(resp http.ResponseWriter, req *http.Request) {
-	body, err := ioutil.ReadAll(req.Body)
+	body, err := io.ReadAll(req.Body)
 	if err != nil {
 		log.Println("FAILED to read body of VOTE UPDATE!", err)
 		return
