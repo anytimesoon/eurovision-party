@@ -4,6 +4,8 @@ import (
 	"eurovision/pkg/service"
 	"io"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 type AuthHandler struct {
@@ -11,6 +13,12 @@ type AuthHandler struct {
 }
 
 func (ah AuthHandler) Register(resp http.ResponseWriter, req *http.Request) {
+	ok, appErr := currentSessions.authorize(req)
+	if appErr != nil || !ok {
+		writeResponse(resp, appErr.Code, appErr.AsMessage())
+		return
+	}
+
 	body, err := io.ReadAll(req.Body)
 	if err != nil {
 		panic(err)
@@ -25,31 +33,26 @@ func (ah AuthHandler) Register(resp http.ResponseWriter, req *http.Request) {
 }
 
 func (ah AuthHandler) Login(resp http.ResponseWriter, req *http.Request) {
-	// params := mux.Vars(req)
-	values := req.URL.Query()
-	params := make(map[string]string, 0)
-	for k, v := range values {
-		params[k] = v[0]
-	}
+	params := mux.Vars(req)
 
-	auth, err := ah.Service.Login(params["t"], params["u"])
+	auth, err := ah.Service.Login(params["token"], params["userId"])
 	if err != nil {
 		writeResponse(resp, err.Code, err.AsMessage())
 	} else {
 		cookie := &http.Cookie{
-			Name:   "token",
-			Value:  auth.Token,
-			MaxAge: 432000, // 5 days
+			Name:     "token",
+			Value:    auth.Token,
+			Expires:  auth.Expiration,
+			Path:     "/",
+			SameSite: 3,
 		}
 		http.SetCookie(resp, cookie)
 		currentSessions.sessions[auth.Token] = session{
-			userId: auth.UserId,
-			exp:    auth.Expiration,
+			userId:  auth.UserId,
+			exp:     auth.Expiration,
+			authLvl: auth.AuthLvl,
+			slug:    auth.Slug,
 		}
-		writeResponse(resp, http.StatusOK, auth)
+		writeResponse(resp, http.StatusOK, auth.ToDTO())
 	}
-}
-
-func (ah AuthHandler) Authenticate(resp http.ResponseWriter, req *http.Request) {
-
 }

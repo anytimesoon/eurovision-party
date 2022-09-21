@@ -13,6 +13,8 @@ type Auth struct {
 	Token      string    `db:"token"`
 	UserId     uuid.UUID `db:"userId"`
 	Expiration time.Time `db:"expiration"`
+	AuthLvl    AuthLvl   `db:"authLvl"`
+	Slug       string    `db:"slug"`
 }
 
 func (a *Auth) GenerateSecureToken() {

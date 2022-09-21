@@ -69,18 +69,11 @@ func (db AuthRepositoryDB) CreateUser(userDTO dto.NewUser) (*Auth, *errs.AppErro
 
 	auth.GenerateSecureToken()
 
-	query = fmt.Sprintf(`INSERT INTO auth(token, userId, expiration) VALUES ('%s', '%s', DATE_ADD(NOW(), INTERVAL 5 DAY))`, auth.Token, user.UUID)
-	_, err = db.client.NamedExec(query, user)
+	query = fmt.Sprintf(`INSERT INTO auth(token, userId, expiration, authLvl, slug) VALUES ('%s', '%s', NOW() + INTERVAL 10 DAY, %d, '%s')`, auth.Token, user.UUID, user.AuthLvl, user.Slug)
+	_, err = db.client.NamedExec(query, auth)
 	if err != nil {
-		log.Printf("Error when creating new user %s, %s", userDTO.Name, err)
-		return nil, errs.NewUnexpectedError(errs.Common.NotCreated + "user")
-	}
-
-	query = fmt.Sprintf(`SELECT * FROM auth WHERE token = '%s'`, auth.Token)
-	err = db.client.Get(&auth, query)
-	if err != nil {
-		log.Println("Error when fetching auth after create:", err)
-		return nil, errs.NewNotFoundError(errs.Common.NotFound + "your authentication token")
+		log.Printf("Error when creating new auth for user %s, %s", userDTO.Name, err)
+		return nil, errs.NewUnexpectedError(errs.Common.NotCreated + "auth")
 	}
 
 	return &auth, nil

@@ -1,6 +1,7 @@
 package router
 
 import (
+	"eurovision/pkg/domain"
 	"log"
 	"net/http"
 	"time"
@@ -13,8 +14,10 @@ type sessionStore struct {
 }
 
 type session struct {
-	userId uuid.UUID
-	exp    time.Time
+	userId  uuid.UUID
+	slug    string
+	exp     time.Time
+	authLvl domain.AuthLvl
 }
 
 func jsHeaders(next http.Handler) http.Handler {
@@ -43,15 +46,19 @@ func logging(next http.Handler) http.Handler {
 func (auth sessionStore) authenticate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		token, _ := r.Cookie("token")
-		session, found := auth.sessions[token.Value]
-
-		if found && session.exp.Before(time.Now()) {
-			http.Error(w, "Your session has ended, please log in again", http.StatusUnauthorized)
-		} else if found && session.exp.After(time.Now()) {
-			session.exp = time.Now().Add(432000)
-			next.ServeHTTP(w, r)
-		} else {
+		if token == nil {
 			http.Error(w, "Please log in", http.StatusUnauthorized)
+		} else {
+			session, found := auth.sessions[token.Value]
+
+			if found && session.exp.Before(time.Now()) {
+				http.Error(w, "Your session has ended, please log in again", http.StatusUnauthorized)
+			} else if found && session.exp.After(time.Now()) {
+				session.exp = time.Now().Add(432000)
+				next.ServeHTTP(w, r)
+			} else {
+				http.Error(w, "Please log in", http.StatusUnauthorized)
+			}
 		}
 	})
 }

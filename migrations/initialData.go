@@ -1,5 +1,7 @@
 package migrations
 
+import "eurovision/pkg/domain"
+
 type initialCountryParams struct {
 	Name string
 	Flag string
@@ -12,6 +14,8 @@ type initialUserParams struct {
 	Slug    string
 	AuthLvl uint8
 }
+
+var initAuth = domain.Auth{}
 
 var initUsers = []initialUserParams{
 	{

@@ -34,6 +34,13 @@ func NewInvalidError(message string) *AppError {
 	}
 }
 
+func NewUnauthorizedError(message string) *AppError {
+	return &AppError{
+		Message: message,
+		Code:    http.StatusUnauthorized,
+	}
+}
+
 type commonMessages struct {
 	BadlyFormedObject string
 	DBFail            string
@@ -41,6 +48,7 @@ type commonMessages struct {
 	NotDeleted        string
 	NotUpdated        string
 	NotCreated        string
+	Unauthorized      string
 }
 
 var Common commonMessages = commonMessages{
@@ -50,4 +58,5 @@ var Common commonMessages = commonMessages{
 	NotDeleted:        "Something went wrong when deleting ",
 	NotUpdated:        "Something went wrong when updating ",
 	NotCreated:        "Something went wrong when creating ",
+	Unauthorized:      "You are not allowed to do that!",
 }

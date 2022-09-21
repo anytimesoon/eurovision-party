@@ -16,6 +16,7 @@ import (
 )
 
 var currentSessions sessionStore
+var adminRoutes []string
 
 func StartServer(db *sqlx.DB, appConf conf.App) {
 	currentSessions = sessionStore{sessions: make(map[string]session)}
@@ -25,9 +26,9 @@ func StartServer(db *sqlx.DB, appConf conf.App) {
 	// Authentication
 	authRepositoryMem := domain.NewAuthRepositoryDB(db)
 	authHandler := AuthHandler{Service: service.NewAuthService(authRepositoryMem)}
-	router.HandleFunc("/register", authHandler.Register).Methods(http.MethodPost) // takes an email address. creates user and responds with auth-token. Possibly a log in link
-	router.HandleFunc("/login", authHandler.Login).Methods(http.MethodGet)        // sets cookie. redirects to home
-	router.HandleFunc("/token", authHandler.Authenticate).Methods(http.MethodGet) // possibly not needed. TBC
+	router.HandleFunc("/register", authHandler.Register).Methods(http.MethodPost)           // takes an email address. creates user and responds with auth-token. Possibly a log in link
+	router.HandleFunc("/login/{token}/{userId}", authHandler.Login).Methods(http.MethodGet) // sets cookie. redirects to home
+	// router.HandleFunc("/token", authHandler.Authenticate).Methods(http.MethodGet) // possibly not needed. TBC
 
 	// Assets
 	fs := assets.NewStaticImageFS()

@@ -17,7 +17,9 @@ func CreateAuthTable(db *sqlx.DB) {
 	query = `CREATE TABLE IF NOT EXISTS auth(
 				userId CHAR(36) NOT NULL, 
 				token VARCHAR(191) NOT NULL, 
-				expiration DATETIME NOT NULL);`
+				expiration DATETIME NOT NULL,
+				authLvl TINYINT,
+				slug VARCHAR(191));`
 
 	_, err = db.Exec(query)
 	if err != nil {

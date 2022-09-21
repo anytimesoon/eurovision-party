@@ -9,7 +9,7 @@ import (
 )
 
 type AuthService interface {
-	Login(string, string) (*dto.Auth, *errs.AppError)
+	Login(string, string) (*domain.Auth, *errs.AppError)
 	Token([]byte) ([]byte, *errs.AppError)
 	Register([]byte) (*dto.Auth, *errs.AppError)
 }
@@ -22,16 +22,14 @@ func NewAuthService(repo domain.AuthRepositoryDB) DefaultAuthService {
 	return DefaultAuthService{repo}
 }
 
-func (das DefaultAuthService) Login(token string, userId string) (*dto.Auth, *errs.AppError) {
+func (das DefaultAuthService) Login(token string, userId string) (*domain.Auth, *errs.AppError) {
 	auth, err := das.repo.Authenticate(token, userId)
 	if err != nil {
 		log.Println("Failed to authenticate", err)
 		return nil, errs.NewUnexpectedError("Couldn't log you in. Please try again.")
 	}
 
-	authDTO := auth.ToDTO()
-
-	return &authDTO, nil
+	return auth, nil
 }
 
 func (das DefaultAuthService) Token(body []byte) ([]byte, *errs.AppError) {
