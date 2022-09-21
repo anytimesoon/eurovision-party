@@ -16,7 +16,6 @@ import (
 )
 
 var currentSessions sessionStore
-var adminRoutes []string
 
 func StartServer(db *sqlx.DB, appConf conf.App) {
 	currentSessions = sessionStore{sessions: make(map[string]session)}
