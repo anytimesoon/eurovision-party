@@ -7,9 +7,15 @@ import (
 	"log"
 )
 
+var appConf conf.App
+
+func init() {
+	appConf = conf.StartTui()
+}
+
 func main() {
 	log.Println("Starting configuration 📃")
-	appConf := conf.Setup()
+	appConf = conf.Setup()
 
 	log.Println("Starting application")
 	db := migrations.Start(appConf.DB)

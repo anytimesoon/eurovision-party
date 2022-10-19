@@ -1,6 +1,8 @@
 package conf
 
-import "net/smtp"
+import (
+	"net/smtp"
+)
 
 type App struct {
 	DB     DB
