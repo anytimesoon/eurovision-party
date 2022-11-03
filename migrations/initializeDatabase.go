@@ -9,8 +9,11 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func Start(config conf.DB) sqlx.DB {
-	sqlDb := sqlx.MustConnect("mysql", dsn(config))
+func Start(config conf.DB) (*sqlx.DB, error) {
+	sqlDb, err := sqlx.Connect("mysql", dsn(config))
+	if err != nil {
+		return nil, err
+	}
 	log.Println("Successfully connected to database")
 
 	log.Println("Building tables 🏗")
@@ -24,7 +27,7 @@ func Start(config conf.DB) sqlx.DB {
 	go AddCountries(sqlDb)
 	go AddUsers(sqlDb)
 
-	return *sqlDb
+	return sqlDb, nil
 }
 
 func dsn(config conf.DB) string {

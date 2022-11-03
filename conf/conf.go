@@ -5,10 +5,16 @@ import (
 )
 
 type App struct {
-	DB     DB
-	Server Server
-	Auth   Auth
-	Email  Email
+	DB        DB
+	Server    Server
+	Auth      Auth
+	Email     Email
+	AdminUser AdminUser
+}
+
+type AdminUser struct {
+	Name  string
+	Email string
 }
 
 type DB struct {
