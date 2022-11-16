@@ -40,7 +40,8 @@ func StartServer(db *sqlx.DB, appConf conf.App) {
 	restrictedRouter.Use(currentSessions.authenticate)
 
 	// API
-	apiRouter := restrictedRouter.PathPrefix("/api").Subrouter()
+	// apiRouter := restrictedRouter.PathPrefix("/api").Subrouter()
+	apiRouter := router.PathPrefix("/api").Subrouter()
 	apiRouter.Use(jsHeaders)
 
 	// Country
