@@ -1,15 +1,7 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import { loop_guard } from "svelte/internal";
-
-    type Country = {
-        id: string
-        name: string
-        bandName: string
-        songName: string
-        flag: string
-        participating: boolean
-    }
+    import type {CountryModel} from "src/lib/models/classes/country.model"
 
     async function getCountries(){
         const response = await fetch('http://localhost:8080/');
@@ -18,28 +10,12 @@
         return countries
     }
 
-    let countries: Country[];
+    let countries: CountryModel[];
     let promise = getCountries();
 
     onMount( () => promise = getCountries() );
 
-    function updateParticipating(country: Country) {
-        fetch('http://localhost:8080/country',{
-            method: "PUT",
-            mode: 'cors',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(country)
-        }).then(response => response.json())
-        .then(data => {
-            countries.find((country) => {if(data.id == country.id){country = data}})
-        })
-        .catch((err) => {
-           console.log(err)
-        })
-    };
+    
 </script>
 
 <h1>List of all Eurovision countries</h1>
@@ -57,7 +33,7 @@
                 {:else} 
                     is out of the running 😢
                 {/if}
-                <button on:click="{() => updateParticipating(country)}">toggle</button>
+                <button on:click="{() => country.update()}">toggle</button>
             </li>
         {/each}
     {:catch error}
