@@ -6,7 +6,7 @@
             countries: await fetch("http://localhost:8080/api/country").then((res) => res.json() as Promise<CountryModel[]>),
         }
      })
-  </script>
+</script>
 
 <script lang="ts">
     import type {CountryModel} from "src/lib/models/classes/country.model"
