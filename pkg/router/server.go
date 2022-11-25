@@ -78,7 +78,8 @@ func StartServer(db *sqlx.DB, appConf conf.App) {
 		CommentService: commentService,
 	}
 	go chatRoomHandler.RoomService.Run()
-	chatRouter := restrictedRouter.PathPrefix("/chat").Subrouter()
+	// chatRouter := restrictedRouter.PathPrefix("/chat").Subrouter()
+	chatRouter := router.PathPrefix("/chat").Subrouter()
 	chatRouter.HandleFunc("/connect", chatRoomHandler.Connect)
 
 	headersOk := handlers.AllowedHeaders([]string{"Content-type", "Authorization", "Origin", "Access-Control-Allow-Origin", "Accept", "Options", "X-Requested-With"})
