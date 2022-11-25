@@ -9,7 +9,7 @@
 </script>
 
 <script lang="ts">
-    import type {CountryModel} from "src/lib/models/classes/country.model"
+    import type {CountryModel} from "$lib/models/classes/country.model"
 
     export let countries: CountryModel[] = [];
 </script>
