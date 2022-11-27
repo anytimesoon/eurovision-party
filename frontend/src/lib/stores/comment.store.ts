@@ -1,4 +1,4 @@
-import { writable, readable } from "svelte/store";
+import { writable } from "svelte/store";
 import type { CommentModel } from "$lib/models/classes/comment.model";
 
 type State = {
@@ -10,7 +10,7 @@ export const commentStore = writable<State>({
   comments: []
 });
 
-export const connect = () => {
+export const connectToChat = () => {
   const socket = new WebSocket("ws://localhost:8080/chat/connect");
   if (!socket) {
     // Store an error in our state.  The function will be
@@ -39,20 +39,3 @@ export const connect = () => {
 
   return socket
 }
-
-
-export const timeline = commentStore.subscribe;
-
-
-
-
-
-// const storeMessage = (message:string) => {
-//     commentStore.set(`You: ${message}`);
-// };
-
-// export default {
-//   subscribe: commentStore.subscribe,
-//   storeMessage,
-//   sendMessage,
-// };

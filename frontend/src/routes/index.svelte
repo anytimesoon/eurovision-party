@@ -1,36 +1,7 @@
-<script lang="ts">
-    import { onMount } from "svelte";
-    import { commentStore, connect} from "$lib/stores/comment.store";
-	import CommentLog from "$lib/components/CommentLog.svelte";
-    // import {CommentLog} from "$lib/components/commentlog.component";
-    let socket:any;
-    
-    onMount(async() => {
-        socket = connect()
-    });
-
-    function sendMsg() {
-        let input = document.getElementById("msg")! as HTMLInputElement;
-        if (!socket) {
-            console.log("Your connection has been lost. Try reconnecting.");
-        }
-        if (!input.value) {
-            console.log("Something went very, very wrong")
-        }
-        
-        socket.send(input.value);
-        input.value = "" 
-    }
-
-    function sendMsgWithKeyboard(e:KeyboardEvent){
-        if(e.key == "Enter"){
-            sendMsg()
-        }
-    }
+<script type="ts">
+    import Chat from "$lib/components/Chat.svelte"
 </script>
 
 <div>
-    <CommentLog />
-    <input type="text" name="msg" id="msg" on:keyup={sendMsgWithKeyboard}/>
-    <input type="button" value="Send" on:click={sendMsg}/>
+    <Chat />
 </div>
