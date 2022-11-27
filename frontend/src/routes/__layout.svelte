@@ -1,6 +1,9 @@
 <script>
   import "../app.css";
+  import { getCountries } from "$lib/stores/country.story";
+  import Nav from "$lib/components/Nav.svelte"
   export const trailingSlash = 'ignore';
+  getCountries();
 </script>
 
 <svelte:head>
@@ -9,5 +12,6 @@
 </svelte:head>
   
 <main>
+  <Nav />
   <slot />
 </main>

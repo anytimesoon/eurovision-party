@@ -1,17 +1,22 @@
 <script lang="ts" context="module">
-    import type { Load } from '@sveltejs/kit';
+    // import type { Load } from '@sveltejs/kit';
 
-    export const load : Load = async ({ fetch }) => ({
-        props: {
-            countries: await fetch("http://localhost:8080/api/country").then((res) => res.json() as Promise<CountryModel[]>),
-        }
-     })
+    // export const load : Load = async ({ fetch }) => ({
+    //     props: {
+    //         countries: await fetch("http://localhost:8080/api/country").then((res) => res.json() as Promise<CountryModel[]>),
+    //     }
+    //  })
 </script>
 
 <script lang="ts">
     import type {CountryModel} from "$lib/models/classes/country.model"
+	import { countryStore } from "$lib/stores/country.story";
+	import { loop_guard } from "svelte/internal";
 
-    export let countries: CountryModel[] = [];
+    let countries:CountryModel[];
+    countryStore.subscribe(val => {
+            countries = val;
+        });
 </script>
 
 <h1>List of all Eurovision countries</h1>
