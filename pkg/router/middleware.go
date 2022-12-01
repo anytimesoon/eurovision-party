@@ -1,7 +1,7 @@
 package router
 
 import (
-	"eurovision/pkg/domain"
+	"eurovision/pkg/enum"
 	"log"
 	"net/http"
 	"time"
@@ -17,7 +17,7 @@ type session struct {
 	userId  uuid.UUID
 	slug    string
 	exp     time.Time
-	authLvl domain.AuthLvl
+	authLvl enum.AuthLvl
 }
 
 func jsHeaders(next http.Handler) http.Handler {

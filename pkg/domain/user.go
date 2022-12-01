@@ -2,27 +2,20 @@ package domain
 
 import (
 	"eurovision/pkg/dto"
+	"eurovision/pkg/enum"
 	"eurovision/pkg/errs"
 
 	"github.com/google/uuid"
 )
 
 type User struct {
-	UUID    uuid.UUID `db:"uuid"`
-	AuthLvl AuthLvl   `db:"authLvl"`
-	Name    string    `db:"name"`
-	Email   string    `db:"email"`
-	Slug    string    `db:"slug"`
-	Icon    string    `db:"icon"`
+	UUID    uuid.UUID    `db:"uuid"`
+	AuthLvl enum.AuthLvl `db:"authLvl"`
+	Name    string       `db:"name"`
+	Email   string       `db:"email"`
+	Slug    string       `db:"slug"`
+	Icon    string       `db:"icon"`
 }
-
-type AuthLvl uint8
-
-const (
-	None AuthLvl = iota
-	Admin
-	Bot
-)
 
 //go:generate mockgen -source=user.go -destination=../../mocks/domain/mockUserRepository.go -package=domain eurovision/pkg/domain
 type UserRepository interface {

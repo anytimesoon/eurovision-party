@@ -14,7 +14,8 @@ import (
 type AuthRepository interface {
 	FindOneUserByEmail(string) *User
 	CreateUser(dto.User) (*dto.Auth, *errs.AppError)
-	Authenticate(string, string) (*Auth, *errs.AppError)
+	Authenticate(*dto.Auth) (*Auth, *errs.AppError)
+	Login(*dto.Auth) (*Auth, *errs.AppError)
 }
 
 type AuthRepositoryDB struct {
@@ -29,13 +30,28 @@ func FindOneUserByEmail(email string) (*User, *errs.AppError) {
 	return nil, nil
 }
 
-func (db AuthRepositoryDB) Authenticate(token string, userId string) (*Auth, *errs.AppError) {
+func (db AuthRepositoryDB) Authenticate(authDTO *dto.Auth) (*Auth, *errs.AppError) {
 	var auth Auth
 
-	query := fmt.Sprintf(`SELECT * FROM auth WHERE token = '%s'`, token)
-	db.client.Get(&auth, query)
+	query := fmt.Sprintf(`SELECT * FROM auth WHERE token = '%s' and userid = '%s'`, authDTO.Token, authDTO.UserId)
+	err := db.client.Get(&auth, query)
+	if err != nil {
+		log.Printf("Unable to authenticate user %s and token %s combination. %s", authDTO.UserId, authDTO.Token, err)
+		return nil, errs.NewUnauthorizedError("Couldn't log you in. Please try again.")
+	}
 
-	return &auth, nil
+	// Auth found, so we can refresh
+	var newAuth Auth
+	newAuth.GenerateSecureToken()
+
+	query = fmt.Sprintf(`UPDATE auth SET etoken = '%s', etexp = Now() + INTERVAL 1 DAY WHERE token = '%s'`, newAuth.Token, auth.Token)
+	_, err = db.client.NamedExec(query, newAuth)
+	if err != nil {
+		log.Println("Error while updating auth", err)
+		return nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "your authentication")
+	}
+
+	return &newAuth, nil
 }
 
 func (db AuthRepositoryDB) FindOneUserByEmail(email string) *User {

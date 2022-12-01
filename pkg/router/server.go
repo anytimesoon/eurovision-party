@@ -25,8 +25,8 @@ func StartServer(db *sqlx.DB, appConf conf.App) {
 	// Authentication
 	authRepositoryMem := domain.NewAuthRepositoryDB(db)
 	authHandler := AuthHandler{Service: service.NewAuthService(authRepositoryMem)}
-	router.HandleFunc("/register", authHandler.Register).Methods(http.MethodPost)           // takes an email address. creates user and responds with auth-token. Possibly a log in link
-	router.HandleFunc("/login/{token}/{userId}", authHandler.Login).Methods(http.MethodGet) // sets cookie. redirects to home
+	router.HandleFunc("/register", authHandler.Register).Methods(http.MethodPost) // takes an email address. creates user and responds with auth-token. Possibly a log in link
+	router.HandleFunc("/login", authHandler.Login).Methods(http.MethodPost)       // sets auth token.
 	// router.HandleFunc("/token", authHandler.Authenticate).Methods(http.MethodGet) // possibly not needed. TBC
 
 	// Assets
@@ -40,8 +40,8 @@ func StartServer(db *sqlx.DB, appConf conf.App) {
 	restrictedRouter.Use(currentSessions.authenticate)
 
 	// API
-	// apiRouter := restrictedRouter.PathPrefix("/api").Subrouter()
-	apiRouter := router.PathPrefix("/api").Subrouter()
+	apiRouter := restrictedRouter.PathPrefix("/api").Subrouter()
+	// apiRouter := router.PathPrefix("/api").Subrouter()
 	apiRouter.Use(jsHeaders)
 
 	// Country
@@ -78,8 +78,8 @@ func StartServer(db *sqlx.DB, appConf conf.App) {
 		CommentService: commentService,
 	}
 	go chatRoomHandler.RoomService.Run()
-	// chatRouter := restrictedRouter.PathPrefix("/chat").Subrouter()
-	chatRouter := router.PathPrefix("/chat").Subrouter()
+	chatRouter := restrictedRouter.PathPrefix("/chat").Subrouter()
+	// chatRouter := router.PathPrefix("/chat").Subrouter()
 	chatRouter.HandleFunc("/connect", chatRoomHandler.Connect)
 
 	headersOk := handlers.AllowedHeaders([]string{"Content-type", "Authorization", "Origin", "Access-Control-Allow-Origin", "Accept", "Options", "X-Requested-With"})

@@ -1,6 +1,7 @@
 package dto
 
 import (
+	"eurovision/pkg/enum"
 	"log"
 	"regexp"
 	"strings"
@@ -10,15 +11,20 @@ import (
 )
 
 type Auth struct {
-	Token      string    `json:"token"`
-	UserId     uuid.UUID `json:"userId"`
-	Expiration time.Time `json:"exp"`
+	Token      string
+	UserId     uuid.UUID
+	Expiration time.Time
+	AuthLvl    enum.AuthLvl
 }
 
 type NewUser struct {
 	Name  string `json:"name"`
 	Email string `json:"email"`
 	Slug  string
+}
+
+type EAuth struct {
+	EToken []byte `json:"token"`
 }
 
 func (nu *NewUser) Slugify() {

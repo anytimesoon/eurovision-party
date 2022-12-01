@@ -5,6 +5,7 @@ import (
 	mockDomain "eurovision/mocks/domain"
 	"eurovision/pkg/domain"
 	"eurovision/pkg/dto"
+	"eurovision/pkg/enum"
 	"eurovision/pkg/errs"
 	"net/http"
 	"testing"
@@ -28,8 +29,8 @@ func setupUserTest(t *testing.T) {
 	mockUserRepository = mockDomain.NewMockUserRepository(ctrl)
 	userService = DefaultUserService{mockUserRepository}
 	mockUsers = []domain.User{
-		{UUID: uuid.New(), AuthLvl: domain.Admin, Name: "tEsTuSeR", Slug: "testuser", Icon: "/img/static/img/newuser.png"},
-		{UUID: uuid.New(), AuthLvl: domain.None, Name: "mOcKuSeR", Slug: "mockuser", Icon: "/img/static/img/newuser.png"},
+		{UUID: uuid.New(), AuthLvl: enum.Admin, Name: "tEsTuSeR", Slug: "testuser", Icon: "/img/static/img/newuser.png"},
+		{UUID: uuid.New(), AuthLvl: enum.None, Name: "mOcKuSeR", Slug: "mockuser", Icon: "/img/static/img/newuser.png"},
 	}
 	mockUser = mockUsers[0]
 
