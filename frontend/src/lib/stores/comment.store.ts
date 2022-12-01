@@ -1,5 +1,7 @@
 import { writable } from "svelte/store";
 import type { CommentModel } from "$lib/models/classes/comment.model";
+import type { TokenModel } from "$lib/models/classes/token.model";
+import { tokenStore } from "./token.store";
 
 type State = {
   comments: Array<CommentModel>;
@@ -10,8 +12,13 @@ export const commentStore = writable<State>({
   comments: []
 });
 
+let token:TokenModel;
+tokenStore.subscribe((val) => {
+  token = val
+})
+
 export const connectToChat = () => {
-  const socket = new WebSocket("ws://localhost:8080/chat/connect");
+  const socket = new WebSocket("ws://localhost:8080/restricted/chat/connect/" + token);
   if (!socket) {
     // Store an error in our state.  The function will be
     // called with the current state;  this only adds the
