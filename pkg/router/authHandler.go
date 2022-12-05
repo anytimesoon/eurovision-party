@@ -12,12 +12,6 @@ type AuthHandler struct {
 }
 
 func (ah AuthHandler) Register(resp http.ResponseWriter, req *http.Request) {
-	ok, appErr := currentSessions.authorize(req)
-	if appErr != nil || !ok {
-		writeResponse(resp, appErr.Code, appErr.AsMessage())
-		return
-	}
-
 	body, err := io.ReadAll(req.Body)
 	if err != nil {
 		panic(err)

@@ -34,11 +34,6 @@ func (ch *CountryHandler) FindOneCountry(resp http.ResponseWriter, req *http.Req
 }
 
 func (ch *CountryHandler) UpdateCountry(resp http.ResponseWriter, req *http.Request) {
-	ok, appErr := currentSessions.authorize(req)
-	if appErr != nil || !ok {
-		writeResponse(resp, appErr.Code, appErr.AsMessage())
-	}
-
 	body, err := io.ReadAll(req.Body)
 	if err != nil {
 		panic(err)
@@ -49,6 +44,7 @@ func (ch *CountryHandler) UpdateCountry(resp http.ResponseWriter, req *http.Requ
 	if appErr != nil {
 		writeResponse(resp, appErr.Code, appErr.AsMessage())
 	} else {
+		country.Token.EToken = resp.Header().Get("Authorization")
 		writeResponse(resp, http.StatusOK, country)
 	}
 }

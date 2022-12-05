@@ -12,8 +12,8 @@ import (
 
 type Auth struct {
 	Token      string
-	UserId     uuid.UUID
 	Expiration time.Time
+	UserId     uuid.UUID
 	AuthLvl    enum.AuthLvl
 }
 
@@ -24,7 +24,7 @@ type NewUser struct {
 }
 
 type EAuth struct {
-	EToken []byte `json:"token"`
+	EToken string `json:"token"`
 }
 
 func (nu *NewUser) Slugify() {

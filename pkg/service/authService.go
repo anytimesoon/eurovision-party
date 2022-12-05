@@ -13,12 +13,14 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"time"
 )
 
 type AuthService interface {
 	Login([]byte) (*dto.EAuth, *errs.AppError)
 	Token([]byte) ([]byte, *errs.AppError)
 	Register([]byte) (*dto.Auth, *errs.AppError)
+	Authorize(string) (string, *errs.AppError)
 }
 
 type DefaultAuthService struct {
@@ -29,6 +31,7 @@ var secretKey []byte
 
 func init() {
 	var err error
+	// TODO: create random string
 	secretKey, err = hex.DecodeString("13d6b4dff8f84a10851021ec8608f814570d562c92fe6b5ec4c9f595bcb3234b")
 	if err != nil {
 		log.Fatal(err)
@@ -52,13 +55,54 @@ func (das DefaultAuthService) Login(body []byte) (*dto.EAuth, *errs.AppError) {
 		return nil, appErr
 	}
 
-	e, err := encrypt(auth.ToDTO())
+	authJson, err := json.Marshal(auth.ToDTO())
+	if err != nil {
+		log.Printf("Failed to marshall auth %+v %s", auth, err)
+		return nil, errs.NewUnexpectedError(errs.Common.Login)
+	}
+
+	e, err := encrypt(string(authJson))
+	if err != nil {
+		log.Printf("Couldn't encrypt the creds for %+v", auth)
+		return nil, errs.NewUnexpectedError(errs.Common.Login)
+	}
 
 	eAuth := &dto.EAuth{
 		EToken: e,
 	}
 
 	return eAuth, nil
+}
+
+func (das DefaultAuthService) Authorize(token string) (string, *errs.AppError) {
+	authDTO, appErr := decrypt(token)
+	if appErr != nil {
+		return "", appErr
+	}
+
+	if authDTO.Expiration.After(time.Now()) {
+		log.Printf("Session has expired")
+		return "", errs.NewUnauthorizedError(errs.Common.Login)
+	}
+
+	auth, appErr := das.repo.Authorize(authDTO)
+	if appErr != nil {
+		return "", appErr
+	}
+
+	authJson, err := json.Marshal(auth.ToDTO())
+	if err != nil {
+		log.Printf("Failed to marshal auth %+v", auth)
+		return "", errs.NewUnexpectedError(errs.Common.Login)
+	}
+
+	e, err := encrypt(string(authJson))
+	if err != nil {
+		log.Printf("Couldn't encrypt the creds for %+v", auth)
+		return "", errs.NewUnexpectedError(errs.Common.Login)
+	}
+
+	return e, nil
 }
 
 func (das DefaultAuthService) Token(body []byte) ([]byte, *errs.AppError) {
@@ -94,24 +138,24 @@ func (das DefaultAuthService) Register(body []byte) (*dto.Auth, *errs.AppError) 
 	return &authDTO, nil
 }
 
-func encrypt(auth dto.Auth) ([]byte, error) {
+func encrypt(auth string) (string, error) {
 	// Create a new AES cipher block from the secret key.
 	block, err := aes.NewCipher(secretKey)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	// Wrap the cipher block in Galois Counter Mode.
 	aesGCM, err := cipher.NewGCM(block)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	// Create a unique nonce containing 12 random bytes.
 	nonce := make([]byte, aesGCM.NonceSize())
 	_, err = io.ReadFull(rand.Reader, nonce)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	plaintext := fmt.Sprintf("%+v", auth)
@@ -123,5 +167,60 @@ func encrypt(auth dto.Auth) ([]byte, error) {
 	encryptedValue := aesGCM.Seal(nonce, nonce, []byte(plaintext), nil)
 
 	base64Value := base64.URLEncoding.EncodeToString(encryptedValue)
-	return []byte(base64Value), nil
+	return base64Value, nil
+}
+
+func decrypt(base64Token string) (*dto.Auth, *errs.AppError) {
+	token, err := base64.URLEncoding.DecodeString(base64Token)
+	if err != nil {
+		log.Println("Failed to decode base 64", err)
+		return nil, errs.NewUnexpectedError(errs.Common.Login)
+	}
+
+	// Create a new AES cipher block from the secret key.
+	block, err := aes.NewCipher(secretKey)
+	if err != nil {
+		log.Println("Failed to create new cipher", err)
+		return nil, errs.NewUnexpectedError(errs.Common.Login)
+	}
+
+	// Wrap the cipher block in Galois Counter Mode.
+	aesGCM, err := cipher.NewGCM(block)
+	if err != nil {
+		log.Println("Failed to wrap cipher in block", err)
+		return nil, errs.NewUnexpectedError(errs.Common.Login)
+	}
+
+	// Get the nonce size.
+	nonceSize := aesGCM.NonceSize()
+
+	// To avoid a potential 'index out of range' panic in the next step, we
+	// check that the length of the encrypted value is at least the nonce
+	// size.
+	if len(token) < nonceSize {
+		log.Println("Nonce was too large")
+		return nil, errs.NewUnexpectedError(errs.Common.Login)
+	}
+
+	// Split apart the nonce from the actual encrypted data.
+	nonce := token[:nonceSize]
+	ciphertext := token[nonceSize:]
+
+	// Use aesGCM.Open() to decrypt and authenticate the data. If this fails,
+	// return a ErrInvalidValue error.
+	plaintext, err := aesGCM.Open(nil, []byte(nonce), []byte(ciphertext), nil)
+	if err != nil {
+		log.Printf("Failed to decrypt token %s", err)
+		return nil, errs.NewUnexpectedError(errs.Common.Login)
+	}
+
+	var auth dto.Auth
+	err = json.Unmarshal(plaintext, &auth)
+	if err != nil {
+		log.Printf("Failed to unmarshal %s token %s", plaintext, err)
+		return nil, errs.NewUnexpectedError(errs.Common.Login)
+	}
+
+	// Return the plaintext cookie value.
+	return &auth, nil
 }

@@ -46,7 +46,7 @@ func AddUsers(db *sqlx.DB) {
 
 		switch user.AuthLvl {
 		case 1:
-			initAuth.GenerateSecureToken()
+			initAuth.GenerateSecureToken(80)
 			_, err = db.Exec(authQuery, initAuth.Token, id, user.AuthLvl, user.Slug)
 			if err != nil {
 				log.Fatalf("Authentication for user %s was not created. %s", user.Name, err)

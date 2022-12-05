@@ -33,7 +33,7 @@ func FindOneUserByEmail(email string) (*User, *errs.AppError) {
 func (db AuthRepositoryDB) Authenticate(authDTO *dto.Auth) (*Auth, *errs.AppError) {
 	var auth Auth
 
-	query := fmt.Sprintf(`SELECT * FROM auth WHERE token = '%s' and userid = '%s'`, authDTO.Token, authDTO.UserId)
+	query := fmt.Sprintf(`SELECT * FROM auth WHERE token = '%s' and userId = '%s'`, authDTO.Token, authDTO.UserId)
 	err := db.client.Get(&auth, query)
 	if err != nil {
 		log.Printf("Unable to authenticate user %s and token %s combination. %s", authDTO.UserId, authDTO.Token, err)
@@ -41,17 +41,39 @@ func (db AuthRepositoryDB) Authenticate(authDTO *dto.Auth) (*Auth, *errs.AppErro
 	}
 
 	// Auth found, so we can refresh
-	var newAuth Auth
-	newAuth.GenerateSecureToken()
+	auth.GenerateSecureEToken(20)
 
-	query = fmt.Sprintf(`UPDATE auth SET etoken = '%s', etexp = Now() + INTERVAL 1 DAY WHERE token = '%s'`, newAuth.Token, auth.Token)
-	_, err = db.client.NamedExec(query, newAuth)
+	query = fmt.Sprintf(`UPDATE auth SET etoken = '%s', etexp = Now() + INTERVAL 1 DAY WHERE userId = '%s'`, auth.EToken, auth.UserId)
+	_, err = db.client.NamedExec(query, auth)
 	if err != nil {
 		log.Println("Error while updating auth", err)
 		return nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "your authentication")
 	}
 
-	return &newAuth, nil
+	return &auth, nil
+}
+
+func (db AuthRepositoryDB) Authorize(authDTO *dto.Auth) (*Auth, *errs.AppError) {
+	var auth Auth
+
+	query := fmt.Sprintf(`SELECT * FROM auth WHERE etoken = '%s' and userId = '%s'`, authDTO.Token, authDTO.UserId)
+	err := db.client.Get(&auth, query)
+	if err != nil {
+		log.Printf("Unable to authorize user %s and etoken %s combination. %s", authDTO.UserId, authDTO.Token, err)
+		return nil, errs.NewUnauthorizedError("Couldn't log you in. Please try again.")
+	}
+
+	// Auth found, so we can refresh
+	auth.GenerateSecureEToken(20)
+
+	query = fmt.Sprintf(`UPDATE auth SET etoken = '%s', etexp = Now() + INTERVAL 1 DAY WHERE userId = '%s'`, auth.EToken, auth.UserId)
+	_, err = db.client.NamedExec(query, auth)
+	if err != nil {
+		log.Println("Error while updating auth", err)
+		return nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "your authentication")
+	}
+
+	return &auth, nil
 }
 
 func (db AuthRepositoryDB) FindOneUserByEmail(email string) *User {
@@ -83,7 +105,7 @@ func (db AuthRepositoryDB) CreateUser(userDTO dto.NewUser) (*Auth, *errs.AppErro
 		return nil, errs.NewUnexpectedError(errs.Common.NotCreated + "user")
 	}
 
-	auth.GenerateSecureToken()
+	auth.GenerateSecureToken(80)
 
 	query = fmt.Sprintf(`INSERT INTO auth(token, userId, expiration, authLvl, slug) VALUES ('%s', '%s', NOW() + INTERVAL 10 DAY, %d, '%s')`, auth.Token, user.UUID, user.AuthLvl, user.Slug)
 	_, err = db.client.NamedExec(query, auth)

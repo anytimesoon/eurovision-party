@@ -15,16 +15,16 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-var currentSessions sessionStore
+var authService service.AuthService
 
 func StartServer(db *sqlx.DB, appConf conf.App) {
-	currentSessions = sessionStore{sessions: make(map[string]session)}
 	router := mux.NewRouter().StrictSlash(true)
 	router.Use(logging)
 
 	// Authentication
 	authRepositoryMem := domain.NewAuthRepositoryDB(db)
-	authHandler := AuthHandler{Service: service.NewAuthService(authRepositoryMem)}
+	authService = service.NewAuthService(authRepositoryMem)
+	authHandler := AuthHandler{Service: authService}
 	router.HandleFunc("/register", authHandler.Register).Methods(http.MethodPost) // takes an email address. creates user and responds with auth-token. Possibly a log in link
 	router.HandleFunc("/login", authHandler.Login).Methods(http.MethodPost)       // sets auth token.
 	// router.HandleFunc("/token", authHandler.Authenticate).Methods(http.MethodGet) // possibly not needed. TBC
@@ -37,7 +37,7 @@ func StartServer(db *sqlx.DB, appConf conf.App) {
 
 	// Restricted
 	restrictedRouter := router.PathPrefix("/restricted").Subrouter()
-	restrictedRouter.Use(currentSessions.authenticate)
+	restrictedRouter.Use(authenticate)
 
 	// API
 	apiRouter := restrictedRouter.PathPrefix("/api").Subrouter()

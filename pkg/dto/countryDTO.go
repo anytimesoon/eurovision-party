@@ -16,6 +16,7 @@ type Country struct {
 	SongName      string    `json:"songName"`
 	Flag          string    `json:"flag"`
 	Participating bool      `json:"participating"`
+	Token         EAuth     `json:"auth"`
 }
 
 func (c Country) Validate() *errs.AppError {

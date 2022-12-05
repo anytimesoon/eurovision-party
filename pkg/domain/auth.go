@@ -20,8 +20,16 @@ type Auth struct {
 	Slug       string       `db:"slug"`
 }
 
-func (a *Auth) GenerateSecureToken() {
-	b := make([]byte, 80)
+func (a *Auth) GenerateSecureToken(len int) {
+	a.Token = generateToken(len)
+}
+
+func (a *Auth) GenerateSecureEToken(len int) {
+	a.EToken = generateToken(len)
+}
+
+func generateToken(len int) string {
+	b := make([]byte, len)
 	isNotGenerated := true
 
 	for isNotGenerated {
@@ -33,14 +41,23 @@ func (a *Auth) GenerateSecureToken() {
 		}
 	}
 
-	a.Token = hex.EncodeToString(b)
+	return hex.EncodeToString(b)
 }
 
 func (a Auth) ToDTO() dto.Auth {
-	return dto.Auth{
-		Token:      a.EToken,
-		UserId:     a.UserId,
-		Expiration: a.ETokExp,
-		AuthLvl:    a.AuthLvl,
+	authDTO := dto.Auth{
+
+		UserId:  a.UserId,
+		AuthLvl: a.AuthLvl,
 	}
+
+	if a.EToken != "" {
+		authDTO.Token = a.EToken
+		authDTO.Expiration = a.ETokExp
+	} else {
+		authDTO.Token = a.Token
+		authDTO.Expiration = a.Expiration
+	}
+
+	return authDTO
 }

@@ -24,11 +24,6 @@ func (uh UserHandler) FindAllUsers(resp http.ResponseWriter, req *http.Request) 
 }
 
 func (uh UserHandler) UpdateUser(resp http.ResponseWriter, req *http.Request) {
-	ok, appErr := currentSessions.authorize(req)
-	if appErr != nil || !ok {
-		writeResponse(resp, appErr.Code, appErr.AsMessage())
-	}
-
 	body, err := io.ReadAll(req.Body)
 	if err != nil {
 		log.Println("FAILED to read body of USER UPDATE!", err)
@@ -54,11 +49,6 @@ func (uh UserHandler) FindOneUser(resp http.ResponseWriter, req *http.Request) {
 }
 
 func (uh UserHandler) RemoveUser(resp http.ResponseWriter, req *http.Request) {
-	ok, appErr := currentSessions.authorize(req)
-	if appErr != nil || !ok {
-		writeResponse(resp, appErr.Code, appErr.AsMessage())
-	}
-
 	params := mux.Vars(req)
 	err := uh.Service.DeleteUser(params["slug"])
 	if err != nil {
