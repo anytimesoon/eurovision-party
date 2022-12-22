@@ -20,9 +20,9 @@ func (vh VoteHandler) CreateVote(resp http.ResponseWriter, req *http.Request) {
 
 	vote, appErr := vh.Service.CreateVote(body)
 	if appErr != nil {
-		writeResponse(resp, appErr.Code, appErr.AsMessage())
+		writeResponse(resp, appErr.Code, vote, appErr.Message)
 	} else {
-		writeResponse(resp, http.StatusOK, vote)
+		writeResponse(resp, http.StatusOK, vote, "")
 	}
 }
 
@@ -35,8 +35,8 @@ func (vh VoteHandler) UpdateVote(resp http.ResponseWriter, req *http.Request) {
 
 	vote, appErr := vh.Service.UpdateVote(body)
 	if appErr != nil {
-		writeResponse(resp, appErr.Code, appErr.AsMessage())
+		writeResponse(resp, appErr.Code, vote, appErr.Message)
 	} else {
-		writeResponse(resp, http.StatusOK, vote)
+		writeResponse(resp, http.StatusOK, vote, "")
 	}
 }

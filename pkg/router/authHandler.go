@@ -19,9 +19,9 @@ func (ah AuthHandler) Register(resp http.ResponseWriter, req *http.Request) {
 
 	auth, appErr := ah.Service.Register(body)
 	if appErr != nil {
-		writeResponse(resp, appErr.Code, appErr.AsMessage())
+		writeResponse(resp, appErr.Code, auth, appErr.Message)
 	} else {
-		writeResponse(resp, http.StatusOK, auth)
+		writeResponse(resp, http.StatusOK, auth, "")
 	}
 }
 
@@ -34,8 +34,9 @@ func (ah AuthHandler) Login(resp http.ResponseWriter, req *http.Request) {
 
 	auth, appErr := ah.Service.Login(body)
 	if appErr != nil {
-		writeResponse(resp, appErr.Code, appErr.AsMessage())
+		writeResponse(resp, appErr.Code, auth, appErr.Message)
 	} else {
-		writeResponse(resp, http.StatusOK, auth)
+		resp.Header().Add("Authorization", auth.EToken)
+		writeResponse(resp, http.StatusOK, auth, "")
 	}
 }

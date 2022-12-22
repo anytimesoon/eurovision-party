@@ -15,9 +15,9 @@ type CountryHandler struct {
 func (ch *CountryHandler) FindAllCountries(resp http.ResponseWriter, req *http.Request) {
 	countries, err := ch.Service.GetAllCountries()
 	if err != nil {
-		writeResponse(resp, err.Code, err.AsMessage())
+		writeResponse(resp, err.Code, countries, err.Message)
 	} else {
-		writeResponse(resp, http.StatusOK, countries)
+		writeResponse(resp, http.StatusOK, countries, "")
 	}
 }
 
@@ -27,9 +27,9 @@ func (ch *CountryHandler) FindOneCountry(resp http.ResponseWriter, req *http.Req
 	country, err := ch.Service.SingleCountry(params["slug"])
 
 	if err != nil {
-		writeResponse(resp, err.Code, err.AsMessage())
+		writeResponse(resp, err.Code, country, err.Message)
 	} else {
-		writeResponse(resp, http.StatusOK, country)
+		writeResponse(resp, http.StatusOK, country, "")
 	}
 }
 
@@ -42,9 +42,8 @@ func (ch *CountryHandler) UpdateCountry(resp http.ResponseWriter, req *http.Requ
 	country, appErr := ch.Service.UpdateCountry(body)
 
 	if appErr != nil {
-		writeResponse(resp, appErr.Code, appErr.AsMessage())
+		writeResponse(resp, appErr.Code, country, appErr.Message)
 	} else {
-		country.Token.EToken = resp.Header().Get("Authorization")
-		writeResponse(resp, http.StatusOK, country)
+		writeResponse(resp, http.StatusOK, country, "")
 	}
 }
