@@ -1,35 +1,24 @@
 <script type="ts">
-	import type { Load } from '@sveltejs/kit';
+	import { onMount } from "svelte";
+	import { auth } from "$lib/models/enums/endpoints.enum"
+	import { LoginModel } from '$lib/models/classes/login.model';
+	import { sendPost } from '$lib/modules/sender';
 	import type { TokenModel } from '$lib/models/classes/token.model';
-	import { setToken, tokenStore } from '$lib/stores/token.store';
-	import {onMount} from "svelte";
+    import {ResponseModel} from "$lib/models/classes/response.model";
 
-	onMount( async () => {
+	onMount( () => {
 		let path = window.location.pathname;
-		let params = path.split('/');
+		let params:string[] = path.split('/');
 
-		fetch("http://localhost:8080/login", {
-			method: "POST",
-			body: JSON.stringify({
-				userId: params[3],
-				token: params[2]
-			}),
-		}).
-		then(res => res.json() as Promise<TokenModel>).
-		then(token => setToken(token)).
-		catch((e) => {
-			console.log(e)
-		})
+		let payload = new LoginModel();
+		payload.token = params[2];
+		payload.userId = params[3];
+
+        let resp:ResponseModel<TokenModel>
+		sendPost<LoginModel, TokenModel>(auth.LOGIN, payload).then( data => resp = data )
+
+        if (resp.error !== "") {
+            alert(resp.error)
+        }
 	});
-
-	let token:TokenModel
-	tokenStore.subscribe( (val) => {
-		token = val
-	})	
 </script>
-
-<div>
-	{#if token != null}
-		{token.token}
-	{/if}
-</div>
