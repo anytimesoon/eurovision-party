@@ -27,7 +27,6 @@ func StartServer(db *sqlx.DB, appConf conf.App) {
 	authHandler := AuthHandler{Service: authService}
 	router.HandleFunc("/register", authHandler.Register).Methods(http.MethodPost) // takes an email address. creates user and responds with auth-token. Possibly a log in link
 	router.HandleFunc("/login", authHandler.Login).Methods(http.MethodPost)       // sets auth token.
-	// router.HandleFunc("/token", authHandler.Authenticate).Methods(http.MethodGet) // possibly not needed. TBC
 
 	// Assets
 	fs := assets.NewStaticImageFS()
