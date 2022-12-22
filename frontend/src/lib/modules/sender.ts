@@ -36,7 +36,12 @@ export async function sendPost<T, U>(endpoint : string, payload : T): Promise<Re
         res => res.json() as Promise<ResponseModel<U>>
     ).
     then(
-        json =>resp = json
+        json => {
+            resp = json
+            if (resp.token.token !== "") {
+                tokenStore.set(resp.token)
+            }
+        }
     ).
     catch((e) => {
         console.log(e)
