@@ -15,10 +15,17 @@
 		payload.userId = params[3];
 
         let resp:ResponseModel<TokenModel>
-		sendPost<LoginModel, TokenModel>(auth.LOGIN, payload).then( data => resp = data )
-
-        if (resp.error !== "") {
-            alert(resp.error)
-        }
+		sendPost<LoginModel, TokenModel>(auth.LOGIN, payload).then( data => {
+            resp = data
+            if (resp !== null) {
+                if (resp.error !== "") {
+                    alert(resp.error)
+                } else {
+                    window.location.replace("/countries")
+                }
+            } else {
+                alert("Something went very wrong. Please refresh the page")
+            }
+        })
 	});
 </script>
