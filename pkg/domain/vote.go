@@ -7,8 +7,6 @@ import (
 	"github.com/google/uuid"
 )
 
-// import "github.com/google/uuid"
-
 type Vote struct {
 	UUID        uuid.UUID `db:"uuid"`
 	UserId      uuid.UUID `db:"userId"`
