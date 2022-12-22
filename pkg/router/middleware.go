@@ -1,6 +1,7 @@
 package router
 
 import (
+	"io"
 	"log"
 	"net/http"
 )
@@ -30,9 +31,14 @@ func logging(next http.Handler) http.Handler {
 
 func authenticate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		h := r.Header["Authorization"][0]
-		newToken, err := authService.Authorize(h)
-		if err != nil || newToken == "" {
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		newToken, appErr := authService.Authorize(body)
+		if appErr != nil || newToken == "" {
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}

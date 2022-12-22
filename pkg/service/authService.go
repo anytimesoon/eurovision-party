@@ -18,9 +18,8 @@ import (
 
 type AuthService interface {
 	Login([]byte) (*dto.EAuth, *errs.AppError)
-	Token([]byte) ([]byte, *errs.AppError)
 	Register([]byte) (*dto.Auth, *errs.AppError)
-	Authorize(string) (string, *errs.AppError)
+	Authorize([]byte) (string, *errs.AppError)
 }
 
 type DefaultAuthService struct {
@@ -43,14 +42,14 @@ func NewAuthService(repo domain.AuthRepositoryDB) DefaultAuthService {
 }
 
 func (das DefaultAuthService) Login(body []byte) (*dto.EAuth, *errs.AppError) {
-	var authDTO dto.Auth
-	err := json.Unmarshal(body, &authDTO)
+	var req dto.Req[dto.Auth]
+	err := json.Unmarshal(body, &req)
 	if err != nil {
 		log.Println("FAILED to unmarshal json!", err)
 		return nil, errs.NewUnexpectedError(errs.Common.BadlyFormedObject)
 	}
 
-	auth, appErr := das.repo.Authenticate(&authDTO)
+	auth, appErr := das.repo.Authenticate(&req.Body)
 	if appErr != nil {
 		return nil, appErr
 	}
@@ -74,8 +73,15 @@ func (das DefaultAuthService) Login(body []byte) (*dto.EAuth, *errs.AppError) {
 	return eAuth, nil
 }
 
-func (das DefaultAuthService) Authorize(token string) (string, *errs.AppError) {
-	authDTO, appErr := decrypt(token)
+func (das DefaultAuthService) Authorize(body []byte) (string, *errs.AppError) {
+	var authDTO *dto.Auth
+	err := json.Unmarshal(body, authDTO)
+	if err != nil {
+		log.Println("FAILED to unmarshal json!", err)
+		return "", errs.NewUnexpectedError(errs.Common.BadlyFormedObject)
+	}
+
+	authDTO, appErr := decrypt(authDTO.Token)
 	if appErr != nil {
 		return "", appErr
 	}
@@ -103,10 +109,6 @@ func (das DefaultAuthService) Authorize(token string) (string, *errs.AppError) {
 	}
 
 	return e, nil
-}
-
-func (das DefaultAuthService) Token(body []byte) ([]byte, *errs.AppError) {
-	return []byte("hello"), nil
 }
 
 func (das DefaultAuthService) Register(body []byte) (*dto.Auth, *errs.AppError) {
