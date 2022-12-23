@@ -45,19 +45,10 @@ func generateToken(len int) string {
 }
 
 func (a Auth) ToDTO() dto.Auth {
-	authDTO := dto.Auth{
-
-		UserId:  a.UserId,
-		AuthLvl: a.AuthLvl,
+	return dto.Auth{
+		Token:      a.EToken,
+		Expiration: a.ETokExp,
+		UserId:     a.UserId,
+		AuthLvl:    a.AuthLvl,
 	}
-
-	if a.EToken != "" {
-		authDTO.Token = a.EToken
-		authDTO.Expiration = a.ETokExp
-	} else {
-		authDTO.Token = a.Token
-		authDTO.Expiration = a.Expiration
-	}
-
-	return authDTO
 }

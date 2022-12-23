@@ -19,7 +19,7 @@ import (
 type AuthService interface {
 	Login([]byte) (*dto.EAuth, *errs.AppError)
 	Register([]byte) (*dto.Auth, *errs.AppError)
-	Authorize([]byte) (string, *errs.AppError)
+	Authorize(string) (string, *errs.AppError)
 }
 
 type DefaultAuthService struct {
@@ -49,7 +49,7 @@ func (das DefaultAuthService) Login(body []byte) (*dto.EAuth, *errs.AppError) {
 		return nil, errs.NewUnexpectedError(errs.Common.BadlyFormedObject)
 	}
 
-	auth, appErr := das.repo.Authenticate(&req.Body)
+	auth, appErr := das.repo.Login(&req.Body)
 	if appErr != nil {
 		return nil, appErr
 	}
@@ -73,20 +73,13 @@ func (das DefaultAuthService) Login(body []byte) (*dto.EAuth, *errs.AppError) {
 	return eAuth, nil
 }
 
-func (das DefaultAuthService) Authorize(body []byte) (string, *errs.AppError) {
-	var authDTO *dto.Auth
-	err := json.Unmarshal(body, authDTO)
-	if err != nil {
-		log.Println("FAILED to unmarshal json!", err)
-		return "", errs.NewUnexpectedError(errs.Common.BadlyFormedObject)
-	}
-
-	authDTO, appErr := decrypt(authDTO.Token)
+func (das DefaultAuthService) Authorize(token string) (string, *errs.AppError) {
+	authDTO, appErr := decrypt(token)
 	if appErr != nil {
 		return "", appErr
 	}
 
-	if authDTO.Expiration.After(time.Now()) {
+	if authDTO.Expiration.Before(time.Now()) {
 		log.Printf("Session has expired")
 		return "", errs.NewUnauthorizedError(errs.Common.Login)
 	}
@@ -120,7 +113,11 @@ func (das DefaultAuthService) Register(body []byte) (*dto.Auth, *errs.AppError) 
 	}
 
 	// verify user doesn't already exist
-	user := das.repo.FindOneUserByEmail(newUserDTO.Email)
+	user, appErr := das.repo.FindOneUserByEmail(newUserDTO.Email)
+	if appErr != nil {
+		return nil, appErr
+	}
+
 	if user.Email == newUserDTO.Email {
 		log.Printf("User with email %s alread exists", newUserDTO.Email)
 		return nil, errs.NewUnexpectedError("User with email " + newUserDTO.Email + " alread exists")

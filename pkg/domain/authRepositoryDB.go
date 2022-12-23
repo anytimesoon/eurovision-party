@@ -4,18 +4,18 @@ import (
 	"eurovision/pkg/dto"
 	"eurovision/pkg/errs"
 	"fmt"
-	"log"
-	"strconv"
-
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
+	"log"
+	"strconv"
 )
 
 type AuthRepository interface {
-	FindOneUserByEmail(string) *User
-	CreateUser(dto.User) (*dto.Auth, *errs.AppError)
-	Authenticate(*dto.Auth) (*Auth, *errs.AppError)
+	FindOneUserByEmail(string) (*User, *errs.AppError)
+	CreateUser(dto.NewUser) (*Auth, *errs.AppError)
 	Login(*dto.Auth) (*Auth, *errs.AppError)
+	Authorize(*dto.Auth) (*Auth, *errs.AppError)
+	VerifySlug(*dto.NewUser) error
 }
 
 type AuthRepositoryDB struct {
@@ -26,11 +26,7 @@ func NewAuthRepositoryDB(db *sqlx.DB) AuthRepositoryDB {
 	return AuthRepositoryDB{db}
 }
 
-func FindOneUserByEmail(email string) (*User, *errs.AppError) {
-	return nil, nil
-}
-
-func (db AuthRepositoryDB) Authenticate(authDTO *dto.Auth) (*Auth, *errs.AppError) {
+func (db AuthRepositoryDB) Login(authDTO *dto.Auth) (*Auth, *errs.AppError) {
 	var auth Auth
 
 	query := fmt.Sprintf(`SELECT * FROM auth WHERE token = '%s' and userId = '%s'`, authDTO.Token, authDTO.UserId)
@@ -50,6 +46,13 @@ func (db AuthRepositoryDB) Authenticate(authDTO *dto.Auth) (*Auth, *errs.AppErro
 		return nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "your authentication")
 	}
 
+	query = fmt.Sprintf(`SELECT * FROM auth WHERE userId = '%s'`, authDTO.UserId)
+	err = db.client.Get(&auth, query)
+	if err != nil {
+		log.Printf("Unable to find user %s. %s", authDTO.UserId, err)
+		return nil, errs.NewUnauthorizedError("Couldn't log you in. Please try again.")
+	}
+
 	return &auth, nil
 }
 
@@ -63,6 +66,7 @@ func (db AuthRepositoryDB) Authorize(authDTO *dto.Auth) (*Auth, *errs.AppError) 
 		return nil, errs.NewUnauthorizedError("Couldn't log you in. Please try again.")
 	}
 
+	// TODO this whole section needs looking at. It would be better to update time on DAO and then send to DB.
 	// Auth found, so we can refresh
 	auth.GenerateSecureEToken(20)
 
@@ -73,16 +77,27 @@ func (db AuthRepositoryDB) Authorize(authDTO *dto.Auth) (*Auth, *errs.AppError) 
 		return nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "your authentication")
 	}
 
+	query = fmt.Sprintf(`SELECT * FROM auth WHERE userId = '%s'`, authDTO.UserId)
+	err = db.client.Get(&auth, query)
+	if err != nil {
+		log.Printf("Unable to find user %s. %s", authDTO.UserId, err)
+		return nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "your authentication")
+	}
+
 	return &auth, nil
 }
 
-func (db AuthRepositoryDB) FindOneUserByEmail(email string) *User {
+func (db AuthRepositoryDB) FindOneUserByEmail(email string) (*User, *errs.AppError) {
 	var user User
 
 	query := fmt.Sprintf(`SELECT * FROM user WHERE email = '%s'`, email)
-	db.client.Get(&user, query)
+	err := db.client.Get(&user, query)
+	if err != nil {
+		log.Printf("Coudn't find a user with email address %s", email)
+		return nil, errs.NewUnexpectedError("Coudn't find a user with email address" + email)
+	}
 
-	return &user
+	return &user, nil
 }
 
 func (db AuthRepositoryDB) CreateUser(userDTO dto.NewUser) (*Auth, *errs.AppError) {

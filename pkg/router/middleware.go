@@ -1,6 +1,8 @@
 package router
 
 import (
+	"encoding/json"
+	"eurovision/pkg/dto"
 	"io"
 	"log"
 	"net/http"
@@ -31,13 +33,23 @@ func logging(next http.Handler) http.Handler {
 
 func authenticate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		body, err := io.ReadAll(r.Body)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			return
+		var token string
+
+		//if request is GET look for token in header, else look in request body
+		if r.Method == http.MethodGet {
+			token = r.Header.Get("Authorization")
+		} else {
+			var authDTO *dto.Auth
+			body, err := io.ReadAll(r.Body)
+			err = json.Unmarshal(body, authDTO)
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+			token = authDTO.Token
 		}
 
-		newToken, appErr := authService.Authorize(body)
+		newToken, appErr := authService.Authorize(token)
 		if appErr != nil || newToken == "" {
 			w.WriteHeader(http.StatusUnauthorized)
 			return
