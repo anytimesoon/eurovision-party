@@ -3,20 +3,35 @@ import { ResponseModel } from "$lib/models/classes/response.model"
 import { TokenModel } from "$lib/models/classes/token.model";
 import { tokenStore } from '$lib/stores/token.store';
 
-export function sendGet<T, U>(endpoint : string, payload : T) {
-    fetch(endpoint, {
+export async function sendGet<T>(endpoint : string): Promise<ResponseModel<T>> {
+    let resp = new ResponseModel<T>();
+    let t = new TokenModel();
+    tokenStore.subscribe(
+        val => t = val
+    )
+
+    await fetch(endpoint, {
         method: "GET",
-        body: JSON.stringify(payload),
+        headers: {
+            "Authorization": t.token
+        }
     }).
     then(
-        res => {
-            res.json() as Promise<U>
-            return res
+        res => res.json() as Promise<ResponseModel<T>>
+    ).
+    then(
+        json => {
+            resp = json
+            if (resp.token.token !== "") {
+                tokenStore.set(resp.token)
+            }
         }
     ).
     catch((e) => {
         console.log(e)
     })
+
+    return resp
 }
 
 export async function sendPost<T, U>(endpoint : string, payload : T): Promise<ResponseModel<U>> {
@@ -30,7 +45,7 @@ export async function sendPost<T, U>(endpoint : string, payload : T): Promise<Re
 
     await fetch(endpoint, {
         method: "POST",
-        body: JSON.stringify(request),
+        body: JSON.stringify(request)
     }).
     then(
         res => res.json() as Promise<ResponseModel<U>>
