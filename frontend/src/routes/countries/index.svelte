@@ -3,11 +3,19 @@
 	import { countryStore } from "$lib/stores/country.store";
     import { countryEP } from "$lib/models/enums/endpoints.enum"
 	import { onMount } from "svelte";
-    import { sendGet } from '$lib/modules/sender';
+    import {sendGet, sendPost} from '$lib/modules/sender';
 
     onMount( () => {
         sendGet<CountryModel[]>(countryEP.ALL).then( data => $countryStore = data.body);
     })
+
+    function updateCountry(country:CountryModel) {
+        country.participating = !country.participating;
+        sendPost<CountryModel, CountryModel>(countryEP.UPDATE, country).then( data => country = data.body);
+
+        const i:number = $countryStore.findIndex((c) => c.id === country.id);
+        $countryStore[i] = country;
+    }
 </script>
 
 <div style="width: 50%">
@@ -25,7 +33,7 @@
             {:else}
             is out of the running 😢
             {/if}
-<!--            <button on:click="{() => sendPost()}">toggle</button>-->
+            <button on:click="{() => updateCountry(country)}">toggle</button>
         </li>
         {/each}
         {/if}
