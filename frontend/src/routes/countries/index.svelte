@@ -25,22 +25,35 @@
 
         {#if $countryStore.length > 0}
         {#each $countryStore as country}
+            {#if !country.participating }
         <li>
             {country.flag}
             {country.name}
-            {#if country.participating }
-            is in the running 🎉
-            {:else}
+
             is out of the running 😢
-            {/if}
+
             <button on:click="{() => updateCountry(country)}">toggle</button>
         </li>
+            {/if}
         {/each}
         {/if}
     </ul>
 
     <ul id="active-list" style="text-decoration: none;">
+        {#if $countryStore.length > 0}
+            {#each $countryStore as country}
+                {#if country.participating }
+                <li>
+                    {country.flag}
+                    {country.name}
 
+                        is in the running 🎉
+
+                    <button on:click="{() => updateCountry(country)}">toggle</button>
+                </li>
+                {/if}
+            {/each}
+        {/if}
     </ul>
 </div>
 
