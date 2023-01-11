@@ -5,6 +5,7 @@ import (
 	"eurovision/pkg/domain"
 	"eurovision/pkg/dto"
 	"eurovision/pkg/errs"
+	"log"
 )
 
 //go:generate mockgen -source=countryService.go -destination=../../mocks/service/mockCountryService.go -package=service eurovision/pkg/service
@@ -51,12 +52,8 @@ func (service DefaultCountryService) UpdateCountry(body []byte) (*dto.Country, *
 	var countryDTO dto.Country
 	err := json.Unmarshal(body, &countryDTO)
 	if err != nil {
+		log.Printf("Failed to unmarshal json %s", err)
 		return nil, errs.NewUnexpectedError("Unable to read request")
-	}
-
-	appErr := countryDTO.Validate()
-	if appErr != nil {
-		return nil, appErr
 	}
 
 	country, appErr := service.repo.UpdateCountry(countryDTO)
