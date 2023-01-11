@@ -2,7 +2,7 @@
 	import { onMount } from "svelte";
 	import { auth } from "$lib/models/enums/endpoints.enum"
 	import { LoginModel } from '$lib/models/classes/login.model';
-	import { sendPost } from '$lib/modules/sender';
+	import { sendCreateOrUpdate } from '$lib/helpers/sender.helper';
 	import type { TokenModel } from '$lib/models/classes/token.model';
     import {ResponseModel} from "$lib/models/classes/response.model";
 
@@ -15,7 +15,7 @@
 		payload.userId = params[3];
 
         let resp:ResponseModel<TokenModel>
-		sendPost<LoginModel, TokenModel>(auth.LOGIN, payload).then( data => {
+		sendCreateOrUpdate<LoginModel, TokenModel>(auth.LOGIN, payload, "POST").then(data => {
             resp = data
             if (resp !== null) {
                 if (resp.error !== "") {
