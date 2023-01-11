@@ -3,22 +3,19 @@
 	import { countryStore } from "$lib/stores/country.store";
     import { countryEP } from "$lib/models/enums/endpoints.enum"
 	import { onMount } from "svelte";
-    import {sendGet, sendPost} from '$lib/modules/sender';
+    import {sendGet} from '$lib/helpers/sender.helper';
+    import {
+        updateCountryBand,
+        updateCountryParticipation,
+        updateCountrySong
+    } from "$lib/helpers/country.helper.js";
 
     onMount( () => {
         sendGet<CountryModel[]>(countryEP.ALL).then( data => $countryStore = data.body);
     })
-
-    function updateCountry(country:CountryModel) {
-        country.participating = !country.participating;
-        sendPost<CountryModel, CountryModel>(countryEP.UPDATE, country).then( data => country = data.body);
-
-        const i:number = $countryStore.findIndex((c) => c.id === country.id);
-        $countryStore[i] = country;
-    }
 </script>
 
-<div style="width: 50%">
+<div>
     <h1>List of all Eurovision countries</h1>
 
     <ul id="full-list" style="text-decoration: none;">
@@ -32,14 +29,14 @@
 
             is out of the running 😢
 
-            <button on:click="{() => updateCountry(country)}">toggle</button>
+            <button on:click="{() => updateCountryParticipation(country)}">toggle</button>
         </li>
             {/if}
         {/each}
         {/if}
     </ul>
-
-    <ul id="active-list" style="text-decoration: none;">
+</div>
+<div>
         {#if $countryStore.length > 0}
             {#each $countryStore as country}
                 {#if country.participating }
@@ -47,13 +44,18 @@
                     {country.flag}
                     {country.name}
 
-                        is in the running 🎉
+                    is in the running 🎉
 
-                    <button on:click="{() => updateCountry(country)}">toggle</button>
+                    <button on:click="{() => updateCountryParticipation(country)}">toggle</button>
+
+                    <label for="bandName">Band Name</label>
+                    <input value={country.bandName} id="bandName" on:focusout={(e) => updateCountryBand(country, e.target.value)}>
+
+                    <label for="songName">Song Name</label>
+                    <input value={country.songName} id="songName" on:focusout={(e) => updateCountrySong(country, e.target.value)}>
                 </li>
                 {/if}
             {/each}
         {/if}
-    </ul>
 </div>
 
