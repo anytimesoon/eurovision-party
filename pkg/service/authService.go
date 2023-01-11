@@ -42,14 +42,14 @@ func NewAuthService(repo domain.AuthRepositoryDB) DefaultAuthService {
 }
 
 func (das DefaultAuthService) Login(body []byte) (*dto.EAuth, *errs.AppError) {
-	var req dto.Req[dto.Auth]
+	var req dto.Auth
 	err := json.Unmarshal(body, &req)
 	if err != nil {
 		log.Println("FAILED to unmarshal json!", err)
 		return nil, errs.NewUnexpectedError(errs.Common.BadlyFormedObject)
 	}
 
-	auth, appErr := das.repo.Login(&req.Body)
+	auth, appErr := das.repo.Login(&req)
 	if appErr != nil {
 		return nil, appErr
 	}
