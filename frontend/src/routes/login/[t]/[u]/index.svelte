@@ -21,6 +21,7 @@
                 if (resp.error !== "") {
                     alert(resp.error)
                 } else {
+                    localStorage.setItem("me", payload.userId)
                     window.location.replace("/countries")
                 }
             } else {

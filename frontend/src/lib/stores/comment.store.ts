@@ -12,13 +12,13 @@ export const commentStore = writable<State>({
   comments: []
 });
 
-let token:TokenModel;
+let auth:TokenModel;
 tokenStore.subscribe((val) => {
-  token = val
+  auth = val
 })
 
 export const connectToChat = () => {
-  const socket = new WebSocket("ws://localhost:8080/restricted/chat/connect/" + token);
+  const socket = new WebSocket("ws://localhost:8080/chat/connect", auth.token);
   if (!socket) {
     // Store an error in our state.  The function will be
     // called with the current state;  this only adds the
