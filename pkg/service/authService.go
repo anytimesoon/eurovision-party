@@ -20,6 +20,7 @@ type AuthService interface {
 	Login([]byte) (*dto.EAuth, *errs.AppError)
 	Register([]byte) (*dto.Auth, *errs.AppError)
 	Authorize(string) (string, *errs.AppError)
+	AuthorizeChat(token string) (*dto.User, *errs.AppError)
 }
 
 type DefaultAuthService struct {
@@ -104,6 +105,21 @@ func (das DefaultAuthService) Authorize(token string) (string, *errs.AppError) {
 	return e, nil
 }
 
+func (das DefaultAuthService) AuthorizeChat(token string) (*dto.User, *errs.AppError) {
+	authDTO, appErr := decrypt(token)
+	if appErr != nil {
+		return nil, appErr
+	}
+
+	user, appErr := das.repo.AuthorizeChat(authDTO)
+	if appErr != nil {
+		return nil, appErr
+	}
+
+	userDTO := user.ToDto()
+	return &userDTO, nil
+}
+
 func (das DefaultAuthService) Register(body []byte) (*dto.Auth, *errs.AppError) {
 	var newUserDTO dto.NewUser
 	err := json.Unmarshal(body, &newUserDTO)
@@ -165,12 +181,12 @@ func encrypt(auth string) (string, error) {
 	// "{nonce}{encrypted plaintext data}".
 	encryptedValue := aesGCM.Seal(nonce, nonce, []byte(plaintext), nil)
 
-	base64Value := base64.URLEncoding.EncodeToString(encryptedValue)
+	base64Value := base64.RawURLEncoding.EncodeToString(encryptedValue)
 	return base64Value, nil
 }
 
 func decrypt(base64Token string) (*dto.Auth, *errs.AppError) {
-	token, err := base64.URLEncoding.DecodeString(base64Token)
+	token, err := base64.RawURLEncoding.DecodeString(base64Token)
 	if err != nil {
 		log.Println("Failed to decode base 64", err)
 		return nil, errs.NewUnexpectedError(errs.Common.Login)

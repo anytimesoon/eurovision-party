@@ -15,6 +15,7 @@ type AuthRepository interface {
 	CreateUser(dto.NewUser) (*Auth, *errs.AppError)
 	Login(*dto.Auth) (*Auth, *errs.AppError)
 	Authorize(*dto.Auth) (*Auth, *errs.AppError)
+	AuthorizeChat(*dto.Auth) (*User, *errs.AppError)
 	VerifySlug(*dto.NewUser) error
 }
 
@@ -37,7 +38,7 @@ func (db AuthRepositoryDB) Login(authDTO *dto.Auth) (*Auth, *errs.AppError) {
 	}
 
 	// Auth found, so we can renew
-	newAuth, appErr := db.updateNewToken(authDTO.UserId, authDTO.Token)
+	newAuth, appErr := db.updateNewToken(authDTO.UserId)
 	if appErr != nil {
 		return nil, appErr
 	}
@@ -56,7 +57,7 @@ func (db AuthRepositoryDB) Authorize(authDTO *dto.Auth) (*Auth, *errs.AppError) 
 	}
 
 	// Auth found, so we can renew
-	newAuth, appErr := db.updateNewToken(authDTO.UserId, authDTO.Token)
+	newAuth, appErr := db.updateNewToken(authDTO.UserId)
 	if appErr != nil {
 		return nil, appErr
 	}
@@ -64,12 +65,33 @@ func (db AuthRepositoryDB) Authorize(authDTO *dto.Auth) (*Auth, *errs.AppError) 
 	return newAuth, nil
 }
 
-func (db AuthRepositoryDB) updateNewToken(userId uuid.UUID, token string) (*Auth, *errs.AppError) {
+func (db AuthRepositoryDB) AuthorizeChat(authDTO *dto.Auth) (*User, *errs.AppError) {
+	var auth Auth
+
+	query := fmt.Sprintf(`SELECT * FROM auth WHERE etoken = '%s' and userId = '%s'`, authDTO.Token, authDTO.UserId)
+	err := db.client.Get(&auth, query)
+	if err != nil {
+		log.Printf("Unable to authorize user %s and etoken %s combination for chat. %s", authDTO.UserId, authDTO.Token, err)
+		return nil, errs.NewUnauthorizedError("Couldn't authenticate you. Please try again.")
+	}
+
+	var user User
+	query = fmt.Sprintf(`SELECT * FROM user WHERE uuid = '%s'`, authDTO.UserId.String())
+	err = db.client.Get(&user, query)
+	if err != nil {
+		log.Printf("Unable to find user %s for chat. %s", authDTO.UserId, err)
+		return nil, errs.NewUnexpectedError(errs.Common.DBFail)
+	}
+
+	return &user, nil
+}
+
+func (db AuthRepositoryDB) updateNewToken(userId uuid.UUID) (*Auth, *errs.AppError) {
 	var auth Auth
 	auth.GenerateSecureEToken(20)
 
-	query := fmt.Sprintf(`UPDATE auth SET etoken = '%s', etexp = Now() + INTERVAL 1 DAY WHERE userId = '%s'`, token, userId)
-	_, err := db.client.NamedExec(query, auth)
+	query := fmt.Sprintf(`UPDATE auth SET etoken = '%s', etexp = Now() + INTERVAL 1 DAY WHERE userId = '%s'`, auth.EToken, userId)
+	_, err := db.client.Exec(query)
 	if err != nil {
 		log.Println("Error while updating auth", err)
 		return nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "your authentication")
