@@ -29,6 +29,7 @@ type ChatClient struct {
 	ComServ CommentService
 }
 
+// TODO handle errors
 func (c *ChatClient) Pub() {
 	defer func() {
 		c.Room.unregister <- c
