@@ -29,15 +29,30 @@ type ChatClient struct {
 	ComServ CommentService
 }
 
-// TODO handle errors
 func (c *ChatClient) Pub() {
 	defer func() {
 		c.Room.unregister <- c
-		c.Conn.Close()
+		err := c.Conn.Close()
+		if err != nil {
+			log.Printf("Chatroom pub connection closed unexpectedly for %s., %s", c.UserId, err)
+			return
+		}
 	}()
 	c.Conn.SetReadLimit(maxMessageSize)
-	c.Conn.SetReadDeadline(time.Now().Add(pongWait))
-	c.Conn.SetPongHandler(func(string) error { c.Conn.SetReadDeadline(time.Now().Add(pongWait)); return nil })
+	err := c.Conn.SetReadDeadline(time.Now().Add(pongWait))
+	if err != nil {
+		log.Printf("Failed to set read deadline for user %s. %s", c.UserId, err)
+		return
+	}
+	c.Conn.SetPongHandler(func(string) error {
+		err = c.Conn.SetReadDeadline(time.Now().Add(pongWait))
+		if err != nil {
+			log.Printf("Failed to set read deadline for user %s in pong handler. %s", c.UserId, err)
+			return err
+		}
+		return nil
+	})
+
 	for {
 		_, message, err := c.Conn.ReadMessage()
 		if err != nil {
@@ -61,15 +76,27 @@ func (c *ChatClient) Sub() {
 	ticker := time.NewTicker(pingPeriod)
 	defer func() {
 		ticker.Stop()
-		c.Conn.Close()
+		err := c.Conn.Close()
+		if err != nil {
+			log.Printf("Chat client sub connection closed unexpectedly for %s., %s", c.UserId, err)
+			return
+		}
 	}()
 	for {
 		select {
 		case commentJSON, ok := <-c.Send:
-			c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
+			err := c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
+			if err != nil {
+				log.Printf("Failed to set write deadline for user %s. %s", c.UserId, err)
+				return
+			}
 			if !ok {
 				// The chatroom closed the channel.
-				c.Conn.WriteMessage(websocket.CloseMessage, []byte{})
+				err = c.Conn.WriteMessage(websocket.CloseMessage, []byte{})
+				if err != nil {
+					log.Printf("Failed to write close message for user %s. %s", c.UserId, err)
+					return
+				}
 				return
 			}
 
@@ -78,21 +105,41 @@ func (c *ChatClient) Sub() {
 				return
 			}
 
-			writer.Write(commentJSON)
+			_, err = writer.Write(commentJSON)
+			if err != nil {
+				log.Printf("Failed to write chat message for user %s. %s", c.UserId, err)
+				return
+			}
 
 			// Add queued chat messages to the current websocket message.
 			n := len(c.Send)
 			for i := 0; i < n; i++ {
-				writer.Write(newline)
-				writer.Write(<-c.Send)
+				_, err = writer.Write(newline)
+				if err != nil {
+					log.Printf("Failed to write new line message for user %s. %s", c.UserId, err)
+					return
+				}
+				_, err = writer.Write(<-c.Send)
+				if err != nil {
+					log.Printf("Failed to send message for user %s. %s", c.UserId, err)
+					return
+				}
 			}
 
-			if err := writer.Close(); err != nil {
+			err = writer.Close()
+			if err != nil {
+				log.Printf("Chatclient writer closed unexpectedly for user %s. %s", c.UserId, err)
 				return
 			}
 		case <-ticker.C:
-			c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
-			if err := c.Conn.WriteMessage(websocket.PingMessage, nil); err != nil {
+			err := c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
+			if err != nil {
+				log.Printf("Failed to write new line message for user %s. %s", c.UserId, err)
+				return
+			}
+			err = c.Conn.WriteMessage(websocket.PingMessage, nil)
+			if err != nil {
+				log.Printf("Failed to write ping message for user %s. %s", c.UserId, err)
 				return
 			}
 		}
