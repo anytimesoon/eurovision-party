@@ -5,6 +5,7 @@ import (
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
+	"strings"
 )
 
 type ChatRoomHandler struct {
@@ -22,21 +23,20 @@ var upgrader = websocket.Upgrader{
 		//return origin == "http://127.0.0.1:3000"
 		return true
 	},
+	Subprotocols: []string{"chat"},
 }
 
 func (crh ChatRoomHandler) Connect(resp http.ResponseWriter, req *http.Request) {
-	token := req.Header.Get("Sec-WebSocket-Protocol")
+	token := strings.Split(req.Header.Get("Sec-WebSocket-Protocol"), ", ")[0]
 
 	user, appErr := authService.AuthorizeChat(token)
 	if appErr != nil {
-		log.Printf("%s method %s was requested by %q and rejected because token was rejected. %s", req.RequestURI, req.Method, req.RemoteAddr, appErr)
+		log.Printf("%s method %s was requested by %q and rejected because token was rejected. %s", req.RequestURI, req.Method, req.RemoteAddr, appErr.Message)
 		resp.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
-	var header http.Header
-
-	conn, err := upgrader.Upgrade(resp, req, header)
+	conn, err := upgrader.Upgrade(resp, req, nil)
 	if err != nil {
 		log.Println(err)
 		return

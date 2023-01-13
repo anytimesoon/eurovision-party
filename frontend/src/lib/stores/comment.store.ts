@@ -18,7 +18,7 @@ tokenStore.subscribe((val) => {
 })
 
 export const connectToChat = () => {
-  const socket = new WebSocket("ws://localhost:8080/chat/connect", auth.token);
+  const socket = new WebSocket("ws://localhost:8080/chat/connect", [auth.token, "chat"]);
   if (!socket) {
     // Store an error in our state.  The function will be
     // called with the current state;  this only adds the
