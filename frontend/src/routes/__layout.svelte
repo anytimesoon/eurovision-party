@@ -1,6 +1,5 @@
 <script>
   import "../app.css";
-  import Nav from "$lib/components/Nav.svelte"
   export const trailingSlash = 'ignore';
 </script>
 
@@ -10,6 +9,10 @@
 </svelte:head>
   
 <main>
-  <Nav />
+  <nav>
+    <a href="/">Home</a>
+    <a href="/countries">Countries</a>
+  </nav>
+  
   <slot />
 </main>
