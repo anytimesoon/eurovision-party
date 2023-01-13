@@ -4,6 +4,8 @@ const countryURL = base + restricted + "country/"
 const userURL = base + restricted + "user/"
 const voteURL = base + restricted + "vote/"
 
+export const chatEP = "ws://localhost:8080/chat/connect";
+
 export const countryEP = {
     ALL: countryURL,
     UPDATE: countryURL,

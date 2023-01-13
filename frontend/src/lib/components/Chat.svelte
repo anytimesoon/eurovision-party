@@ -1,14 +1,15 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import { connectToChat } from "$lib/stores/comment.store";
-	import CommentLog from "$lib/components/CommentLog.svelte";
-    let socket:any;
+    import {commentStore} from "$lib/stores/comment.store.js";
+    let socket:WebSocket;
     
     onMount(async() => {
         socket = connectToChat()
     });
 
     function sendMsg() {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         let input = document.getElementById("msg")! as HTMLInputElement;
         if (!socket) {
             console.log("Your connection has been lost. Try reconnecting.");
@@ -28,6 +29,15 @@
     }
 </script>
 
-<CommentLog />
+// Comment log
+<div>
+    {#each $commentStore as comment}
+        <div>
+            <p>{comment.userId} at {comment.createdAt}</p>
+            <p>{comment.text}</p>
+        </div>
+    {/each}
+</div>
+
 <input type="text" name="msg" id="msg" on:keyup={sendMsgWithKeyboard}/>
 <input type="button" value="Send" on:click={sendMsg}/>

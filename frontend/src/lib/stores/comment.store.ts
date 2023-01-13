@@ -2,6 +2,7 @@ import { writable } from "svelte/store";
 import type { CommentModel } from "$lib/models/classes/comment.model";
 import type { TokenModel } from "$lib/models/classes/token.model";
 import { tokenStore } from "./token.store";
+import {chatEP} from "$lib/models/enums/endpoints.enum";
 
 type State = {
   comments: Array<CommentModel>;
@@ -17,14 +18,14 @@ tokenStore.subscribe((val) => {
   auth = val
 })
 
-export const connectToChat = () => {
-  const socket = new WebSocket("ws://localhost:8080/chat/connect", [auth.token, "chat"]);
+export function connectToChat():WebSocket {
+  const socket = new WebSocket(chatEP, [auth.token, "chat"]);
   if (!socket) {
     // Store an error in our state.  The function will be
     // called with the current state;  this only adds the
     // error.
     commentStore.update((s: State) => { return {...s, error: "Unable to connect" }});
-    return;
+    return socket;
   }
 
   // Connection opened
@@ -40,8 +41,9 @@ export const connectToChat = () => {
   });
 
   // Send message
-  socket.addEventListener("close", (_event: any) => {
-    console.log("The connection has been closed. Goodbye!");
+  socket.addEventListener("close", (_event: Event) => {
+    //TODO gracefully close websocket
+    console.log("The connection has been closed. Goodbye!" + _event);
   });
 
   return socket
