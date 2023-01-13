@@ -12,6 +12,7 @@
   <nav>
     <a href="/">Home</a>
     <a href="/countries">Countries</a>
+    <a href="/friends">Friends</a>
   </nav>
   
   <slot />
