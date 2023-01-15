@@ -4,16 +4,17 @@
     import {sendGet} from '$lib/helpers/sender.helper';
     import {UserModel} from "$lib/models/classes/user.model";
     import {userStore} from "$lib/stores/user.store";
+    import {updateUserStore} from "$lib/stores/user.store";
 
     onMount( () => {
-        sendGet<UserModel[]>(userEP.ALL).then( data => $userStore = data.body);
+        sendGet<UserModel[]>(userEP.ALL).then( data => updateUserStore(data.body));
     })
+
 </script>
 
 <ul id="full-list" style="text-decoration: none;">
-
-    {#if $userStore.length > 0}
-        {#each $userStore as user}
+    {#if [...$userStore].length > 0}
+        {#each [...$userStore] as [id, user]}
                 <li>
                     <img src="{user.icon}" alt="{user.name}'s icon">
                     {user.name}
