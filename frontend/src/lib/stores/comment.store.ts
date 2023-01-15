@@ -4,14 +4,9 @@ import type { TokenModel } from "$lib/models/classes/token.model";
 import { tokenStore } from "./token.store";
 import {chatEP} from "$lib/models/enums/endpoints.enum";
 
-type State = {
-  comments: Array<CommentModel>;
-  error?: string;
-};
+const comments = new Array<CommentModel>()
 
-export const commentStore = writable<State>({
-  comments: []
-});
+export const commentStore = writable<CommentModel[]>(comments);
 
 let auth:TokenModel;
 tokenStore.subscribe((val) => {
@@ -24,7 +19,7 @@ export function connectToChat():WebSocket {
     // Store an error in our state.  The function will be
     // called with the current state;  this only adds the
     // error.
-    commentStore.update((s: State) => { return {...s, error: "Unable to connect" }});
+    commentStore.update(comments => { return {...comments}});
     return socket;
   }
 
@@ -37,7 +32,10 @@ export function connectToChat():WebSocket {
   // Listen for messages
   socket.addEventListener("message", function (event) {
     const data:CommentModel = JSON.parse(event.data);
-    commentStore.update((s: State) => ({ ...s, comments: s.comments.concat(data) }));
+    commentStore.update(comments => {
+      comments.push(data)
+      return comments
+    } );
   });
 
   // Send message
