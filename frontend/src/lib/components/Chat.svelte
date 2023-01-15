@@ -2,6 +2,7 @@
     import { onMount } from "svelte";
     import { connectToChat } from "$lib/stores/comment.store";
     import {commentStore} from "$lib/stores/comment.store.js";
+    import {userStore} from "$lib/stores/user.store.js";
     let socket:WebSocket;
     
     onMount(async() => {
@@ -29,11 +30,10 @@
     }
 </script>
 
-// Comment log
 <div>
     {#each $commentStore as comment}
         <div>
-            <p>{comment.userId} at {comment.createdAt}</p>
+            <p>{ $userStore[comment.userId].name } at {comment.createdAt}</p>
             <p>{comment.text}</p>
         </div>
     {/each}
