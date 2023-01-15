@@ -5,6 +5,7 @@
     import {UserModel} from "$lib/models/classes/user.model";
     import {userStore} from "$lib/stores/user.store";
     import {updateUserStore} from "$lib/stores/user.store";
+    import {staticEP} from "$lib/models/enums/endpoints.enum.js";
 
     onMount( () => {
         sendGet<UserModel[]>(userEP.ALL).then( data => updateUserStore(data.body));
@@ -16,7 +17,7 @@
     {#if [...$userStore].length > 0}
         {#each [...$userStore] as [id, user]}
                 <li>
-                    <img src="{user.icon}" alt="{user.name}'s icon">
+                    <img src="{staticEP.IMG + user.icon}" alt="{user.name}'s icon">
                     {user.name}
                 </li>
         {/each}

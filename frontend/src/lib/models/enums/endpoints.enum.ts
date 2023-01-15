@@ -12,6 +12,10 @@ export const countryEP = {
     FIND_ONE: countryURL
 }
 
+export const staticEP = {
+    IMG: base
+}
+
 export const userEP = {
     ALL: userURL,
     UPDATE: userURL,
