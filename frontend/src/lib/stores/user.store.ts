@@ -1,16 +1,11 @@
 import {writable} from "svelte/store";
 import type {UserModel} from "$lib/models/classes/user.model";
+import {browser} from "$app/env";
 
-const users = new Map<string, UserModel>()
+const defaultUsers = new Map<string, UserModel>()
 
-export const userStore = writable<Map<string, UserModel>>(users);
+export const userStore = writable<Map<string, UserModel>>(browser && JSON.parse(localStorage.getItem("userStore") || JSON.stringify(defaultUsers)));
 
-export function updateUserStore(users : UserModel[]) {
-    for (let i = 0; i<users.length; i++){
-        const u = users[i]
-        userStore.update((users:Map<string, UserModel>) => {
-            users.set(u.id, u)
-            return users
-        })
-    }
-}
+userStore.subscribe((val) => {
+    browser && localStorage.setItem("userStore", JSON.stringify(val))
+});
