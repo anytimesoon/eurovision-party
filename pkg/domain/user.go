@@ -27,9 +27,10 @@ type UserRepository interface {
 
 func (user User) ToDto() dto.User {
 	return dto.User{
-		Name: user.Name,
-		Slug: user.Slug,
-		UUID: user.UUID,
-		Icon: user.Icon,
+		Name:    user.Name,
+		Slug:    user.Slug,
+		UUID:    user.UUID,
+		Icon:    user.Icon,
+		AuthLvl: user.AuthLvl,
 	}
 }

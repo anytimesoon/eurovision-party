@@ -5,12 +5,13 @@ import (
 	"eurovision/pkg/domain"
 	"eurovision/pkg/dto"
 	"eurovision/pkg/errs"
+	"github.com/google/uuid"
 	"log"
 )
 
 //go:generate mockgen -source=userService.go -destination=../../mocks/service/mockUserService.go -package=service eurovision/pkg/service
 type UserService interface {
-	GetAllUsers() ([]dto.User, *errs.AppError)
+	GetAllUsers() (map[uuid.UUID]dto.User, *errs.AppError)
 	UpdateUser([]byte) (*dto.User, *errs.AppError)
 	SingleUser(string) (*dto.User, *errs.AppError)
 	DeleteUser(string) *errs.AppError
@@ -24,8 +25,8 @@ func NewUserService(repo domain.UserRepository) DefaultUserService {
 	return DefaultUserService{repo}
 }
 
-func (service DefaultUserService) GetAllUsers() ([]dto.User, *errs.AppError) {
-	usersDTO := make([]dto.User, 0)
+func (service DefaultUserService) GetAllUsers() (map[uuid.UUID]dto.User, *errs.AppError) {
+	usersDTO := make(map[uuid.UUID]dto.User, 0)
 
 	users, err := service.repo.FindAllUsers()
 	if err != nil {
@@ -33,7 +34,7 @@ func (service DefaultUserService) GetAllUsers() ([]dto.User, *errs.AppError) {
 	}
 
 	for _, user := range users {
-		usersDTO = append(usersDTO, user.ToDto())
+		usersDTO[user.UUID] = user.ToDto()
 	}
 
 	return usersDTO, nil
