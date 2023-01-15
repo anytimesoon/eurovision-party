@@ -21,7 +21,7 @@ func CreateUsersTable(db *sqlx.DB) {
 				email VARCHAR(191) NOT NULL, 
 				slug VARCHAR(191) NOT NULL, 
 				authLvl TINYINT DEFAULT 0, 
-				icon VARCHAR(191) DEFAULT '/img/static/img/newuser.png',
+				icon VARCHAR(191) DEFAULT '/static/content/img/newuser.png',
 				UNIQUE (slug, email));`
 
 	_, err = db.Exec(query)

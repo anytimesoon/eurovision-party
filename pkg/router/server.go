@@ -30,8 +30,8 @@ func StartServer(db *sqlx.DB, appConf conf.App) {
 
 	// Assets
 	fs := assets.NewStaticImageFS()
-	imageRouter := router.PathPrefix("/img").Subrouter()
-	imageRouter.PathPrefix("/static/").Handler(http.StripPrefix("/img/static/", fs)).Methods(http.MethodGet)
+	imageRouter := router.PathPrefix("/static").Subrouter()
+	imageRouter.PathPrefix("/content/").Handler(http.StripPrefix("/static/content/", fs)).Methods(http.MethodGet)
 	imageRouter.Use(imgHeaders)
 
 	// Restricted
@@ -40,7 +40,6 @@ func StartServer(db *sqlx.DB, appConf conf.App) {
 
 	// API
 	apiRouter := restrictedRouter.PathPrefix("/api").Subrouter()
-	// apiRouter := router.PathPrefix("/api").Subrouter()
 	apiRouter.Use(jsHeaders)
 
 	// Country
