@@ -3,7 +3,7 @@ package dto
 import "github.com/google/uuid"
 
 type Responsable interface {
-	Comment | *Country | *User | *Vote | *Auth | *EAuth |
+	Comment | *Country | *User | *Vote | *Auth | *EAuth | *NewUser |
 		[]Comment | []Country | []User | []Vote | map[uuid.UUID]User
 }
 

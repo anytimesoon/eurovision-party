@@ -18,7 +18,7 @@ import (
 
 type AuthService interface {
 	Login([]byte) (*dto.EAuth, *errs.AppError)
-	Register([]byte) (*dto.Auth, *errs.AppError)
+	Register([]byte) (*dto.NewUser, *errs.AppError)
 	Authorize(string) (string, *errs.AppError)
 	AuthorizeChat(token string) (*dto.User, *errs.AppError)
 }
@@ -120,7 +120,7 @@ func (das DefaultAuthService) AuthorizeChat(token string) (*dto.User, *errs.AppE
 	return &userDTO, nil
 }
 
-func (das DefaultAuthService) Register(body []byte) (*dto.Auth, *errs.AppError) {
+func (das DefaultAuthService) Register(body []byte) (*dto.NewUser, *errs.AppError) {
 	var newUserDTO dto.NewUser
 	err := json.Unmarshal(body, &newUserDTO)
 	if err != nil {
@@ -129,14 +129,11 @@ func (das DefaultAuthService) Register(body []byte) (*dto.Auth, *errs.AppError) 
 	}
 
 	// verify user doesn't already exist
-	user, appErr := das.repo.FindOneUserByEmail(newUserDTO.Email)
-	if appErr != nil {
-		return nil, appErr
-	}
+	user, _ := das.repo.FindOneUserByEmail(newUserDTO.Email)
 
-	if user.Email == newUserDTO.Email {
+	if user != nil && user.Email == newUserDTO.Email {
 		log.Printf("User with email %s alread exists", newUserDTO.Email)
-		return nil, errs.NewUnexpectedError("User with email " + newUserDTO.Email + " alread exists")
+		return nil, errs.NewUnexpectedError("User with email " + newUserDTO.Email + " already exists")
 	}
 
 	newUserDTO.Slugify()
@@ -148,9 +145,10 @@ func (das DefaultAuthService) Register(body []byte) (*dto.Auth, *errs.AppError) 
 		return nil, errs.NewUnexpectedError(errs.Common.DBFail)
 	}
 
-	authDTO := auth.ToDTO()
+	newUserDTO.UserId = auth.UserId
+	newUserDTO.Token = auth.Token
 
-	return &authDTO, nil
+	return &newUserDTO, nil
 }
 
 func encrypt(auth string) (string, error) {

@@ -18,9 +18,11 @@ type Auth struct {
 }
 
 type NewUser struct {
-	Name  string `json:"name"`
-	Email string `json:"email"`
-	Slug  string
+	Name   string    `json:"name"`
+	Email  string    `json:"email"`
+	Slug   string    `json:"slug"`
+	UserId uuid.UUID `json:"id"`
+	Token  string    `json:"token"`
 }
 
 type EAuth struct {

@@ -142,7 +142,7 @@ func (db AuthRepositoryDB) CreateUser(userDTO dto.NewUser) (*Auth, *errs.AppErro
 
 	auth.GenerateSecureToken(80)
 
-	query = fmt.Sprintf(`INSERT INTO auth(token, userId, expiration, authLvl, slug) VALUES ('%s', '%s', NOW() + INTERVAL 10 DAY, %d, '%s')`, auth.Token, user.UUID, user.AuthLvl, user.Slug)
+	query = fmt.Sprintf(`INSERT INTO auth(token, userId, texp, authLvl, slug) VALUES ('%s', '%s', NOW() + INTERVAL 10 DAY, %d, '%s')`, auth.Token, user.UUID, user.AuthLvl, user.Slug)
 	_, err = db.client.NamedExec(query, auth)
 	if err != nil {
 		log.Printf("Error when creating new auth for user %s, %s", userDTO.Name, err)
