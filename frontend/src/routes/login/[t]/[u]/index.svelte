@@ -1,6 +1,6 @@
 <script type="ts">
 	import { onMount } from "svelte";
-    import {auth, userEP} from "$lib/models/enums/endpoints.enum"
+    import {authEP, userEP} from "$lib/models/enums/endpoints.enum"
 	import { LoginModel } from '$lib/models/classes/login.model';
     import {sendCreateOrUpdate, sendGet} from '$lib/helpers/sender.helper';
 	import type { TokenModel } from '$lib/models/classes/token.model';
@@ -23,7 +23,7 @@
     async function loginAndGetUsers(payload:LoginModel){
         let resp : ResponseModel<TokenModel>;
 
-        await sendCreateOrUpdate<LoginModel, TokenModel>(auth.LOGIN, payload, "POST").then(data => {
+        await sendCreateOrUpdate<LoginModel, TokenModel>(authEP.LOGIN, payload, "POST").then(data => {
             resp = data
             if (resp !== null) {
                 localStorage.setItem("me", payload.userId)

@@ -57,3 +57,12 @@ func (uh UserHandler) RemoveUser(resp http.ResponseWriter, req *http.Request) {
 		writeResponse(resp, http.StatusOK, &dto.User{}, "")
 	}
 }
+
+func (uh UserHandler) FindRegisteredUsers(resp http.ResponseWriter, req *http.Request) {
+	users, err := uh.Service.GetRegisteredUsers()
+	if err != nil {
+		writeResponse(resp, err.Code, users, err.Message)
+	} else {
+		writeResponse(resp, http.StatusOK, users, "")
+	}
+}

@@ -145,7 +145,7 @@ func (das DefaultAuthService) Register(body []byte) (*dto.NewUser, *errs.AppErro
 		return nil, errs.NewUnexpectedError(errs.Common.DBFail)
 	}
 
-	newUserDTO.UserId = auth.UserId
+	newUserDTO.UUID = auth.UserId
 	newUserDTO.Token = auth.Token
 
 	return &newUserDTO, nil

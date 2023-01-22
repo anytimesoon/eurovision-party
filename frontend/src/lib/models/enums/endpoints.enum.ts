@@ -1,9 +1,12 @@
-const base = "http://localhost:8080/"
+const apiBase = "http://localhost:8080/"
+const feBase = "http://localhost:3000/"
 const restricted = "restricted/api/"
-const countryURL = base + restricted + "country/"
-const userURL = base + restricted + "user/"
-const voteURL = base + restricted + "vote/"
+const countryURL = apiBase + restricted + "country/"
+const userURL = apiBase + restricted + "user/"
+const voteURL = apiBase + restricted + "vote/"
+//TODO: tidy up endpoints
 
+// Backend endpoints
 export const chatEP = "ws://localhost:8080/chat/connect";
 
 export const countryEP = {
@@ -13,14 +16,15 @@ export const countryEP = {
 }
 
 export const staticEP = {
-    IMG: base
+    IMG: apiBase
 }
 
 export const userEP = {
     ALL: userURL,
     UPDATE: userURL,
     FIND_ONE: userURL,
-    REMOVE: userURL
+    REMOVE: userURL,
+    REGISTERED: userURL + "registered"
 }
 
 export const voteEP = {
@@ -28,7 +32,14 @@ export const voteEP = {
     UPDATE: voteURL
 }
 
-export const auth = {
-    LOGIN: base + "login",
-    REGISTER: base + "register"
+export const authEP = {
+    LOGIN: apiBase + "login",
+    REGISTER: apiBase + "register",
+    FE_LOGIN: feBase
+}
+
+// Frontend enpoints
+
+export const userFeEP = {
+    SINGLE_USER: feBase + "person"
 }

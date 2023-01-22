@@ -15,6 +15,7 @@ type UserService interface {
 	UpdateUser([]byte) (*dto.User, *errs.AppError)
 	SingleUser(string) (*dto.User, *errs.AppError)
 	DeleteUser(string) *errs.AppError
+	GetRegisteredUsers() ([]*dto.NewUser, *errs.AppError)
 }
 
 type DefaultUserService struct {
@@ -81,4 +82,19 @@ func (service DefaultUserService) DeleteUser(slug string) *errs.AppError {
 	}
 
 	return nil
+}
+
+func (service DefaultUserService) GetRegisteredUsers() ([]*dto.NewUser, *errs.AppError) {
+	usersDTO := make([]*dto.NewUser, 0)
+
+	users, err := service.repo.FindRegisteredUsers()
+	if err != nil {
+		return usersDTO, err
+	}
+
+	for _, user := range *users {
+		usersDTO = append(usersDTO, user.ToDTO())
+	}
+
+	return usersDTO, nil
 }

@@ -77,3 +77,16 @@ func (db UserRepositoryDb) DeleteUser(slug string) *errs.AppError {
 
 	return nil
 }
+
+func (db UserRepositoryDb) FindRegisteredUsers() (*[]NewUser, *errs.AppError) {
+	users := make([]NewUser, 0)
+
+	query := fmt.Sprintf(`SELECT u.uuid, u.name, u.email, u.slug, a.token FROM user u JOIN auth a ON u.uuid = a.userId WHERE u.authLvl NOT IN (3)`)
+	err := db.client.Select(&users, query)
+	if err != nil {
+		log.Println("Error while querying user table for registered users", err)
+		return nil, errs.NewUnexpectedError(errs.Common.DBFail)
+	}
+
+	return &users, nil
+}
