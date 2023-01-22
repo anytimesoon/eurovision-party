@@ -9,7 +9,6 @@
     onMount( () => {
         sendGet<NewUserModel[]>(userEP.REGISTERED).then( data => $registeredUserStore = data.body);
     })
-
 </script>
     <table>
         <thead>
@@ -35,7 +34,7 @@
                     {user.email}
                 </td>
                 <td>
-                    <a href="{authEP.FE_LOGIN}{user.token}/{user.id}">Copy link</a>
+                    <button on:click={navigator.clipboard.writeText(authEP.FE_LOGIN + user.token + "/" + user.id)}>Copy link</button>
                 </td>
                 </tr>
             {/each}
