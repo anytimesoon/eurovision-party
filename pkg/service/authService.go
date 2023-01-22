@@ -139,16 +139,13 @@ func (das DefaultAuthService) Register(body []byte) (*dto.NewUser, *errs.AppErro
 	newUserDTO.Slugify()
 
 	// create new user
-	auth, appErr := das.repo.CreateUser(newUserDTO)
+	newUser, appErr := das.repo.CreateUser(newUserDTO)
 	if appErr != nil {
 		log.Println("Failed to create user", appErr)
 		return nil, errs.NewUnexpectedError(errs.Common.DBFail)
 	}
 
-	newUserDTO.UUID = auth.UserId
-	newUserDTO.Token = auth.Token
-
-	return &newUserDTO, nil
+	return newUser.ToDTO(), nil
 }
 
 func encrypt(auth string) (string, error) {

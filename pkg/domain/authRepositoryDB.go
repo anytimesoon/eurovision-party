@@ -12,7 +12,7 @@ import (
 
 type AuthRepository interface {
 	FindOneUserByEmail(string) (*User, *errs.AppError)
-	CreateUser(dto.NewUser) (*Auth, *errs.AppError)
+	CreateUser(dto.NewUser) (*NewUser, *errs.AppError)
 	Login(*dto.Auth) (*Auth, *errs.AppError)
 	Authorize(*dto.Auth) (*Auth, *errs.AppError)
 	AuthorizeChat(*dto.Auth) (*User, *errs.AppError)
@@ -120,8 +120,8 @@ func (db AuthRepositoryDB) FindOneUserByEmail(email string) (*User, *errs.AppErr
 	return &user, nil
 }
 
-func (db AuthRepositoryDB) CreateUser(userDTO dto.NewUser) (*Auth, *errs.AppError) {
-	var user User
+func (db AuthRepositoryDB) CreateUser(userDTO dto.NewUser) (*NewUser, *errs.AppError) {
+	var user NewUser
 	var auth Auth
 
 	err := db.VerifySlug(&userDTO)
@@ -130,26 +130,47 @@ func (db AuthRepositoryDB) CreateUser(userDTO dto.NewUser) (*Auth, *errs.AppErro
 		return nil, errs.NewUnexpectedError(errs.Common.NotCreated + "user")
 	}
 
-	user.UUID = uuid.New()
+	// Prepare queries for transaction
+	newUserQuery := `INSERT INTO user(uuid, name, email, slug, authLvl) VALUES (?, ?, ?, ?, 0)`
+	newAuthQuery := `INSERT INTO auth(token, userId, texp, authLvl, slug) VALUES (?, ?, NOW() + INTERVAL 10 DAY, 0, ?)`
+	findNewUserQuery := `SELECT u.uuid, u.name, u.email, u.slug, a.token FROM user u JOIN auth a ON u.uuid = a.userId WHERE u.uuid = ?`
 
-	query := fmt.Sprintf(`INSERT INTO user(uuid, name, email, slug, authLvl) VALUES ('%s', '%s', '%s', '%s', 0)`, user.UUID.String(), userDTO.Name, userDTO.Email, userDTO.Slug)
+	// Begin transaction that will create a new user and auth then return the new user
+	tx, err := db.client.Beginx()
+	if err != nil {
+		log.Printf("Error when starting transaction for new auth for user %s, %s", userDTO.Name, err)
+		return nil, errs.NewUnexpectedError(errs.Common.NotCreated + "auth")
+	}
 
-	_, err = db.client.NamedExec(query, user)
+	userDTO.UUID = uuid.New()
+	_, err = tx.Exec(newUserQuery, userDTO.UUID.String(), userDTO.Name, userDTO.Email, userDTO.Slug)
 	if err != nil {
 		log.Printf("Error when creating new user %s, %s", userDTO.Name, err)
+		_ = tx.Rollback()
 		return nil, errs.NewUnexpectedError(errs.Common.NotCreated + "user")
 	}
 
 	auth.GenerateSecureToken(80)
-
-	query = fmt.Sprintf(`INSERT INTO auth(token, userId, texp, authLvl, slug) VALUES ('%s', '%s', NOW() + INTERVAL 10 DAY, %d, '%s')`, auth.Token, user.UUID, user.AuthLvl, user.Slug)
-	_, err = db.client.NamedExec(query, auth)
+	_, err = tx.Exec(newAuthQuery, auth.Token, userDTO.UUID.String(), userDTO.Slug)
 	if err != nil {
 		log.Printf("Error when creating new auth for user %s, %s", userDTO.Name, err)
-		return nil, errs.NewUnexpectedError(errs.Common.NotCreated + "auth")
+		_ = tx.Rollback()
+		return nil, errs.NewUnexpectedError(errs.Common.NotCreated + "a new user")
 	}
 
-	return &auth, nil
+	err = tx.Get(&user, findNewUserQuery, userDTO.UUID)
+	if err != nil {
+		log.Printf("Error when retrieving new user %s after transaction. %s", userDTO.Name, err)
+		return nil, errs.NewUnexpectedError(errs.Common.NotCreated + "a new user")
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		log.Printf("Error when commiting auth transaction for new user %s. %s", userDTO.Name, err)
+		return nil, errs.NewUnexpectedError(errs.Common.NotCreated + "a new user")
+	}
+
+	return &user, nil
 }
 
 func (db AuthRepositoryDB) VerifySlug(userDTO *dto.NewUser) error {
