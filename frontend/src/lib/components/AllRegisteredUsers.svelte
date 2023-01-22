@@ -4,7 +4,7 @@
     import {NewUserModel} from "$lib/models/classes/user.model";
     import {registeredUserStore} from "$lib/stores/user.store";
     import {userEP} from "$lib/models/enums/endpoints.enum";
-    import {authEP, staticEP, userFeEP} from "$lib/models/enums/endpoints.enum.js";
+    import {authEP, userFeEP} from "$lib/models/enums/endpoints.enum.js";
 
     onMount( () => {
         sendGet<NewUserModel[]>(userEP.REGISTERED).then( data => $registeredUserStore = data.body);
@@ -29,7 +29,6 @@
             {#each $registeredUserStore as user}
                 <tr>
                 <td>
-                    <img src="{staticEP.IMG + user.icon}" alt="avatar missing" width="50">
                     <a href="{userFeEP.SINGLE_USER}{user.slug}">{user.name}</a>
                 </td>
                 <td>
