@@ -1,6 +1,7 @@
 package router
 
 import (
+	"context"
 	"log"
 	"net/http"
 )
@@ -30,17 +31,16 @@ func logging(next http.Handler) http.Handler {
 
 func authenticate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		var token string
-		token = r.Header.Get("Authorization")
+		token := r.Header.Get("Authorization")
 
-		newToken, appErr := authService.Authorize(token)
-		if appErr != nil || newToken == "" {
+		authAndToken, appErr := authService.Authorize(token)
+		if appErr != nil {
 			log.Printf("%s method %s was requested by %q and rejected because token was rejected. %s", r.RequestURI, r.Method, r.RemoteAddr, appErr)
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
 
-		w.Header().Add("Authorization", string(newToken))
-		next.ServeHTTP(w, r)
+		ctx := context.WithValue(r.Context(), "authAndToken", *authAndToken)
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

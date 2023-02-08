@@ -1,6 +1,9 @@
 package router
 
 import (
+	"eurovision/pkg/dto"
+	"eurovision/pkg/enum"
+	"eurovision/pkg/errs"
 	"eurovision/pkg/service"
 	"io"
 	"net/http"
@@ -13,11 +16,17 @@ type CountryHandler struct {
 }
 
 func (ch *CountryHandler) FindAllCountries(resp http.ResponseWriter, req *http.Request) {
-	countries, err := ch.Service.GetAllCountries()
-	if err != nil {
-		writeResponse(resp, err.Code, countries, err.Message)
+	var err *errs.AppError
+	var countries []dto.Country
+	if req.Context().Value("authAndToken").(dto.AuthAndToken).AuthLvl == enum.Admin {
+		countries, err = ch.Service.GetAllCountries()
 	} else {
-		writeResponse(resp, http.StatusOK, countries, "")
+		err = errs.NewUnauthorizedError(errs.Common.Unauthorized)
+	}
+	if err != nil {
+		writeResponse(resp, req, err.Code, countries, err.Message)
+	} else {
+		writeResponse(resp, req, http.StatusOK, countries, "")
 	}
 }
 
@@ -27,23 +36,29 @@ func (ch *CountryHandler) FindOneCountry(resp http.ResponseWriter, req *http.Req
 	country, err := ch.Service.SingleCountry(params["slug"])
 
 	if err != nil {
-		writeResponse(resp, err.Code, country, err.Message)
+		writeResponse(resp, req, err.Code, country, err.Message)
 	} else {
-		writeResponse(resp, http.StatusOK, country, "")
+		writeResponse(resp, req, http.StatusOK, country, "")
 	}
 }
 
 func (ch *CountryHandler) UpdateCountry(resp http.ResponseWriter, req *http.Request) {
-	body, err := io.ReadAll(req.Body)
-	if err != nil {
-		panic(err)
+	var appErr *errs.AppError
+	var country *dto.Country
+	if req.Context().Value("authAndToken").(dto.AuthAndToken).AuthLvl == enum.Admin {
+		body, err := io.ReadAll(req.Body)
+		if err != nil {
+			panic(err)
+		}
+
+		country, appErr = ch.Service.UpdateCountry(body)
+	} else {
+		appErr = errs.NewUnauthorizedError(errs.Common.Unauthorized)
 	}
 
-	country, appErr := ch.Service.UpdateCountry(body)
-
 	if appErr != nil {
-		writeResponse(resp, appErr.Code, country, appErr.Message)
+		writeResponse(resp, req, appErr.Code, country, appErr.Message)
 	} else {
-		writeResponse(resp, http.StatusOK, country, "")
+		writeResponse(resp, req, http.StatusOK, country, "")
 	}
 }

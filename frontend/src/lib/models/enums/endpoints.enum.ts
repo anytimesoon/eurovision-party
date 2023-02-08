@@ -34,7 +34,7 @@ export const voteEP = {
 
 export const authEP = {
     LOGIN: apiBase + "login",
-    REGISTER: apiBase + "register",
+    REGISTER: userURL + "register",
     FE_LOGIN: feBase + "login/"
 }
 

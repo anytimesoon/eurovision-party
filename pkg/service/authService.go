@@ -19,7 +19,7 @@ import (
 type AuthService interface {
 	Login([]byte) (*dto.EAuth, *errs.AppError)
 	Register([]byte) (*dto.NewUser, *errs.AppError)
-	Authorize(string) (string, *errs.AppError)
+	Authorize(string) (*dto.AuthAndToken, *errs.AppError)
 	AuthorizeChat(token string) (*dto.User, *errs.AppError)
 }
 
@@ -74,35 +74,39 @@ func (das DefaultAuthService) Login(body []byte) (*dto.EAuth, *errs.AppError) {
 	return eAuth, nil
 }
 
-func (das DefaultAuthService) Authorize(token string) (string, *errs.AppError) {
+func (das DefaultAuthService) Authorize(token string) (*dto.AuthAndToken, *errs.AppError) {
 	authDTO, appErr := decrypt(token)
 	if appErr != nil {
-		return "", appErr
+		return nil, appErr
 	}
 
 	if authDTO.Expiration.Before(time.Now()) {
 		log.Printf("Session has expired")
-		return "", errs.NewUnauthorizedError(errs.Common.Login)
+		return nil, errs.NewUnauthorizedError(errs.Common.Login)
 	}
 
 	auth, appErr := das.repo.Authorize(authDTO)
 	if appErr != nil {
-		return "", appErr
+		return nil, appErr
 	}
 
 	authJson, err := json.Marshal(auth.ToDTO())
 	if err != nil {
 		log.Printf("Failed to marshal auth %+v", auth)
-		return "", errs.NewUnexpectedError(errs.Common.Login)
+		return nil, errs.NewUnexpectedError(errs.Common.Login)
 	}
 
 	e, err := encrypt(string(authJson))
 	if err != nil {
 		log.Printf("Couldn't encrypt the creds for %+v", auth)
-		return "", errs.NewUnexpectedError(errs.Common.Login)
+		return nil, errs.NewUnexpectedError(errs.Common.Login)
 	}
 
-	return e, nil
+	authAndToken := dto.AuthAndToken{
+		Token:   e,
+		AuthLvl: auth.AuthLvl,
+	}
+	return &authAndToken, nil
 }
 
 func (das DefaultAuthService) AuthorizeChat(token string) (*dto.User, *errs.AppError) {

@@ -29,6 +29,11 @@ type EAuth struct {
 	EToken string `json:"token"`
 }
 
+type AuthAndToken struct {
+	Token   string
+	AuthLvl enum.AuthLvl
+}
+
 func (nu *NewUser) Slugify() {
 	re, err := regexp.Compile(`[[:^alnum:]]`)
 	if err != nil {

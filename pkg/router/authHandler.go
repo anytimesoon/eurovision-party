@@ -1,6 +1,8 @@
 package router
 
 import (
+	"context"
+	"eurovision/pkg/dto"
 	"eurovision/pkg/service"
 	"io"
 	"log"
@@ -19,9 +21,9 @@ func (ah AuthHandler) Register(resp http.ResponseWriter, req *http.Request) {
 
 	auth, appErr := ah.Service.Register(body)
 	if appErr != nil {
-		writeResponse(resp, appErr.Code, auth, appErr.Message)
+		writeResponse(resp, req, appErr.Code, auth, appErr.Message)
 	} else {
-		writeResponse(resp, http.StatusOK, auth, "")
+		writeResponse(resp, req, http.StatusOK, auth, "")
 	}
 }
 
@@ -33,10 +35,13 @@ func (ah AuthHandler) Login(resp http.ResponseWriter, req *http.Request) {
 	}
 
 	auth, appErr := ah.Service.Login(body)
+	var authAndToken dto.AuthAndToken
 	if appErr != nil {
-		writeResponse(resp, appErr.Code, auth, appErr.Message)
+		ctx := context.WithValue(req.Context(), "authAndToken", authAndToken)
+		writeResponse(resp, req.WithContext(ctx), appErr.Code, auth, appErr.Message)
 	} else {
-		resp.Header().Add("Authorization", auth.EToken)
-		writeResponse(resp, http.StatusOK, auth, "")
+		authAndToken.Token = auth.EToken
+		ctx := context.WithValue(req.Context(), "authAndToken", authAndToken)
+		writeResponse(resp, req.WithContext(ctx), http.StatusOK, auth, "")
 	}
 }
