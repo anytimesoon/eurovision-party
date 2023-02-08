@@ -7,6 +7,7 @@
     import {ResponseModel} from "$lib/models/classes/response.model";
     import {UserModel} from "$lib/models/classes/user.model";
     import {userStore} from "$lib/stores/user.store";
+    import {goto} from "$app/navigation";
 
 	onMount( () => {
 		let path = window.location.pathname;
@@ -25,7 +26,7 @@
 
         await sendCreateOrUpdate<LoginModel, TokenModel>(authEP.LOGIN, payload, "POST").then(data => {
             resp = data
-            if (resp !== null) {
+            if (resp.body.token !== "") {
                 localStorage.setItem("me", payload.userId)
             } else {
                 alert("Something went very wrong. Please refresh the page")
@@ -43,9 +44,12 @@
         })
 
         if ($userStore[localStorage.getItem("me")].authLvl === 1 ) {
-            window.location.replace("/countries")
+            await goto("/countries")
         } else {
-            window.location.replace("/")
+            await goto("/")
         }
+
     }
+
+
 </script>

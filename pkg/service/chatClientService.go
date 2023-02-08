@@ -34,7 +34,7 @@ func (c *ChatClient) Pub() {
 		c.Room.unregister <- c
 		err := c.Conn.Close()
 		if err != nil {
-			log.Printf("Chatroom pub connection closed unexpectedly for %s., %s", c.UserId, err)
+			log.Printf("Chatroom pub connection closed for %s. %s", c.UserId, err)
 			return
 		}
 	}()
@@ -47,9 +47,10 @@ func (c *ChatClient) Pub() {
 	c.Conn.SetPongHandler(func(string) error {
 		err = c.Conn.SetReadDeadline(time.Now().Add(pongWait))
 		if err != nil {
-			log.Printf("Failed to set read deadline for user %s in pong handler. %s", c.UserId, err)
+			log.Printf("Failed to reset read deadline for user %s in pong handler. %s", c.UserId, err)
 			return err
 		}
+		log.Printf("Received pong from user %s", c.UserId)
 		return nil
 	})
 
@@ -67,7 +68,7 @@ func (c *ChatClient) Pub() {
 		if appErr != nil {
 			return
 		}
-
+		log.Println("New message received from", c.UserId.String())
 		c.Room.broadcast <- commentJSON
 	}
 }
@@ -134,12 +135,13 @@ func (c *ChatClient) Sub() {
 		case <-ticker.C:
 			err := c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if err != nil {
-				log.Printf("Failed to write new line message for user %s. %s", c.UserId, err)
+				log.Printf("Failed to set deadline for ping message for user %s. %s", c.UserId, err)
 				return
 			}
+			log.Printf("Sending ping to user %s", c.UserId)
 			err = c.Conn.WriteMessage(websocket.PingMessage, nil)
 			if err != nil {
-				log.Printf("Failed to write ping message for user %s. %s", c.UserId, err)
+				log.Printf("Failed to send ping message for user %s. %s", c.UserId, err)
 				return
 			}
 		}

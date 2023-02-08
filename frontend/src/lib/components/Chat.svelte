@@ -1,25 +1,13 @@
 <script lang="ts">
-    import { onMount } from "svelte";
-    import { connectToChat } from "$lib/stores/comment.store";
-    import {commentStore} from "$lib/stores/comment.store.js";
-    import {userStore} from "$lib/stores/user.store.js";
-    let socket:WebSocket;
-    
-    onMount(async() => {
-        socket = connectToChat()
-    });
+    import {commentStore} from "$lib/stores/comment.store";
+    import {userStore} from "$lib/stores/user.store";
+    import {socketStore} from "$lib/stores/socket.store";
 
     function sendMsg() {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         let input = document.getElementById("msg")! as HTMLInputElement;
-        if (!socket) {
-            console.log("Your connection has been lost. Try reconnecting.");
-        }
-        if (!input.value) {
-            console.log("Something went very, very wrong")
-        }
-        
-        socket.send(input.value);
+
+        socketStore.send(input.value);
         input.value = "" 
     }
 

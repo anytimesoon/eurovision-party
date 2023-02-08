@@ -2,6 +2,7 @@ package service
 
 import (
 	"encoding/json"
+	"log"
 )
 
 type Room struct {
@@ -31,9 +32,12 @@ func (r *Room) Run() {
 			if err != nil {
 				return
 			}
-
+			log.Printf("%+v", r.clients)
 			for _, comment := range comments {
-				commentJSON, _ := json.Marshal(comment)
+				commentJSON, err := json.Marshal(comment)
+				if err != nil {
+					log.Printf("Something went wrong when sending a message during registration for user %s. %s", client.UserId, err)
+				}
 				client.Send <- commentJSON
 			}
 		case client := <-r.unregister:
@@ -43,12 +47,14 @@ func (r *Room) Run() {
 			}
 		case commentJSON := <-r.broadcast:
 			for client := range r.clients {
-				select {
-				case client.Send <- commentJSON:
-				default:
-					close(client.Send)
-					delete(r.clients, client)
-				}
+				//select {
+				//case
+				log.Println("sending to", client.UserId)
+				client.Send <- commentJSON
+				//default:
+				//	close(client.Send)
+				//	delete(r.clients, client)
+				//}
 			}
 		}
 	}

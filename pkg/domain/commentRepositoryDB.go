@@ -34,21 +34,36 @@ func (db CommentRepositoryDb) FindAllComments() ([]Comment, *errs.AppError) {
 func (db CommentRepositoryDb) CreateComment(commentDTO dto.Comment) (*Comment, *errs.AppError) {
 	var comment Comment
 
-	uuid := uuid.New().String()
+	newCommentId := uuid.New().String()
 
-	query := fmt.Sprintf(`INSERT INTO comment(uuid, userId, text) VALUES ('%s', '%s', '%s')`, uuid, commentDTO.UserId, commentDTO.Text)
+	createCommentQuery := "INSERT INTO comment(uuid, userId, text) VALUES (?, ?, ?)"
+	getCommentQuery := "SELECT * FROM comment WHERE uuid = ?"
 
-	_, err := db.client.NamedExec(query, comment)
+	// Begin transaction that will create a new comment then return the new comment
+	tx, err := db.client.Beginx()
+	if err != nil {
+		log.Printf("Error when starting transaction for new comment for user %s, %s", commentDTO.UserId, err)
+		return nil, errs.NewUnexpectedError(errs.Common.NotCreated + "you comment")
+	}
+
+	_, err = tx.Exec(createCommentQuery, newCommentId, commentDTO.UserId, commentDTO.Text)
 	if err != nil {
 		log.Printf("Error when creating comment from user %s, %s", commentDTO.UserId, err)
+		_ = tx.Rollback()
 		return nil, errs.NewUnexpectedError(errs.Common.NotCreated + "your comment")
 	}
 
-	query = fmt.Sprintf(`SELECT * FROM comment WHERE uuid = '%s'`, uuid)
-	err = db.client.Get(&comment, query)
+	err = tx.Get(&comment, getCommentQuery, newCommentId)
 	if err != nil {
 		log.Printf("Error when fetching comment after create %s", err)
+		_ = tx.Rollback()
 		return nil, errs.NewNotFoundError(errs.Common.NotFound + "your comment")
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		log.Printf("Error when commiting comment transaction for user %s. %s", commentDTO.UUID, err)
+		return nil, errs.NewUnexpectedError(errs.Common.NotCreated + "a new comment")
 	}
 
 	return &comment, nil
