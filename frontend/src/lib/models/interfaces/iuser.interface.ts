@@ -3,4 +3,5 @@ export interface IUser {
 	name: string;
 	slug: string;
 	icon: string;
+	authLvl: number;
 }

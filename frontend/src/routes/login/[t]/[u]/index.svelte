@@ -43,7 +43,9 @@
             $userStore = userdata.body
         })
 
-        if ($userStore[localStorage.getItem("me")].authLvl === 1 ) {
+        localStorage.setItem("me", JSON.stringify($userStore[payload.userId]))
+
+        if (JSON.parse(localStorage.getItem("me")).authLvl === 1 ) {
             await goto("/countries")
         } else {
             await goto("/")

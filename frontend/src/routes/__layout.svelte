@@ -1,6 +1,9 @@
 <script>
   import "../app.css";
+  import {currentUser} from "$lib/helpers/user.helper.ts";
+  import {authLvl} from "$lib/models/enums/authLvl.enum.ts";
   export const trailingSlash = 'ignore';
+  const me = currentUser();
 </script>
 
 <svelte:head>
@@ -11,8 +14,10 @@
 <main>
   <nav>
     <a href="/">Home</a>
-    <a href="/countries">Countries</a>
-    <a href="/friends">Friends</a>
+    {#if me != null && me.authLvl === authLvl.ADMIN}
+      <a href="/countries">Countries</a>
+      <a href="/friends">Friends</a>
+    {/if}
   </nav>
   
   <slot />
