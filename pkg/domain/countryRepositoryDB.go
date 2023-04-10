@@ -17,7 +17,7 @@ func NewCountryRepositoryDb(db *sqlx.DB) CountryRepositoryDb {
 	return CountryRepositoryDb{db}
 }
 
-func (db CountryRepositoryDb) FindAllCountries() ([]Country, *errs.AppError) {
+func (db CountryRepositoryDb) FindAllCountries() (*[]Country, *errs.AppError) {
 	countries := make([]Country, 0)
 
 	query := "SELECT * FROM country"
@@ -27,7 +27,7 @@ func (db CountryRepositoryDb) FindAllCountries() ([]Country, *errs.AppError) {
 		return nil, errs.NewUnexpectedError(errs.Common.DBFail)
 	}
 
-	return countries, nil
+	return &countries, nil
 }
 
 func (db CountryRepositoryDb) FindOneCountry(slug string) (*Country, *errs.AppError) {
@@ -63,4 +63,17 @@ func (db CountryRepositoryDb) UpdateCountry(countryDTO dto.Country) (*Country, *
 	}
 
 	return &country, nil
+}
+
+func (db CountryRepositoryDb) FindParticipating() (*[]Country, *errs.AppError) {
+	countries := make([]Country, 0)
+
+	query := "SELECT * FROM country WHERE participating = true"
+	err := db.client.Select(&countries, query)
+	if err != nil {
+		log.Println("Error while querying country table", err)
+		return nil, errs.NewUnexpectedError(errs.Common.DBFail)
+	}
+
+	return &countries, nil
 }

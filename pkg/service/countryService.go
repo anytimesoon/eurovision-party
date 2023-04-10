@@ -10,9 +10,10 @@ import (
 
 //go:generate mockgen -source=countryService.go -destination=../../mocks/service/mockCountryService.go -package=service eurovision/pkg/service
 type CountryService interface {
-	GetAllCountries() ([]dto.Country, *errs.AppError)
+	GetAllCountries() (*[]dto.Country, *errs.AppError)
 	UpdateCountry([]byte) (*dto.Country, *errs.AppError)
 	SingleCountry(string) (*dto.Country, *errs.AppError)
+	Participating() (*[]dto.Country, *errs.AppError)
 }
 
 type DefaultCountryService struct {
@@ -23,18 +24,13 @@ func NewCountryService(repo domain.CountryRepository) DefaultCountryService {
 	return DefaultCountryService{repo}
 }
 
-func (service DefaultCountryService) GetAllCountries() ([]dto.Country, *errs.AppError) {
+func (service DefaultCountryService) GetAllCountries() (*[]dto.Country, *errs.AppError) {
 	countryData, err := service.repo.FindAllCountries()
 	if err != nil {
 		return nil, err
 	}
 
-	countriesDTO := make([]dto.Country, 0)
-	for _, country := range countryData {
-		countriesDTO = append(countriesDTO, country.ToDto())
-	}
-
-	return countriesDTO, nil
+	return countriesToDto(*countryData), nil
 }
 
 func (service DefaultCountryService) SingleCountry(slug string) (*dto.Country, *errs.AppError) {
@@ -63,4 +59,22 @@ func (service DefaultCountryService) UpdateCountry(body []byte) (*dto.Country, *
 
 	countryDTO = country.ToDto()
 	return &countryDTO, nil
+}
+
+func (service DefaultCountryService) Participating() (*[]dto.Country, *errs.AppError) {
+	countryData, err := service.repo.FindParticipating()
+	if err != nil {
+		return nil, err
+	}
+
+	return countriesToDto(*countryData), nil
+}
+
+func countriesToDto(countryData []domain.Country) *[]dto.Country {
+	countriesDTO := make([]dto.Country, 0)
+	for _, country := range countryData {
+		countriesDTO = append(countriesDTO, country.ToDto())
+	}
+
+	return &countriesDTO
 }

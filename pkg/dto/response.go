@@ -4,7 +4,7 @@ import "github.com/google/uuid"
 
 type Responsable interface {
 	Comment | *Country | *User | *Vote | *Auth | *EAuth | *NewUser | []*NewUser |
-		[]Comment | []Country | []User | []Vote | map[uuid.UUID]User
+		[]Comment | *[]Country | []User | []Vote | map[uuid.UUID]User
 }
 
 type Payload[T Responsable] struct {

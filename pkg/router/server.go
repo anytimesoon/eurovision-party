@@ -48,6 +48,7 @@ func StartServer(db *sqlx.DB, appConf conf.App) {
 	countryRouter := apiRouter.PathPrefix("/country").Subrouter()
 	countryRouter.HandleFunc("/", countryHandler.FindAllCountries).Methods(http.MethodGet)
 	countryRouter.HandleFunc("/", countryHandler.UpdateCountry).Methods(http.MethodPut)
+	countryRouter.HandleFunc("/participating", countryHandler.Participating).Methods(http.MethodGet)
 	countryRouter.HandleFunc("/{slug}", countryHandler.FindOneCountry).Methods(http.MethodGet)
 
 	// User

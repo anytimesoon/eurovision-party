@@ -3,9 +3,10 @@ package migrations
 import "eurovision/pkg/domain"
 
 type initialCountryParams struct {
-	Name string
-	Flag string
-	Slug string
+	Name          string
+	Flag          string
+	Slug          string
+	Participating bool
 }
 
 type initialUserParams struct {
@@ -34,29 +35,34 @@ var initUsers = []initialUserParams{
 
 var initCountries = []initialCountryParams{
 	{
-		Name: "Italy",
-		Flag: "🇮🇹",
-		Slug: "italy",
+		Name:          "Italy",
+		Flag:          "🇮🇹",
+		Slug:          "italy",
+		Participating: true,
 	},
 	{
-		Name: "France",
-		Flag: "🇫🇷",
-		Slug: "france",
+		Name:          "France",
+		Flag:          "🇫🇷",
+		Slug:          "france",
+		Participating: true,
 	},
 	{
-		Name: "Germany",
-		Flag: "🇩🇪",
-		Slug: "germany",
+		Name:          "Germany",
+		Flag:          "🇩🇪",
+		Slug:          "germany",
+		Participating: true,
 	},
 	{
-		Name: "Spain",
-		Flag: "🇪🇸",
-		Slug: "spain",
+		Name:          "Spain",
+		Flag:          "🇪🇸",
+		Slug:          "spain",
+		Participating: true,
 	},
 	{
-		Name: "United Kingdom",
-		Flag: "🇬🇧",
-		Slug: "united-kingdom",
+		Name:          "United Kingdom",
+		Flag:          "🇬🇧",
+		Slug:          "united-kingdom",
+		Participating: true,
 	},
 	{
 		Name: "Albania",

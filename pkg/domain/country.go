@@ -19,9 +19,10 @@ type Country struct {
 
 //go:generate mockgen -source=country.go -destination=../../mocks/domain/mockCountryRepository.go -package=domain eurovision/pkg/domain
 type CountryRepository interface {
-	FindAllCountries() ([]Country, *errs.AppError)
+	FindAllCountries() (*[]Country, *errs.AppError)
 	FindOneCountry(string) (*Country, *errs.AppError)
 	UpdateCountry(dto.Country) (*Country, *errs.AppError)
+	FindParticipating() (*[]Country, *errs.AppError)
 }
 
 func (c Country) ToDto() dto.Country {

@@ -40,7 +40,7 @@ func AddCountries(db *sqlx.DB) {
 	for _, country := range initCountries {
 		id := uuid.New()
 
-		_, err := db.Exec(query, id, country.Name, country.Slug, "", "", country.Flag, false)
+		_, err := db.Exec(query, id, country.Name, country.Slug, "", "", country.Flag, country.Participating)
 
 		if err != nil {
 			log.Fatalf("Error when inserting %s %s into country table: %s", country.Name, country.Flag, err)
