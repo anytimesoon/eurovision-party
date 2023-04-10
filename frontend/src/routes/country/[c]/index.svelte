@@ -3,12 +3,14 @@
     import Radio from "$lib/components/RadioButton.svelte";
     import { page } from "$app/stores";
     import {CountryModel} from "$lib/models/classes/country.model";
+    import {onMount} from "svelte";
 
-    const country = $partCountryStore.find( (c:CountryModel) => {
-        if (c.slug === $page.params.c) {
-            return c
-        }
-    });
+    let country = new CountryModel()
+
+    onMount( () => {
+        country = $partCountryStore.find( c => c.slug === $page.params.c );
+    })
+
 
 
 
@@ -45,7 +47,7 @@
     }]
 </script>
 
-{#await country}
+
 <h1>{country.flag} {country.name}</h1>
 
 <h3>Song</h3>
@@ -56,4 +58,3 @@
 <Radio {options} fontSize={16} legend='Score the quality of the performance'/>
 <Radio {options} fontSize={16} legend='Score the quality of the costumes'/>
 <Radio {options} fontSize={16} legend='Score the quality of the props'/>
-    {/await}
