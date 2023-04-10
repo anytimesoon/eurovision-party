@@ -2,6 +2,7 @@
   import "../app.css";
   import {currentUser} from "$lib/helpers/user.helper.ts";
   import {authLvl} from "$lib/models/enums/authLvl.enum.ts";
+  import {partCountryStore} from "$lib/stores/partCountry.store";
   export const trailingSlash = 'ignore';
   const me = currentUser();
 </script>
@@ -14,9 +15,15 @@
 <main>
   <nav>
     <a href="/">Home</a>
+
+    {#each $partCountryStore as country }
+        <a href={"/country/" + country.slug}>{country.name}</a>
+<!--      <p>hello</p>-->
+    {/each}
+
     {#if me != null && me.authLvl === authLvl.ADMIN}
-      <a href="/countries">Countries</a>
-      <a href="/friends">Friends</a>
+      <a href="/admin/countries">Countries</a>
+      <a href="/admin/friends">Friends</a>
     {/if}
   </nav>
   

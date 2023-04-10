@@ -12,7 +12,8 @@ export const chatEP = "ws://localhost:8080/chat/connect";
 export const countryEP = {
     ALL: countryURL,
     UPDATE: countryURL,
-    FIND_ONE: countryURL
+    FIND_ONE: countryURL,
+    PARTICIPATING: countryURL + "participating"
 }
 
 export const staticEP = {
