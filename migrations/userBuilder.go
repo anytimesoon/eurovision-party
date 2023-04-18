@@ -51,7 +51,7 @@ func AddUsers(db *sqlx.DB) {
 			if err != nil {
 				log.Fatalf("Authentication for user %s was not created. %s", user.Name, err)
 			}
-			log.Printf("http://localhost:3000/login/%s/%s", initAuth.Token, id)
+			log.Printf("http://localhost:5173/login/%s/%s", initAuth.Token, id)
 			log.Printf("User %s created 👨‍💻", user.Name)
 		case 2:
 			log.Printf("User %s created 🤖", user.Name)

@@ -12,31 +12,27 @@
 
 <script type="ts">
 	import { onMount } from "svelte";
-    import {authEP, countryEP, userEP} from "$lib/models/enums/endpoints.enum"
-	import { LoginModel } from '$lib/models/classes/login.model';
-    import {sendCreateOrUpdate, sendGet} from '$lib/helpers/sender.helper';
-	import type { TokenModel } from '$lib/models/classes/token.model';
-    import {ResponseModel} from "$lib/models/classes/response.model";
+    import {LoginModel} from "$lib/models/classes/login.model";
+    import {TokenModel} from "$lib/models/classes/token.model";
+    import {sendCreateOrUpdate, sendGet} from "$lib/helpers/sender.helper";
+    import {authEP, countryEP, userEP} from "$lib/models/enums/endpoints.enum";
     import {UserModel} from "$lib/models/classes/user.model";
     import {userStore} from "$lib/stores/user.store";
-    import {goto} from "$app/navigation";
     import {CountryModel} from "$lib/models/classes/country.model";
     import {partCountryStore} from "$lib/stores/partCountry.store";
+    import {goto} from "$app/navigation";
+
+    export let data;
 
 	onMount( () => {
-		let path = window.location.pathname;
-		let params:string[] = path.split('/');
-
 		let payload = new LoginModel();
-		payload.token = params[2];
-		payload.userId = params[3];
-
+		payload.token = data.t;
+		payload.userId = data.u;
         loginAndGetUsers(payload)
-
 	});
 
-    async function loginAndGetUsers(payload:LoginModel){
-        let resp : ResponseModel<TokenModel>;
+    async function loginAndGetUsers(payload){
+        let resp;
 
         await sendCreateOrUpdate<LoginModel, TokenModel>(authEP.LOGIN, payload, "POST").then(data => {
             resp = data

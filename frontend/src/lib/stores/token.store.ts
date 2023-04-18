@@ -1,6 +1,6 @@
 import { writable } from "svelte/store";
 import type { IToken } from "$lib/models/interfaces/itoken.interface";
-import { browser } from "$app/env";
+import { browser } from "$app/environment";
 import { TokenModel } from "$lib/models/classes/token.model";
 
 const defaultToken:TokenModel = new TokenModel

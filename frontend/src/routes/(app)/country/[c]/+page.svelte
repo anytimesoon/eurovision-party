@@ -1,18 +1,19 @@
-<script type="ts">
-    import {partCountryStore} from "$lib/stores/partCountry.store";
+<script lang="ts">
     import Radio from "$lib/components/RadioButton.svelte";
-    import { page } from "$app/stores";
-    import {CountryModel} from "$lib/models/classes/country.model";
-    import {onMount} from "svelte";
 
-    let country = new CountryModel()
+    /** @type {import('../../../index').PageData} */
+    export let data;
 
-    onMount( () => {
-        country = $partCountryStore.find( c => c.slug === $page.params.c );
-    })
-
-
-
+    // onMount(() => {
+    //
+    //     const oldCountry = selectedCountry;
+    //     sendGet<CountryModel>(countryEP.FIND_ONE + slug).then(val => selectedCountry = val.body);
+    //
+    //     if(selectedCountry !== oldCountry) {
+    //         let i = $partCountryStore.indexOf(oldCountry)
+    //         $partCountryStore[i] = selectedCountry
+    //     }
+    // })
 
     const options = [{
         value: 1,
@@ -46,12 +47,11 @@
         label: '10'
     }]
 </script>
+{data.slug}
+<h1>{data.c.flag} {data.c.name}</h1>
 
-
-<h1>{country.flag} {country.name}</h1>
-
-<h3>Song</h3>
-<p>{country.songName} by {country.bandName}</p>
+<!--<h3>Song</h3>-->
+<!--<p>{selectedCountry.songName} by {selectedCountry.bandName}</p>-->
 
 <h3>Vote!</h3>
 <Radio {options} fontSize={16} legend='Score the quality of the song'/>

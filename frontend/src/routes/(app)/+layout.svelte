@@ -1,8 +1,8 @@
 <script>
-  import "../app.css";
+  import "../../../frontend/src/app.css";
   import {currentUser} from "$lib/helpers/user.helper.ts";
   import {authLvl} from "$lib/models/enums/authLvl.enum.ts";
-  import {partCountryStore} from "$lib/stores/partCountry.store";
+  import {partCountryStore} from "$lib/stores/partCountry.store.js";
   export const trailingSlash = 'ignore';
   const me = currentUser();
 </script>
@@ -14,7 +14,7 @@
   
 <main>
   <nav>
-    <a href="/">Home</a>
+    <a href="/frontend/static">Home</a>
 
     {#each $partCountryStore as country }
         <a href={"/country/" + country.slug}>{country.name}</a>

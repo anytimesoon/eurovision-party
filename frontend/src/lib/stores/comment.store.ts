@@ -1,6 +1,6 @@
 import { writable } from "svelte/store";
 import type { CommentModel } from "$lib/models/classes/comment.model";
-import {browser} from "$app/env";
+import {browser} from "$app/environment";
 
 const defaultCommentList:CommentModel[] = new Array<CommentModel>()
 
