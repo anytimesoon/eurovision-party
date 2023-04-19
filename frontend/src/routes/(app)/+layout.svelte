@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import "../../../frontend/src/app.css";
   import {currentUser} from "$lib/helpers/user.helper.ts";
   import {authLvl} from "$lib/models/enums/authLvl.enum.ts";

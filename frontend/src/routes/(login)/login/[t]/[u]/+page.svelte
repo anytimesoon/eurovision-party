@@ -11,63 +11,11 @@
 </style>
 
 <script type="ts">
-	import { onMount } from "svelte";
-    import {LoginModel} from "$lib/models/classes/login.model";
-    import {TokenModel} from "$lib/models/classes/token.model";
-    import {sendCreateOrUpdate, sendGet} from "$lib/helpers/sender.helper";
-    import {authEP, countryEP, userEP} from "$lib/models/enums/endpoints.enum";
-    import {UserModel} from "$lib/models/classes/user.model";
-    import {userStore} from "$lib/stores/user.store";
-    import {CountryModel} from "$lib/models/classes/country.model";
-    import {partCountryStore} from "$lib/stores/partCountry.store";
-    import {goto} from "$app/navigation";
 
     export let data;
 
-	onMount( () => {
-		let payload = new LoginModel();
-		payload.token = data.t;
-		payload.userId = data.u;
-        loginAndGetUsers(payload)
-	});
-
-    async function loginAndGetUsers(payload){
-        let resp;
-
-        await sendCreateOrUpdate<LoginModel, TokenModel>(authEP.LOGIN, payload, "POST").then(data => {
-            resp = data
-            if (resp.body.token !== "") {
-                localStorage.setItem("me", payload.userId)
-            } else {
-                alert("Something went very wrong. Please refresh the page")
-            }
-        })
-
-        if (resp.error != "") {
-            //TODO error handling
-            alert(resp.error)
-            return
-        }
-
-        await sendGet<Map<string,UserModel>>(userEP.ALL).then( userdata => {
-            $userStore = userdata.body
-        })
-
-        await sendGet<Array<CountryModel>>(countryEP.PARTICIPATING).then( countryData => {
-            $partCountryStore = countryData.body
-        })
-
-        localStorage.setItem("me", JSON.stringify($userStore[payload.userId]))
-
-        if (JSON.parse(localStorage.getItem("me")).authLvl === 1 ) {
-            await goto("/admin/countries")
-        } else {
-            await goto("/")
-        }
-
-    }
-
-
 </script>
+
+{data.token}
 
 <div class="spinner"></div>
