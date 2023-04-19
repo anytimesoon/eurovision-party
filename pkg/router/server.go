@@ -46,8 +46,8 @@ func StartServer(db *sqlx.DB, appConf conf.App) {
 	countryRepositoryDb := domain.NewCountryRepositoryDb(db)
 	countryHandler := CountryHandler{Service: service.NewCountryService(countryRepositoryDb)}
 	countryRouter := apiRouter.PathPrefix("/country").Subrouter()
-	countryRouter.HandleFunc("/", countryHandler.FindAllCountries).Methods(http.MethodGet)
-	countryRouter.HandleFunc("/", countryHandler.UpdateCountry).Methods(http.MethodPut)
+	countryRouter.HandleFunc("/", countryHandler.FindAllCountries).Methods(http.MethodGet) // admin only
+	countryRouter.HandleFunc("/", countryHandler.UpdateCountry).Methods(http.MethodPut)    // admin only
 	countryRouter.HandleFunc("/participating", countryHandler.Participating).Methods(http.MethodGet)
 	countryRouter.HandleFunc("/{slug}", countryHandler.FindOneCountry).Methods(http.MethodGet)
 
@@ -56,19 +56,19 @@ func StartServer(db *sqlx.DB, appConf conf.App) {
 	userHandler := UserHandler{Service: service.NewUserService(userRepositoryDb)}
 	userRouter := apiRouter.PathPrefix("/user").Subrouter()
 	userRouter.HandleFunc("/", userHandler.FindAllUsers).Methods(http.MethodGet)
-	userRouter.HandleFunc("/", userHandler.UpdateUser).Methods(http.MethodPut)
-	userRouter.HandleFunc("/image", userHandler.UpdateImage).Methods(http.MethodPost)
-	userRouter.HandleFunc("/register", authHandler.Register).Methods(http.MethodPost)
+	userRouter.HandleFunc("/", userHandler.UpdateUser).Methods(http.MethodPut)        // admin or current user
+	userRouter.HandleFunc("/image", userHandler.UpdateImage).Methods(http.MethodPost) // admin or current user
+	userRouter.HandleFunc("/register", authHandler.Register).Methods(http.MethodPost) // admin only
 	userRouter.HandleFunc("/registered", userHandler.FindRegisteredUsers).Methods(http.MethodGet)
 	userRouter.HandleFunc("/{slug}", userHandler.FindOneUser).Methods(http.MethodGet)
-	userRouter.HandleFunc("/{slug}", userHandler.RemoveUser).Methods(http.MethodDelete)
+	userRouter.HandleFunc("/{slug}", userHandler.RemoveUser).Methods(http.MethodDelete) // admin only
 
 	// Vote
 	voteRepositoryDb := domain.NewVoteRepositoryDb(db)
 	voteHandler := VoteHandler{Service: service.NewVoteService(voteRepositoryDb)}
 	voteRouter := apiRouter.PathPrefix("/vote").Subrouter()
-	voteRouter.HandleFunc("/", voteHandler.CreateVote).Methods(http.MethodPost)
-	voteRouter.HandleFunc("/", voteHandler.UpdateVote).Methods(http.MethodPut)
+	voteRouter.HandleFunc("/", voteHandler.CreateVote).Methods(http.MethodPost) // current user only
+	voteRouter.HandleFunc("/", voteHandler.UpdateVote).Methods(http.MethodPut)  // current user only
 	// voteRouter.HandleFunc("/user/{userId}", voteHandler.VoteByUser).Methods(http.MethodGet)
 	// voteRouter.HandleFunc("/country/{countryId}", voteHandler.VoteByUser).Methods(http.MethodGet)
 

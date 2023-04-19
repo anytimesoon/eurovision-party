@@ -1,22 +1,20 @@
 package service
 
 import (
-	"encoding/json"
 	"eurovision/pkg/domain"
 	"eurovision/pkg/dto"
 	"eurovision/pkg/errs"
 	"github.com/google/uuid"
-	"log"
 )
 
 //go:generate mockgen -source=userService.go -destination=../../mocks/service/mockUserService.go -package=service eurovision/pkg/service
 type UserService interface {
 	GetAllUsers() (map[uuid.UUID]dto.User, *errs.AppError)
-	UpdateUser([]byte) (*dto.User, *errs.AppError)
+	UpdateUser(dto.User) (*dto.User, *errs.AppError)
 	SingleUser(string) (*dto.User, *errs.AppError)
 	DeleteUser(string) *errs.AppError
 	GetRegisteredUsers() ([]*dto.NewUser, *errs.AppError)
-	UpdateUserImage([]byte) (*dto.User, *errs.AppError)
+	UpdateUserImage(image dto.UserImage) (*dto.User, *errs.AppError)
 }
 
 type DefaultUserService struct {
@@ -42,14 +40,7 @@ func (service DefaultUserService) GetAllUsers() (map[uuid.UUID]dto.User, *errs.A
 	return usersDTO, nil
 }
 
-func (service DefaultUserService) UpdateUser(body []byte) (*dto.User, *errs.AppError) {
-	var userDTO dto.User
-	err := json.Unmarshal(body, &userDTO)
-	if err != nil {
-		log.Println("FAILED to unmarshal json!", err)
-		return nil, errs.NewUnexpectedError(errs.Common.BadlyFormedObject)
-	}
-
+func (service DefaultUserService) UpdateUser(userDTO dto.User) (*dto.User, *errs.AppError) {
 	appErr := userDTO.Validate()
 	if appErr != nil {
 		return nil, appErr
@@ -65,14 +56,7 @@ func (service DefaultUserService) UpdateUser(body []byte) (*dto.User, *errs.AppE
 	return &userDTO, nil
 }
 
-func (service DefaultUserService) UpdateUserImage(body []byte) (*dto.User, *errs.AppError) {
-	var imageDTO dto.UserImage
-	err := json.Unmarshal(body, &imageDTO)
-	if err != nil {
-		log.Println("FAILED to unmarshal json!", err)
-		return nil, errs.NewUnexpectedError(errs.Common.BadlyFormedObject)
-	}
-
+func (service DefaultUserService) UpdateUserImage(imageDTO dto.UserImage) (*dto.User, *errs.AppError) {
 	image, appErr := stringToBin(imageDTO.Image)
 	if appErr != nil {
 		return nil, appErr

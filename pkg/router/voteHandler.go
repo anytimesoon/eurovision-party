@@ -1,6 +1,8 @@
 package router
 
 import (
+	"eurovision/pkg/dto"
+	"eurovision/pkg/errs"
 	"eurovision/pkg/service"
 	"io"
 	"log"
@@ -12,13 +14,26 @@ type VoteHandler struct {
 }
 
 func (vh VoteHandler) CreateVote(resp http.ResponseWriter, req *http.Request) {
+	var appErr *errs.AppError
+	var vote *dto.Vote
+
 	body, err := io.ReadAll(req.Body)
 	if err != nil {
 		log.Println("FAILED to read body of VOTE CREATE!", err)
 		return
 	}
 
-	vote, appErr := vh.Service.CreateVote(body)
+	vote, err = dto.Decode[dto.Vote](body)
+	if err != nil {
+		return
+	}
+
+	if req.Context().Value("authAndToken").(dto.AuthAndToken).UUID == vote.UserId {
+		vote, appErr = vh.Service.CreateVote(*vote)
+	} else {
+		appErr = errs.NewUnauthorizedError(errs.Common.Unauthorized)
+	}
+
 	if appErr != nil {
 		writeResponse(resp, req, appErr.Code, vote, appErr.Message)
 	} else {
@@ -27,13 +42,26 @@ func (vh VoteHandler) CreateVote(resp http.ResponseWriter, req *http.Request) {
 }
 
 func (vh VoteHandler) UpdateVote(resp http.ResponseWriter, req *http.Request) {
+	var appErr *errs.AppError
+	var vote *dto.Vote
+
 	body, err := io.ReadAll(req.Body)
 	if err != nil {
 		log.Println("FAILED to read body of VOTE UPDATE!", err)
 		return
 	}
 
-	vote, appErr := vh.Service.UpdateVote(body)
+	vote, err = dto.Decode[dto.Vote](body)
+	if err != nil {
+		return
+	}
+
+	if req.Context().Value("authAndToken").(dto.AuthAndToken).UUID == vote.UserId {
+		vote, appErr = vh.Service.UpdateVote(*vote)
+	} else {
+		appErr = errs.NewUnauthorizedError(errs.Common.Unauthorized)
+	}
+
 	if appErr != nil {
 		writeResponse(resp, req, appErr.Code, vote, appErr.Message)
 	} else {
