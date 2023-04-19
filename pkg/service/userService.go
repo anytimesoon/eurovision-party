@@ -16,6 +16,7 @@ type UserService interface {
 	SingleUser(string) (*dto.User, *errs.AppError)
 	DeleteUser(string) *errs.AppError
 	GetRegisteredUsers() ([]*dto.NewUser, *errs.AppError)
+	UpdateUserImage([]byte) (*dto.User, *errs.AppError)
 }
 
 type DefaultUserService struct {
@@ -60,6 +61,36 @@ func (service DefaultUserService) UpdateUser(body []byte) (*dto.User, *errs.AppE
 	}
 
 	userDTO = user.ToDto()
+
+	return &userDTO, nil
+}
+
+func (service DefaultUserService) UpdateUserImage(body []byte) (*dto.User, *errs.AppError) {
+	var imageDTO dto.UserImage
+	err := json.Unmarshal(body, &imageDTO)
+	if err != nil {
+		log.Println("FAILED to unmarshal json!", err)
+		return nil, errs.NewUnexpectedError(errs.Common.BadlyFormedObject)
+	}
+
+	image, appErr := stringToBin(imageDTO.Image)
+	if appErr != nil {
+		return nil, appErr
+	}
+
+	fileLocation, appErr := cropImage(imageDTO, image)
+	if appErr != nil {
+		return nil, appErr
+	}
+
+	imageDTO.Image = fileLocation
+
+	user, appErr := service.repo.UpdateUserImage(imageDTO)
+	if appErr != nil {
+		return nil, appErr
+	}
+
+	userDTO := user.ToDto()
 
 	return &userDTO, nil
 }

@@ -1,6 +1,8 @@
 package service
 
 import (
+	"eurovision/pkg/dto"
+	"github.com/google/uuid"
 	"image/png"
 	"os"
 	"path/filepath"
@@ -19,5 +21,25 @@ func TestCropImage(t *testing.T) {
 		panic(err)
 	}
 
-	CropImage("12345", originalImage)
+	newId := uuid.New()
+
+	imageDTO := dto.UserImage{
+		UUID:        newId,
+		Image:       "",
+		AuthLvl:     0,
+		TopLeft:     40,
+		TopRight:    600,
+		BottomLeft:  40,
+		BottomRight: 600,
+	}
+
+	path, appErr := cropImage(imageDTO, originalImage)
+	if appErr != nil {
+		t.Error("Expected no error, but got", appErr.Message)
+	}
+
+	expectedPath := filepath.Join("..", "..", "assets", "img", newId.String())
+	if path != expectedPath {
+		t.Errorf("Expected %s, but got %s", expectedPath, path)
+	}
 }

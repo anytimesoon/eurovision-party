@@ -38,6 +38,21 @@ func (uh UserHandler) UpdateUser(resp http.ResponseWriter, req *http.Request) {
 	}
 }
 
+func (uh UserHandler) UpdateImage(resp http.ResponseWriter, req *http.Request) {
+	body, err := io.ReadAll(req.Body)
+	if err != nil {
+		log.Println("FAILED to read body of USER IMAGE UPDATE!", err)
+		return
+	}
+
+	user, appErr := uh.Service.UpdateUserImage(body)
+	if appErr != nil {
+		writeResponse(resp, req, appErr.Code, user, appErr.Message)
+	} else {
+		writeResponse(resp, req, http.StatusOK, user, "")
+	}
+}
+
 func (uh UserHandler) FindOneUser(resp http.ResponseWriter, req *http.Request) {
 	params := mux.Vars(req)
 	user, err := uh.Service.SingleUser(params["slug"])

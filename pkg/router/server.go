@@ -57,6 +57,7 @@ func StartServer(db *sqlx.DB, appConf conf.App) {
 	userRouter := apiRouter.PathPrefix("/user").Subrouter()
 	userRouter.HandleFunc("/", userHandler.FindAllUsers).Methods(http.MethodGet)
 	userRouter.HandleFunc("/", userHandler.UpdateUser).Methods(http.MethodPut)
+	userRouter.HandleFunc("/image", userHandler.UpdateImage).Methods(http.MethodPost)
 	userRouter.HandleFunc("/register", authHandler.Register).Methods(http.MethodPost)
 	userRouter.HandleFunc("/registered", userHandler.FindRegisteredUsers).Methods(http.MethodGet)
 	userRouter.HandleFunc("/{slug}", userHandler.FindOneUser).Methods(http.MethodGet)
