@@ -105,6 +105,7 @@ func (das DefaultAuthService) Authorize(token string) (*dto.AuthAndToken, *errs.
 	authAndToken := dto.AuthAndToken{
 		Token:   e,
 		AuthLvl: auth.AuthLvl,
+		UUID:    auth.UserId,
 	}
 	return &authAndToken, nil
 }

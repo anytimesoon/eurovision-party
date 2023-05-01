@@ -2,6 +2,8 @@ package router
 
 import (
 	"eurovision/pkg/dto"
+	"eurovision/pkg/enum"
+	"eurovision/pkg/errs"
 	"eurovision/pkg/service"
 	"io"
 	"log"
@@ -24,13 +26,58 @@ func (uh UserHandler) FindAllUsers(resp http.ResponseWriter, req *http.Request) 
 }
 
 func (uh UserHandler) UpdateUser(resp http.ResponseWriter, req *http.Request) {
+	var user *dto.User
+	var appErr *errs.AppError
+
 	body, err := io.ReadAll(req.Body)
 	if err != nil {
 		log.Println("FAILED to read body of USER UPDATE!", err)
 		return
 	}
 
-	user, appErr := uh.Service.UpdateUser(body)
+	user, err = dto.Decode[dto.User](body)
+	if err != nil {
+		return
+	}
+
+	if req.Context().Value("authAndToken").(dto.AuthAndToken).AuthLvl == enum.Admin ||
+		req.Context().Value("authAndToken").(dto.AuthAndToken).UUID == user.UUID {
+
+		user, appErr = uh.Service.UpdateUser(*user)
+	} else {
+		appErr = errs.NewUnauthorizedError(errs.Common.Unauthorized)
+	}
+
+	if appErr != nil {
+		writeResponse(resp, req, appErr.Code, user, appErr.Message)
+	} else {
+		writeResponse(resp, req, http.StatusOK, user, "")
+	}
+}
+
+func (uh UserHandler) UpdateImage(resp http.ResponseWriter, req *http.Request) {
+	var userImage *dto.UserImage
+	var user *dto.User
+	var appErr *errs.AppError
+
+	body, err := io.ReadAll(req.Body)
+	if err != nil {
+		log.Println("FAILED to read body of USER IMAGE UPDATE!", err)
+		return
+	}
+
+	userImage, err = dto.Decode[dto.UserImage](body)
+	if err != nil {
+		return
+	}
+
+	if req.Context().Value("authAndToken").(dto.AuthAndToken).AuthLvl == enum.Admin ||
+		req.Context().Value("authAndToken").(dto.AuthAndToken).UUID == userImage.UUID {
+		user, appErr = uh.Service.UpdateUserImage(*userImage)
+	} else {
+		appErr = errs.NewUnauthorizedError(errs.Common.Unauthorized)
+	}
+
 	if appErr != nil {
 		writeResponse(resp, req, appErr.Code, user, appErr.Message)
 	} else {
@@ -49,8 +96,13 @@ func (uh UserHandler) FindOneUser(resp http.ResponseWriter, req *http.Request) {
 }
 
 func (uh UserHandler) RemoveUser(resp http.ResponseWriter, req *http.Request) {
-	params := mux.Vars(req)
-	err := uh.Service.DeleteUser(params["slug"])
+	var err *errs.AppError
+	if req.Context().Value("authAndToken").(dto.AuthAndToken).AuthLvl == enum.Admin {
+		params := mux.Vars(req)
+		err = uh.Service.DeleteUser(params["slug"])
+	} else {
+		err = errs.NewUnauthorizedError(errs.Common.Unauthorized)
+	}
 	if err != nil {
 		writeResponse(resp, req, err.Code, &dto.User{}, err.Message)
 	} else {

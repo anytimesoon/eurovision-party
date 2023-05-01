@@ -51,6 +51,27 @@ func (db UserRepositoryDb) UpdateUser(userDTO dto.User) (*User, *errs.AppError) 
 	return &user, nil
 }
 
+func (db UserRepositoryDb) UpdateUserImage(imageDTO dto.UserImage) (*User, *errs.AppError) {
+	var user User
+
+	query := fmt.Sprintf(`UPDATE user SET icon = '%s' WHERE uuid = '%s'`, imageDTO.Image, imageDTO.UUID.String())
+
+	_, err := db.client.NamedExec(query, user)
+	if err != nil {
+		log.Println("Error while updating user table", err)
+		return nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "image")
+	}
+
+	query = fmt.Sprintf(`SELECT * FROM user WHERE uuid = '%s'`, imageDTO.UUID.String())
+	err = db.client.Get(&user, query)
+	if err != nil {
+		log.Printf("Error while fetching image after update %s", err)
+		return nil, errs.NewNotFoundError(errs.Common.NotFound + "user")
+	}
+
+	return &user, nil
+}
+
 func (db UserRepositoryDb) FindOneUser(slug string) (*User, *errs.AppError) {
 	var user User
 

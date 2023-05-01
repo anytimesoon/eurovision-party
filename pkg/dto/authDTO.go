@@ -32,6 +32,7 @@ type EAuth struct {
 type AuthAndToken struct {
 	Token   string
 	AuthLvl enum.AuthLvl
+	UUID    uuid.UUID
 }
 
 func (nu *NewUser) Slugify() {
