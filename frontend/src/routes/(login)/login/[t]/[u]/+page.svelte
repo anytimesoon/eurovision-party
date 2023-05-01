@@ -10,12 +10,35 @@
     }
 </style>
 
-<script type="ts">
+<script>
+
+    import {onMount} from "svelte";
+    import {LoginModel} from "$lib/models/classes/login.model";
+    import {loginAndGetUsers} from "$lib/helpers/login.helper";
+    import {goto} from "$app/navigation";
+    import {currentUserStore, userStore} from "$lib/stores/user.store";
+    import {authLvl} from "$lib/models/enums/authLvl.enum";
 
     export let data;
 
+
+    onMount(() => {
+        const payload = new LoginModel(data.token, data.userId)
+
+        loginAndGetUsers(payload).then( _ => {
+            if ($currentUserStore.authLvl === authLvl.ADMIN) {
+                goto("/admin/countries")
+            } else if ($currentUserStore.authLvl === authLvl.USER) {
+                goto("/")
+            } else {
+                alert("Something went very wrong")
+            }
+        })
+    })
 </script>
 
 {data.token}
+{data.userId}
+{$currentUserStore}
 
 <div class="spinner"></div>

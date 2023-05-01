@@ -1,5 +1,5 @@
 const apiBase = "http://localhost:8080/"
-const feBase = "http://localhost:3000/"
+const feBase = "http://localhost:5173/"
 const restricted = "restricted/api/"
 const countryURL = apiBase + restricted + "country/"
 const userURL = apiBase + restricted + "user/"
@@ -35,8 +35,7 @@ export const voteEP = {
 
 export const authEP = {
     LOGIN: apiBase + "login",
-    REGISTER: userURL + "register",
-    FE_LOGIN: feBase + "login/"
+    REGISTER: userURL + "register"
 }
 
 // Frontend enpoints

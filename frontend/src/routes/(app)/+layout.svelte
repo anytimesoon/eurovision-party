@@ -1,10 +1,8 @@
 <script lang="ts">
-  import "../../../frontend/src/app.css";
-  import {currentUser} from "$lib/helpers/user.helper.ts";
-  import {authLvl} from "$lib/models/enums/authLvl.enum.ts";
-  import {partCountryStore} from "$lib/stores/partCountry.store.js";
-  export const trailingSlash = 'ignore';
-  const me = currentUser();
+  // import "../../../frontend/src/app.css";
+  import {authLvl} from "$lib/models/enums/authLvl.enum";
+  import {partCountryStore} from "$lib/stores/partCountry.store";
+  import {currentUserStore} from "$lib/stores/user.store";
 </script>
 
 <svelte:head>
@@ -14,14 +12,13 @@
   
 <main>
   <nav>
-    <a href="/frontend/static">Home</a>
+    <a href="/">Home</a>
 
     {#each $partCountryStore as country }
         <a href={"/country/" + country.slug}>{country.name}</a>
-<!--      <p>hello</p>-->
     {/each}
 
-    {#if me != null && me.authLvl === authLvl.ADMIN}
+    {#if $currentUserStore != null && $currentUserStore.authLvl === authLvl.ADMIN}
       <a href="/admin/countries">Countries</a>
       <a href="/admin/friends">Friends</a>
     {/if}

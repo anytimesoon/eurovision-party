@@ -1,5 +1,5 @@
 import {writable} from "svelte/store";
-import type {UserModel} from "$lib/models/classes/user.model";
+import {UserModel} from "$lib/models/classes/user.model";
 import {browser} from "$app/environment";
 import type {NewUserModel} from "$lib/models/classes/user.model";
 
@@ -11,5 +11,6 @@ userStore.subscribe((val) => {
     browser && localStorage.setItem("userStore", JSON.stringify(val))
 });
 
-
 export const registeredUserStore = writable<NewUserModel[]>([])
+
+export const currentUserStore = writable<UserModel>(new UserModel())

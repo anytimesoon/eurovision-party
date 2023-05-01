@@ -3,5 +3,6 @@
 </script>
 
 <div>
-    <Chat />
+<!--    <Chat />-->
+    Chat goes here
 </div>

@@ -10,7 +10,7 @@
           enable source maps by default.
          */
 		"sourceMap": true,
-		"strict": true,
+		"strict": false,
 		"esModuleInterop": true,
 		"skipLibCheck": true,
 		"forceConsistentCasingInFileNames": true,
