@@ -1,9 +1,4 @@
 import {writable} from "svelte/store";
-import {chatEP} from "$lib/models/enums/endpoints.enum";
-import {commentStore} from "$lib/stores/comment.store";
-import type {TokenModel} from "$lib/models/classes/token.model";
-import {tokenStore} from "$lib/stores/token.store";
-import type {IComment} from "$lib/models/interfaces/icomment.interface";
 
 export const socketStore = writable<string>("")
 // let auth:TokenModel

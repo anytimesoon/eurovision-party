@@ -16,7 +16,7 @@
     import {LoginModel} from "$lib/models/classes/login.model";
     import {loginAndGetUsers} from "$lib/helpers/login.helper";
     import {goto} from "$app/navigation";
-    import {currentUserStore, userStore} from "$lib/stores/user.store";
+    import {currentUserStore} from "$lib/stores/user.store";
     import {authLvl} from "$lib/models/enums/authLvl.enum";
 
     export let data;
