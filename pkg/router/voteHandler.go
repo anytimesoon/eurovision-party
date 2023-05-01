@@ -2,6 +2,7 @@ package router
 
 import (
 	"eurovision/pkg/service"
+	"github.com/gorilla/mux"
 	"io"
 	"log"
 	"net/http"
@@ -39,4 +40,9 @@ func (vh VoteHandler) UpdateVote(resp http.ResponseWriter, req *http.Request) {
 	} else {
 		writeResponse(resp, req, http.StatusOK, vote, "")
 	}
+}
+
+func (vh VoteHandler) GetVoteByUserAndCountry(resp http.ResponseWriter, req *http.Request) {
+	params := mux.Vars(req)
+
 }

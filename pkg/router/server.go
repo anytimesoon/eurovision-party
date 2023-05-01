@@ -69,7 +69,7 @@ func StartServer(db *sqlx.DB, appConf conf.App) {
 	voteRouter.HandleFunc("/", voteHandler.CreateVote).Methods(http.MethodPost)
 	voteRouter.HandleFunc("/", voteHandler.UpdateVote).Methods(http.MethodPut)
 	// voteRouter.HandleFunc("/user/{userId}", voteHandler.VoteByUser).Methods(http.MethodGet)
-	// voteRouter.HandleFunc("/country/{countryId}", voteHandler.VoteByUser).Methods(http.MethodGet)
+	voteRouter.HandleFunc("/country/{slug}", voteHandler.GetVoteByUserAndCountry).Methods(http.MethodGet)
 
 	// Chatroom
 	commentRepositoryDb := domain.NewCommentRepositoryDb(db)

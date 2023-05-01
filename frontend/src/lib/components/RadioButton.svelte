@@ -7,30 +7,25 @@
     export let legend;
     export let userSelected = options[0].value;
     export let fontSize = 16;
-    export let flexDirection = 'column'
+    export let flexDirection = 'row'
 
     const uniqueID = Math.floor(Math.random() * 100)
-
-    const slugify = (str = "") =>
-        str.toLowerCase().replace(/ /g, "-").replace(/\./g, "");
 </script>
 
-<div role="radiogroup"
-     class="group-container"
-     aria-labelledby={`label-${uniqueID}`}
+<h4 id={`label-${uniqueID}`}>{legend}</h4>
+<div class="group-container"
      style="font-size:{fontSize}px; flex-direction:{flexDirection}"
      id={`group-${uniqueID}`}>
-    <div class="legend"
-         id={`label-${uniqueID}`}>{legend}
-    </div>
+
+
     {#each options as { value, label }}
         <input
                 class="sr-only"
                 type="radio"
-                id={slugify(label)}
+                id={label}
                 bind:group={userSelected}
                 value={value} />
-        <label for={slugify(label)}> {label} </label>
+        <label for={label}> {label} </label>
     {/each}
 </div>
 
@@ -46,9 +41,6 @@
         flex-direction: row;
     }
 
-    .legend {
-        font-weight: bold;
-    }
     label {
         user-select: none;
         line-height: 1.2em;
