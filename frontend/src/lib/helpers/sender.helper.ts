@@ -45,7 +45,7 @@ export async function sendCreateOrUpdate<T, U>(endpoint: string, payload: T, met
         headers: {
             "Authorization": t.token
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload, replace)
     }).
     then(
         res => res.json() as Promise<ResponseModel<U>>
@@ -63,4 +63,8 @@ export async function sendCreateOrUpdate<T, U>(endpoint: string, payload: T, met
     });
 
     return resp;
+}
+
+function replace(key, value){
+    return key === "score" ? +value : value;
 }

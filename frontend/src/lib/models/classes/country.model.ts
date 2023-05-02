@@ -3,7 +3,6 @@ import type { IDeserializable } from '../interfaces/ideserializable.interface';
 
 export class CountryModel implements IDeserializable<ICountry>, ICountry {
 
-    public id!:            string;
 	public name!:          string;
     public slug!:          string;
 	public bandName!:      string;

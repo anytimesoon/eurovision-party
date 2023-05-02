@@ -47,7 +47,7 @@ func (db CountryRepositoryDb) FindOneCountry(slug string) (*Country, *errs.AppEr
 func (db CountryRepositoryDb) UpdateCountry(countryDTO dto.Country) (*Country, *errs.AppError) {
 	var country Country
 
-	query := fmt.Sprintf(`UPDATE country SET bandName = '%s', songName = '%s', participating = %t WHERE uuid = '%s'`, countryDTO.BandName, countryDTO.SongName, countryDTO.Participating, countryDTO.ID.String())
+	query := fmt.Sprintf(`UPDATE country SET bandName = '%s', songName = '%s', participating = %t WHERE slug = '%s'`, countryDTO.BandName, countryDTO.SongName, countryDTO.Participating, countryDTO.Slug)
 
 	_, err := db.client.NamedExec(query, country)
 	if err != nil {

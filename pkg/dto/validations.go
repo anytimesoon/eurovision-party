@@ -1,6 +1,7 @@
 package dto
 
 import (
+	"eurovision/pkg/enum"
 	"eurovision/pkg/errs"
 	"fmt"
 	"strings"
@@ -23,6 +24,15 @@ func isWithinRange(vote uint8, attrName string) string {
 		return fmt.Sprintf("Your must vote for %s is too low. The minimum is 1", attrName)
 	} else {
 		return ""
+	}
+}
+
+func isValidCat(cat string) string {
+	switch cat {
+	case enum.Song, enum.Costume, enum.Performance, enum.Props:
+		return ""
+	default:
+		return cat + " is not a valid category"
 	}
 }
 

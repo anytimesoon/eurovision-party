@@ -31,7 +31,7 @@ export const userEP = {
 export const voteEP = {
     CREATE: voteURL,
     UPDATE: voteURL,
-    BY_COUNTRY: voteURL
+    BY_COUNTRY: voteURL + "country/"
 }
 
 export const authEP = {

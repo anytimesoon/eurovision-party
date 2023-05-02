@@ -14,36 +14,37 @@ type VoteHandler struct {
 	Service service.VoteService
 }
 
-func (vh VoteHandler) CreateVote(resp http.ResponseWriter, req *http.Request) {
-	var appErr *errs.AppError
-	var vote *dto.Vote
-
-	body, err := io.ReadAll(req.Body)
-	if err != nil {
-		log.Println("FAILED to read body of VOTE CREATE!", err)
-		return
-	}
-
-	vote, err = dto.Decode[dto.Vote](body)
-	if err != nil {
-		return
-	}
-
-	if req.Context().Value("authAndToken").(dto.AuthAndToken).UUID == vote.UserId {
-		vote, appErr = vh.Service.CreateVote(*vote)
-	} else {
-		appErr = errs.NewUnauthorizedError(errs.Common.Unauthorized)
-	}
-
-	if appErr != nil {
-		writeResponse(resp, req, appErr.Code, vote, appErr.Message)
-	} else {
-		writeResponse(resp, req, http.StatusOK, vote, "")
-	}
-}
+//func (vh VoteHandler) CreateVote(resp http.ResponseWriter, req *http.Request) {
+//	var appErr *errs.AppError
+//	var vote *dto.Vote
+//
+//	body, err := io.ReadAll(req.Body)
+//	if err != nil {
+//		log.Println("FAILED to read body of VOTE CREATE!", err)
+//		return
+//	}
+//
+//	vote, err = dto.Decode[dto.Vote](body)
+//	if err != nil {
+//		return
+//	}
+//
+//	if req.Context().Value("authAndToken").(dto.AuthAndToken).UUID == vote.UserId {
+//		vote, appErr = vh.Service.CreateVote(*vote)
+//	} else {
+//		appErr = errs.NewUnauthorizedError(errs.Common.Unauthorized)
+//	}
+//
+//	if appErr != nil {
+//		writeResponse(resp, req, appErr.Code, vote, appErr.Message)
+//	} else {
+//		writeResponse(resp, req, http.StatusOK, vote, "")
+//	}
+//}
 
 func (vh VoteHandler) UpdateVote(resp http.ResponseWriter, req *http.Request) {
 	var appErr *errs.AppError
+	var voteSingle *dto.VoteSingle
 	var vote *dto.Vote
 
 	body, err := io.ReadAll(req.Body)
@@ -52,13 +53,13 @@ func (vh VoteHandler) UpdateVote(resp http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	vote, err = dto.Decode[dto.Vote](body)
+	voteSingle, err = dto.Decode[dto.VoteSingle](body)
 	if err != nil {
 		return
 	}
 
-	if req.Context().Value("authAndToken").(dto.AuthAndToken).UUID == vote.UserId {
-		vote, appErr = vh.Service.UpdateVote(*vote)
+	if req.Context().Value("authAndToken").(dto.AuthAndToken).UUID == voteSingle.UserId {
+		vote, appErr = vh.Service.UpdateVote(*voteSingle)
 	} else {
 		appErr = errs.NewUnauthorizedError(errs.Common.Unauthorized)
 	}
@@ -72,5 +73,13 @@ func (vh VoteHandler) UpdateVote(resp http.ResponseWriter, req *http.Request) {
 
 func (vh VoteHandler) GetVoteByUserAndCountry(resp http.ResponseWriter, req *http.Request) {
 	params := mux.Vars(req)
+	userId := req.Context().Value("authAndToken").(dto.AuthAndToken).UUID
 
+	vote, err := vh.Service.GetVoteByUserAndCountry(userId, params["slug"])
+
+	if err != nil {
+		writeResponse(resp, req, err.Code, vote, err.Message)
+	} else {
+		writeResponse(resp, req, http.StatusOK, vote, "")
+	}
 }

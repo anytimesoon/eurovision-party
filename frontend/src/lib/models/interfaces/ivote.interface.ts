@@ -1,7 +1,7 @@
 export interface IVote {
     id:           string;
 	userId:       string;
-	countryId:    string;
+	countrySlug:    string;
 	costume:      number;
 	song:         number;
 	performance:  number;

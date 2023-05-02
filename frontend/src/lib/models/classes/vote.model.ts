@@ -5,7 +5,7 @@ export class VoteModel implements IDeserializable<IVote>, IVote {
 
     public id!:           string;
 	public userId!:       string;
-	public countryId!:    string;
+	public countrySlug!:  string;
 	public costume!:      number;
 	public song!:         number;
 	public performance!:  number;
