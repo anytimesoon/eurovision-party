@@ -21,8 +21,8 @@ func Start(config conf.DB) sqlx.DB {
 	CreateVotesTable(sqlDb)
 
 	log.Println("Seeding tables 🌱")
-	go AddCountries(sqlDb)
-	go AddUsers(sqlDb)
+	AddCountries(sqlDb)
+	AddUsers(sqlDb)
 
 	return *sqlDb
 }

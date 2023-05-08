@@ -15,7 +15,6 @@ func CreateVotesTable(db *sqlx.DB) {
 	log.Printf("Vote table was dropped ⬇")
 
 	query = `CREATE TABLE IF NOT EXISTS vote(
-				uuid CHAR(36) NOT NULL, 
 				userId CHAR(36) NOT NULL, 
 				countrySlug VARCHAR(191) NOT NULL, 
 				costume TINYINT, 

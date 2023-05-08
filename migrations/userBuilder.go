@@ -34,7 +34,7 @@ func CreateUsersTable(db *sqlx.DB) {
 
 func AddUsers(db *sqlx.DB) {
 	userQuery := "INSERT INTO user(uuid, name, email, slug, authLvl) VALUES (?, ?, ?, ?, ?)"
-	authQuery := "INSERT INTO auth(token, userId, texp, authLvl, slug) VALUES (?, ?, NOW() + INTERVAL 5 DAY, ?, ?)"
+	authQuery := "INSERT INTO auth(authToken, userId, authTokenExp, authLvl, slug) VALUES (?, ?, NOW() + INTERVAL 5 DAY, ?, ?)"
 
 	for _, user := range initUsers {
 		id := uuid.New()
@@ -47,11 +47,11 @@ func AddUsers(db *sqlx.DB) {
 		switch user.AuthLvl {
 		case 1:
 			initAuth.GenerateSecureToken(80)
-			_, err = db.Exec(authQuery, initAuth.Token, id, user.AuthLvl, user.Slug)
+			_, err = db.Exec(authQuery, initAuth.AuthToken, id, user.AuthLvl, user.Slug)
 			if err != nil {
 				log.Fatalf("Authentication for user %s was not created. %s", user.Name, err)
 			}
-			log.Printf("http://localhost:5173/login/%s/%s", initAuth.Token, id)
+			log.Printf("http://localhost:5173/login/%s/%s", initAuth.AuthToken, id)
 			log.Printf("User %s created 👨‍💻", user.Name)
 		case 2:
 			log.Printf("User %s created 🤖", user.Name)

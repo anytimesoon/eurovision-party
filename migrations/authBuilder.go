@@ -16,10 +16,10 @@ func CreateAuthTable(db *sqlx.DB) {
 
 	query = `CREATE TABLE IF NOT EXISTS auth(
 				userId CHAR(36) NOT NULL, 
-				token VARCHAR(191) NOT NULL, 
-				texp DATETIME NOT NULL,
-				etoken VARCHAR(191) DEFAULT '',
-				etexp DATETIME DEFAULT NOW(),
+				authToken VARCHAR(191) NOT NULL, 
+				authTokenExp DATETIME NOT NULL,
+				sessionToken VARCHAR(191) DEFAULT '',
+				sessionTokenExp DATETIME DEFAULT NOW(),
 				authLvl TINYINT,
 				slug VARCHAR(191));`
 
