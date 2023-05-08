@@ -69,8 +69,6 @@ func (db CommentRepositoryDb) CreateComment(commentDTO dto.Comment) (*Comment, *
 }
 
 func (db CommentRepositoryDb) DeleteComment(uuid string) *errs.AppError {
-	var comment Comment
-
 	query := "DELETE FROM comment WHERE uuid = ?"
 
 	_, err := db.client.Exec(query, uuid)
