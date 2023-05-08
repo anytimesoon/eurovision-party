@@ -3,23 +3,20 @@ package dto
 import "github.com/google/uuid"
 
 type Responsable interface {
-	Comment | *Country | *User | *Vote | *Auth | *EAuth | *NewUser | []*NewUser |
+	Comment | *Country | *User | *Vote | *NewUser | []*NewUser |
 		[]Comment | *[]Country | []User | []Vote | map[uuid.UUID]User
 }
 
 type Payload[T Responsable] struct {
-	Token EAuth  `json:"token"`
-	Body  T      `json:"body"`
-	Error string `json:"error"`
+	Session SessionAuth `json:"session"`
+	Body    T           `json:"body"`
+	Error   string      `json:"error"`
 }
 
-func NewPayload[T Responsable](p T, token string, error string) Payload[T] {
-	e := EAuth{
-		EToken: token,
-	}
+func NewPayload[T Responsable](payload T, auth Auth, error string) Payload[T] {
 	return Payload[T]{
-		Token: e,
-		Body:  p,
-		Error: error,
+		Session: auth.ToSession(),
+		Body:    payload,
+		Error:   error,
 	}
 }

@@ -21,20 +21,31 @@ func NewVoteRepositoryDb(db *sqlx.DB) VoteRepositoryDb {
 func (db VoteRepositoryDb) CreateVote(voteDTO dto.Vote) (*Vote, *errs.AppError) {
 	var vote Vote
 
-	query := fmt.Sprintf(`INSERT INTO vote(uuid, userId, countrySlug, costume, song, performance, props) VALUES ('%s', '%s', '%s', %d, %d, %d, %d)`, voteDTO.UUID.String(), voteDTO.UserId, voteDTO.CountrySlug, voteDTO.Costume, voteDTO.Song, voteDTO.Performance, voteDTO.Props)
+	createVoteQuery := "INSERT INTO vote(userId, countrySlug, costume, song, performance, props) VALUES (?, ?, ?, ?, ?, ?)"
+	getVoteQuery := "SELECT * FROM vote WHERE userId = ?"
 
-	_, err := db.client.NamedExec(query, vote)
+	tx, err := db.client.Beginx()
 	if err != nil {
-		log.Println("Error when creating new vote:", err)
+		log.Printf("Error when starting new vote transaction. %s", err)
 		return nil, errs.NewUnexpectedError(errs.Common.NotCreated + "your vote")
 	}
 
-	query = fmt.Sprintf(`SELECT * FROM vote WHERE uuid = '%s'`, voteDTO.UUID.String())
-
-	err = db.client.Get(&vote, query)
+	_, err = tx.Exec(createVoteQuery, voteDTO.UserId.String(), voteDTO.CountrySlug, voteDTO.Costume, voteDTO.Song, voteDTO.Performance, voteDTO.Props)
 	if err != nil {
-		log.Println("Error when fetching vote after create:", err)
-		return nil, errs.NewNotFoundError(errs.Common.NotFound + "your vote")
+		log.Printf("Error when creating new vote for user %s. %s", voteDTO.UserId.String(), err)
+		return nil, errs.NewUnexpectedError(errs.Common.NotCreated + "your vote")
+	}
+
+	err = tx.Get(&vote, getVoteQuery, voteDTO.UserId.String())
+	if err != nil {
+		log.Printf("Error when fetching vote for user %s after create. %s", voteDTO.UserId.String(), err)
+		return nil, errs.NewUnexpectedError(errs.Common.NotCreated + "your vote")
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		log.Printf("Error when committing new vote transaction. %s", err)
+		return nil, errs.NewUnexpectedError(errs.Common.NotCreated + "your vote")
 	}
 
 	return &vote, nil
@@ -43,19 +54,30 @@ func (db VoteRepositoryDb) CreateVote(voteDTO dto.Vote) (*Vote, *errs.AppError) 
 func (db VoteRepositoryDb) UpdateVote(voteDTO dto.VoteSingle) (*Vote, *errs.AppError) {
 	var vote Vote
 
-	query := fmt.Sprintf(`UPDATE vote SET %s = %d WHERE userId = '%s'`, voteDTO.Cat, voteDTO.Score, voteDTO.UserId.String())
+	updateVoteQuery := fmt.Sprintf("UPDATE vote SET %s = ? WHERE userId = ?", voteDTO.Cat)
+	getVoteQuery := "SELECT * FROM vote WHERE userId = ?"
 
-	_, err := db.client.NamedExec(query, vote)
+	tx, err := db.client.Beginx()
 	if err != nil {
-		log.Println("Error while updating vote table", err)
+		log.Printf("Error while starting transaction to update vote for user %s. %s", voteDTO.UserId, err)
+		return nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "your vote")
+	}
+	_, err = tx.Exec(updateVoteQuery, voteDTO.Score, voteDTO.UserId.String())
+	if err != nil {
+		log.Printf("Error while updating vote for user %s. %s", voteDTO.UserId, err)
 		return nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "your vote")
 	}
 
-	query = fmt.Sprintf(`SELECT * FROM vote WHERE userId = '%s'`, voteDTO.UserId.String())
-	err = db.client.Get(&vote, query)
+	err = tx.Get(&vote, getVoteQuery, voteDTO.UserId.String())
 	if err != nil {
-		log.Println("Error while fetching vote after update", err)
-		return nil, errs.NewNotFoundError(errs.Common.NotFound + "your vote")
+		log.Printf("Error while fetching vote for user %s after update. %s", voteDTO.UserId.String(), err)
+		return nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "your vote")
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		log.Printf("Error while committing transaction to update vote for user %s. %s", voteDTO.UserId, err)
+		return nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "your vote")
 	}
 
 	return &vote, nil
@@ -64,13 +86,12 @@ func (db VoteRepositoryDb) UpdateVote(voteDTO dto.VoteSingle) (*Vote, *errs.AppE
 func (db VoteRepositoryDb) GetVoteByUserAndCountry(userId uuid.UUID, countrySlug string) (*Vote, *errs.AppError) {
 	var vote Vote
 
-	query := fmt.Sprintf(`SELECT * FROM vote WHERE userId = '%s' AND countrySlug = '%s'`, userId.String(), countrySlug)
-	err := db.client.Get(&vote, query)
+	query := "SELECT * FROM vote WHERE userId = ? AND countrySlug = ?"
+	err := db.client.Get(&vote, query, userId.String(), countrySlug)
 	if err != nil && err.Error() == "sql: no rows in result set" {
-		log.Println("Failed to find vote from country and user. Creating a new vote")
+		log.Println("Found 0 votes from country and user. Creating a new vote")
 
 		return db.CreateVote(dto.Vote{
-			UUID:        uuid.New(),
 			UserId:      userId,
 			CountrySlug: countrySlug,
 			Costume:     0,
@@ -79,7 +100,7 @@ func (db VoteRepositoryDb) GetVoteByUserAndCountry(userId uuid.UUID, countrySlug
 			Props:       0,
 		})
 	} else if err != nil {
-		log.Println("Failed to find vote from country and user.", err)
+		log.Printf("Failed to find vote for country %s and user %s. %s", countrySlug, userId.String(), err)
 	}
 
 	return &vote, nil

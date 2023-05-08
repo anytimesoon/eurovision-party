@@ -17,9 +17,9 @@ import (
 )
 
 type AuthService interface {
-	Login([]byte) (*dto.EAuth, *errs.AppError)
+	Login([]byte) (*dto.Auth, *dto.User, *errs.AppError)
 	Register([]byte) (*dto.NewUser, *errs.AppError)
-	Authorize(string) (*dto.AuthAndToken, *errs.AppError)
+	Authorize(string) (*dto.Auth, *errs.AppError)
 	AuthorizeChat(token string) (*dto.User, *errs.AppError)
 }
 
@@ -42,39 +42,38 @@ func NewAuthService(repo domain.AuthRepositoryDB) DefaultAuthService {
 	return DefaultAuthService{repo}
 }
 
-func (das DefaultAuthService) Login(body []byte) (*dto.EAuth, *errs.AppError) {
+func (das DefaultAuthService) Login(body []byte) (*dto.Auth, *dto.User, *errs.AppError) {
 	var req dto.Auth
 	err := json.Unmarshal(body, &req)
 	if err != nil {
 		log.Println("FAILED to unmarshal json!", err)
-		return nil, errs.NewUnexpectedError(errs.Common.BadlyFormedObject)
+		return nil, nil, errs.NewUnexpectedError(errs.Common.BadlyFormedObject)
 	}
 
-	auth, appErr := das.repo.Login(&req)
+	auth, user, appErr := das.repo.Login(&req)
 	if appErr != nil {
-		return nil, appErr
+		return nil, nil, appErr
 	}
 
-	authJson, err := json.Marshal(auth.ToDTO())
-	if err != nil {
-		log.Printf("Failed to marshall auth %+v %s", auth, err)
-		return nil, errs.NewUnexpectedError(errs.Common.Login)
-	}
+	//authJson, err := json.Marshal(auth.ToDTO())
+	//if err != nil {
+	//	log.Printf("Failed to marshall auth %+v %s", auth, err)
+	//	return nil, nil, errs.NewUnexpectedError(errs.Common.Login)
+	//}
+	//
+	//e, err := encrypt(string(authJson))
+	//if err != nil {
+	//	log.Printf("Couldn't encrypt the creds for %+v", auth)
+	//	return nil, nil, errs.NewUnexpectedError(errs.Common.Login)
+	//}
 
-	e, err := encrypt(string(authJson))
-	if err != nil {
-		log.Printf("Couldn't encrypt the creds for %+v", auth)
-		return nil, errs.NewUnexpectedError(errs.Common.Login)
-	}
+	returnableAuth := auth.ToDTO()
+	userDTO := user.ToDto()
 
-	eAuth := &dto.EAuth{
-		EToken: e,
-	}
-
-	return eAuth, nil
+	return &returnableAuth, &userDTO, nil
 }
 
-func (das DefaultAuthService) Authorize(token string) (*dto.AuthAndToken, *errs.AppError) {
+func (das DefaultAuthService) Authorize(token string) (*dto.Auth, *errs.AppError) {
 	authDTO, appErr := decrypt(token)
 	if appErr != nil {
 		return nil, appErr
@@ -90,24 +89,26 @@ func (das DefaultAuthService) Authorize(token string) (*dto.AuthAndToken, *errs.
 		return nil, appErr
 	}
 
-	authJson, err := json.Marshal(auth.ToDTO())
-	if err != nil {
-		log.Printf("Failed to marshal auth %+v", auth)
-		return nil, errs.NewUnexpectedError(errs.Common.Login)
-	}
-
-	e, err := encrypt(string(authJson))
-	if err != nil {
-		log.Printf("Couldn't encrypt the creds for %+v", auth)
-		return nil, errs.NewUnexpectedError(errs.Common.Login)
-	}
-
-	authAndToken := dto.AuthAndToken{
-		Token:   e,
-		AuthLvl: auth.AuthLvl,
-		UUID:    auth.UserId,
-	}
-	return &authAndToken, nil
+	returnableAuth := auth.ToDTO()
+	//authJson, err := json.Marshal(auth.ToDTO())
+	//if err != nil {
+	//	log.Printf("Failed to marshal auth %+v", auth)
+	//	return nil, errs.NewUnexpectedError(errs.Common.Login)
+	//}
+	//
+	//e, err := encrypt(string(authJson))
+	//if err != nil {
+	//	log.Printf("Couldn't encrypt the creds for %+v", auth)
+	//	return nil, errs.NewUnexpectedError(errs.Common.Login)
+	//}
+	//
+	//authAndToken := dto.Auth{
+	//	Token:   e,
+	//	AuthLvl: auth.AuthLvl,
+	//	UserId:    auth.UserId,
+	//	Expiration: auth.SessionTokenExp
+	//}
+	return &returnableAuth, nil
 }
 
 func (das DefaultAuthService) AuthorizeChat(token string) (*dto.User, *errs.AppError) {

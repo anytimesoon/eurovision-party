@@ -8,7 +8,6 @@ import (
 )
 
 type Vote struct {
-	UUID        uuid.UUID `db:"uuid"`
 	UserId      uuid.UUID `db:"userId"`
 	CountrySlug string    `db:"countrySlug"`
 	Costume     uint8     `db:"costume"`
@@ -26,7 +25,6 @@ type VoteRepository interface {
 
 func (vote Vote) ToDto() dto.Vote {
 	return dto.Vote{
-		UUID:        vote.UUID,
 		UserId:      vote.UserId,
 		CountrySlug: vote.CountrySlug,
 		Costume:     vote.Costume,

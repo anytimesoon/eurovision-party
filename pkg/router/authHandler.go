@@ -18,7 +18,7 @@ type AuthHandler struct {
 func (ah AuthHandler) Register(resp http.ResponseWriter, req *http.Request) {
 	var appErr *errs.AppError
 	var auth *dto.NewUser
-	if req.Context().Value("authAndToken").(dto.AuthAndToken).AuthLvl == enum.Admin {
+	if req.Context().Value("auth").(dto.Auth).AuthLvl == enum.Admin {
 		body, err := io.ReadAll(req.Body)
 		if err != nil {
 			panic(err)
@@ -42,14 +42,13 @@ func (ah AuthHandler) Login(resp http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	auth, appErr := ah.Service.Login(body)
-	var authAndToken dto.AuthAndToken
+	auth, user, appErr := ah.Service.Login(body)
 	if appErr != nil {
-		ctx := context.WithValue(req.Context(), "authAndToken", authAndToken)
-		writeResponse(resp, req.WithContext(ctx), appErr.Code, auth, appErr.Message)
+
+		ctx := context.WithValue(req.Context(), "auth", dto.Auth{})
+		writeResponse(resp, req.WithContext(ctx), appErr.Code, user, appErr.Message)
 	} else {
-		authAndToken.Token = auth.EToken
-		ctx := context.WithValue(req.Context(), "authAndToken", authAndToken)
-		writeResponse(resp, req.WithContext(ctx), http.StatusOK, auth, "")
+		ctx := context.WithValue(req.Context(), "auth", *auth)
+		writeResponse(resp, req.WithContext(ctx), http.StatusOK, user, "")
 	}
 }

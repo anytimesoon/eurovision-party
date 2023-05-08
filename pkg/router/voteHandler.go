@@ -29,7 +29,7 @@ type VoteHandler struct {
 //		return
 //	}
 //
-//	if req.Context().Value("authAndToken").(dto.AuthAndToken).UUID == vote.UserId {
+//	if req.Context().Value("auth").(dto.Auth).UUID == vote.UserId {
 //		vote, appErr = vh.Service.CreateVote(*vote)
 //	} else {
 //		appErr = errs.NewUnauthorizedError(errs.Common.Unauthorized)
@@ -58,7 +58,7 @@ func (vh VoteHandler) UpdateVote(resp http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if req.Context().Value("authAndToken").(dto.AuthAndToken).UUID == voteSingle.UserId {
+	if req.Context().Value("auth").(dto.Auth).UserId == voteSingle.UserId {
 		vote, appErr = vh.Service.UpdateVote(*voteSingle)
 	} else {
 		appErr = errs.NewUnauthorizedError(errs.Common.Unauthorized)
@@ -73,7 +73,7 @@ func (vh VoteHandler) UpdateVote(resp http.ResponseWriter, req *http.Request) {
 
 func (vh VoteHandler) GetVoteByUserAndCountry(resp http.ResponseWriter, req *http.Request) {
 	params := mux.Vars(req)
-	userId := req.Context().Value("authAndToken").(dto.AuthAndToken).UUID
+	userId := req.Context().Value("auth").(dto.Auth).UserId
 
 	vote, err := vh.Service.GetVoteByUserAndCountry(userId, params["slug"])
 

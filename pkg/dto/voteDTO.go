@@ -5,7 +5,6 @@ import (
 )
 
 type Vote struct {
-	UUID        uuid.UUID `json:"id"`
 	UserId      uuid.UUID `json:"userId"`
 	CountrySlug string    `json:"countrySlug"`
 	Costume     uint8     `json:"costume"`

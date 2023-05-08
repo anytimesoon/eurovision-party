@@ -40,8 +40,8 @@ func (uh UserHandler) UpdateUser(resp http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if req.Context().Value("authAndToken").(dto.AuthAndToken).AuthLvl == enum.Admin ||
-		req.Context().Value("authAndToken").(dto.AuthAndToken).UUID == user.UUID {
+	if req.Context().Value("auth").(dto.Auth).AuthLvl == enum.Admin ||
+		req.Context().Value("auth").(dto.Auth).UserId == user.UUID {
 
 		user, appErr = uh.Service.UpdateUser(*user)
 	} else {
@@ -71,8 +71,8 @@ func (uh UserHandler) UpdateImage(resp http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if req.Context().Value("authAndToken").(dto.AuthAndToken).AuthLvl == enum.Admin ||
-		req.Context().Value("authAndToken").(dto.AuthAndToken).UUID == userImage.UUID {
+	if req.Context().Value("auth").(dto.Auth).AuthLvl == enum.Admin ||
+		req.Context().Value("auth").(dto.Auth).UserId == userImage.UUID {
 		user, appErr = uh.Service.UpdateUserImage(*userImage)
 	} else {
 		appErr = errs.NewUnauthorizedError(errs.Common.Unauthorized)
@@ -97,7 +97,7 @@ func (uh UserHandler) FindOneUser(resp http.ResponseWriter, req *http.Request) {
 
 func (uh UserHandler) RemoveUser(resp http.ResponseWriter, req *http.Request) {
 	var err *errs.AppError
-	if req.Context().Value("authAndToken").(dto.AuthAndToken).AuthLvl == enum.Admin {
+	if req.Context().Value("auth").(dto.Auth).AuthLvl == enum.Admin {
 		params := mux.Vars(req)
 		err = uh.Service.DeleteUser(params["slug"])
 	} else {

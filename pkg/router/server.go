@@ -70,7 +70,7 @@ func StartServer(db *sqlx.DB, appConf conf.App) {
 	//voteRouter.HandleFunc("/", voteHandler.CreateVote).Methods(http.MethodPost) // current user only
 	voteRouter.HandleFunc("/", voteHandler.UpdateVote).Methods(http.MethodPut) // current user only
 	// voteRouter.HandleFunc("/user/{userId}", voteHandler.VoteByUser).Methods(http.MethodGet)
-	voteRouter.HandleFunc("/country/{slug}", voteHandler.GetVoteByUserAndCountry).Methods(http.MethodGet) // current user only
+	voteRouter.HandleFunc("/countryanduser/{slug}", voteHandler.GetVoteByUserAndCountry).Methods(http.MethodGet) // current user only
 
 	// Chatroom
 	commentRepositoryDb := domain.NewCommentRepositoryDb(db)

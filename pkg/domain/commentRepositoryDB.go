@@ -3,7 +3,6 @@ package domain
 import (
 	"eurovision/pkg/dto"
 	"eurovision/pkg/errs"
-	"fmt"
 	"log"
 
 	"github.com/google/uuid"
@@ -72,9 +71,9 @@ func (db CommentRepositoryDb) CreateComment(commentDTO dto.Comment) (*Comment, *
 func (db CommentRepositoryDb) DeleteComment(uuid string) *errs.AppError {
 	var comment Comment
 
-	query := fmt.Sprintf(`DELETE FROM comment WHERE uuid = '%s'`, uuid)
+	query := "DELETE FROM comment WHERE uuid = ?"
 
-	_, err := db.client.NamedExec(query, comment)
+	_, err := db.client.Exec(query, uuid)
 	if err != nil {
 		log.Println("Error when deleting comment", err)
 		return errs.NewUnexpectedError(errs.Common.NotDeleted + "your comment")

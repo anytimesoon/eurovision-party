@@ -40,6 +40,7 @@ func (user User) ToDto() dto.User {
 	return dto.User{
 		Name:    user.Name,
 		Slug:    user.Slug,
+		Email:   user.Email,
 		UUID:    user.UUID,
 		Icon:    user.Icon,
 		AuthLvl: user.AuthLvl,

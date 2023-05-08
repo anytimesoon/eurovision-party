@@ -33,14 +33,14 @@ func authenticate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		token := r.Header.Get("Authorization")
 
-		authAndToken, appErr := authService.Authorize(token)
+		auth, appErr := authService.Authorize(token)
 		if appErr != nil {
 			log.Printf("%s method %s was requested by %q and rejected because token was rejected. %s", r.RequestURI, r.Method, r.RemoteAddr, appErr)
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), "authAndToken", *authAndToken)
+		ctx := context.WithValue(r.Context(), "auth", *auth)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

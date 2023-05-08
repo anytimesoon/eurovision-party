@@ -10,11 +10,21 @@ import (
 	"github.com/google/uuid"
 )
 
+// Auth is used internally to verify a user, auth level, and expiration of session.
+// The token refers to a session token, not auth token.
+// It should never be returned to a user
 type Auth struct {
-	Token      string
+	Token      string //session token
 	Expiration time.Time
 	UserId     uuid.UUID
 	AuthLvl    enum.AuthLvl
+}
+
+func (a Auth) ToSession() SessionAuth {
+	return SessionAuth{
+		SessionToken: a.Token,
+		Exp:          a.Expiration,
+	}
 }
 
 type NewUser struct {
@@ -25,15 +35,20 @@ type NewUser struct {
 	Token string    `json:"token"`
 }
 
-type EAuth struct {
-	EToken string `json:"token"`
+// SessionAuth gets returned to users if their session is valid
+type SessionAuth struct {
+	SessionToken string    `json:"token"`
+	Exp          time.Time `json:"exp"`
 }
 
-type AuthAndToken struct {
-	Token   string
-	AuthLvl enum.AuthLvl
-	UUID    uuid.UUID
-}
+// AuthAndToken is used interally to verify the authorization level of a user.
+// It should never be sent to a user. It appears to be the same as Auth.
+// TODO: can probably be salely replaced with Auth
+//type AuthAndToken struct {
+//	Token   string
+//	AuthLvl enum.AuthLvl
+//	UUID    uuid.UUID
+//}
 
 func (nu *NewUser) Slugify() {
 	re, err := regexp.Compile(`[[:^alnum:]]`)

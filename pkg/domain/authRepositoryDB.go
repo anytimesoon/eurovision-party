@@ -8,12 +8,13 @@ import (
 	"github.com/jmoiron/sqlx"
 	"log"
 	"strconv"
+	"time"
 )
 
 type AuthRepository interface {
 	FindOneUserByEmail(string) (*User, *errs.AppError)
 	CreateUser(dto.NewUser) (*NewUser, *errs.AppError)
-	Login(*dto.Auth) (*Auth, *errs.AppError)
+	Login(*dto.Auth) (*Auth, *User, *errs.AppError)
 	Authorize(*dto.Auth) (*Auth, *errs.AppError)
 	AuthorizeChat(*dto.Auth) (*User, *errs.AppError)
 	VerifySlug(*dto.NewUser) error
@@ -27,57 +28,83 @@ func NewAuthRepositoryDB(db *sqlx.DB) AuthRepositoryDB {
 	return AuthRepositoryDB{db}
 }
 
-func (db AuthRepositoryDB) Login(authDTO *dto.Auth) (*Auth, *errs.AppError) {
+func (db AuthRepositoryDB) Login(authDTO *dto.Auth) (*Auth, *User, *errs.AppError) {
 	var auth Auth
+	var user User
 
-	query := fmt.Sprintf(`SELECT * FROM auth WHERE token = '%s' and userId = '%s'`, authDTO.Token, authDTO.UserId)
-	err := db.client.Get(&auth, query)
+	getAuthQuery := "SELECT * FROM auth WHERE authToken = ? and userId = ?"
+	createSessionQuery := "UPDATE auth SET sessionToken = ?, sessionTokenExp = NOW() + INTERVAL 12 HOUR WHERE userId = ?"
+	getUserQuery := "SELECT * FROM user WHERE uuid = ?"
+
+	tx, err := db.client.Beginx()
+	if err != nil {
+		log.Printf("Error when starting transaction login user %s, %s", authDTO.UserId, err)
+		return nil, nil, errs.NewUnexpectedError(errs.Common.Login)
+	}
+
+	err = tx.Get(&auth, getAuthQuery, authDTO.Token, authDTO.UserId)
 	if err != nil {
 		log.Printf("Unable to authenticate user %s and token %s combination. %s", authDTO.UserId, authDTO.Token, err)
-		return nil, errs.NewUnauthorizedError("Couldn't log you in. Please try again.")
+		return nil, nil, errs.NewUnauthorizedError(errs.Common.Login)
 	}
 
-	// Auth found, so we can renew
-	newAuth, appErr := db.updateNewToken(authDTO.UserId)
-	if appErr != nil {
-		return nil, appErr
+	auth.GenerateSecureSessionToken(20)
+	_, err = tx.Exec(createSessionQuery, auth.SessionToken, authDTO.UserId)
+	if err != nil {
+		log.Printf("Unable to generate new session token for user %s. %s", authDTO.UserId, err)
+		return nil, nil, errs.NewUnauthorizedError(errs.Common.Login)
 	}
 
-	return newAuth, nil
+	err = tx.Get(&user, getUserQuery, authDTO.UserId)
+	if err != nil {
+		log.Printf("Unable to find user %s. %s", authDTO.UserId, err)
+		return nil, nil, errs.NewUnauthorizedError(errs.Common.Login)
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		log.Printf("Error when commiting login transaction for user %s. %s", authDTO.UserId, err)
+		return nil, nil, errs.NewUnexpectedError(errs.Common.Login)
+	}
+
+	return &auth, &user, nil
 }
 
 func (db AuthRepositoryDB) Authorize(authDTO *dto.Auth) (*Auth, *errs.AppError) {
 	var auth Auth
+	var appErr *errs.AppError
 
-	query := fmt.Sprintf(`SELECT * FROM auth WHERE etoken = '%s' and userId = '%s'`, authDTO.Token, authDTO.UserId)
-	err := db.client.Get(&auth, query)
+	query := "SELECT * FROM auth WHERE sessionToken = ? and userId = ?"
+	err := db.client.Get(&auth, query, authDTO.Token, authDTO.UserId)
 	if err != nil {
 		log.Printf("Unable to authorize user %s and etoken %s combination. %s", authDTO.UserId, authDTO.Token, err)
 		return nil, errs.NewUnauthorizedError("Couldn't authenticate you. Please try again.")
 	}
 
-	// Auth found, so we can renew
-	newAuth, appErr := db.updateNewToken(authDTO.UserId)
-	if appErr != nil {
-		return nil, appErr
+	if auth.AuthTokenExp.Before(time.Now()) && auth.AuthTokenExp.After(time.Now().Add(time.Duration(-30)*time.Minute)) {
+		//auth, appErr = db.updateSession(authDTO.UserId)
+		log.Println("time to update session")
+		if appErr != nil {
+			return nil, appErr
+		}
 	}
 
-	return newAuth, nil
+	return &auth, nil
 }
 
 func (db AuthRepositoryDB) AuthorizeChat(authDTO *dto.Auth) (*User, *errs.AppError) {
 	var auth Auth
 
-	query := fmt.Sprintf(`SELECT * FROM auth WHERE etoken = '%s' and userId = '%s'`, authDTO.Token, authDTO.UserId)
-	err := db.client.Get(&auth, query)
+	getAuthQuery := "SELECT * FROM auth WHERE sessionToken = ? and userId = ?"
+	err := db.client.Get(&auth, getAuthQuery, authDTO.Token, authDTO.UserId)
 	if err != nil {
 		log.Printf("Unable to authorize user %s and etoken %s combination for chat. %s", authDTO.UserId, authDTO.Token, err)
 		return nil, errs.NewUnauthorizedError("Couldn't authenticate you. Please try again.")
 	}
 
 	var user User
-	query = fmt.Sprintf(`SELECT * FROM user WHERE uuid = '%s'`, authDTO.UserId.String())
-	err = db.client.Get(&user, query)
+	getUserQuery := "SELECT * FROM user WHERE uuid = ?"
+	err = db.client.Get(&user, getUserQuery, authDTO.UserId.String())
 	if err != nil {
 		log.Printf("Unable to find user %s for chat. %s", authDTO.UserId, err)
 		return nil, errs.NewUnexpectedError(errs.Common.DBFail)
@@ -86,32 +113,41 @@ func (db AuthRepositoryDB) AuthorizeChat(authDTO *dto.Auth) (*User, *errs.AppErr
 	return &user, nil
 }
 
-func (db AuthRepositoryDB) updateNewToken(userId uuid.UUID) (*Auth, *errs.AppError) {
-	var auth Auth
-	auth.GenerateSecureEToken(20)
+func (db AuthRepositoryDB) updateSession(userId uuid.UUID, auth *Auth) (*Auth, *errs.AppError) {
+	updateAuthQuery := "UPDATE auth SET sessionToken = ?, sessionTokenExp = Now() + INTERVAL 1 DAY WHERE userId = ?"
+	getAuthQuery := "SELECT * FROM auth WHERE userId = ?"
 
-	query := fmt.Sprintf(`UPDATE auth SET etoken = '%s', etexp = Now() + INTERVAL 1 DAY WHERE userId = '%s'`, auth.EToken, userId)
-	_, err := db.client.Exec(query)
+	tx, err := db.client.Beginx()
 	if err != nil {
-		log.Println("Error while updating auth", err)
-		return nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "your authentication")
+		log.Printf("Error while starting transaction to update auth for user %s. %s", userId, err)
+		return auth, errs.NewUnexpectedError(errs.Common.NotUpdated + "your authentication")
+	}
+	_, err = tx.Exec(updateAuthQuery, auth.SessionToken, userId)
+	if err != nil {
+		log.Printf("Error while updating auth for user %s. %s", userId, err)
+		return auth, errs.NewUnexpectedError(errs.Common.NotUpdated + "your authentication")
 	}
 
-	query = fmt.Sprintf(`SELECT * FROM auth WHERE userId = '%s'`, userId)
-	err = db.client.Get(&auth, query)
+	err = tx.Get(&auth, getAuthQuery, userId)
 	if err != nil {
-		log.Printf("Unable to find user %s. %s", userId, err)
-		return nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "your authentication")
+		log.Printf("Unable to find user %s when authorizing. %s", userId, err)
+		return auth, errs.NewUnexpectedError(errs.Common.NotUpdated + "your authentication")
 	}
 
-	return &auth, nil
+	err = tx.Commit()
+	if err != nil {
+		log.Printf("Error while committing transaction to update auth for user %s. %s", userId, err)
+		return auth, errs.NewUnexpectedError(errs.Common.NotUpdated + "your authentication")
+	}
+
+	return auth, nil
 }
 
 func (db AuthRepositoryDB) FindOneUserByEmail(email string) (*User, *errs.AppError) {
 	var user User
 
-	query := fmt.Sprintf(`SELECT * FROM user WHERE email = '%s'`, email)
-	err := db.client.Get(&user, query)
+	query := "SELECT * FROM user WHERE email = ?"
+	err := db.client.Get(&user, query, email)
 	if err != nil {
 		log.Printf("Coudn't find a user with email address %s", email)
 		return nil, errs.NewUnexpectedError("Coudn't find a user with email address" + email)
@@ -132,8 +168,8 @@ func (db AuthRepositoryDB) CreateUser(userDTO dto.NewUser) (*NewUser, *errs.AppE
 
 	// Prepare queries for transaction
 	newUserQuery := `INSERT INTO user(uuid, name, email, slug, authLvl) VALUES (?, ?, ?, ?, 0)`
-	newAuthQuery := `INSERT INTO auth(token, userId, texp, authLvl, slug) VALUES (?, ?, NOW() + INTERVAL 10 DAY, 0, ?)`
-	findNewUserQuery := `SELECT u.uuid, u.name, u.email, u.slug, a.token FROM user u JOIN auth a ON u.uuid = a.userId WHERE u.uuid = ?`
+	newAuthQuery := `INSERT INTO auth(authToken, userId, authTokenExp, authLvl, slug) VALUES (?, ?, NOW() + INTERVAL 10 DAY, 0, ?)`
+	findNewUserQuery := `SELECT u.uuid, u.name, u.email, u.slug, a.authToken FROM user u JOIN auth a ON u.uuid = a.userId WHERE u.uuid = ?`
 
 	// Begin transaction that will create a new user and auth then return the new user
 	tx, err := db.client.Beginx()
@@ -151,7 +187,7 @@ func (db AuthRepositoryDB) CreateUser(userDTO dto.NewUser) (*NewUser, *errs.AppE
 	}
 
 	auth.GenerateSecureToken(80)
-	_, err = tx.Exec(newAuthQuery, auth.Token, userDTO.UUID.String(), userDTO.Slug)
+	_, err = tx.Exec(newAuthQuery, auth.AuthToken, userDTO.UUID.String(), userDTO.Slug)
 	if err != nil {
 		log.Printf("Error when creating new auth for user %s, %s", userDTO.Name, err)
 		_ = tx.Rollback()

@@ -6,6 +6,7 @@ import (
 	"eurovision/pkg/errs"
 	"eurovision/pkg/service"
 	"io"
+	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -18,7 +19,7 @@ type CountryHandler struct {
 func (ch *CountryHandler) FindAllCountries(resp http.ResponseWriter, req *http.Request) {
 	var err *errs.AppError
 	var countries *[]dto.Country
-	if req.Context().Value("authAndToken").(dto.AuthAndToken).AuthLvl == enum.Admin {
+	if req.Context().Value("auth").(dto.Auth).AuthLvl == enum.Admin {
 		countries, err = ch.Service.GetAllCountries()
 	} else {
 		err = errs.NewUnauthorizedError(errs.Common.Unauthorized)
@@ -55,12 +56,12 @@ func (ch *CountryHandler) Participating(resp http.ResponseWriter, req *http.Requ
 func (ch *CountryHandler) UpdateCountry(resp http.ResponseWriter, req *http.Request) {
 	var appErr *errs.AppError
 	var country *dto.Country
-	if req.Context().Value("authAndToken").(dto.AuthAndToken).AuthLvl == enum.Admin {
+	if req.Context().Value("auth").(dto.Auth).AuthLvl == enum.Admin {
 		body, err := io.ReadAll(req.Body)
 		if err != nil {
 			panic(err)
 		}
-
+		log.Println("Update request body:", body)
 		country, appErr = ch.Service.UpdateCountry(body)
 	} else {
 		appErr = errs.NewUnauthorizedError(errs.Common.Unauthorized)

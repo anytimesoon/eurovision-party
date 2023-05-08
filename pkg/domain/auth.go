@@ -11,21 +11,21 @@ import (
 )
 
 type Auth struct {
-	Token      string       `db:"token"`
-	UserId     uuid.UUID    `db:"userId"`
-	Expiration time.Time    `db:"texp"`
-	EToken     string       `db:"etoken"`
-	ETokExp    time.Time    `db:"etexp"`
-	AuthLvl    enum.AuthLvl `db:"authLvl"`
-	Slug       string       `db:"slug"`
+	AuthToken       string       `db:"authToken"`
+	UserId          uuid.UUID    `db:"userId"`
+	AuthTokenExp    time.Time    `db:"authTokenExp"`
+	SessionToken    string       `db:"sessionToken"`
+	SessionTokenExp time.Time    `db:"sessionTokenExp"`
+	AuthLvl         enum.AuthLvl `db:"authLvl"`
+	Slug            string       `db:"slug"`
 }
 
 func (a *Auth) GenerateSecureToken(len int) {
-	a.Token = generateToken(len)
+	a.AuthToken = generateToken(len)
 }
 
-func (a *Auth) GenerateSecureEToken(len int) {
-	a.EToken = generateToken(len)
+func (a *Auth) GenerateSecureSessionToken(len int) {
+	a.SessionToken = generateToken(len)
 }
 
 func generateToken(len int) string {
@@ -46,8 +46,8 @@ func generateToken(len int) string {
 
 func (a Auth) ToDTO() dto.Auth {
 	return dto.Auth{
-		Token:      a.EToken,
-		Expiration: a.ETokExp,
+		Token:      a.SessionToken,
+		Expiration: a.SessionTokenExp,
 		UserId:     a.UserId,
 		AuthLvl:    a.AuthLvl,
 	}

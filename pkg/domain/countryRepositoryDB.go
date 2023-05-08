@@ -3,7 +3,6 @@ package domain
 import (
 	"eurovision/pkg/dto"
 	"eurovision/pkg/errs"
-	"fmt"
 	"log"
 
 	"github.com/jmoiron/sqlx"
@@ -33,9 +32,9 @@ func (db CountryRepositoryDb) FindAllCountries() (*[]Country, *errs.AppError) {
 func (db CountryRepositoryDb) FindOneCountry(slug string) (*Country, *errs.AppError) {
 	var country Country
 
-	query := fmt.Sprintf(`SELECT * FROM country WHERE slug = '%s'`, slug)
+	query := "SELECT * FROM country WHERE slug = ?"
 
-	err := db.client.Get(&country, query)
+	err := db.client.Get(&country, query, slug)
 	if err != nil {
 		log.Println("Error while selecting one country", err)
 		return nil, errs.NewUnexpectedError(errs.Common.NotFound + "country")
@@ -47,19 +46,31 @@ func (db CountryRepositoryDb) FindOneCountry(slug string) (*Country, *errs.AppEr
 func (db CountryRepositoryDb) UpdateCountry(countryDTO dto.Country) (*Country, *errs.AppError) {
 	var country Country
 
-	query := fmt.Sprintf(`UPDATE country SET bandName = '%s', songName = '%s', participating = %t WHERE slug = '%s'`, countryDTO.BandName, countryDTO.SongName, countryDTO.Participating, countryDTO.Slug)
+	updateCountryQuery := "UPDATE country SET bandName = ?, songName = ?, participating = ? WHERE slug = ?"
+	getCountryQuery := "SELECT * FROM country WHERE slug = ?"
 
-	_, err := db.client.NamedExec(query, country)
+	tx, err := db.client.Beginx()
 	if err != nil {
-		log.Println("Error while updating country table", err)
+		log.Printf("Error while beginning tx for country %s. %s", countryDTO.Name, err)
 		return nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "country")
 	}
 
-	query = "SELECT * FROM country WHERE slug = ?"
-	err = db.client.Get(&country, query, countryDTO.Slug)
+	_, err = tx.Exec(updateCountryQuery, countryDTO.BandName, countryDTO.SongName, countryDTO.Participating, countryDTO.Slug)
 	if err != nil {
-		log.Println("Error while fetching country after update", err)
+		log.Printf("Error while updating country table for %s. %s", countryDTO.Name, err)
+		return nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "country")
+	}
+
+	err = tx.Get(&country, getCountryQuery, countryDTO.Slug)
+	if err != nil {
+		log.Printf("Error while fetching country %s after update. %s", countryDTO.Name, err)
 		return nil, errs.NewUnexpectedError(errs.Common.NotFound + "country")
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		log.Printf("Error while committing tx for country %s. %s", countryDTO.Name, err)
+		return nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "country")
 	}
 
 	return &country, nil

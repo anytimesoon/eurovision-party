@@ -10,6 +10,7 @@ type User struct {
 	UUID    uuid.UUID    `json:"id"`
 	Name    string       `json:"name"`
 	Slug    string       `json:"slug"`
+	Email   string       `json:"email"`
 	Icon    string       `json:"icon"`
 	AuthLvl enum.AuthLvl `json:"authLvl"`
 }
