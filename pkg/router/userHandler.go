@@ -49,9 +49,9 @@ func (uh UserHandler) UpdateUser(resp http.ResponseWriter, req *http.Request) {
 	}
 
 	if appErr != nil {
-		writeResponse(resp, req, appErr.Code, user, appErr.Message)
+		writeResponse(resp, req, appErr.Code, *user, appErr.Message)
 	} else {
-		writeResponse(resp, req, http.StatusOK, user, "")
+		writeResponse(resp, req, http.StatusOK, *user, "")
 	}
 }
 
@@ -79,9 +79,9 @@ func (uh UserHandler) UpdateImage(resp http.ResponseWriter, req *http.Request) {
 	}
 
 	if appErr != nil {
-		writeResponse(resp, req, appErr.Code, user, appErr.Message)
+		writeResponse(resp, req, appErr.Code, *user, appErr.Message)
 	} else {
-		writeResponse(resp, req, http.StatusOK, user, "")
+		writeResponse(resp, req, http.StatusOK, *user, "")
 	}
 }
 
@@ -89,9 +89,9 @@ func (uh UserHandler) FindOneUser(resp http.ResponseWriter, req *http.Request) {
 	params := mux.Vars(req)
 	user, err := uh.Service.SingleUser(params["slug"])
 	if err != nil {
-		writeResponse(resp, req, err.Code, user, err.Message)
+		writeResponse(resp, req, err.Code, *user, err.Message)
 	} else {
-		writeResponse(resp, req, http.StatusOK, user, "")
+		writeResponse(resp, req, http.StatusOK, *user, "")
 	}
 }
 
@@ -104,9 +104,9 @@ func (uh UserHandler) RemoveUser(resp http.ResponseWriter, req *http.Request) {
 		err = errs.NewUnauthorizedError(errs.Common.Unauthorized)
 	}
 	if err != nil {
-		writeResponse(resp, req, err.Code, &dto.User{}, err.Message)
+		writeResponse(resp, req, err.Code, dto.User{}, err.Message)
 	} else {
-		writeResponse(resp, req, http.StatusOK, &dto.User{}, "")
+		writeResponse(resp, req, http.StatusOK, dto.User{}, "")
 	}
 }
 

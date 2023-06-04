@@ -65,9 +65,9 @@ func (vh VoteHandler) UpdateVote(resp http.ResponseWriter, req *http.Request) {
 	}
 
 	if appErr != nil {
-		writeResponse(resp, req, appErr.Code, vote, appErr.Message)
+		writeResponse(resp, req, appErr.Code, *vote, appErr.Message)
 	} else {
-		writeResponse(resp, req, http.StatusOK, vote, "")
+		writeResponse(resp, req, http.StatusOK, *vote, "")
 	}
 }
 
@@ -78,8 +78,8 @@ func (vh VoteHandler) GetVoteByUserAndCountry(resp http.ResponseWriter, req *htt
 	vote, err := vh.Service.GetVoteByUserAndCountry(userId, params["slug"])
 
 	if err != nil {
-		writeResponse(resp, req, err.Code, vote, err.Message)
+		writeResponse(resp, req, err.Code, *vote, err.Message)
 	} else {
-		writeResponse(resp, req, http.StatusOK, vote, "")
+		writeResponse(resp, req, http.StatusOK, *vote, "")
 	}
 }

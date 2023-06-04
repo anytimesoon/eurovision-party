@@ -25,9 +25,9 @@ func (ch *CountryHandler) FindAllCountries(resp http.ResponseWriter, req *http.R
 		err = errs.NewUnauthorizedError(errs.Common.Unauthorized)
 	}
 	if err != nil {
-		writeResponse(resp, req, err.Code, countries, err.Message)
+		writeResponse(resp, req, err.Code, *countries, err.Message)
 	} else {
-		writeResponse(resp, req, http.StatusOK, countries, "")
+		writeResponse(resp, req, http.StatusOK, *countries, "")
 	}
 }
 
@@ -37,9 +37,9 @@ func (ch *CountryHandler) FindOneCountry(resp http.ResponseWriter, req *http.Req
 	country, err := ch.Service.SingleCountry(params["slug"])
 
 	if err != nil {
-		writeResponse(resp, req, err.Code, country, err.Message)
+		writeResponse(resp, req, err.Code, *country, err.Message)
 	} else {
-		writeResponse(resp, req, http.StatusOK, country, "")
+		writeResponse(resp, req, http.StatusOK, *country, "")
 	}
 }
 
@@ -47,9 +47,9 @@ func (ch *CountryHandler) Participating(resp http.ResponseWriter, req *http.Requ
 	countries, err := ch.Service.Participating()
 
 	if err != nil {
-		writeResponse(resp, req, err.Code, countries, err.Message)
+		writeResponse(resp, req, err.Code, *countries, err.Message)
 	} else {
-		writeResponse(resp, req, http.StatusOK, countries, "")
+		writeResponse(resp, req, http.StatusOK, *countries, "")
 	}
 }
 
@@ -61,15 +61,15 @@ func (ch *CountryHandler) UpdateCountry(resp http.ResponseWriter, req *http.Requ
 		if err != nil {
 			panic(err)
 		}
-		log.Println("Update request body:", body)
+		log.Println("Update request body:", string(body))
 		country, appErr = ch.Service.UpdateCountry(body)
 	} else {
 		appErr = errs.NewUnauthorizedError(errs.Common.Unauthorized)
 	}
 
 	if appErr != nil {
-		writeResponse(resp, req, appErr.Code, country, appErr.Message)
+		writeResponse(resp, req, appErr.Code, *country, appErr.Message)
 	} else {
-		writeResponse(resp, req, http.StatusOK, country, "")
+		writeResponse(resp, req, http.StatusOK, *country, "")
 	}
 }
