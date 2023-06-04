@@ -13,8 +13,8 @@
     <input name="countrySlug" type="hidden" value={countrySlug}>
     <input name="cat" type="hidden" value={cat}>
     <input name="userId" type="hidden" value={$currentUser.id}>
-    {#each voteOptions as { value, label }}
-        <input type="radio" bind:group={score} value={value} name="score" on:click={(e) => {
+    {#each voteOptions as { key, label }}
+        <input type="radio" bind:group={score} value={key} name="score" on:click={(e) => {
             e.target.parentElement.requestSubmit()
         }}/>
         <label>{label}</label>

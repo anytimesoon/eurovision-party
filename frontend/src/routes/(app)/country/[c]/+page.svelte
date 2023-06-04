@@ -19,6 +19,7 @@
     $: country = data.country
     $: vote = data.vote
     $: updateVote(form)
+    $: console.log(vote)
 </script>
 
 

@@ -11,7 +11,7 @@ export async function load({fetch, params}) {
     const voteRes = await fetch(voteSvelteEP.BY_COUNTRY_AND_USER + params.c)
 
     const vote:ResponseModel<VoteModel> = await voteRes.json()
-
+    console.log(vote)
     return {
         country: country.body,
         vote: vote.body

@@ -22,7 +22,7 @@ func (db VoteRepositoryDb) CreateVote(voteDTO dto.Vote) (*Vote, *errs.AppError) 
 	var vote Vote
 
 	createVoteQuery := "INSERT INTO vote(userId, countrySlug, costume, song, performance, props) VALUES (?, ?, ?, ?, ?, ?)"
-	getVoteQuery := "SELECT * FROM vote WHERE userId = ?"
+	getVoteQuery := "SELECT * FROM vote WHERE userId = ? AND countrySlug = ?"
 
 	tx, err := db.client.Beginx()
 	if err != nil {
@@ -36,7 +36,7 @@ func (db VoteRepositoryDb) CreateVote(voteDTO dto.Vote) (*Vote, *errs.AppError) 
 		return nil, errs.NewUnexpectedError(errs.Common.NotCreated + "your vote")
 	}
 
-	err = tx.Get(&vote, getVoteQuery, voteDTO.UserId.String())
+	err = tx.Get(&vote, getVoteQuery, voteDTO.UserId.String(), voteDTO.CountrySlug)
 	if err != nil {
 		log.Printf("Error when fetching vote for user %s after create. %s", voteDTO.UserId.String(), err)
 		return nil, errs.NewUnexpectedError(errs.Common.NotCreated + "your vote")

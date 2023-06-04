@@ -32,7 +32,7 @@ func (db AuthRepositoryDB) Login(authDTO *dto.Auth) (*Auth, *User, *errs.AppErro
 	var user User
 
 	getAuthQuery := "SELECT * FROM auth WHERE authToken = ? and userId = ?"
-	createSessionQuery := "UPDATE auth SET sessionToken = ?, sessionTokenExp = NOW() + INTERVAL 12 HOUR WHERE userId = ?"
+	createSessionQuery := "UPDATE auth SET sessionToken = ?, sessionTokenExp = NOW() + INTERVAL 7 DAY WHERE userId = ?"
 	getUserQuery := "SELECT * FROM user WHERE uuid = ?"
 
 	tx, err := db.client.Beginx()
@@ -75,7 +75,7 @@ func (db AuthRepositoryDB) Authorize(authDTO *dto.Auth) (*Auth, *errs.AppError) 
 	query := "SELECT * FROM auth WHERE sessionToken = ? and userId = ?"
 	err := db.client.Get(&auth, query, authDTO.Token, authDTO.UserId)
 	if err != nil {
-		log.Printf("Unable to authorize user %s and etoken %s combination. %s", authDTO.UserId, authDTO.Token, err)
+		log.Printf("Unable to authorize user %s and session token %s combination. %s", authDTO.UserId, authDTO.Token, err)
 		return nil, errs.NewUnauthorizedError("Couldn't authenticate you. Please try again.")
 	}
 

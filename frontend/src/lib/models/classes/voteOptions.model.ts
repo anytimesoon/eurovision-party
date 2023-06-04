@@ -1,31 +1,31 @@
-export const voteOptions:Array<{ label: string; value: number }>  = [{
-    value: 1,
+export const voteOptions:Array<{ label: string; key: number }>  = [{
+    key: 1,
     label: '1'
 },{
-    value: 2,
+    key: 2,
     label: '2'
 },{
-    value: 3,
+    key: 3,
     label: '3'
 },{
-    value: 4,
+    key: 4,
     label: '4'
 },{
-    value: 5,
+    key: 5,
     label: '5'
 },{
-    value: 6,
+    key: 6,
     label: '6'
 },{
-    value: 7,
+    key: 7,
     label: '7'
 },{
-    value: 8,
+    key: 8,
     label: '8'
 },{
-    value: 9,
+    key: 9,
     label: '9'
 },{
-    value: 10,
+    key: 10,
     label: '10'
 }]
