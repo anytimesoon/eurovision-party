@@ -55,19 +55,19 @@ func (das DefaultAuthService) Login(body []byte) (*dto.Auth, *dto.User, *errs.Ap
 		return nil, nil, appErr
 	}
 
-	//authJson, err := json.Marshal(auth.ToDTO())
-	//if err != nil {
-	//	log.Printf("Failed to marshall auth %+v %s", auth, err)
-	//	return nil, nil, errs.NewUnexpectedError(errs.Common.Login)
-	//}
-	//
-	//e, err := encrypt(string(authJson))
-	//if err != nil {
-	//	log.Printf("Couldn't encrypt the creds for %+v", auth)
-	//	return nil, nil, errs.NewUnexpectedError(errs.Common.Login)
-	//}
+	authJson, err := json.Marshal(auth.ToDTO())
+	if err != nil {
+		log.Printf("Failed to marshall auth %+v %s", auth, err)
+		return nil, nil, errs.NewUnexpectedError(errs.Common.Login)
+	}
 
-	returnableAuth := auth.ToDTO()
+	e, err := encrypt(string(authJson))
+	if err != nil {
+		log.Printf("Couldn't encrypt the creds for %+v", auth)
+		return nil, nil, errs.NewUnexpectedError(errs.Common.Login)
+	}
+
+	returnableAuth := auth.ToModifiedDTO(e)
 	userDTO := user.ToDto()
 
 	return &returnableAuth, &userDTO, nil
@@ -84,31 +84,12 @@ func (das DefaultAuthService) Authorize(token string) (*dto.Auth, *errs.AppError
 		return nil, errs.NewUnauthorizedError(errs.Common.Login)
 	}
 
-	auth, appErr := das.repo.Authorize(authDTO)
+	_, appErr = das.repo.Authorize(authDTO)
 	if appErr != nil {
 		return nil, appErr
 	}
 
-	returnableAuth := auth.ToDTO()
-	//authJson, err := json.Marshal(auth.ToDTO())
-	//if err != nil {
-	//	log.Printf("Failed to marshal auth %+v", auth)
-	//	return nil, errs.NewUnexpectedError(errs.Common.Login)
-	//}
-	//
-	//e, err := encrypt(string(authJson))
-	//if err != nil {
-	//	log.Printf("Couldn't encrypt the creds for %+v", auth)
-	//	return nil, errs.NewUnexpectedError(errs.Common.Login)
-	//}
-	//
-	//authAndToken := dto.Auth{
-	//	Token:   e,
-	//	AuthLvl: auth.AuthLvl,
-	//	UserId:    auth.UserId,
-	//	Expiration: auth.SessionTokenExp
-	//}
-	return &returnableAuth, nil
+	return authDTO, nil
 }
 
 func (das DefaultAuthService) AuthorizeChat(token string) (*dto.User, *errs.AppError) {
@@ -224,7 +205,7 @@ func decrypt(base64Token string) (*dto.Auth, *errs.AppError) {
 
 	// Use aesGCM.Open() to decrypt and authenticate the data. If this fails,
 	// return a ErrInvalidValue error.
-	plaintext, err := aesGCM.Open(nil, []byte(nonce), []byte(ciphertext), nil)
+	plaintext, err := aesGCM.Open(nil, nonce, ciphertext, nil)
 	if err != nil {
 		log.Printf("Failed to decrypt token %s", err)
 		return nil, errs.NewUnexpectedError(errs.Common.Login)
