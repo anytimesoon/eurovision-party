@@ -54,21 +54,21 @@ func (db VoteRepositoryDb) CreateVote(voteDTO dto.Vote) (*Vote, *errs.AppError) 
 func (db VoteRepositoryDb) UpdateVote(voteDTO dto.VoteSingle) (*Vote, *errs.AppError) {
 	var vote Vote
 
-	updateVoteQuery := fmt.Sprintf("UPDATE vote SET %s = ? WHERE userId = ?", voteDTO.Cat)
-	getVoteQuery := "SELECT * FROM vote WHERE userId = ?"
+	updateVoteQuery := fmt.Sprintf("UPDATE vote SET %s = ? WHERE userId = ? AND countrySlug = ?", voteDTO.Cat)
+	getVoteQuery := "SELECT * FROM vote WHERE userId = ? AND countrySlug = ?"
 
 	tx, err := db.client.Beginx()
 	if err != nil {
 		log.Printf("Error while starting transaction to update vote for user %s. %s", voteDTO.UserId, err)
 		return nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "your vote")
 	}
-	_, err = tx.Exec(updateVoteQuery, voteDTO.Score, voteDTO.UserId.String())
+	_, err = tx.Exec(updateVoteQuery, voteDTO.Score, voteDTO.UserId.String(), voteDTO.CountrySlug)
 	if err != nil {
 		log.Printf("Error while updating vote for user %s. %s", voteDTO.UserId, err)
 		return nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "your vote")
 	}
 
-	err = tx.Get(&vote, getVoteQuery, voteDTO.UserId.String())
+	err = tx.Get(&vote, getVoteQuery, voteDTO.UserId.String(), voteDTO.CountrySlug)
 	if err != nil {
 		log.Printf("Error while fetching vote for user %s after update. %s", voteDTO.UserId.String(), err)
 		return nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "your vote")
