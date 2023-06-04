@@ -1,4 +1,4 @@
-export const catogories = {
+export const voteCats = {
     SONG: "song",
     PERFORMANCE: "performance",
     COSTUME: "costume",

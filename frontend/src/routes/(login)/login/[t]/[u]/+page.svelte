@@ -1,29 +1,26 @@
-<script>
-
-    import {onMount} from "svelte";
-    import {LoginModel} from "$lib/models/classes/login.model";
-    import {loginAndGetUsers} from "$lib/helpers/login.helper";
-    import {goto} from "$app/navigation";
-    import {currentUserStore} from "$lib/stores/user.store";
-    import {authLvl} from "$lib/models/enums/authLvl.enum";
+<script lang="ts">
     import Spinner from "$lib/components/Spinner.svelte";
+    import {currentUser} from "$lib/stores/user.store";
+    import type { PageData } from './$types';
+    import {browser} from "$app/environment";
+    import {countryStore} from "$lib/stores/country.store";
+    import {authLvl} from "$lib/models/enums/authLvl.enum";
+    import {goto} from "$app/navigation";
 
-    export let data;
+    export let data: PageData;
 
-
-    onMount(() => {
-        const payload = new LoginModel(data.token, data.userId)
-
-        loginAndGetUsers(payload).then( _ => {
-            if ($currentUserStore.authLvl === authLvl.ADMIN) {
+    function setData(data){
+        if (browser && data.currentUser != null) {
+            $currentUser = data.currentUser
+            if ($currentUser.authLvl === authLvl.ADMIN) {
                 goto("/admin/countries")
-            } else if ($currentUserStore.authLvl === authLvl.USER) {
-                goto("/")
             } else {
-                alert("Something went very wrong")
+                goto("/")
             }
-        })
-    })
+        }
+    }
+
+    $: setData(data)
 </script>
 
 <Spinner />

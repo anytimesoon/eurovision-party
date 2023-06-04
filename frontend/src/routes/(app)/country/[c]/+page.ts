@@ -1,15 +1,19 @@
-import {partCountryStore} from "$lib/stores/partCountry.store";
 import type {CountryModel} from "$lib/models/classes/country.model";
+import {countrySvelteEP, voteSvelteEP} from "$lib/models/enums/endpoints.enum";
+import type {VoteModel} from "$lib/models/classes/vote.model";
+import type {ResponseModel} from "$lib/models/classes/response.model";
 
+export async function load({fetch, params}) {
+    const countryRes = await fetch(countrySvelteEP.FIND_ONE + params.c);
 
-/** @type {import('../../../index').PageLoad} */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars,@typescript-eslint/ban-ts-comment
-// @ts-ignore
-export const load = ({params}) => {
-    let countries = new Array<CountryModel>()
-    partCountryStore.subscribe(val => countries = val)
-    const country = countries.find( c => c.slug === params.c)
+    const country:ResponseModel<CountryModel> = await countryRes.json()
+
+    const voteRes = await fetch(voteSvelteEP.BY_COUNTRY_AND_USER + params.c)
+
+    const vote:ResponseModel<VoteModel> = await voteRes.json()
+
     return {
-        c: country
+        country: country.body,
+        vote: vote.body
     }
 }

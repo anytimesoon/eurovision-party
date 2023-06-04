@@ -1,9 +1,4 @@
 <script lang="ts">
-    import {sendCreateOrUpdate} from "$lib/helpers/sender.helper";
-    import {NewUserModel} from "$lib/models/classes/user.model";
-    import {authEP} from "$lib/models/enums/endpoints.enum";
-    import AllRegisteredUsers from "$lib/components/AllRegisteredUsers.svelte";
-    import {registeredUserStore} from "$lib/stores/user.store";
 
     function formHandler(e:Event) {
         const formData = new FormData(e.target as HTMLFormElement)

@@ -1,14 +1,11 @@
 <script lang="ts">
     import { onMount } from "svelte";
-    import {sendGet} from '$lib/helpers/sender.helper';
     import {NewUserModel} from "$lib/models/classes/user.model";
     import {registeredUserStore} from "$lib/stores/user.store";
-    import {userEP} from "$lib/models/enums/endpoints.enum";
+    import {userSvelteEP} from "$lib/models/enums/endpoints.enum";
     import {authEP, userFeEP} from "$lib/models/enums/endpoints.enum.js";
 
-    onMount( () => {
-        sendGet<NewUserModel[]>(userEP.REGISTERED).then( data => $registeredUserStore = data.body);
-    })
+
 </script>
     <table>
         <thead>
