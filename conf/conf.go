@@ -44,7 +44,7 @@ func Setup() App {
 	}
 	var server = Server{
 		Port: "8080",
-		Url:  "localhost",
+		Url:  "127.0.0.1",
 	}
 
 	var auth = Auth{
