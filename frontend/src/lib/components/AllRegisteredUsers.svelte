@@ -1,9 +1,5 @@
 <script lang="ts">
-    import { onMount } from "svelte";
-    import {NewUserModel} from "$lib/models/classes/user.model";
-    import {registeredUserStore} from "$lib/stores/user.store";
-    import {userSvelteEP} from "$lib/models/enums/endpoints.enum";
-    import {authEP, userFeEP} from "$lib/models/enums/endpoints.enum.js";
+    import {authEP} from "$lib/models/enums/endpoints.enum.js";
 
 
 </script>

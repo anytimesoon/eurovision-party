@@ -1,10 +1,8 @@
 <script lang="ts">
     import {countryStore, notParticipatingCountryStore, participatingCountryStore} from "$lib/stores/country.store";
-    import { enhance } from '$app/forms';
     import type {ActionData} from "./$types";
     import CountryForm from "$lib/components/forms/CountryForm.svelte";
     import type {CountryModel} from "$lib/models/classes/country.model";
-    import {countryGoEP} from "$lib/models/enums/endpoints.enum";
 
 
     export let form:ActionData

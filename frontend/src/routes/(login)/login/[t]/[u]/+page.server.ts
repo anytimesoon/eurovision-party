@@ -1,12 +1,11 @@
 import {LoginModel} from "$lib/models/classes/login.model";
-import {authEP, countrySvelteEP} from "$lib/models/enums/endpoints.enum";
+import {authEP} from "$lib/models/enums/endpoints.enum";
 import {ResponseModel} from "$lib/models/classes/response.model";
 import type {PageLoad} from ".$/types";
 import {redirect} from "@sveltejs/kit";
 import type {SessionModel} from "$lib/models/classes/session.model";
-import type {CountryModel} from "$lib/models/classes/country.model";
 
-export const load =  ( async ({ params, fetch, cookies, locals }) => {
+export const load =  ( async ({ params, fetch, cookies }) => {
 
     const payload = new LoginModel(params.t, params.u)
 

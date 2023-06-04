@@ -3,7 +3,6 @@
     import {currentUser} from "$lib/stores/user.store";
     import type { PageData } from './$types';
     import {browser} from "$app/environment";
-    import {countryStore} from "$lib/stores/country.store";
     import {authLvl} from "$lib/models/enums/authLvl.enum";
     import {goto} from "$app/navigation";
 

@@ -1,7 +1,5 @@
 <script lang="ts">
-    import {userStore} from "$lib/stores/user.store";
     import {staticEP} from "$lib/models/enums/endpoints.enum.js";
-    const users = Object.entries($userStore)
 </script>
 
 <ul id="full-list" style="text-decoration: none;">

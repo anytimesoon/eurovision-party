@@ -1,6 +1,6 @@
 import type {RequestHandler} from "@sveltejs/kit";
 import type {CountryModel} from "$lib/models/classes/country.model";
-import {countryGoEP, countrySvelteEP} from "$lib/models/enums/endpoints.enum";
+import {countryGoEP} from "$lib/models/enums/endpoints.enum";
 import {json} from "@sveltejs/kit";
 
 export const GET :RequestHandler = async ({fetch, cookies}): Promise<Response> => {
