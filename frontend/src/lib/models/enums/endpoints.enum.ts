@@ -12,7 +12,7 @@ const voteGoURL = apiBase + restricted  + goAPI + "vote/"
 
 
 
-export const chatEP = "ws://localhost:8080/chat/connect";
+export const chatEP = "ws://localhost:8080/restricted/chat/connect";
 
 export const countrySvelteEP = {
     ALL: countrySvelteURL,

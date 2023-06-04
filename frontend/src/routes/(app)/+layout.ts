@@ -1,7 +1,8 @@
-import {countrySvelteEP} from "$lib/models/enums/endpoints.enum";
+import {chatEP, countrySvelteEP} from "$lib/models/enums/endpoints.enum";
 import {ResponseModel} from "$lib/models/classes/response.model";
 import {CountryModel} from "$lib/models/classes/country.model";
 import {redirect} from "@sveltejs/kit";
+import type {CommentModel} from "$lib/models/classes/comment.model";
 export const ssr = false;
 
 export const load =  ( async ({ fetch }) => {
@@ -12,8 +13,22 @@ export const load =  ( async ({ fetch }) => {
         throw redirect(303, "/login")
     }
 
+    const socket = new WebSocket(chatEP);
+
+    let timeout = 250;
+
+    socket.onopen = function () {
+        console.log("You're connected. Welcome to the party!!!🎉");
+        timeout = 250;
+    };
+
+    socket.onclose = function (e) {
+        console.log('Socket is closed. Reconnect will be reattempted in ' + timeout + "milliseconds. " + e.reason);
+        setTimeout(connectToSocket, Math.min(10000, timeout += timeout));
+    };
+
     return {
-        // ...data,
-        countries: countries.body
+        countries: countries.body,
+        socket: socket
     }
 }) satisfies LayoutServerLoad;

@@ -10,7 +10,7 @@
   
 <main>
   <nav>
-    <a href="/">Home</a>
+    <a href="/">Chat</a>
 
     {#each $participatingCountryStore as country }
       <span><a href={"/country/" + country.slug}>{country.name}</a>{" "}</span>
