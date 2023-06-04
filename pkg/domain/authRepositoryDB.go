@@ -8,7 +8,6 @@ import (
 	"github.com/jmoiron/sqlx"
 	"log"
 	"strconv"
-	"time"
 )
 
 type AuthRepository interface {
@@ -72,21 +71,12 @@ func (db AuthRepositoryDB) Login(authDTO *dto.Auth) (*Auth, *User, *errs.AppErro
 
 func (db AuthRepositoryDB) Authorize(authDTO *dto.Auth) (*Auth, *errs.AppError) {
 	var auth Auth
-	var appErr *errs.AppError
 
 	query := "SELECT * FROM auth WHERE sessionToken = ? and userId = ?"
 	err := db.client.Get(&auth, query, authDTO.Token, authDTO.UserId)
 	if err != nil {
 		log.Printf("Unable to authorize user %s and etoken %s combination. %s", authDTO.UserId, authDTO.Token, err)
 		return nil, errs.NewUnauthorizedError("Couldn't authenticate you. Please try again.")
-	}
-
-	if auth.AuthTokenExp.Before(time.Now()) && auth.AuthTokenExp.After(time.Now().Add(time.Duration(-30)*time.Minute)) {
-		//auth, appErr = db.updateSession(authDTO.UserId)
-		log.Println("time to update session")
-		if appErr != nil {
-			return nil, appErr
-		}
 	}
 
 	return &auth, nil

@@ -3,6 +3,7 @@ package dto
 import (
 	"eurovision/pkg/enum"
 	"log"
+	"net/http"
 	"regexp"
 	"strings"
 	"time"
@@ -20,10 +21,18 @@ type Auth struct {
 	AuthLvl    enum.AuthLvl
 }
 
-func (a Auth) ToSession() SessionAuth {
+func (a Auth) ToSession(user User) SessionAuth {
 	return SessionAuth{
+		Name:         "session",
 		SessionToken: a.Token,
-		Exp:          a.Expiration,
+		CookieOpts: CookieOpts{
+			Path:     "/",
+			MaxAge:   60 * 60 * 24 * 7,
+			Secure:   false,
+			HttpOnly: false,
+			SameSite: 3,
+		},
+		User: user,
 	}
 }
 
@@ -35,20 +44,21 @@ type NewUser struct {
 	Token string    `json:"token"`
 }
 
-// SessionAuth gets returned to users if their session is valid
-type SessionAuth struct {
-	SessionToken string    `json:"token"`
-	Exp          time.Time `json:"exp"`
+type CookieOpts struct {
+	Path     string `json:"path"`
+	MaxAge   int    `json:"maxAge"`
+	Secure   bool   `json:"secure"`
+	HttpOnly bool
+	SameSite http.SameSite
 }
 
-// AuthAndToken is used interally to verify the authorization level of a user.
-// It should never be sent to a user. It appears to be the same as Auth.
-// TODO: can probably be salely replaced with Auth
-//type AuthAndToken struct {
-//	Token   string
-//	AuthLvl enum.AuthLvl
-//	UUID    uuid.UUID
-//}
+// SessionAuth gets returned to users when they log in
+type SessionAuth struct {
+	Name         string
+	SessionToken string     `json:"token"`
+	CookieOpts   CookieOpts `json:"opts"`
+	User         User       `json:"user"`
+}
 
 func (nu *NewUser) Slugify() {
 	re, err := regexp.Compile(`[[:^alnum:]]`)

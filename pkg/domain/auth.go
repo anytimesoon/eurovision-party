@@ -44,9 +44,20 @@ func generateToken(len int) string {
 	return hex.EncodeToString(b)
 }
 
-func (a Auth) ToDTO() dto.Auth {
+func (a *Auth) ToDTO() dto.Auth {
 	return dto.Auth{
 		Token:      a.SessionToken,
+		Expiration: a.SessionTokenExp,
+		UserId:     a.UserId,
+		AuthLvl:    a.AuthLvl,
+	}
+}
+
+// ToModifiedDTO takes in a new token, which is an encrypted version of an auth struct.
+// A modified Auth is what we will send to the client
+func (a *Auth) ToModifiedDTO(token string) dto.Auth {
+	return dto.Auth{
+		Token:      token,
 		Expiration: a.SessionTokenExp,
 		UserId:     a.UserId,
 		AuthLvl:    a.AuthLvl,
