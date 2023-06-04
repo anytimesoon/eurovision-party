@@ -6,11 +6,11 @@ import (
 	"eurovision/pkg/domain"
 	"eurovision/pkg/service"
 	"fmt"
+	"github.com/gorilla/handlers"
 	"log"
 	"net/http"
 	"time"
 
-	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/jmoiron/sqlx"
 )
@@ -85,12 +85,13 @@ func StartServer(db *sqlx.DB, appConf conf.App) {
 	chatRouter.HandleFunc("/connect", chatRoomHandler.Connect)
 
 	headersOk := handlers.AllowedHeaders([]string{"Content-type", "Authorization", "Origin", "Access-Control-Allow-Origin", "Accept", "Options", "X-Requested-With"})
-	originsOk := handlers.AllowedOrigins([]string{"*"})
+	originsOk := handlers.AllowedOrigins([]string{"http://localhost:5173"})
 	methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
+	credentials := handlers.AllowCredentials()
 
 	server := &http.Server{
 		Addr:    fmt.Sprintf("%s:%s", appConf.Server.Url, appConf.Server.Port),
-		Handler: handlers.CORS(headersOk, originsOk, methodsOk)(router),
+		Handler: handlers.CORS(headersOk, originsOk, methodsOk, credentials)(router),
 		// Good practice to set timeouts to avoid Slowloris attacks.
 		WriteTimeout: time.Second * 15,
 		ReadTimeout:  time.Second * 15,

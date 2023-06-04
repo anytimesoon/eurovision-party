@@ -8,11 +8,12 @@ import (
 )
 
 func writeResponse[T dto.Responsable](resp http.ResponseWriter, req *http.Request, code int, data T, error string) {
-	token := req.Context().Value("auth").(dto.Auth)
-	payload := dto.NewPayload(data, token, error)
+	payload := dto.NewPayload(data, error)
+
 	log.Printf("Sending %#v to %s", payload, req.RemoteAddr)
 	resp.WriteHeader(code)
-	if err := json.NewEncoder(resp).Encode(payload); err != nil {
+	err := json.NewEncoder(resp).Encode(payload)
+	if err != nil {
 		panic(err)
 	}
 }

@@ -2,6 +2,8 @@ package router
 
 import (
 	"context"
+	"eurovision/pkg/dto"
+	"eurovision/pkg/errs"
 	"log"
 	"net/http"
 )
@@ -31,12 +33,17 @@ func logging(next http.Handler) http.Handler {
 
 func authenticate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		token := r.Header.Get("Authorization")
+		session, err := r.Cookie("session")
+		if err != nil {
+			log.Println("No session cookie was found. Trying authorization header.")
+			writeResponse(w, r, http.StatusUnauthorized, dto.User{}, errs.Common.Unauthorized)
+			return
+		}
 
-		auth, appErr := authService.Authorize(token)
+		auth, appErr := authService.Authorize(session.Value)
 		if appErr != nil {
 			log.Printf("%s method %s was requested by %q and rejected because token was rejected. %s", r.RequestURI, r.Method, r.RemoteAddr, appErr)
-			w.WriteHeader(http.StatusUnauthorized)
+			writeResponse(w, r, http.StatusUnauthorized, dto.User{}, errs.Common.Unauthorized)
 			return
 		}
 

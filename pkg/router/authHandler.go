@@ -1,7 +1,6 @@
 package router
 
 import (
-	"context"
 	"eurovision/pkg/dto"
 	"eurovision/pkg/enum"
 	"eurovision/pkg/errs"
@@ -29,9 +28,9 @@ func (ah AuthHandler) Register(resp http.ResponseWriter, req *http.Request) {
 	}
 
 	if appErr != nil {
-		writeResponse(resp, req, appErr.Code, auth, appErr.Message)
+		writeResponse(resp, req, appErr.Code, *auth, appErr.Message)
 	} else {
-		writeResponse(resp, req, http.StatusOK, auth, "")
+		writeResponse(resp, req, http.StatusOK, *auth, "")
 	}
 }
 
@@ -43,12 +42,23 @@ func (ah AuthHandler) Login(resp http.ResponseWriter, req *http.Request) {
 	}
 
 	auth, user, appErr := ah.Service.Login(body)
-	if appErr != nil {
 
-		ctx := context.WithValue(req.Context(), "auth", dto.Auth{})
-		writeResponse(resp, req.WithContext(ctx), appErr.Code, user, appErr.Message)
+	cookie := http.Cookie{
+		Name:     "session",
+		Value:    auth.Token,
+		Path:     "/",
+		MaxAge:   60 * 60 * 24 * 7,
+		Secure:   false,
+		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode,
+		Domain:   "127.0.0.1",
+	}
+	http.SetCookie(resp, &cookie)
+
+	session := auth.ToSession(*user)
+	if appErr != nil {
+		writeResponse(resp, req, appErr.Code, session, appErr.Message)
 	} else {
-		ctx := context.WithValue(req.Context(), "auth", *auth)
-		writeResponse(resp, req.WithContext(ctx), http.StatusOK, user, "")
+		writeResponse(resp, req, http.StatusOK, session, "")
 	}
 }
