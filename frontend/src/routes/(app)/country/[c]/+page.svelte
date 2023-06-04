@@ -1,7 +1,7 @@
 <script lang="ts">
     import {VoteModel} from "$lib/models/classes/vote.model";
     import type {CountryModel} from "$lib/models/classes/country.model";
-    import PageData = App.PageData;
+    import type { PageData } from './$types';
 
     export let data:PageData;
     let country:CountryModel = data.country
