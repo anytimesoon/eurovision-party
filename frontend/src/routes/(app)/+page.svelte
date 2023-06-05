@@ -6,9 +6,13 @@
     let socket = data.socket
 
     socket.onmessage = function (event) {
-        const data: CommentModel = JSON.parse(event.data);
+        const split = event.data.split("\n")
+        const newComments:CommentModel[] = split.map((c:string)=>{
+            return new CommentModel().deserialize(c)
+        })
+
         commentStore.update(comments => {
-            return [...comments, data]
+            return [...comments, ...newComments]
         });
     };
 
@@ -30,7 +34,7 @@
 <div>
     {#each $commentStore as comment}
         <div>
-            <p>Someone said at {comment.createdAt}</p>
+            <p>Someone {comment.createdAt.getHours()}:{comment.createdAt.getMinutes()}</p>
             <p>{comment.text}</p>
         </div>
     {/each}

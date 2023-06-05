@@ -1,10 +1,10 @@
-import type { IComment } from '../interfaces/icomment.interface';
-// import type { IDeserializable } from '../interfaces/ideserializable.interface';
+import type { IComment } from '../interfaces/icomment.interface'
+import type {IDeserializable} from "$lib/models/interfaces/ideserializable.interface";
 
-export class CommentModel implements IComment {
-    constructor(text: string) {
+export class CommentModel implements IComment, IDeserializable<string> {
+    constructor(text?: string, userId?: string) {
         this.text = text;
-		this.userId = localStorage.getItem("me") || "";
+		this.userId = userId;
     }
 
 
@@ -13,8 +13,15 @@ export class CommentModel implements IComment {
 	public text!:        string;
 	public createdAt!:   Date;
 
-	// deserialize(input: IComment): this {
-	// 	Object.assign(this, input);
-	// 	return this;
-	// }
+	deserialize(input: string): this {
+		const obj = JSON.parse(input, function reviver(key, value) {
+			if (typeof value === "string" && key === "createdAt") {
+				return new Date(value);
+			}
+
+			return value;
+		});
+		Object.assign(this, obj);
+		return this;
+	}
 }
