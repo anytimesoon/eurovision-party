@@ -13,6 +13,10 @@ export const load =  ( async ({ fetch }) => {
         throw redirect(303, "/login")
     }
 
+    const countryModels = countries.body.map((country):CountryModel => {
+        return new CountryModel().deserialize(country)
+    })
+
     const socket = new WebSocket(chatEP);
 
     let timeout = 250;
@@ -24,11 +28,11 @@ export const load =  ( async ({ fetch }) => {
 
     socket.onclose = function (e) {
         console.log('Socket is closed. Reconnect will be reattempted in ' + timeout + "milliseconds. " + e.reason);
-        setTimeout(connectToSocket, Math.min(10000, timeout += timeout));
+        // setTimeout(connectToSocket, Math.min(10000, timeout += timeout));
     };
 
     return {
-        countries: countries.body,
+        countries: countryModels,
         socket: socket
     }
 }) satisfies LayoutServerLoad;
