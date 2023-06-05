@@ -19,11 +19,8 @@ type CountryHandler struct {
 func (ch *CountryHandler) FindAllCountries(resp http.ResponseWriter, req *http.Request) {
 	var err *errs.AppError
 	var countries *[]dto.Country
-	if req.Context().Value("auth").(dto.Auth).AuthLvl == enum.Admin {
-		countries, err = ch.Service.GetAllCountries()
-	} else {
-		err = errs.NewUnauthorizedError(errs.Common.Unauthorized)
-	}
+	countries, err = ch.Service.GetAllCountries()
+
 	if err != nil {
 		writeResponse(resp, req, err.Code, *countries, err.Message)
 	} else {

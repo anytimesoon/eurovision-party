@@ -22,7 +22,7 @@ type (
 		Name  string    `db:"name"`
 		Email string    `db:"email"`
 		Slug  string    `db:"slug"`
-		Token string    `db:"token"`
+		Token string    `db:"authToken"`
 	}
 )
 

@@ -62,5 +62,6 @@ export const voteGoEP = {
 
 export const authEP = {
     LOGIN: apiBase + "login",
-    REGISTER: userSvelteURL + "register"
+    SVELTE_LOGIN: feBase + "login",
+    REGISTER: userGoURL + "register"
 }
