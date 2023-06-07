@@ -2,7 +2,6 @@ import {chatEP, countrySvelteEP, userSvelteEP} from "$lib/models/enums/endpoints
 import {ResponseModel} from "$lib/models/classes/response.model";
 import {CountryModel} from "$lib/models/classes/country.model";
 import {redirect} from "@sveltejs/kit";
-import type {CommentModel} from "$lib/models/classes/comment.model";
 import type {UserModel} from "$lib/models/classes/user.model";
 export const ssr = false;
 
