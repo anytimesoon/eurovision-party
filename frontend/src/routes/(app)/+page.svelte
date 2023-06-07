@@ -1,6 +1,7 @@
 <script lang="ts">
     import {commentStore} from "$lib/stores/comment.store";
     import {CommentModel} from "$lib/models/classes/comment.model";
+    import {userStore} from "$lib/stores/user.store";
 
     export let data;
     let socket = data.socket
@@ -34,7 +35,7 @@
 <div>
     {#each $commentStore as comment}
         <div>
-            <p>Someone {comment.createdAt.getHours()}:{comment.createdAt.getMinutes()}</p>
+            <p>{$userStore[comment.userId].name || ""} {comment.createdAt.getHours()}:{comment.createdAt.getMinutes()}</p>
             <p>{comment.text}</p>
         </div>
     {/each}

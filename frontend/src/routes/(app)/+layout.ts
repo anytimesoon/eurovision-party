@@ -1,8 +1,9 @@
-import {chatEP, countrySvelteEP} from "$lib/models/enums/endpoints.enum";
+import {chatEP, countrySvelteEP, userSvelteEP} from "$lib/models/enums/endpoints.enum";
 import {ResponseModel} from "$lib/models/classes/response.model";
 import {CountryModel} from "$lib/models/classes/country.model";
 import {redirect} from "@sveltejs/kit";
 import type {CommentModel} from "$lib/models/classes/comment.model";
+import type {UserModel} from "$lib/models/classes/user.model";
 export const ssr = false;
 
 export const load =  ( async ({ fetch }) => {
@@ -16,6 +17,10 @@ export const load =  ( async ({ fetch }) => {
     const countryModels = countries.body.map((country):CountryModel => {
         return new CountryModel().deserialize(country)
     })
+
+    const usersRes = await fetch(userSvelteEP.ALL)
+    const users: ResponseModel<Map<string, UserModel>> = await usersRes.json()
+
 
     const socket = new WebSocket(chatEP);
 
@@ -33,6 +38,7 @@ export const load =  ( async ({ fetch }) => {
 
     return {
         countries: countryModels,
-        socket: socket
+        socket: socket,
+        users: users.body
     }
 }) satisfies LayoutServerLoad;
