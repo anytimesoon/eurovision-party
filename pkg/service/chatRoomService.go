@@ -30,6 +30,13 @@ func (r *Room) Run() {
 	for {
 		select {
 		case client := <-r.Register:
+			if r.clients[client.UserId] != nil {
+				delete(r.clients, client.UserId)
+				close(r.clients[client.UserId].Send)
+				r.clients[client.UserId] = client
+				break
+			}
+
 			r.clients[client.UserId] = client
 			comments, err := r.CommentService.FindAllComments()
 			if err != nil {
