@@ -67,14 +67,12 @@ func (r *Room) Run() {
 				break
 			}
 			for userId, client := range r.clients {
-				//select {
-				//case
-				log.Println("sending to", userId)
-				client.Send <- message
-				//default:
-				//	close(client.Send)
-				//	delete(r.clients, client)
-				//}
+				select {
+				case client.Send <- message:
+				default:
+					close(client.Send)
+					delete(r.clients, userId)
+				}
 			}
 		}
 	}
