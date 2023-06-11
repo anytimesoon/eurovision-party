@@ -2,7 +2,9 @@
     import {VoteModel} from "$lib/models/classes/vote.model";
     import type {CountryModel} from "$lib/models/classes/country.model";
     import type {ActionData, PageData} from './$types';
-    import VoteForm from "$lib/components/forms/VoteForm.svelte";
+    import {currentUser} from "$lib/stores/user.store";
+    import {voteOptions} from "$lib/models/classes/voteOptions.model";
+    import { enhance } from '$app/forms';
 
     export let data:PageData
     export let form:ActionData
@@ -30,14 +32,53 @@
 {/if}
 
 <h4>Song</h4>
-<VoteForm countrySlug={country.slug} bind:score={vote.song} cat="song"/>
+<form method="POST" action="?/vote" use:enhance>
+    <input name="countrySlug" type="hidden" value={country.slug}>
+    <input name="cat" type="hidden" value="song">
+    <input name="userId" type="hidden" value={$currentUser.id}>
+    {#each voteOptions as { key, label }}
+        <input type="radio" bind:group={vote.song} value={key} name="score" on:click={(e) => {
+            e.target.parentElement.requestSubmit()
+        }}/>
+        <label>{label}</label>
+    {/each}
+</form>
 
 <h4>Performance</h4>
-<VoteForm countrySlug={country.slug} bind:score={vote.performance} cat="performance"/>
+<form method="POST" action="?/vote" use:enhance>
+    <input name="countrySlug" type="hidden" value={country.slug}>
+    <input name="cat" type="hidden" value="performance">
+    <input name="userId" type="hidden" value={$currentUser.id}>
+    {#each voteOptions as { key, label }}
+        <input type="radio" bind:group={vote.performance} value={key} name="score" on:click={(e) => {
+            e.target.parentElement.requestSubmit()
+        }}/>
+        <label>{label}</label>
+    {/each}
+</form>
 
 <h4>Costume</h4>
-<VoteForm countrySlug={country.slug} bind:score={vote.costume} cat="costume"/>
+<form method="POST" action="?/vote" use:enhance>
+    <input name="countrySlug" type="hidden" value={country.slug}>
+    <input name="cat" type="hidden" value="costume">
+    <input name="userId" type="hidden" value={$currentUser.id}>
+    {#each voteOptions as { key, label }}
+        <input type="radio" bind:group={vote.costume} value={key} name="score" on:click={(e) => {
+            e.target.parentElement.requestSubmit()
+        }}/>
+        <label>{label}</label>
+    {/each}
+</form>
 
 <h4>Staging and Props</h4>
-<VoteForm countrySlug={country.slug} bind:score={vote.props} cat="props"/>
-
+<form method="POST" action="?/vote" use:enhance>
+    <input name="countrySlug" type="hidden" value={country.slug}>
+    <input name="cat" type="hidden" value="props">
+    <input name="userId" type="hidden" value={$currentUser.id}>
+    {#each voteOptions as { key, label }}
+        <input type="radio" bind:group={vote.props} value={key} name="score" on:click={(e) => {
+            e.target.parentElement.requestSubmit()
+        }}/>
+        <label>{label}</label>
+    {/each}
+</form>

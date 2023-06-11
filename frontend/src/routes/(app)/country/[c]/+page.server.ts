@@ -20,7 +20,8 @@ export const actions : Actions = {
         })
 
         const res:ResponseModel<VoteModel> = await resProm.json()
-
+        console.log("returned vote: ")
+        console.log(res.body)
         return {
             success: true,
             vote: res.body,

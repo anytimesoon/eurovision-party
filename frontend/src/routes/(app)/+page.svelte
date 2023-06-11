@@ -21,7 +21,6 @@
                     });
                     break
                 default:
-                    console.log(chatMessage.category)
                     console.log("bad message: " + c)
             }
         })
@@ -30,7 +29,6 @@
     };
 
     function sendMsg() {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         let input = document.getElementById("msg")! as HTMLInputElement;
 
         const comment = new ChatMessageModel<CommentModel>(chatMsgCat.COMMENT, new CommentModel(input.value, $currentUser.id))
