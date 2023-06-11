@@ -2,12 +2,14 @@ package service
 
 import (
 	"encoding/json"
+	"eurovision/pkg/dto"
+	"github.com/google/uuid"
 	"log"
 )
 
 type Room struct {
 	CommentService CommentService
-	clients        map[*ChatClient]bool
+	clients        map[uuid.UUID]*ChatClient
 	broadcast      chan []byte
 	Register       chan *ChatClient
 	unregister     chan *ChatClient
@@ -19,7 +21,7 @@ func NewRoom(commentService CommentService) *Room {
 		broadcast:      make(chan []byte),
 		Register:       make(chan *ChatClient),
 		unregister:     make(chan *ChatClient),
-		clients:        make(map[*ChatClient]bool),
+		clients:        make(map[uuid.UUID]*ChatClient),
 	}
 }
 
@@ -27,7 +29,7 @@ func (r *Room) Run() {
 	for {
 		select {
 		case client := <-r.Register:
-			r.clients[client] = true
+			r.clients[client.UserId] = client
 			comments, err := r.CommentService.FindAllComments()
 			if err != nil {
 				return
@@ -41,16 +43,26 @@ func (r *Room) Run() {
 				client.Send <- commentJSON
 			}
 		case client := <-r.unregister:
-			if _, ok := r.clients[client]; ok {
-				delete(r.clients, client)
+			if _, ok := r.clients[client.UserId]; ok {
+				delete(r.clients, client.UserId)
 				close(client.Send)
 			}
 		case commentJSON := <-r.broadcast:
-			for client := range r.clients {
+			chatMessage := dto.ChatMessage{
+				Category: "comment",
+				Body:     commentJSON,
+			}
+
+			message, err := json.Marshal(chatMessage)
+			if err != nil {
+				log.Printf("failed to encode message to chatMessage")
+				break
+			}
+			for userId, client := range r.clients {
 				//select {
 				//case
-				log.Println("sending to", client.UserId)
-				client.Send <- commentJSON
+				log.Println("sending to", userId)
+				client.Send <- message
 				//default:
 				//	close(client.Send)
 				//	delete(r.clients, client)

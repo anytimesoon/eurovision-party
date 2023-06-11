@@ -1,27 +1,39 @@
 <script lang="ts">
     import {commentStore} from "$lib/stores/comment.store";
     import {CommentModel} from "$lib/models/classes/comment.model";
-    import {userStore} from "$lib/stores/user.store";
+    import {currentUser, userStore} from "$lib/stores/user.store";
+    import {ChatMessageModel} from "$lib/models/classes/chatMessage.model.js";
 
     export let data;
     let socket = data.socket
 
     socket.onmessage = function (event) {
         const split = event.data.split("\n")
-        const newComments:CommentModel[] = split.map((c:string)=>{
-            return new CommentModel().deserialize(c)
+        split.map((c:string)=>{
+            const chatMessage = JSON.parse(c)
+            switch (chatMessage.category) {
+                case "comment":
+                    let comment:CommentModel = chatMessage.body
+                    comment.createdAt = new Date(chatMessage.body.createdAt)
+                    commentStore.update(comments => {
+                        return [...comments, comment]
+                    });
+                    break
+                default:
+                    console.log(chatMessage.category)
+                    console.log("bad message: " + c)
+            }
         })
 
-        commentStore.update(comments => {
-            return [...comments, ...newComments]
-        });
+
     };
 
     function sendMsg() {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         let input = document.getElementById("msg")! as HTMLInputElement;
 
-        socket.send(input.value);
+        const comment = new ChatMessageModel<CommentModel>("comment", new CommentModel(input.value, $currentUser.id))
+        socket.send(JSON.stringify(comment))
         input.value = ""
     }
 

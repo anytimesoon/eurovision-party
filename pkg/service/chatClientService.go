@@ -2,6 +2,8 @@ package service
 
 import (
 	"bytes"
+	"encoding/json"
+	"eurovision/pkg/dto"
 	"log"
 	"time"
 
@@ -64,12 +66,25 @@ func (c *ChatClient) Pub() {
 		}
 		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
 
-		commentJSON, appErr := c.ComServ.CreateComment(message, c.UserId)
-		if appErr != nil {
-			return
+		// decode message
+		filteredMessage := dto.ChatMessage{}
+		err = json.Unmarshal(message, &filteredMessage)
+		if err != nil {
+			log.Println("Failed to unmarshal message")
+			continue
 		}
-		log.Println("New message received from", c.UserId.String())
-		c.Room.broadcast <- commentJSON
+
+		switch filteredMessage.Category {
+		case "comment":
+			commentJSON, appErr := c.ComServ.CreateComment(filteredMessage.Body)
+			if appErr != nil {
+				return
+			}
+			log.Println("New message received from", c.UserId.String())
+			c.Room.broadcast <- commentJSON
+		default:
+			log.Printf("Message category not recognised")
+		}
 	}
 }
 
@@ -85,7 +100,7 @@ func (c *ChatClient) Sub() {
 	}()
 	for {
 		select {
-		case commentJSON, ok := <-c.Send:
+		case message, ok := <-c.Send:
 			err := c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if err != nil {
 				log.Printf("Failed to set write deadline for user %s. %s", c.UserId, err)
@@ -106,7 +121,7 @@ func (c *ChatClient) Sub() {
 				return
 			}
 
-			_, err = writer.Write(commentJSON)
+			_, err = writer.Write(message)
 			if err != nil {
 				log.Printf("Failed to write chat message for user %s. %s", c.UserId, err)
 				return

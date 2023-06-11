@@ -5,16 +5,15 @@ import (
 	"eurovision/pkg/domain"
 	"eurovision/pkg/dto"
 	"eurovision/pkg/errs"
+	"github.com/google/uuid"
 	"log"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 //go:generate mockgen -source=commentService.go -destination=../../mocks/service/mockCommentService.go -package=service eurovision/pkg/service
 type CommentService interface {
 	FindAllComments() ([]dto.Comment, *errs.AppError)
-	CreateComment([]byte, uuid.UUID) ([]byte, *errs.AppError)
+	CreateComment([]byte) ([]byte, *errs.AppError)
 	DeleteComment(string) *errs.AppError
 }
 
@@ -41,13 +40,16 @@ func (service DefaultCommentService) FindAllComments() ([]dto.Comment, *errs.App
 	return commentsDTO, nil
 }
 
-func (service DefaultCommentService) CreateComment(message []byte, userId uuid.UUID) ([]byte, *errs.AppError) {
-	commentDTO := dto.Comment{
-		UUID:      uuid.New(),
-		UserId:    userId,
-		Text:      string(message),
-		CreatedAt: time.Now(),
+func (service DefaultCommentService) CreateComment(body []byte) ([]byte, *errs.AppError) {
+	commentDTO := dto.Comment{}
+	err := json.Unmarshal(body, &commentDTO)
+	if err != nil {
+		log.Printf("Failed to unmarshal comment.", err)
+		return nil, errs.NewUnexpectedError(errs.Common.BadlyFormedObject)
 	}
+
+	commentDTO.UUID = uuid.New()
+	commentDTO.CreatedAt = time.Now()
 
 	appErr := commentDTO.Validate()
 	if appErr != nil {
