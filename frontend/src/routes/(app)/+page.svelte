@@ -3,6 +3,7 @@
     import {CommentModel} from "$lib/models/classes/comment.model";
     import {currentUser, userStore} from "$lib/stores/user.store";
     import {ChatMessageModel} from "$lib/models/classes/chatMessage.model.js";
+    import {chatMsgCat} from "$lib/models/enums/chatMsgCat";
 
     export let data;
     let socket = data.socket
@@ -12,7 +13,7 @@
         split.map((c:string)=>{
             const chatMessage = JSON.parse(c)
             switch (chatMessage.category) {
-                case "comment":
+                case chatMsgCat.COMMENT:
                     let comment:CommentModel = chatMessage.body
                     comment.createdAt = new Date(chatMessage.body.createdAt)
                     commentStore.update(comments => {
@@ -32,7 +33,7 @@
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         let input = document.getElementById("msg")! as HTMLInputElement;
 
-        const comment = new ChatMessageModel<CommentModel>("comment", new CommentModel(input.value, $currentUser.id))
+        const comment = new ChatMessageModel<CommentModel>(chatMsgCat.COMMENT, new CommentModel(input.value, $currentUser.id))
         socket.send(JSON.stringify(comment))
         input.value = ""
     }

@@ -3,6 +3,7 @@ package service
 import (
 	"encoding/json"
 	"eurovision/pkg/dto"
+	"eurovision/pkg/enum"
 	"github.com/google/uuid"
 	"log"
 )
@@ -49,7 +50,7 @@ func (r *Room) Run() {
 			}
 		case commentJSON := <-r.broadcast:
 			chatMessage := dto.ChatMessage{
-				Category: "comment",
+				Category: enum.COMMENT,
 				Body:     commentJSON,
 			}
 

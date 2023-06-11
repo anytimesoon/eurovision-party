@@ -1,8 +1,11 @@
 package dto
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"eurovision/pkg/enum"
+)
 
 type ChatMessage struct {
-	Category string          `json:"category"`
-	Body     json.RawMessage `json:"body"`
+	Category enum.ChatMsgType `json:"category"`
+	Body     json.RawMessage  `json:"body"`
 }

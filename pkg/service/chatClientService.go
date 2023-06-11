@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"eurovision/pkg/dto"
+	"eurovision/pkg/enum"
 	"log"
 	"time"
 
@@ -75,7 +76,7 @@ func (c *ChatClient) Pub() {
 		}
 
 		switch filteredMessage.Category {
-		case "comment":
+		case enum.COMMENT:
 			commentJSON, appErr := c.ComServ.CreateComment(filteredMessage.Body)
 			if appErr != nil {
 				return
