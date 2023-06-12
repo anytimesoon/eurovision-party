@@ -17,6 +17,8 @@
       <span><a href={"/country/" + country.slug}>{country.name}</a>{" "}</span>
     {/each}
 
+    <a href="/results">Results</a>
+
     {#if $currentUser.authLvl === authLvl.ADMIN }
       <a href="/admin/countries">Countries</a>
       <a href="/admin/friends">Friends</a>

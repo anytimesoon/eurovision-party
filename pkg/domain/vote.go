@@ -21,6 +21,7 @@ type VoteRepository interface {
 	CreateVote(dto.Vote) (*Vote, *errs.AppError)
 	UpdateVote(dto.VoteSingle) (*Vote, *errs.AppError)
 	GetVoteByUserAndCountry(uuid.UUID, string) (*Vote, *errs.AppError)
+	GetAllVotes() (*[]Vote, *errs.AppError)
 }
 
 func (vote Vote) ToDto() dto.Vote {

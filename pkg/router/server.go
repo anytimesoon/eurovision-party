@@ -25,7 +25,6 @@ func StartServer(db *sqlx.DB, appConf conf.App) {
 	authRepositoryMem := domain.NewAuthRepositoryDB(db)
 	authService = service.NewAuthService(authRepositoryMem)
 	authHandler := AuthHandler{Service: authService}
-	//router.HandleFunc("/register", authHandler.Register).Methods(http.MethodPost) // takes an email address. creates user and responds with auth-token. Possibly a log in link
 	router.HandleFunc("/login", authHandler.Login).Methods(http.MethodPost) // sets auth token.
 
 	// Assets
@@ -67,7 +66,7 @@ func StartServer(db *sqlx.DB, appConf conf.App) {
 	voteRepositoryDb := domain.NewVoteRepositoryDb(db)
 	voteHandler := VoteHandler{Service: service.NewVoteService(voteRepositoryDb)}
 	voteRouter := apiRouter.PathPrefix("/vote").Subrouter()
-	//voteRouter.HandleFunc("/", voteHandler.CreateVote).Methods(http.MethodPost) // current user only
+	voteRouter.HandleFunc("/", voteHandler.FindAllVotes).Methods(http.MethodGet)
 	voteRouter.HandleFunc("/", voteHandler.UpdateVote).Methods(http.MethodPut) // current user only
 	// voteRouter.HandleFunc("/user/{userId}", voteHandler.VoteByUser).Methods(http.MethodGet)
 	voteRouter.HandleFunc("/countryanduser/{slug}", voteHandler.GetVoteByUserAndCountry).Methods(http.MethodGet) // current user only

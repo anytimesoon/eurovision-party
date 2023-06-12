@@ -49,12 +49,14 @@ export const userGoEP = {
 }
 
 export const voteSvelteEP = {
-    CREATE: voteSvelteURL,
-    UPDATE: voteSvelteURL,
+    // CREATE: voteSvelteURL,
+    // UPDATE: voteSvelteURL,
+    ALL: voteSvelteURL,
     BY_COUNTRY_AND_USER: voteSvelteURL + "countryanduser/" //append with country slug
 }
 
 export const voteGoEP = {
+    ALL: voteGoURL,
     CREATE: voteGoURL,
     UPDATE: voteGoURL,
     BY_COUNTRY_AND_USER: voteGoURL + "countryanduser/" //append with country slug

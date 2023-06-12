@@ -9,9 +9,9 @@ import (
 
 //go:generate mockgen -source=voteService.go -destination=../../mocks/service/mockVoteService.go -package=service eurovision/pkg/service
 type VoteService interface {
-	//CreateVote(dto.Vote) (*dto.Vote, *errs.AppError)
 	UpdateVote(dto.VoteSingle) (*dto.Vote, *errs.AppError)
 	GetVoteByUserAndCountry(uuid.UUID, string) (*dto.Vote, *errs.AppError)
+	GetAllVotes() (*[]dto.Vote, *errs.AppError)
 }
 
 type DefaultVoteService struct {
@@ -21,21 +21,6 @@ type DefaultVoteService struct {
 func NewVoteService(repo domain.VoteRepository) DefaultVoteService {
 	return DefaultVoteService{repo}
 }
-
-//func (service DefaultVoteService) CreateVote(voteDTO dto.Vote) (*dto.Vote, *errs.AppError) {
-//	appErr := voteDTO.Validate()
-//	if appErr != nil {
-//		return nil, appErr
-//	}
-//
-//	vote, appErr := service.repo.CreateVote(voteDTO)
-//	if appErr != nil {
-//		return nil, appErr
-//	}
-//
-//	result := vote.ToDto()
-//	return &result, nil
-//}
 
 func (service DefaultVoteService) UpdateVote(voteSingleDTO dto.VoteSingle) (*dto.Vote, *errs.AppError) {
 	appErr := voteSingleDTO.Validate()
@@ -53,8 +38,26 @@ func (service DefaultVoteService) UpdateVote(voteSingleDTO dto.VoteSingle) (*dto
 }
 
 func (service DefaultVoteService) GetVoteByUserAndCountry(userId uuid.UUID, countrySlug string) (*dto.Vote, *errs.AppError) {
-	vote, _ := service.repo.GetVoteByUserAndCountry(userId, countrySlug)
+	vote, err := service.repo.GetVoteByUserAndCountry(userId, countrySlug)
+	if err != nil {
+		return nil, err
+	}
 
 	result := vote.ToDto()
+	return &result, nil
+}
+
+func (service DefaultVoteService) GetAllVotes() (*[]dto.Vote, *errs.AppError) {
+	votes, err := service.repo.GetAllVotes()
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]dto.Vote, 0)
+	for _, vote := range *votes {
+		voteDto := vote.ToDto()
+		result = append(result, voteDto)
+	}
+
 	return &result, nil
 }
