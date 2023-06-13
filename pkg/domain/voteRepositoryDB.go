@@ -118,3 +118,29 @@ func (db VoteRepositoryDb) GetAllVotes() (*[]Vote, *errs.AppError) {
 
 	return &votes, nil
 }
+
+func (db VoteRepositoryDb) GetResults() (*[]Result, *errs.AppError) {
+	results := make([]Result, 0)
+
+	query := `select countrySlug,
+					   costume_total,
+					   song_total,
+					   performance_total,
+					   props_total,
+					   costume_total + song_total + performance_total + props_total as total
+				from (select countrySlug, sum(costume) as costume_total,
+							sum(song) as song_total,
+							sum(performance) as performance_total,
+							sum(props) as props_total
+						from vote
+						group by countrySlug) v
+				order by total desc;`
+
+	err := db.client.Select(&results, query)
+	if err != nil {
+		log.Println("Error while querying vote table", err)
+		return nil, errs.NewUnexpectedError(errs.Common.DBFail)
+	}
+
+	return &results, nil
+}

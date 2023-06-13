@@ -7,14 +7,25 @@ import (
 	"github.com/google/uuid"
 )
 
-type Vote struct {
-	UserId      uuid.UUID `db:"userId"`
-	CountrySlug string    `db:"countrySlug"`
-	Costume     uint8     `db:"costume"`
-	Song        uint8     `db:"song"`
-	Performance uint8     `db:"performance"`
-	Props       uint8     `db:"props"`
-}
+type (
+	Vote struct {
+		UserId      uuid.UUID `db:"userId"`
+		CountrySlug string    `db:"countrySlug"`
+		Costume     uint8     `db:"costume"`
+		Song        uint8     `db:"song"`
+		Performance uint8     `db:"performance"`
+		Props       uint8     `db:"props"`
+	}
+
+	Result struct {
+		CountrySlug string `db:"countrySlug"`
+		Costume     int    `db:"costume_total"`
+		Song        int    `db:"song_total"`
+		Performance int    `db:"performance_total"`
+		Props       int    `db:"props_total"`
+		Total       int    `db:"total"`
+	}
+)
 
 //go:generate mockgen -source=vote.go -destination=../../mocks/domain/mockVoteRepository.go -package=domain eurovision/pkg/domain
 type VoteRepository interface {
@@ -22,6 +33,7 @@ type VoteRepository interface {
 	UpdateVote(dto.VoteSingle) (*Vote, *errs.AppError)
 	GetVoteByUserAndCountry(uuid.UUID, string) (*Vote, *errs.AppError)
 	GetAllVotes() (*[]Vote, *errs.AppError)
+	GetResults() (*[]Result, *errs.AppError)
 }
 
 func (vote Vote) ToDto() dto.Vote {
