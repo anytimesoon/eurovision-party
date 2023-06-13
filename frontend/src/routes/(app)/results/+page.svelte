@@ -10,19 +10,19 @@
     $: console.log(votes)
     $: votes = data.votes
 
-    let sortBy = {col: "song", ascending: true};
+    let sortBy = {col: "song", descending: true};
 
     $: sort = (column) => {
 
         if (sortBy.col == column) {
-            sortBy.ascending = !sortBy.ascending
+            sortBy.descending = !sortBy.descending
         } else {
             sortBy.col = column
-            sortBy.ascending = true
+            sortBy.descending = true
         }
 
         // Modifier to sorting function for ascending or descending
-        let sortModifier = (sortBy.ascending) ? -1 : 1;
+        let sortModifier = (sortBy.descending) ? -1 : 1;
 
         let sort = (a, b) =>
             (a[column] < b[column])
