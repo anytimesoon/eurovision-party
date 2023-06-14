@@ -1,6 +1,5 @@
 import {voteSvelteEP} from "$lib/models/enums/endpoints.enum";
 import {ResponseModel} from "$lib/models/classes/response.model";
-import {VoteModel} from "$lib/models/classes/vote.model";
 import type {ResultModel} from "$lib/models/classes/result.model";
 
 export async function load({fetch}) {
