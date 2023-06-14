@@ -2,9 +2,10 @@
     import type {PageData} from './$types';
     import type {VoteModel} from "$lib/models/classes/vote.model";
     import {countryStore} from "$lib/stores/country.store";
+    import type {ResultModel} from "$lib/models/classes/result.model";
 
     export let data:PageData
-    let results:VoteModel[]
+    let results:ResultModel[]
 
 
     $: results = data.results
