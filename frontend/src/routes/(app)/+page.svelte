@@ -5,6 +5,7 @@
     import {ChatMessageModel} from "$lib/models/classes/chatMessage.model.js";
     import {chatMsgCat} from "$lib/models/enums/chatMsgCat";
     import type {UserModel} from "$lib/models/classes/user.model";
+    import {staticEP} from "$lib/models/enums/endpoints.enum.js";
 
     export let data;
     let socket = data.socket
@@ -49,7 +50,13 @@
 <div>
     {#each $commentStore as comment}
         <div>
-            <p>{users[comment.userId].name || ""} {comment.createdAt.getHours()}:{comment.createdAt.getMinutes()}</p>
+
+            <p>
+                <span>
+                    <img src={staticEP.IMG + users[comment.userId].icon} style="width:33px" alt={users[comment.userId].name + "'s avatar"}>
+                    {users[comment.userId].name || ""} {comment.createdAt.getHours()}:{comment.createdAt.getMinutes()}
+                </span>
+            </p>
             <p>{comment.text}</p>
         </div>
     {/each}
