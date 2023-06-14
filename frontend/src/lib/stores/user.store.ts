@@ -8,5 +8,4 @@ currentUser.subscribe((val) => {
     browser && localStorage.setItem("currentUser", JSON.stringify(val))
 });
 
-export const userStore = writable<Map<string, UserModel>>({})
 export const activeUserStore = writable<Map<string, UserModel>>({})

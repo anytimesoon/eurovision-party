@@ -1,7 +1,7 @@
 <script lang="ts">
     import {commentStore} from "$lib/stores/comment.store";
     import {CommentModel} from "$lib/models/classes/comment.model";
-    import {currentUser, userStore} from "$lib/stores/user.store";
+    import {currentUser} from "$lib/stores/user.store";
     import {ChatMessageModel} from "$lib/models/classes/chatMessage.model.js";
     import {chatMsgCat} from "$lib/models/enums/chatMsgCat";
     import type {UserModel} from "$lib/models/classes/user.model";

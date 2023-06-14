@@ -1,12 +1,11 @@
 <script lang="ts">
-  import {currentUser, userStore} from "$lib/stores/user.store";
+  import {currentUser} from "$lib/stores/user.store";
   import {authLvl} from "$lib/models/enums/authLvl.enum";
   import {countryStore, participatingCountryStore} from "$lib/stores/country.store";
   import type {LayoutData} from "./$types";
 
   export let data:LayoutData
   $countryStore = data.countries
-  $userStore = data.users
 </script>
   
 <main>

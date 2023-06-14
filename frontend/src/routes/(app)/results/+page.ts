@@ -7,11 +7,7 @@ export async function load({fetch}) {
     const res = await fetch(voteSvelteEP.RESULTS)
     const results:ResponseModel<ResultModel[]> = await res.json()
 
-    const userRes = await fetch(userSvelteEP.ALL)
-    const users:ResponseModel<Map<string, UserModel>> = await userRes.json()
-
     return {
-        results: results.body,
-        users: new Map(Object.entries(users.body))
+        results: results.body
     }
 }

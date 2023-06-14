@@ -3,16 +3,14 @@
     import {countryStore} from "$lib/stores/country.store";
     import type {ResultModel} from "$lib/models/classes/result.model";
     import { enhance } from '$app/forms';
-    import {userStore} from "$lib/stores/user.store";
 
     export let data:PageData
     export let form:ActionData
     let results:ResultModel[]
     let sortBy = {col: "total", descending: true}
 
-    $userStore = data.users
     results = data.results
-    let userArray = [...$userStore]
+    let userArray = [...new Map(Object.entries(data.users))]
 
     $: sort = (column) => {
 
