@@ -12,6 +12,7 @@ type VoteService interface {
 	UpdateVote(dto.VoteSingle) (*dto.Vote, *errs.AppError)
 	GetVoteByUserAndCountry(uuid.UUID, string) (*dto.Vote, *errs.AppError)
 	GetResults() (*[]dto.Result, *errs.AppError)
+	GetResultsByUser(userId string) (*[]dto.Result, *errs.AppError)
 }
 
 type DefaultVoteService struct {
@@ -49,6 +50,21 @@ func (service DefaultVoteService) GetVoteByUserAndCountry(userId uuid.UUID, coun
 
 func (service DefaultVoteService) GetResults() (*[]dto.Result, *errs.AppError) {
 	results, err := service.repo.GetResults()
+	if err != nil {
+		return nil, err
+	}
+
+	resultsDTO := make([]dto.Result, 0)
+	for _, result := range *results {
+		resultDTO := result.ToDto()
+		resultsDTO = append(resultsDTO, resultDTO)
+	}
+
+	return &resultsDTO, nil
+}
+
+func (service DefaultVoteService) GetResultsByUser(userId string) (*[]dto.Result, *errs.AppError) {
+	results, err := service.repo.GetResultsByUser(userId)
 	if err != nil {
 		return nil, err
 	}

@@ -65,3 +65,14 @@ func (vh VoteHandler) GetResults(resp http.ResponseWriter, req *http.Request) {
 		writeResponse(resp, req, http.StatusOK, *results, "")
 	}
 }
+
+func (vh VoteHandler) GetResultsByUser(resp http.ResponseWriter, req *http.Request) {
+	params := mux.Vars(req)
+	results, err := vh.Service.GetResultsByUser(params["userId"])
+
+	if err != nil {
+		writeResponse(resp, req, err.Code, *results, err.Message)
+	} else {
+		writeResponse(resp, req, http.StatusOK, *results, "")
+	}
+}

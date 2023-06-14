@@ -1,16 +1,18 @@
 <script lang="ts">
-    import type {PageData} from './$types';
-    import type {VoteModel} from "$lib/models/classes/vote.model";
+    import type {PageData, ActionData} from './$types';
     import {countryStore} from "$lib/stores/country.store";
     import type {ResultModel} from "$lib/models/classes/result.model";
+    import { enhance } from '$app/forms';
+    import {userStore} from "$lib/stores/user.store";
 
     export let data:PageData
+    export let form:ActionData
     let results:ResultModel[]
+    let sortBy = {col: "total", descending: true}
 
-
-    $: results = data.results
-
-    let sortBy = {col: "song", descending: true};
+    $userStore = data.users
+    results = data.results
+    let userArray = [...$userStore]
 
     $: sort = (column) => {
 
@@ -28,12 +30,29 @@
             (a[column] < b[column])
                 ? -1 * sortModifier
                 : (a[column] > b[column])
-                    ? 1 * sortModifier
+                    ? sortModifier
                     : 0;
 
         results = results.sort(sort);
     }
+
+    const updateResults = (form) => {
+        if(form !== null) {
+            results = form.results
+        }
+    }
+
+    $: updateResults(form)
 </script>
+
+<form method="POST" action="?/getUserResults" use:enhance>
+    <select value={form?.selection ?? ""} name="id" on:change={(e) => {e.target.parentElement.requestSubmit()}}>
+        <option value="">Main Results</option>
+        {#each userArray as userInfo}
+            <option value={userInfo[0]}>{userInfo[1].name}</option>
+        {/each}
+    </select>
+</form>
 
 <table>
     <thead>
@@ -47,15 +66,17 @@
     </tr>
     </thead>
     <tbody>
-    {#each results as vote}
-        <tr>
-            <td>{$countryStore.find(c => c.slug === vote.countrySlug).name}</td>
-            <td>{vote.song}</td>
-            <td>{vote.performance}</td>
-            <td>{vote.costume}</td>
-            <td>{vote.props}</td>
-            <td>{vote.total}</td>
-        </tr>
+    {#each results as result}
+        {#if result.total !== 0}
+            <tr>
+                <td>{$countryStore.find(c => c.slug === result.countrySlug).name}</td>
+                <td>{result.song}</td>
+                <td>{result.performance}</td>
+                <td>{result.costume}</td>
+                <td>{result.props}</td>
+                <td>{result.total}</td>
+            </tr>
+        {/if}
     {/each}
     </tbody>
 </table>

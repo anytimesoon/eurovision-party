@@ -38,6 +38,6 @@ export const load =  ( async ({ fetch }) => {
     return {
         countries: countryModels,
         socket: socket,
-        users: users.body
+        users: new Map(Object.entries(users.body))
     }
 }) satisfies LayoutServerLoad;

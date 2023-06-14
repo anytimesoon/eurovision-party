@@ -131,3 +131,26 @@ func (db VoteRepositoryDb) GetResults() (*[]Result, *errs.AppError) {
 
 	return &results, nil
 }
+
+func (db VoteRepositoryDb) GetResultsByUser(userId string) (*[]Result, *errs.AppError) {
+	results := make([]Result, 0)
+
+	query := `select countrySlug,
+					   costume as costume_total,
+					   song as song_total,
+					   performance as performance_total,
+					   props as props_total,
+					   costume + song + performance + props as total
+				from vote
+				where userId = ?
+				group by countrySlug
+				order by total desc;`
+
+	err := db.client.Select(&results, query, userId)
+	if err != nil {
+		log.Println("Error while querying vote table", err)
+		return nil, errs.NewUnexpectedError(errs.Common.DBFail)
+	}
+
+	return &results, nil
+}
