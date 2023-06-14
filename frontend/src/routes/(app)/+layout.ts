@@ -3,9 +3,10 @@ import {ResponseModel} from "$lib/models/classes/response.model";
 import {CountryModel} from "$lib/models/classes/country.model";
 import {redirect} from "@sveltejs/kit";
 import type {UserModel} from "$lib/models/classes/user.model";
+import type {LayoutServerLoad} from "../../../.svelte-kit/types/src/routes/(login)/$types";
 export const ssr = false;
 
-export const load =  ( async ({ fetch }) => {
+export const load:LayoutServerLoad =  ( async ({ fetch }) => {
     const countryRes = await fetch(countrySvelteEP.ALL)
     const countries: ResponseModel<CountryModel[]> = await countryRes.json()
 
@@ -35,9 +36,11 @@ export const load =  ( async ({ fetch }) => {
         // setTimeout(connectToSocket, Math.min(10000, timeout += timeout));
     };
 
+    // const userMap:Map<string, UserModel> = new Map(Object.entries(users.body))
+
     return {
         countries: countryModels,
         socket: socket,
-        users: new Map(Object.entries(users.body))
+        users: users.body
     }
-}) satisfies LayoutServerLoad;
+});

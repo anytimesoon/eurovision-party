@@ -4,9 +4,11 @@
     import {currentUser, userStore} from "$lib/stores/user.store";
     import {ChatMessageModel} from "$lib/models/classes/chatMessage.model.js";
     import {chatMsgCat} from "$lib/models/enums/chatMsgCat";
+    import type {UserModel} from "$lib/models/classes/user.model";
 
     export let data;
     let socket = data.socket
+    let users:Map<string, UserModel> = data.users
 
     socket.onmessage = function (event) {
         const split = event.data.split("\n")
@@ -41,12 +43,13 @@
             sendMsg()
         }
     }
+
 </script>
 
 <div>
     {#each $commentStore as comment}
         <div>
-            <p>{$userStore[comment.userId].name || ""} {comment.createdAt.getHours()}:{comment.createdAt.getMinutes()}</p>
+            <p>{users[comment.userId].name || ""} {comment.createdAt.getHours()}:{comment.createdAt.getMinutes()}</p>
             <p>{comment.text}</p>
         </div>
     {/each}
