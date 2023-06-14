@@ -106,19 +106,6 @@ func (db VoteRepositoryDb) GetVoteByUserAndCountry(userId uuid.UUID, countrySlug
 	return &vote, nil
 }
 
-func (db VoteRepositoryDb) GetAllVotes() (*[]Vote, *errs.AppError) {
-	votes := make([]Vote, 0)
-
-	query := "SELECT * FROM vote"
-	err := db.client.Select(&votes, query)
-	if err != nil {
-		log.Println("Error while querying vote table", err)
-		return nil, errs.NewUnexpectedError(errs.Common.DBFail)
-	}
-
-	return &votes, nil
-}
-
 func (db VoteRepositoryDb) GetResults() (*[]Result, *errs.AppError) {
 	results := make([]Result, 0)
 

@@ -1,13 +1,14 @@
 import {voteSvelteEP} from "$lib/models/enums/endpoints.enum";
 import {ResponseModel} from "$lib/models/classes/response.model";
 import {VoteModel} from "$lib/models/classes/vote.model";
+import type {ResultModel} from "$lib/models/classes/result.model";
 
 export async function load({fetch}) {
-    const voteRes = await fetch(voteSvelteEP.ALL);
+    const res = await fetch(voteSvelteEP.RESULTS);
 
-    const votes:ResponseModel<VoteModel[]> = await voteRes.json()
+    const results:ResponseModel<ResultModel[]> = await res.json()
 
     return {
-        votes: votes.body
+        results: results.body
     }
 }

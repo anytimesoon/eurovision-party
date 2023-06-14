@@ -4,11 +4,10 @@
     import {countryStore} from "$lib/stores/country.store";
 
     export let data:PageData
-    let votes:VoteModel[]
+    let results:VoteModel[]
 
 
-    $: console.log(votes)
-    $: votes = data.votes
+    $: results = data.results
 
     let sortBy = {col: "song", descending: true};
 
@@ -31,7 +30,7 @@
                     ? 1 * sortModifier
                     : 0;
 
-        votes = votes.sort(sort);
+        results = results.sort(sort);
     }
 </script>
 
@@ -43,16 +42,18 @@
         <th on:click={sort("performance")}>Performance</th>
         <th on:click={sort("costume")}>Costume</th>
         <th on:click={sort("props")}>Props</th>
+        <th on:click={sort("total")}>Total</th>
     </tr>
     </thead>
     <tbody>
-    {#each votes as vote}
+    {#each results as vote}
         <tr>
             <td>{$countryStore.find(c => c.slug === vote.countrySlug).name}</td>
             <td>{vote.song}</td>
             <td>{vote.performance}</td>
             <td>{vote.costume}</td>
             <td>{vote.props}</td>
+            <td>{vote.total}</td>
         </tr>
     {/each}
     </tbody>

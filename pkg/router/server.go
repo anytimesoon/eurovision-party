@@ -66,9 +66,9 @@ func StartServer(db *sqlx.DB, appConf conf.App) {
 	voteRepositoryDb := domain.NewVoteRepositoryDb(db)
 	voteHandler := VoteHandler{Service: service.NewVoteService(voteRepositoryDb)}
 	voteRouter := apiRouter.PathPrefix("/vote").Subrouter()
-	voteRouter.HandleFunc("/", voteHandler.FindAllVotes).Methods(http.MethodGet)
 	voteRouter.HandleFunc("/", voteHandler.UpdateVote).Methods(http.MethodPut) // current user only
-	// voteRouter.HandleFunc("/user/{userId}", voteHandler.VoteByUser).Methods(http.MethodGet)
+	voteRouter.HandleFunc("/results", voteHandler.GetResults).Methods(http.MethodGet)
+	//voteRouter.HandleFunc("/results/{userId}", voteHandler.GetResultsByUser).Methods(http.MethodGet)
 	voteRouter.HandleFunc("/countryanduser/{slug}", voteHandler.GetVoteByUserAndCountry).Methods(http.MethodGet) // current user only
 
 	// Chatroom

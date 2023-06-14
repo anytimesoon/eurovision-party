@@ -56,12 +56,12 @@ func (vh VoteHandler) GetVoteByUserAndCountry(resp http.ResponseWriter, req *htt
 	}
 }
 
-func (vh VoteHandler) FindAllVotes(resp http.ResponseWriter, req *http.Request) {
-	votes, err := vh.Service.GetAllVotes()
+func (vh VoteHandler) GetResults(resp http.ResponseWriter, req *http.Request) {
+	results, err := vh.Service.GetResults()
 
 	if err != nil {
-		writeResponse(resp, req, err.Code, *votes, err.Message)
+		writeResponse(resp, req, err.Code, *results, err.Message)
 	} else {
-		writeResponse(resp, req, http.StatusOK, *votes, "")
+		writeResponse(resp, req, http.StatusOK, *results, "")
 	}
 }

@@ -27,12 +27,22 @@ type (
 	}
 )
 
+func (r Result) ToDto() dto.Result {
+	return dto.Result{
+		CountrySlug: r.CountrySlug,
+		Costume:     r.Costume,
+		Song:        r.Song,
+		Performance: r.Performance,
+		Props:       r.Props,
+		Total:       r.Total,
+	}
+}
+
 //go:generate mockgen -source=vote.go -destination=../../mocks/domain/mockVoteRepository.go -package=domain eurovision/pkg/domain
 type VoteRepository interface {
 	CreateVote(dto.Vote) (*Vote, *errs.AppError)
 	UpdateVote(dto.VoteSingle) (*Vote, *errs.AppError)
 	GetVoteByUserAndCountry(uuid.UUID, string) (*Vote, *errs.AppError)
-	GetAllVotes() (*[]Vote, *errs.AppError)
 	GetResults() (*[]Result, *errs.AppError)
 }
 
