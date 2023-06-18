@@ -31,18 +31,27 @@ func (r *Room) Run() {
 		select {
 		case client := <-r.Register:
 			r.clients[client.UserId] = client
-			comments, err := r.CommentService.FindAllComments()
-			if err != nil {
+			comments, appErr := r.CommentService.FindAllComments()
+			if appErr != nil {
 				return
 			}
 			log.Printf("%+v", r.clients)
-			for _, comment := range comments {
-				commentJSON, err := json.Marshal(comment)
-				if err != nil {
-					log.Printf("Something went wrong when sending a message during registration for user %s. %s", client.UserId, err)
-				}
-				client.Send <- commentJSON
+			commentsJSON, err := json.Marshal(comments)
+			if err != nil {
+				//TODO: handle error
 			}
+			chatMessages := dto.ChatMessage{
+				Category: enum.COMMENT_ARRAY,
+				Body:     commentsJSON,
+			}
+
+			chatMessagesJSON, err := json.Marshal(chatMessages)
+			if err != nil {
+				//TODO: handle error
+			}
+
+			client.Send <- chatMessagesJSON
+
 		case client := <-r.unregister:
 			if _, ok := r.clients[client.UserId]; ok {
 				delete(r.clients, client.UserId)

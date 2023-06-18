@@ -1,3 +1,4 @@
 export const chatMsgCat = {
-    COMMENT: "comment"
+    COMMENT: "comment",
+    COMMENT_ARRAY: "comments"
 }

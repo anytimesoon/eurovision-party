@@ -23,6 +23,15 @@
                         return [...comments, comment]
                     });
                     break
+                case chatMsgCat.COMMENT_ARRAY:
+                    let commentModels:CommentModel[] = chatMessage.body
+                    for (let i = 0; i < commentModels.length; i++) {
+                        commentModels[i].createdAt = new Date(commentModels[i].createdAt)
+                    }
+                    commentStore.update(comments => {
+                        return [...comments, ...commentModels]
+                    })
+                    break
                 default:
                     console.log("bad message: " + c)
             }
@@ -54,7 +63,8 @@
             <p>
                 <span>
                     <img src={staticEP.IMG + users[comment.userId].icon} style="width:33px" alt={users[comment.userId].name + "'s avatar"}>
-                    {users[comment.userId].name || ""} {comment.createdAt.getHours()}:{comment.createdAt.getMinutes()}
+                    {users[comment.userId].name || ""}
+                    {comment.createdAt.getHours()}:{comment.createdAt.getMinutes() < 10 ? "0" + comment.createdAt.getMinutes() : comment.createdAt.getMinutes()}
                 </span>
             </p>
             <p>{comment.text}</p>
