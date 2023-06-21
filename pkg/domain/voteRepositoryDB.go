@@ -143,7 +143,7 @@ func (db VoteRepositoryDb) GetResultsByUser(userId string) (*[]Result, *errs.App
 					   costume + song + performance + props as total
 				from vote
 				where userId = ?
-				group by countrySlug
+				group by countrySlug, costume, song, performance, props
 				order by total desc;`
 
 	err := db.client.Select(&results, query, userId)
