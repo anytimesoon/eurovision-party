@@ -11,35 +11,6 @@
     let socket = data.socket
     let users:Map<string, UserModel> = data.users
 
-    socket.onmessage = function (event) {
-        const split = event.data.split("\n")
-        split.map((c:string)=>{
-            const chatMessage = JSON.parse(c)
-            switch (chatMessage.category) {
-                case chatMsgCat.COMMENT:
-                    let comment:CommentModel = chatMessage.body
-                    comment.createdAt = new Date(chatMessage.body.createdAt)
-                    commentStore.update(comments => {
-                        return [...comments, comment]
-                    });
-                    break
-                case chatMsgCat.COMMENT_ARRAY:
-                    let commentModels:CommentModel[] = chatMessage.body
-                    for (let i = 0; i < commentModels.length; i++) {
-                        commentModels[i].createdAt = new Date(commentModels[i].createdAt)
-                    }
-                    commentStore.update(comments => {
-                        return [...comments, ...commentModels]
-                    })
-                    break
-                default:
-                    console.log("bad message: " + c)
-            }
-        })
-
-
-    };
-
     function sendMsg() {
         let input = document.getElementById("msg")! as HTMLInputElement;
 
