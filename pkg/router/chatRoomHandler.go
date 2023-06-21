@@ -33,7 +33,7 @@ func (crh ChatRoomHandler) Connect(resp http.ResponseWriter, req *http.Request) 
 	client := &service.ChatClient{Room: crh.RoomService, UserId: userId, Conn: conn, Send: make(chan []byte, 256), ComServ: crh.CommentService}
 	client.Room.Register <- client
 
-	log.Printf("user %s has connected to the chatroom")
+	log.Printf("user %s has connected to the chatroom", userId)
 	go client.Pub()
 	go client.Sub()
 }
