@@ -41,7 +41,7 @@ func (db UserRepositoryDb) UpdateUser(userDTO dto.User) (*User, *errs.AppError) 
 		return nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "user")
 	}
 
-	_, err = tx.Exec(updateUserQuery, userDTO.Name, userDTO.Email)
+	_, err = tx.Exec(updateUserQuery, userDTO.Name, userDTO.Email, userDTO.UUID)
 	if err != nil {
 		log.Println("Error while updating user table", err)
 		return nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "user")
