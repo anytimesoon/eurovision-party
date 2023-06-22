@@ -8,7 +8,7 @@ export const actions : Actions = {
     vote: async ({fetch, request}) => {
         const fd = await request.formData()
         const vote:VoteSingleModel = Object.fromEntries([...fd]) as VoteSingleModel;
-        console.log(vote)
+
         const resProm = await fetch(voteGoEP.UPDATE, {
             method: "PUT",
             body: JSON.stringify(vote,(key, value) => {
@@ -20,8 +20,7 @@ export const actions : Actions = {
         })
 
         const res:ResponseModel<VoteModel> = await resProm.json()
-        console.log("returned vote: ")
-        console.log(res.body)
+
         return {
             success: true,
             vote: res.body,
