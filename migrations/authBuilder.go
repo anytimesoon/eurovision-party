@@ -19,10 +19,18 @@ func CreateAuthTable(db *sqlx.DB) {
 				authToken VARCHAR(191) NOT NULL, 
 				authTokenExp DATETIME NOT NULL,
 				sessionToken VARCHAR(191) DEFAULT '',
-				sessionTokenExp DATETIME DEFAULT NOW(),
+				sessionTokenExp DATETIME,
 				authLvl TINYINT,
 				slug VARCHAR(191));`
 
+	_, err = db.Exec(query)
+	if err != nil {
+		log.Fatalf("Error when creating auth table %s", err)
+	}
+
+	query = `CREATE TRIGGER dateinsert BEFORE INSERT ON auth
+    		 FOR EACH ROW
+    		 SET NEW.sessionTokenExp =  DATE_ADD(CURRENT_TIMESTAMP(),INTERVAL 7 DAY);`
 	_, err = db.Exec(query)
 	if err != nil {
 		log.Fatalf("Error when creating auth table %s", err)
