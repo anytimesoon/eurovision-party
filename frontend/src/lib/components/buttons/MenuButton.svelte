@@ -3,6 +3,17 @@
     import SettingIcon from "$lib/components/icons/SettingIcon.svelte";
     import VoteIcon from "$lib/components/icons/VoteIcon.svelte";
     import ChatIcon from "$lib/components/icons/ChatIcon.svelte";
+    import {
+        Offcanvas,
+        Ripple,
+        Dropdown,
+        initTE,
+    } from "tw-elements";
+    import {onMount} from "svelte";
+
+    onMount(() => {
+        initTE({ Offcanvas, Ripple, Dropdown });
+    });
 
     export let icon = ""
     export let padding = 5;
@@ -18,7 +29,13 @@
                 Chat
             </a>
         {:else if icon === "votes" }
-            <a class="text-neutral-500 transition duration-200 hover:text-neutral-700 hover:ease-in-out focus:text-neutral-700 disabled:text-black/30 motion-reduce:transition-none dark:text-neutral-200 dark:hover:text-neutral-300 dark:focus:text-neutral-300 [&.active]:text-black/90 dark:[&.active]:text-neutral-400" href="">
+            <a
+               class="text-neutral-500 transition duration-200 hover:text-neutral-700 hover:ease-in-out focus:text-neutral-700 disabled:text-black/30 motion-reduce:transition-none dark:text-neutral-200 dark:hover:text-neutral-300 dark:focus:text-neutral-300 [&.active]:text-black/90 dark:[&.active]:text-neutral-400"
+               href="#offcanvas"
+               data-te-offcanvas-toggle
+               role="button"
+               data-te-ripple-init
+               data-te-ripple-color="light">
                 <span class="[&>svg]:w-10">
                     <VoteIcon />
                 </span>
