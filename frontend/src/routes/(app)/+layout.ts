@@ -32,8 +32,7 @@ export const load:LayoutServerLoad =  ( async ({ fetch }) => {
     };
 
     socket.onclose = function (e) {
-        console.log('Socket is closed. Reconnect will be reattempted in ' + timeout + "milliseconds. " + e.reason);
-        // setTimeout(connectToSocket, Math.min(10000, timeout += timeout));
+        setTimeout(connectToSocket, Math.min(10000, timeout += timeout));
     };
 
     // const userMap:Map<string, UserModel> = new Map(Object.entries(users.body))
@@ -44,3 +43,8 @@ export const load:LayoutServerLoad =  ( async ({ fetch }) => {
         users: users.body
     }
 });
+
+function connectToSocket() {
+    console.log('Socket is closed. Reconnect will be reattempted in ' + timeout + "milliseconds. " + e.reason);
+    setTimeout(connectToSocket, Math.min(10000, timeout += timeout));
+}
