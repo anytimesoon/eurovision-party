@@ -12,7 +12,11 @@
     let users:Map<string, UserModel> = data.users
 
     function sendMsg() {
-        let input = document.getElementById("msg")! as HTMLInputElement;
+        const input = document.getElementById("msg")! as HTMLInputElement;
+
+        if(input.value === "" || input.value === null) {
+            return
+        }
 
         const comment = new ChatMessageModel<CommentModel>(chatMsgCat.COMMENT, new CommentModel(input.value, $currentUser.id))
         socket.send(JSON.stringify(comment))
