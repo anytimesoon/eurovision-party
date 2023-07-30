@@ -21,21 +21,7 @@ export const load:LayoutServerLoad =  ( async ({ fetch }) => {
     const usersRes = await fetch(userSvelteEP.ALL)
     const users: ResponseModel<Map<string, UserModel>> = await usersRes.json()
 
-
-    const socket = new WebSocket(chatEP);
-
-    let timeout = 250;
-
-    socket.onopen = function () {
-        console.log("You're connected. Welcome to the party!!!🎉");
-        timeout = 250;
-    };
-
-    socket.onclose = function (e) {
-        setTimeout(connectToSocket, Math.min(10000, timeout += timeout));
-    };
-
-    // const userMap:Map<string, UserModel> = new Map(Object.entries(users.body))
+    let socket = connectToSocket()
 
     return {
         countries: countryModels,
@@ -45,6 +31,16 @@ export const load:LayoutServerLoad =  ( async ({ fetch }) => {
 });
 
 function connectToSocket() {
-    console.log('Socket is closed. Reconnect will be reattempted in ' + timeout + "milliseconds. " + e.reason);
-    setTimeout(connectToSocket, Math.min(10000, timeout += timeout));
+    let socket = new WebSocket(chatEP)
+
+    socket.onopen = function () {
+        console.log("You're connected. Welcome to the party!!!🎉")
+    };
+
+    socket.onclose = function (e) {
+        console.log("Connection stopped. Attempting to reconnect")
+        setTimeout(connectToSocket, Math.min(10000, 250))
+    };
+
+    return socket
 }
