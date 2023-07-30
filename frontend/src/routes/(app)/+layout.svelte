@@ -56,13 +56,12 @@
 
   };
 </script>
-  
-<main class="min-h-screen">
-  <div class="min-h-[91vh] max-h-[91vh] max-w-lg container mx-auto grid grid-cols-1">
+
+  <div class="max-w-lg flex-grow container mx-auto grid grid-cols-1 overflow-auto">
     <slot />
   </div>
 
-  <nav class="fixed bottom-0 flex w-full flex-wrap items-center justify-between bg-[#FBFBFB] p-2 text-neutral-500 shadow-lg hover:text-neutral-700 focus:text-neutral-700 dark:bg-neutral-600">
+  <nav class="flex w-full flex-wrap items-center justify-between bg-[#FBFBFB] p-2 text-neutral-500 shadow-lg hover:text-neutral-700 focus:text-neutral-700 dark:bg-neutral-600">
     <div class="flex w-full flex-wrap items-center justify-between px-3">
       <div class="flex-grow basis-auto items-center justify-center flex">
 
@@ -110,6 +109,3 @@
     </div>
     <div class="offcanvas-body flex-grow overflow-y-auto p-4">...</div>
   </div>
-
-
-</main>
