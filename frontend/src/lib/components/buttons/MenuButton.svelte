@@ -1,21 +1,20 @@
-<script>
+<script lang="ts">
     import ResultIcon from "$lib/components/icons/ResultIcon.svelte";
     import SettingIcon from "$lib/components/icons/SettingIcon.svelte";
     import VoteIcon from "$lib/components/icons/VoteIcon.svelte";
     import ChatIcon from "$lib/components/icons/ChatIcon.svelte";
-    import {
-        Offcanvas,
-        Ripple,
-        Dropdown,
-        initTE,
-    } from "tw-elements";
-    import {onMount} from "svelte";
-
-    onMount(() => {
-        initTE({ Offcanvas, Ripple, Dropdown });
-    });
 
     export let icon = ""
+
+    const openMenu = () => {
+
+        const menu = document.getElementById("menu")
+        const content = document.getElementById("content")
+        menu.classList.remove("w-0")
+        menu.classList.add("w-56")
+        content.classList.remove("ml-0")
+        content.classList.add("ml-56")
+    }
 </script>
 
 <div class="px-5 text-center">
@@ -30,11 +29,9 @@
         {:else if icon === "votes" }
             <a
                class="text-neutral-500 transition duration-200 hover:text-neutral-700 hover:ease-in-out focus:text-neutral-700 disabled:text-black/30 motion-reduce:transition-none dark:text-neutral-200 dark:hover:text-neutral-300 dark:focus:text-neutral-300 [&.active]:text-black/90 dark:[&.active]:text-neutral-400"
-               href="#offcanvas"
-               data-te-offcanvas-toggle
-               role="button"
-               data-te-ripple-init
-               data-te-ripple-color="light">
+               href="#"
+               on:click={openMenu}
+               role="button">
                 <span class="[&>svg]:w-10">
                     <VoteIcon />
                 </span>
