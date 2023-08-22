@@ -2,7 +2,7 @@
   import {countryStore, participatingCountryStore} from "$lib/stores/country.store";
   import type {LayoutData} from "./$types";
   import {chatMsgCat} from "$lib/models/enums/chatMsgCat";
-  import {CommentModel} from "$lib/models/classes/comment.model";
+  import type {CommentModel} from "$lib/models/classes/comment.model";
   import {commentStore} from "$lib/stores/comment.store";
   import MenuButton from "$lib/components/buttons/MenuButton.svelte";
 
@@ -57,7 +57,7 @@
 <main class="flex">
   <div class="h-screen flex m-auto">
     <div class="flex-col flex">
-      <div class="max-w-lg flex flex-grow">
+      <div id="content" class="max-w-lg flex flex-grow">
         <div class="flex-grow grid grid-cols-1 overflow-auto">
           <slot />
         </div>
