@@ -9,11 +9,8 @@
     const openMenu = () => {
 
         const menu = document.getElementById("menu")
-        const content = document.getElementById("content")
         menu.classList.remove("w-0")
         menu.classList.add("w-56")
-        content.classList.remove("ml-0")
-        content.classList.add("ml-56")
     }
 </script>
 
