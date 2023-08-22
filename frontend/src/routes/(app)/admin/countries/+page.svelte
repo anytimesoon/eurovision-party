@@ -22,21 +22,22 @@
     $: updateCountry(form)
 </script>
 
+
+
+<div class="flex flex-col">
     <h1>List of all Eurovision countries</h1>
+    <div class="border-2 flex-auto h-0 p-4 overflow-auto rounded mb-3">
+        <ul>
+            {#each $notParticipatingCountryStore as country}
+                <li>
+                    {country.flag}
+                    {country.name}
 
-    <ul>
-        {#each $notParticipatingCountryStore as country}
-        <li>
-            {country.flag}
-            {country.name}
+                    is out of the running 😢
+                    <CountryForm country={country} />
+                </li>
+            {/each}
 
-            is out of the running 😢
-            <CountryForm country={country} />
-        </li>
-        {/each}
-    </ul>
-
-<div class="half-width">
             {#each $participatingCountryStore as country}
                 <li>
                     {country.flag}
@@ -46,5 +47,7 @@
                     <CountryForm country={country} />
                 </li>
             {/each}
+        </ul>
+    </div>
 </div>
 
