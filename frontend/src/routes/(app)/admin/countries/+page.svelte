@@ -24,9 +24,9 @@
 
 
 
-<div class="flex flex-col">
+<div class="flex flex-col h-full">
     <h1>List of all Eurovision countries</h1>
-    <div class="border-2 flex-auto h-0 p-4 overflow-auto rounded mb-3">
+    <div class="border-2 flex-grow flex-auto h-0 p-4 overflow-auto rounded mb-3">
         <ul>
             {#each $notParticipatingCountryStore as country}
                 <li>

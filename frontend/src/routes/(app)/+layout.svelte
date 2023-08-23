@@ -58,7 +58,7 @@
   <div class="h-screen flex m-auto">
     <div class="flex-col flex">
       <div id="content" class="max-w-lg flex flex-grow">
-        <div class="flex-grow grid grid-cols-1 overflow-auto">
+        <div class="flex-grow overflow-auto">
           <slot />
         </div>
       </div>
