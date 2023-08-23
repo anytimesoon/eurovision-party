@@ -26,28 +26,31 @@
 
 <div class="flex flex-col h-full">
     <h1>List of all Eurovision countries</h1>
-    <div class="border-2 flex-grow flex-auto h-0 p-4 overflow-auto rounded mb-3">
-        <ul>
-            {#each $notParticipatingCountryStore as country}
-                <li>
-                    {country.flag}
-                    {country.name}
+    <div class="flex-grow flex-auto h-0 p-4 rounded mb-3">
+        <div class="grid grid-cols-1">
+            <div class="col-end-1">
+                <ul>
+                    {#each $notParticipatingCountryStore as country}
+                        <li class="p-1">
+                            <CountryForm country={country} />
+                        </li>
+                    {/each}
+                </ul>
+            </div>
 
-                    is out of the running 😢
-                    <CountryForm country={country} />
-                </li>
-            {/each}
+            <div class="col-end-2">
+                <ul>
+                    {#each $participatingCountryStore as country}
+                        <li class="p-1 text-right">
+                            <CountryForm country={country} />
+                        </li>
+                    {/each}
+                </ul>
+            </div>
+        </div>
 
-            {#each $participatingCountryStore as country}
-                <li>
-                    {country.flag}
-                    {country.name}
 
-                    is in the running 🎉
-                    <CountryForm country={country} />
-                </li>
-            {/each}
-        </ul>
+
     </div>
 </div>
 
