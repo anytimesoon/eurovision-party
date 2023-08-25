@@ -24,14 +24,14 @@
 
 
 
-<div class="flex flex-col h-full">
-    <h1>List of all Eurovision countries</h1>
-    <div class="flex-grow flex-auto h-0 p-4 rounded mb-3">
+<div class="flex flex-col">
+    <h1 class="text-center">Select countries participating in the final</h1>
+    <div class="flex-grow h-0 p-4 rounded mb-3">
         <div class="grid grid-cols-1">
             <div class="col-end-1">
                 <ul>
                     {#each $notParticipatingCountryStore as country}
-                        <li class="p-1">
+                        <li class="p-3 m-1.5">
                             <CountryForm country={country} />
                         </li>
                     {/each}
@@ -41,7 +41,7 @@
             <div class="col-end-2">
                 <ul>
                     {#each $participatingCountryStore as country}
-                        <li class="p-1 text-right">
+                        <li class="p-3 m-1.5">
                             <CountryForm country={country} />
                         </li>
                     {/each}

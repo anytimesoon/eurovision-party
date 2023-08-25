@@ -54,8 +54,8 @@
 
 </script>
 
-<main class="flex">
-  <div class="h-screen flex m-auto">
+<main class="flex h-screen">
+  <div class="flex mx-auto">
     <div class="flex-col flex">
       <div id="content" class="max-w-lg flex flex-grow">
         <div class="flex-grow overflow-auto">
