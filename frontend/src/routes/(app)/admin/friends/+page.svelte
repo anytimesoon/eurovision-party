@@ -2,6 +2,9 @@
     import { enhance } from '$app/forms';
     import {authEP, userSvelteEP} from "$lib/models/enums/endpoints.enum";
     import type {PageData, ActionData} from "./$types";
+    import {currentUser} from "$lib/stores/user.store";
+    import {authLvl} from "$lib/models/enums/authLvl.enum";
+    import AdminNav from "$lib/components/AdminNav.svelte";
 
     export let data:PageData
     export let form:ActionData
@@ -16,6 +19,10 @@
 
     $: updateUsers(form)
 </script>
+
+{#if $currentUser.authLvl === authLvl.ADMIN }
+    <AdminNav />
+{/if}
 
 <form method="POST" action="?/register" use:enhance >
     name <input type="text" name="name" />

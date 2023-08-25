@@ -57,12 +57,12 @@
 <main class="flex h-screen">
   <div class="flex mx-auto">
     <div class="flex-col flex">
-      <div id="content" class="max-w-lg flex flex-grow">
-        <div class="flex-grow overflow-auto">
+      <div id="content" class="max-w-lg flex min-h-[calc(100vh-5em)]">
+        <div class="flex-grow">
           <slot />
         </div>
       </div>
-      <nav class="flex w-full flex-wrap items-center justify-between bg-[#FBFBFB] p-2 text-neutral-500 hover:text-neutral-700 focus:text-neutral-700 dark:bg-neutral-600">
+      <nav class="h-5 flex w-full flex-wrap items-center justify-between bg-[#FBFBFB] p-2 text-neutral-500 hover:text-neutral-700 focus:text-neutral-700 dark:bg-neutral-600">
         <div class="flex w-full flex-wrap items-center justify-between px-3">
           <div class="flex-grow basis-auto items-center justify-center flex">
 
