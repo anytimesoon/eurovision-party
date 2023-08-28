@@ -10,6 +10,10 @@
     export let form:ActionData
     let country:CountryModel = data.country
     let vote:VoteModel = data.vote
+    let songForm:HTMLFormElement
+    let perfForm:HTMLFormElement
+    let costForm:HTMLFormElement
+    let propForm:HTMLFormElement
 
     const updateVote = (form) => {
         if(form != null) {
@@ -33,14 +37,14 @@
 
     <div class="py-5">
         <h4 class="text-center">🎵 Song {vote.song}/10</h4>
-        <form method="POST" action="?/vote" use:enhance>
+        <form method="POST" action="?/vote" use:enhance bind:this={songForm}>
             <input name="countrySlug" type="hidden" value={country.slug}>
             <input name="cat" type="hidden" value="song">
             <input name="userId" type="hidden" value={$currentUser.id}>
             <div class="flex flex-row-reverse items-center mx-auto justify-between">
                 {#each voteOptions.reverse() as { key, label }}
                     <input id="song-star-{label}" class="hidden peer" type="radio" bind:group={vote.song} value={key} name="score" on:click={(e) => {
-                        e.target.parentElement.requestSubmit()
+                        songForm.requestSubmit()
                     }}/>
                     <label
                             class="text-yellow-400 ease-in-out duration-300 text-4xl
@@ -55,14 +59,14 @@
 
     <div class="py-5">
         <h4 class="text-center">💃 Performance {vote.performance}/10</h4>
-        <form method="POST" action="?/vote" use:enhance>
+        <form method="POST" action="?/vote" use:enhance bind:this={perfForm}>
             <input name="countrySlug" type="hidden" value={country.slug}>
             <input name="cat" type="hidden" value="performance">
             <input name="userId" type="hidden" value={$currentUser.id}>
             <div class="flex flex-row-reverse items-center mx-auto justify-between">
                 {#each voteOptions as { key, label }}
                     <input id="performance-star-{label}" class="hidden peer" type="radio" bind:group={vote.performance} value={key} name="score" on:click={(e) => {
-                        e.target.parentElement.requestSubmit()
+                        perfForm.requestSubmit()
                     }}/>
                     <label
                             class="text-yellow-400 ease-in-out duration-300 text-4xl
@@ -77,14 +81,14 @@
 
     <div class="py-5">
         <h4 class="text-center">🥻 Costume {vote.costume}/10</h4>
-        <form method="POST" action="?/vote" use:enhance>
+        <form method="POST" action="?/vote" use:enhance bind:this={costForm}>
             <input name="countrySlug" type="hidden" value={country.slug}>
             <input name="cat" type="hidden" value="costume">
             <input name="userId" type="hidden" value={$currentUser.id}>
             <div class="flex flex-row-reverse items-center mx-auto justify-between">
                 {#each voteOptions as { key, label }}
                     <input id="costume-star-{label}" class="hidden peer" type="radio" bind:group={vote.costume} value={key} name="score" on:click={(e) => {
-                        e.target.parentElement.requestSubmit()
+                        costForm.requestSubmit()
                     }}/>
                     <label
                             class="text-yellow-400 ease-in-out duration-300 text-4xl
@@ -99,14 +103,14 @@
 
     <div class="py-5">
         <h4 class="text-center">🎆 Staging and Props {vote.props}/10</h4>
-        <form method="POST" action="?/vote" use:enhance>
+        <form method="POST" action="?/vote" use:enhance bind:this={propForm}>
             <input name="countrySlug" type="hidden" value={country.slug}>
             <input name="cat" type="hidden" value="props">
             <input name="userId" type="hidden" value={$currentUser.id}>
             <div class="flex flex-row-reverse items-center mx-auto justify-between">
                 {#each voteOptions as { key, label }}
                     <input id="props-star-{label}" class="hidden peer" type="radio" bind:group={vote.props} value={key} name="score" on:click={(e) => {
-                        e.target.parentElement.requestSubmit()
+                        propForm.requestSubmit()
                     }}/>
                     <label
                             class="text-yellow-400 ease-in-out duration-300 text-4xl
