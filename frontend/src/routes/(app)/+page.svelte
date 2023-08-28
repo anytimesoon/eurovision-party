@@ -65,8 +65,8 @@
     </div>
 
     <div class="flex">
-        <textarea class="flex w-full border-2 border-purple-400 rounded px-3 text-sm p-4" name="msg" id="msg" on:keyup={sendMsgWithKeyboard}></textarea>
-        <input class="m-4 p-4 bg-purple-500 text-white rounded" type="button" value="Send" on:click={sendMsg}/>
+        <textarea class="w-full border-2 border-purple-400 rounded text-sm p-3" name="msg" id="msg" on:keyup={sendMsgWithKeyboard}></textarea>
+        <input class="ml-4 p-4 bg-purple-500 text-white rounded" type="button" value="Send" on:click={sendMsg}/>
     </div>
 </div>
 
