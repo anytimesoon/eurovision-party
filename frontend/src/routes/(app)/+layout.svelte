@@ -57,9 +57,8 @@
     menu.classList.add('-right-56')
   }
 
-  const handleWindowClick = (e:Event<HTMLElement>) => {
-    console.log("handling")
-    if(menu.classList.contains("right-0") && e.target.id !== "voteNav" && e.target.parentElement.id !== "voteNav" && e.target !== menu){
+  const handleWindowClick = (e:Event) => {
+    if(menu.classList.contains("right-0") && !e.target.classList.contains("voteNav") && e.target !== menu){
       closeMenu()
     }
   };
