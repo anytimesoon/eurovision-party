@@ -5,16 +5,15 @@
     import ChatIcon from "$lib/components/icons/ChatIcon.svelte";
 
     export let icon = ""
+    export let menu:HTMLElement
 
     const openMenu = () => {
-
-        const menu = document.getElementById("menu")
-        menu.classList.remove("w-0")
-        menu.classList.add("w-56")
+        menu.classList.add("right-0")
+        menu.classList.remove("-right-56")
     }
 </script>
 
-<div class="px-5 text-center">
+<div class="text-center">
 
         {#if icon === "chat" }
             <a class="text-neutral-500 transition duration-200 hover:text-neutral-700 hover:ease-in-out focus:text-neutral-700 disabled:text-black/30 motion-reduce:transition-none dark:text-neutral-200 dark:hover:text-neutral-300 dark:focus:text-neutral-300 [&.active]:text-black/90 dark:[&.active]:text-neutral-400" href="/">
@@ -24,16 +23,18 @@
                 Chat
             </a>
         {:else if icon === "votes" }
-            <a
-               class="text-neutral-500 transition duration-200 hover:text-neutral-700 hover:ease-in-out focus:text-neutral-700 disabled:text-black/30 motion-reduce:transition-none dark:text-neutral-200 dark:hover:text-neutral-300 dark:focus:text-neutral-300 [&.active]:text-black/90 dark:[&.active]:text-neutral-400"
-               href="#"
-               on:click={openMenu}
-               role="button">
-                <span class="[&>svg]:w-10">
-                    <VoteIcon />
-                </span>
-                Votes
-            </a>
+            <div id="voteNav">
+                <a
+                   class="text-neutral-500 transition duration-200 hover:text-neutral-700 hover:ease-in-out focus:text-neutral-700 disabled:text-black/30 motion-reduce:transition-none dark:text-neutral-200 dark:hover:text-neutral-300 dark:focus:text-neutral-300 [&.active]:text-black/90 dark:[&.active]:text-neutral-400"
+                   href="#"
+                   on:click={openMenu}
+                   role="button">
+                    <span class="[&>svg]:w-10">
+                        <VoteIcon />
+                    </span>
+                    Votes
+                </a>
+            </div>
         {:else if icon === "results" }
             <a class="text-neutral-500 transition duration-200 hover:text-neutral-700 hover:ease-in-out focus:text-neutral-700 disabled:text-black/30 motion-reduce:transition-none dark:text-neutral-200 dark:hover:text-neutral-300 dark:focus:text-neutral-300 [&.active]:text-black/90 dark:[&.active]:text-neutral-400" href="/results">
                 <span class="[&>svg]:w-10">

@@ -65,7 +65,7 @@
                         e.target.parentElement.requestSubmit()
                     }}/>
                     <label
-                            class="text-yellow-400 ease-in-out duration-300 text-5xl
+                            class="text-yellow-400 ease-in-out duration-300 text-4xl
                             hover:text-yellow-500
                             before:content-['\2606']
                             peer-checked:before:content-['\2605']"
@@ -87,7 +87,7 @@
                         e.target.parentElement.requestSubmit()
                     }}/>
                     <label
-                            class="text-yellow-400 ease-in-out duration-300 text-5xl
+                            class="text-yellow-400 ease-in-out duration-300 text-4xl
                             hover:text-yellow-500
                             before:content-['\2606']
                             peer-checked:before:content-['\2605']"
@@ -109,7 +109,7 @@
                         e.target.parentElement.requestSubmit()
                     }}/>
                     <label
-                            class="text-yellow-400 ease-in-out duration-300 text-5xl
+                            class="text-yellow-400 ease-in-out duration-300 text-4xl
                             hover:text-yellow-500
                             before:content-['\2606']
                             peer-checked:before:content-['\2605']"

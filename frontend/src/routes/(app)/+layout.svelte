@@ -5,11 +5,17 @@
   import type {CommentModel} from "$lib/models/classes/comment.model";
   import {commentStore} from "$lib/stores/comment.store";
   import MenuButton from "$lib/components/buttons/MenuButton.svelte";
+  import {onMount} from "svelte";
 
 
   export let data:LayoutData
   $countryStore = data.countries
   const socket = data.socket
+  let menu:HTMLElement
+
+  onMount(() => {
+    menu = document.getElementById("menu")
+  })
 
   socket.onmessage = function (event) {
     const split = event.data.split("\n")
@@ -47,48 +53,47 @@
 
   const closeMenu = () => {
     const menu = document.getElementById("menu")
-    menu.classList.remove('w-56')
-    menu.classList.add('w-0')
+    menu.classList.remove('right-0')
+    menu.classList.add('-right-56')
   }
 
+  const handleWindowClick = (e:Event<HTMLElement>) => {
+    console.log("handling")
+    if(menu.classList.contains("right-0") && e.target.id !== "voteNav" && e.target.parentElement.id !== "voteNav" && e.target !== menu){
+      closeMenu()
+    }
+  };
 
 </script>
-
-<main class="flex h-screen">
-  <div class="flex mx-auto">
-    <div class="flex-col flex">
-      <div id="content" class="max-w-lg flex min-h-[calc(100vh-5em)] max-h-[calc(100vh-5em)]">
+<svelte:window on:click={handleWindowClick} />
+<main class="h-screen max-w-screen-sm mx-auto p-3 relative">
+  <div class="flex flex-col">
+      <div id="content" class="flex h-[calc(100vh-5rem)] pb-3">
         <div class="flex-grow">
           <slot />
         </div>
       </div>
-      <nav class="h-5 flex w-full flex-wrap items-center justify-between bg-[#FBFBFB] p-2 text-neutral-500 hover:text-neutral-700 focus:text-neutral-700 dark:bg-neutral-600">
-        <div class="flex w-full flex-wrap items-center justify-between px-3">
-          <div class="flex-grow basis-auto items-center justify-center flex">
+      <nav class="h-4 flex w-full flex-wrap items-center justify-between bg-[#FBFBFB] text-neutral-500 hover:text-neutral-700 focus:text-neutral-700 dark:bg-neutral-600">
 
-            <MenuButton icon="chat" />
-            <MenuButton icon="votes"/>
-            <MenuButton icon="results" />
-            <MenuButton icon="settings" />
+            <MenuButton icon="chat" menu={menu}/>
+            <MenuButton icon="votes" menu={menu}/>
+            <MenuButton icon="results"  menu={menu}/>
+            <MenuButton icon="settings"  menu={menu}/>
 
-          </div>
-        </div>
       </nav>
-    </div>
-
   </div>
 
-
-  <aside id="menu" class="w-0 z-1 overflow-auto flex duration-500">
-    <div class="w-full 2flex flex-col p-5 space-y-4">
-      <a href="#" on:click={closeMenu} class="text-right text-4xl">&times;</a>
+  <aside id="menu" class="fixed top-0 -right-56 bg-white z-1 flex duration-500 h-screen overflow-auto">
+    <div class="w-full flex flex-col p-5">
+<!--      <a href="#" on:click={closeMenu} class="text-right text-4xl">&times;</a>-->
       <ul class="list-none">
         {#each $participatingCountryStore as country}
-          <li class="py-2"><a href="/country/{country.slug}">{country.flag} {country.name}</a></li>
+          <li class="py-2"><a href="/country/{country.slug}" on:click={closeMenu}>{country.flag} {country.name}</a></li>
         {/each}
       </ul>
     </div>
   </aside>
+
 </main>
 
 
