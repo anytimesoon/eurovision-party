@@ -57,7 +57,7 @@
 <main class="flex h-screen">
   <div class="flex mx-auto">
     <div class="flex-col flex">
-      <div id="content" class="max-w-lg flex min-h-[calc(100vh-5em)]">
+      <div id="content" class="max-w-lg flex min-h-[calc(100vh-5em)] max-h-[calc(100vh-5em)]">
         <div class="flex-grow">
           <slot />
         </div>

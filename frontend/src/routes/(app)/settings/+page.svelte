@@ -31,7 +31,7 @@
 {/if}
 
 <div class="px-1">
-    <h1>Personal Settings</h1>
+    <h1 class="text-center">Personal Settings</h1>
     <div class="py-3">
         {#if hideNameForm }
             <div class="max-w-max mx-auto">

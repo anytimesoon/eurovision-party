@@ -30,7 +30,7 @@
 {/if}
 
 <div class="flex flex-col max-h-max">
-    <h1 class="text-center">Select countries participating in the final</h1>
+    <h1 class="text-center">Select participating countries</h1>
     <div class="p-4 rounded mb-3 overflow-auto max-h-[calc(100vh-10em)]">
         <div class="grid grid-cols-1">
             <div class="col-end-1">
