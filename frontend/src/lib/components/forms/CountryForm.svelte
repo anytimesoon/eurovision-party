@@ -18,7 +18,7 @@
 
     <label for="check-{country.slug}">
         <input type="checkbox" id="check-{country.slug}" name="participating" class="hidden" bind:checked={country.participating} on:change={() => form.requestSubmit()}>
-        <span class="p-3 h-full w-full border-2 border-grey-4" class:border-amber-300={country.participating}>
+        <span>
             {country.flag} {country.name}
         </span>
     </label>

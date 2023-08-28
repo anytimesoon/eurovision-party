@@ -31,22 +31,22 @@
 
 <div class="flex flex-col max-h-max">
     <h1 class="text-center">Selected {$participatingCountryStore.length} countries</h1>
-    <div class="p-4 rounded mb-3 overflow-auto max-h-[calc(100vh-10em)]">
+    <div class="rounded mb-3 overflow-auto max-h-[calc(100vh-10em)]">
         <div class="grid grid-cols-1">
-            <div class="col-end-1">
+            <div class="col-end-1 w-50">
                 <ul>
                     {#each $notParticipatingCountryStore as country}
-                        <li class="p-3 my-1.5">
+                        <li class="p-3 my-1.5 border-2 border-grey-400 text-center w-full">
                             <CountryForm country={country} />
                         </li>
                     {/each}
                 </ul>
             </div>
 
-            <div class="col-end-2">
+            <div class="col-end-2 pl-3 w-50">
                 <ul>
                     {#each $participatingCountryStore as country}
-                        <li class="p-3 my-1.5">
+                        <li class="p-3 my-1.5 border-2 border-amber-400 text-center w-full">
                             <CountryForm country={country} />
                         </li>
                     {/each}
