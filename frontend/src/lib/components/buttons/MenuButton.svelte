@@ -23,18 +23,16 @@
                 Chat
             </a>
         {:else if icon === "votes" }
-            <div id="voteNav">
                 <a
-                   class="text-neutral-500 transition duration-200 hover:text-neutral-700 hover:ease-in-out focus:text-neutral-700 disabled:text-black/30 motion-reduce:transition-none dark:text-neutral-200 dark:hover:text-neutral-300 dark:focus:text-neutral-300 [&.active]:text-black/90 dark:[&.active]:text-neutral-400"
+                   class="voteNav text-neutral-500 transition duration-200 hover:text-neutral-700 hover:ease-in-out focus:text-neutral-700 disabled:text-black/30 motion-reduce:transition-none dark:text-neutral-200 dark:hover:text-neutral-300 dark:focus:text-neutral-300 [&.active]:text-black/90 dark:[&.active]:text-neutral-400"
                    href="#"
                    on:click={openMenu}
                    role="button">
-                    <span class="[&>svg]:w-10">
+                    <span class="[&>svg]:w-10 voteNav">
                         <VoteIcon />
                     </span>
                     Votes
                 </a>
-            </div>
         {:else if icon === "results" }
             <a class="text-neutral-500 transition duration-200 hover:text-neutral-700 hover:ease-in-out focus:text-neutral-700 disabled:text-black/30 motion-reduce:transition-none dark:text-neutral-200 dark:hover:text-neutral-300 dark:focus:text-neutral-300 [&.active]:text-black/90 dark:[&.active]:text-neutral-400" href="/results">
                 <span class="[&>svg]:w-10">
