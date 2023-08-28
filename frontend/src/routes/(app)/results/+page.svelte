@@ -43,38 +43,50 @@
     $: updateResults(form)
 </script>
 
-<form method="POST" action="?/getUserResults" use:enhance>
-    <select value={form?.selection ?? ""} name="id" on:change={(e) => {e.target.parentElement.requestSubmit()}}>
-        <option value="">Main Results</option>
-        {#each userArray as userInfo}
-            <option value={userInfo[0]}>{userInfo[1].name}</option>
-        {/each}
-    </select>
-</form>
+<div class="h-full overflow-auto">
+    <h1 class="text-center">Rankings</h1>
 
-<table>
-    <thead>
-    <tr>
-        <th>Country</th>
-        <th on:click={sort("song")}>Song</th>
-        <th on:click={sort("performance")}>Performance</th>
-        <th on:click={sort("costume")}>Costume</th>
-        <th on:click={sort("props")}>Props</th>
-        <th on:click={sort("total")}>Total</th>
-    </tr>
-    </thead>
-    <tbody>
-    {#each results as result}
-        {#if result.total !== 0}
+    <div class="py-3">
+        <form method="POST" action="?/getUserResults" use:enhance>
+            <select class="w-full text-center py-3" value={form?.selection ?? ""} name="id" on:change={(e) => {e.target.parentElement.requestSubmit()}}>
+                <option value="">Main Results</option>
+                {#each userArray as userInfo}
+                    {#if userInfo[1].name !== "bot"}
+                        <option value={userInfo[0]}>{userInfo[1].name}</option>
+                    {/if}
+                {/each}
+            </select>
+        </form>
+    </div>
+
+
+    <div class="py-3">
+        <table class="w-full border-spacing-y-3 border-collapse">
+            <thead>
             <tr>
-                <td>{$countryStore.find(c => c.slug === result.countrySlug).name}</td>
-                <td>{result.song}</td>
-                <td>{result.performance}</td>
-                <td>{result.costume}</td>
-                <td>{result.props}</td>
-                <td>{result.total}</td>
+                <th>🌍</th>
+                <th on:click={sort("song")}>Song</th>
+                <th on:click={sort("performance")}>Perf.</th>
+                <th on:click={sort("costume")}>Cost.</th>
+                <th on:click={sort("props")}>Props</th>
+                <th on:click={sort("total")}>Total</th>
             </tr>
-        {/if}
-    {/each}
-    </tbody>
-</table>
+            </thead>
+            <tbody>
+            {#each results as result}
+                {#if result.total !== 0}
+                    <tr class="text-center">
+                        <td class="py-3">{$countryStore.find(c => c.slug === result.countrySlug).flag}</td>
+                        <td>{result.song}</td>
+                        <td>{result.performance}</td>
+                        <td>{result.costume}</td>
+                        <td>{result.props}</td>
+                        <td>{result.total}</td>
+                    </tr>
+                {/if}
+            {/each}
+            </tbody>
+        </table>
+    </div>
+
+</div>
