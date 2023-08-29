@@ -10,7 +10,7 @@ export const actions : Actions = {
         const resProm = await fetch(countryGoEP.UPDATE, {
             method: "PUT",
             body: JSON.stringify(country, (key, value) => {
-            if (key == "participating") {
+            if (key === "participating") {
                 return value === "on"
             } else {
                 return value
