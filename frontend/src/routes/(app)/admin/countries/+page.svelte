@@ -1,7 +1,7 @@
 <script lang="ts">
     import {countryStore, notParticipatingCountryStore, participatingCountryStore} from "$lib/stores/country.store";
     import type {ActionData} from "./$types";
-    import CountryForm from "$lib/components/forms/CountryForm.svelte";
+    import CountryParticipationForm from "$lib/components/forms/CountryParticipationForm.svelte";
     import type {CountryModel} from "$lib/models/classes/country.model";
     import {currentUser} from "$lib/stores/user.store";
     import {authLvl} from "$lib/models/enums/authLvl.enum";
@@ -37,7 +37,7 @@
                 <ul>
                     {#each $notParticipatingCountryStore as country}
                         <li class="p-3 my-1.5 border-2 border-grey-400 text-center w-full">
-                            <CountryForm country={country} />
+                            <CountryParticipationForm country={country} />
                         </li>
                     {/each}
                 </ul>
@@ -47,7 +47,7 @@
                 <ul>
                     {#each $participatingCountryStore as country}
                         <li class="p-3 my-1.5 border-2 border-amber-400 text-center w-full">
-                            <CountryForm country={country} />
+                            <CountryParticipationForm country={country} />
                         </li>
                     {/each}
                 </ul>
