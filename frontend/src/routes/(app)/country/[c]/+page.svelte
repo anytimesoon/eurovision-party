@@ -30,10 +30,13 @@
 <div class="h-full overflow-auto p-3">
     <h1 class="text-center">{country.flag} {country.name}</h1>
 
-    {#if country.songName || country.bandName}
-        <h3>{country.songName}</h3>
-        <h5>{country.bandName}</h5>
-    {/if}
+    <div class="text-center py-3">
+        {#if country.songName || country.bandName}
+            <h3>{country.songName}</h3>
+            <p>performed by</p>
+            <h5>{country.bandName}</h5>
+        {/if}
+    </div>
 
     <div class="py-5">
         <h4 class="text-center">🎵 Song {vote.song}/10</h4>
@@ -43,7 +46,7 @@
             <input name="userId" type="hidden" value={$currentUser.id}>
             <div class="flex flex-row-reverse items-center mx-auto justify-between">
                 {#each voteOptions.reverse() as { key, label }}
-                    <input id="song-star-{label}" class="hidden peer" type="radio" bind:group={vote.song} value={key} name="score" on:click={(e) => {
+                    <input id="song-star-{label}" class="hidden peer" type="radio" bind:group={vote.song} value={key} name="score" on:click={() => {
                         songForm.requestSubmit()
                     }}/>
                     <label
@@ -65,7 +68,7 @@
             <input name="userId" type="hidden" value={$currentUser.id}>
             <div class="flex flex-row-reverse items-center mx-auto justify-between">
                 {#each voteOptions as { key, label }}
-                    <input id="performance-star-{label}" class="hidden peer" type="radio" bind:group={vote.performance} value={key} name="score" on:click={(e) => {
+                    <input id="performance-star-{label}" class="hidden peer" type="radio" bind:group={vote.performance} value={key} name="score" on:click={() => {
                         perfForm.requestSubmit()
                     }}/>
                     <label
@@ -87,7 +90,7 @@
             <input name="userId" type="hidden" value={$currentUser.id}>
             <div class="flex flex-row-reverse items-center mx-auto justify-between">
                 {#each voteOptions as { key, label }}
-                    <input id="costume-star-{label}" class="hidden peer" type="radio" bind:group={vote.costume} value={key} name="score" on:click={(e) => {
+                    <input id="costume-star-{label}" class="hidden peer" type="radio" bind:group={vote.costume} value={key} name="score" on:click={() => {
                         costForm.requestSubmit()
                     }}/>
                     <label
@@ -109,7 +112,7 @@
             <input name="userId" type="hidden" value={$currentUser.id}>
             <div class="flex flex-row-reverse items-center mx-auto justify-between">
                 {#each voteOptions as { key, label }}
-                    <input id="props-star-{label}" class="hidden peer" type="radio" bind:group={vote.props} value={key} name="score" on:click={(e) => {
+                    <input id="props-star-{label}" class="hidden peer" type="radio" bind:group={vote.props} value={key} name="score" on:click={() => {
                         propForm.requestSubmit()
                     }}/>
                     <label
