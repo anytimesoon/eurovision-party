@@ -28,12 +28,14 @@
     <AdminNav />
 {/if}
 
-<h1 class="text-center">Acts</h1>
+<div class="rounded mb-3 overflow-auto max-h-[calc(100vh-10em)]">
+    <h1 class="text-center">Acts</h1>
 
-{#each $participatingCountryStore as country}
+    {#each $participatingCountryStore as country}
 
-    <div class="py-3 border-b-2 border-b-amber-500">
-        <h3>{country.flag} {country.name}</h3>
-        <CountryActForm country={country}/>
-    </div>
-{/each}
+        <div class="py-3 border-b-2 border-b-amber-500">
+            <h3>{country.flag} {country.name}</h3>
+            <CountryActForm country={country}/>
+        </div>
+    {/each}
+</div>
