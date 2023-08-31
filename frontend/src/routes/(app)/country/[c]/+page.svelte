@@ -39,7 +39,7 @@
     </div>
 
     <div class="py-5">
-        <h4 class="text-center">🎵 Song {vote.song}/10</h4>
+        <h4 class="text-center"><i class="fa-solid fa-music"></i> Song {vote.song}/10</h4>
         <form method="POST" action="?/vote" use:enhance bind:this={songForm}>
             <input name="countrySlug" type="hidden" value={country.slug}>
             <input name="cat" type="hidden" value="song">
@@ -61,7 +61,7 @@
     </div>
 
     <div class="py-5">
-        <h4 class="text-center">💃 Performance {vote.performance}/10</h4>
+        <h4 class="text-center"><i class="fa-solid fa-masks-theater"></i> Performance {vote.performance}/10</h4>
         <form method="POST" action="?/vote" use:enhance bind:this={perfForm}>
             <input name="countrySlug" type="hidden" value={country.slug}>
             <input name="cat" type="hidden" value="performance">
@@ -83,7 +83,7 @@
     </div>
 
     <div class="py-5">
-        <h4 class="text-center">🥻 Costume {vote.costume}/10</h4>
+        <h4 class="text-center"><i class="fa-solid fa-user-ninja"></i> Costume {vote.costume}/10</h4>
         <form method="POST" action="?/vote" use:enhance bind:this={costForm}>
             <input name="countrySlug" type="hidden" value={country.slug}>
             <input name="cat" type="hidden" value="costume">
@@ -105,7 +105,7 @@
     </div>
 
     <div class="py-5">
-        <h4 class="text-center">🎆 Staging and Props {vote.props}/10</h4>
+        <h4 class="text-center"><i class="fa-solid fa-burst"></i> Staging and Props {vote.props}/10</h4>
         <form method="POST" action="?/vote" use:enhance bind:this={propForm}>
             <input name="countrySlug" type="hidden" value={country.slug}>
             <input name="cat" type="hidden" value="props">
