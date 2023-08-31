@@ -33,29 +33,31 @@
 <div class="px-1">
     <h1 class="text-center">Personal Settings</h1>
     <div class="py-3">
+        <div class="max-w-max mx-auto">
         {#if hideNameForm }
-            <div class="max-w-max mx-auto">
 
-                <p class="inline-block">{$currentUser.name}</p>
+
+
                 <form class="inline-block" method="POST" action="?/showNameForm" use:enhance>
-                    <button>Edit</button>
+                    <span class="inline-block">{$currentUser.name} <button><i class="fa-regular fa-pen-to-square"></i></button></span>
                 </form>
-            </div>
+
 
         {:else}
             <form method="POST" action="?/updateName" use:enhance>
                 <input type="text" name="name" bind:value={$currentUser.name} />
                 <input type="hidden" name="id" bind:value={$currentUser.id} />
-                <button>Save</button>
+                <button><i class="fa-solid fa-floppy-disk"></i></button>
             </form>
         {/if}
+        </div>
     </div>
 
     {#if hideImgForm }
-        <div class="py-3 max-w-max mx-auto">
-            <img class="max-w-[10rem]" src={staticEP.IMG + $currentUser.icon} alt={$currentUser.name + "'s avatar"}>
+        <div class="py-3 max-w-[10rem] mx-auto relative">
+            <img class="w-full" src={staticEP.IMG + $currentUser.icon} alt={$currentUser.name + "'s avatar"}>
             <form method="POST" action="?/showImgForm" use:enhance>
-                <button>Edit</button>
+                <button class="absolute top-5 right-5"><i class="fa-regular fa-pen-to-square"></i></button>
             </form>
         </div>
 
