@@ -1,9 +1,4 @@
 <script lang="ts">
-    import ResultIcon from "$lib/components/icons/ResultIcon.svelte";
-    import SettingIcon from "$lib/components/icons/SettingIcon.svelte";
-    import VoteIcon from "$lib/components/icons/VoteIcon.svelte";
-    import ChatIcon from "$lib/components/icons/ChatIcon.svelte";
-
     export let icon = ""
     export let menu:HTMLElement
 
