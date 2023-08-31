@@ -16,34 +16,34 @@
 <div class="text-center">
 
         {#if icon === "chat" }
-            <a class="text-neutral-500 transition duration-200 hover:text-neutral-700 hover:ease-in-out focus:text-neutral-700 disabled:text-black/30 motion-reduce:transition-none dark:text-neutral-200 dark:hover:text-neutral-300 dark:focus:text-neutral-300 [&.active]:text-black/90 dark:[&.active]:text-neutral-400" href="/">
-                <span class="[&>svg]:w-10">
-                    <ChatIcon />
+            <a href="/">
+                <span class="block pb-1">
+                    <i class="fa-solid fa-message fa-2xl"></i>
                 </span>
                 Chat
             </a>
         {:else if icon === "votes" }
                 <a
-                   class="voteNav text-neutral-500 transition duration-200 hover:text-neutral-700 hover:ease-in-out focus:text-neutral-700 disabled:text-black/30 motion-reduce:transition-none dark:text-neutral-200 dark:hover:text-neutral-300 dark:focus:text-neutral-300 [&.active]:text-black/90 dark:[&.active]:text-neutral-400"
-                   href="#"
+                   class="voteNav"
+                   href=""
                    on:click={openMenu}
                    role="button">
-                    <span class="[&>svg]:w-10 voteNav">
-                        <VoteIcon />
+                    <span class="block pb-1 voteNav">
+                        <i class="fa-solid fa-star fa-2xl voteNav"></i>
                     </span>
                     Votes
                 </a>
         {:else if icon === "results" }
-            <a class="text-neutral-500 transition duration-200 hover:text-neutral-700 hover:ease-in-out focus:text-neutral-700 disabled:text-black/30 motion-reduce:transition-none dark:text-neutral-200 dark:hover:text-neutral-300 dark:focus:text-neutral-300 [&.active]:text-black/90 dark:[&.active]:text-neutral-400" href="/results">
-                <span class="[&>svg]:w-10">
-                    <ResultIcon />
+            <a href="/results">
+                <span class="block pb-1">
+                    <i class="fa-solid fa-medal fa-2xl"></i>
                 </span>
                 Results
             </a>
         {:else if icon === "settings" }
-            <a class="text-neutral-500 transition duration-200 hover:text-neutral-700 hover:ease-in-out focus:text-neutral-700 disabled:text-black/30 motion-reduce:transition-none dark:text-neutral-200 dark:hover:text-neutral-300 dark:focus:text-neutral-300 [&.active]:text-black/90 dark:[&.active]:text-neutral-400" href="/settings">
-                <span class="[&>svg]:w-10">
-                    <SettingIcon />
+            <a href="/settings">
+                <span class="block pb-1">
+                    <i class="fa-solid fa-gear fa-2xl"></i>
                 </span>
                 Settings
             </a>
