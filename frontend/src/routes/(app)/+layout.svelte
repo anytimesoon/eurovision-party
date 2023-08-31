@@ -25,28 +25,25 @@
         case chatMsgCat.COMMENT:
           let comment:CommentModel = chatMessage.body
           comment.createdAt = new Date(chatMessage.body.createdAt)
-                console.log(comment)
           commentStore.update(comments => {
-            return [...comments, comment]
+            return [comment, ...comments]
           });
           break
         case chatMsgCat.COMMENT_ARRAY:
           let commentModels:CommentModel[] = chatMessage.body
-                console.log(commentModels)
+
           for (let i = 0; i < commentModels.length; i++) {
-            commentModels[i].createdAt = new Date(commentModels[i].createdAt)
+              commentModels[i].createdAt = new Date(commentModels[i].createdAt)
+              commentStore.update(comments => {
+                  return [commentModels[i], ...comments]
+              });
           }
-          commentStore.update(comments => {
-            return [...comments, ...commentModels]
-          })
           break
         default:
           console.log("bad message: " + c)
       }
 
-      let chatBox = document.getElementById("chat-box")
-      console.log("scrolling")
-      chatBox.scrollTop = chatBox.scrollHeight
+
     })
 
   };
@@ -72,7 +69,7 @@
           <slot />
         </div>
       </div>
-      <nav class="h-4 flex w-full flex-wrap items-center justify-between bg-[#FBFBFB] text-neutral-500 hover:text-neutral-700 focus:text-neutral-700 dark:bg-neutral-600">
+      <nav class="h-4 flex w-full flex-wrap items-center justify-between">
 
             <MenuButton icon="chat" menu={menu}/>
             <MenuButton icon="votes" menu={menu}/>

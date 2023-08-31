@@ -31,8 +31,8 @@
 
 </script>
 
-<div class="flex flex-col h-full">
-    <div id="chat-box" class="border-2 flex-auto border-purple-400 h-0 p-4 overflow-auto rounded mb-3">
+<div class="h-[calc(100vh-6rem)] flex flex-col">
+    <div id="chat-box" class="border-2 flex flex-col flex-col-reverse flex-auto border-purple-400 p-4 overflow-auto rounded mb-3">
         {#each $commentStore as comment}
             {#if $currentUser.id === comment.userId}
                 <div class="flex w-full mt-2 space-x-3 max-w-xs ml-auto justify-end">
