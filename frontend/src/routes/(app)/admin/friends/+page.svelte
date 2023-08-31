@@ -5,7 +5,6 @@
     import {currentUser} from "$lib/stores/user.store";
     import {authLvl} from "$lib/models/enums/authLvl.enum";
     import AdminNav from "$lib/components/AdminNav.svelte";
-    import type {UserModel} from "$lib/models/classes/user.model";
     import {NewUserModel} from "$lib/models/classes/user.model";
 
     export let data:PageData
@@ -21,7 +20,7 @@
 
     const copyLink = (user:NewUserModel, e:Event) => {
         navigator.clipboard.writeText(authEP.SVELTE_LOGIN + "/" + user.token + "/" + user.id)
-        e.target.innerHTML = "Copied!"
+        // e.target.innerHTML = "Copied!"
     }
 
     $: updateUsers(form)
@@ -35,13 +34,15 @@
 <div class="p-3">
 
     <form method="POST" action="?/register" use:enhance >
-        <div>
+        <div class="w-fit mx-auto py-3">
+        <span class="w-fit">
             <label for="new-user-name">name</label>
             <input id="new-user-name" type="text" name="name" />
+            <button><i class="fa-regular fa-floppy-disk"></i></button>
+        </span>
         </div>
-
         <!--        email <input id="" type="text" name="email" />-->
-        <input type="submit">
+
     </form>
 </div>
 
@@ -70,7 +71,7 @@
 <!--                    {user.email}-->
 <!--                </td>-->
                 <td class="text-right">
-                    <button on:click={(e) => copyLink(user, e)}>Copy</button>
+                    <button on:click={(e) => copyLink(user, e)}><i class="fa-regular fa-copy"></i></button>
                 </td>
             </tr>
         {/each}
