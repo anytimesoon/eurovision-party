@@ -3,6 +3,7 @@
   import type {LayoutData} from "./$types";
   import MenuButton from "$lib/components/buttons/MenuButton.svelte";
   import {onMount} from "svelte";
+  import "./../../../node_modules/@fortawesome/fontawesome-free/css/all.css"
 
 
   export let data:LayoutData
