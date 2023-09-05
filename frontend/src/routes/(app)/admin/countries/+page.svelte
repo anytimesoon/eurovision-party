@@ -33,7 +33,7 @@
     <h1 class="text-center">Selected {$participatingCountryStore.length} countries</h1>
     <div class="rounded mb-3 overflow-auto max-h-[calc(100vh-10em)]">
         <div class="grid grid-cols-2 gap-x-3">
-            <div class="">
+            <div>
                 <ul>
                     {#each $notParticipatingCountryStore as country}
                         <li class="p-3 my-1.5 border-2 border-grey-400 text-center w-full">
@@ -43,7 +43,7 @@
                 </ul>
             </div>
 
-            <div class="">
+            <div>
                 <ul>
                     {#each $participatingCountryStore as country}
                         <li class="p-3 my-1.5 border-2 border-amber-400 text-center w-full">
