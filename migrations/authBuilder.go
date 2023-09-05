@@ -21,6 +21,7 @@ func CreateAuthTable(db *sqlx.DB) {
 				sessionToken VARCHAR(191) DEFAULT '',
 				sessionTokenExp DATETIME,
 				authLvl TINYINT,
+				lastUpdated TIMESTAMP NOT NULL DEFAULT NOW() ON UPDATE NOW(),
 				slug VARCHAR(191));`
 
 	_, err = db.Exec(query)

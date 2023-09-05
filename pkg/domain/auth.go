@@ -17,6 +17,7 @@ type Auth struct {
 	SessionToken    string       `db:"sessionToken"`
 	SessionTokenExp time.Time    `db:"sessionTokenExp"`
 	AuthLvl         enum.AuthLvl `db:"authLvl"`
+	LastUpdated     time.Time    `db:"lastUpdated"`
 	Slug            string       `db:"slug"`
 }
 
