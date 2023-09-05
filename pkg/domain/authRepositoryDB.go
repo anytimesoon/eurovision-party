@@ -83,54 +83,17 @@ func (db AuthRepositoryDB) Authorize(authDTO *dto.Auth) (*Auth, *errs.AppError) 
 }
 
 func (db AuthRepositoryDB) AuthorizeChat(authDTO *dto.Auth) (*User, *errs.AppError) {
-	var auth Auth
-
-	getAuthQuery := "SELECT * FROM auth WHERE sessionToken = ? and userId = ?"
-	err := db.client.Get(&auth, getAuthQuery, authDTO.Token, authDTO.UserId)
-	if err != nil {
-		log.Printf("Unable to authorize user %s and etoken %s combination for chat. %s", authDTO.UserId, authDTO.Token, err)
-		return nil, errs.NewUnauthorizedError("Couldn't authenticate you. Please try again.")
-	}
+	db.Authorize(authDTO)
 
 	var user User
 	getUserQuery := "SELECT * FROM user WHERE uuid = ?"
-	err = db.client.Get(&user, getUserQuery, authDTO.UserId.String())
+	err := db.client.Get(&user, getUserQuery, authDTO.UserId.String())
 	if err != nil {
 		log.Printf("Unable to find user %s for chat. %s", authDTO.UserId, err)
 		return nil, errs.NewUnexpectedError(errs.Common.DBFail)
 	}
 
 	return &user, nil
-}
-
-func (db AuthRepositoryDB) updateSession(userId uuid.UUID, auth *Auth) (*Auth, *errs.AppError) {
-	updateAuthQuery := "UPDATE auth SET sessionToken = ?, sessionTokenExp = Now() + INTERVAL 1 DAY WHERE userId = ?"
-	getAuthQuery := "SELECT * FROM auth WHERE userId = ?"
-
-	tx, err := db.client.Beginx()
-	if err != nil {
-		log.Printf("Error while starting transaction to update auth for user %s. %s", userId, err)
-		return auth, errs.NewUnexpectedError(errs.Common.NotUpdated + "your authentication")
-	}
-	_, err = tx.Exec(updateAuthQuery, auth.SessionToken, userId)
-	if err != nil {
-		log.Printf("Error while updating auth for user %s. %s", userId, err)
-		return auth, errs.NewUnexpectedError(errs.Common.NotUpdated + "your authentication")
-	}
-
-	err = tx.Get(&auth, getAuthQuery, userId)
-	if err != nil {
-		log.Printf("Unable to find user %s when authorizing. %s", userId, err)
-		return auth, errs.NewUnexpectedError(errs.Common.NotUpdated + "your authentication")
-	}
-
-	err = tx.Commit()
-	if err != nil {
-		log.Printf("Error while committing transaction to update auth for user %s. %s", userId, err)
-		return auth, errs.NewUnexpectedError(errs.Common.NotUpdated + "your authentication")
-	}
-
-	return auth, nil
 }
 
 func (db AuthRepositoryDB) FindOneUserByEmail(email string) (*User, *errs.AppError) {
