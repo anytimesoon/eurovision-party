@@ -6,9 +6,9 @@
     import {chatMsgCat} from "$lib/models/enums/chatMsgCat";
     import type {UserModel} from "$lib/models/classes/user.model";
     import {staticEP} from "$lib/models/enums/endpoints.enum.js";
+    import {socketStore} from "$lib/stores/socketStore";
 
     export let data;
-    let socket = data.socket
     let users:Map<string, UserModel> = data.users
 
     function sendMsg() {
@@ -19,7 +19,7 @@
         }
 
         const comment = new ChatMessageModel<CommentModel>(chatMsgCat.COMMENT, new CommentModel(input.value, $currentUser.id))
-        socket.send(JSON.stringify(comment))
+        $socketStore.send(JSON.stringify(comment))
         input.value = ""
     }
 
