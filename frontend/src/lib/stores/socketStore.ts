@@ -8,7 +8,7 @@ export const socketStore = socket()
 
 function socket() {
     let ws = connectToSocket()
-    const {subscribe, set, update} = writable(ws)
+    const {subscribe} = writable(ws)
     return {
         subscribe,
         send: (message:string) => ws.send(message),
@@ -23,7 +23,7 @@ function connectToSocket(){
         console.log("You're connected. Welcome to the party!!!🎉")
     };
 
-    socket.onclose = function (e) {
+    socket.onclose = function () {
         console.log("Connection stopped. Attempting to reconnect")
         if(socket.readyState === 3) {
             setTimeout(connectToSocket(), 1000)

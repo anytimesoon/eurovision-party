@@ -1,4 +1,4 @@
-import {chatEP, countrySvelteEP, userSvelteEP} from "$lib/models/enums/endpoints.enum";
+import {countrySvelteEP, userSvelteEP} from "$lib/models/enums/endpoints.enum";
 import {ResponseModel} from "$lib/models/classes/response.model";
 import {CountryModel} from "$lib/models/classes/country.model";
 import {redirect} from "@sveltejs/kit";
