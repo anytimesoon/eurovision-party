@@ -4,10 +4,12 @@
   import MenuButton from "$lib/components/buttons/MenuButton.svelte";
   import {onMount} from "svelte";
   import "./../../../node_modules/@fortawesome/fontawesome-free/css/all.css"
+  import {userStore} from "$lib/stores/user.store";
 
 
   export let data:LayoutData
   $countryStore = data.countries
+  $userStore = data.users
   let menu:HTMLElement
 
   onMount(() => {
