@@ -1,5 +1,5 @@
 import type {Actions} from "./$types";
-import {userGoEP, voteGoEP} from "$lib/models/enums/endpoints.enum";
+import {userGoEP} from "$lib/models/enums/endpoints.enum";
 import {ResponseModel} from "$lib/models/classes/response.model";
 import type {UserModel} from "$lib/models/classes/user.model";
 
