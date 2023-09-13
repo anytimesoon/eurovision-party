@@ -29,8 +29,8 @@ func StartServer(db *sqlx.DB, appConf conf.App) {
 
 	// Assets
 	fs := assets.NewStaticImageFS()
-	imageRouter := router.PathPrefix("/static").Subrouter()
-	imageRouter.PathPrefix("/content/").Handler(http.StripPrefix("/static/content/", fs)).Methods(http.MethodGet)
+	imageRouter := router.PathPrefix("/content").Subrouter()
+	imageRouter.PathPrefix("/static/").Handler(http.StripPrefix("/content/static/", fs)).Methods(http.MethodGet)
 	imageRouter.Use(imgHeaders)
 
 	// Restricted
