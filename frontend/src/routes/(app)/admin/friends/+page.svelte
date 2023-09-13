@@ -2,6 +2,10 @@
     import { enhance } from '$app/forms';
     import {authEP, userSvelteEP} from "$lib/models/enums/endpoints.enum";
     import type {PageData, ActionData} from "./$types";
+    import {currentUser} from "$lib/stores/user.store";
+    import {authLvl} from "$lib/models/enums/authLvl.enum";
+    import AdminNav from "$lib/components/AdminNav.svelte";
+    import {NewUserModel} from "$lib/models/classes/user.model";
 
     export let data:PageData
     export let form:ActionData
@@ -14,42 +18,63 @@
         }
     }
 
+    const copyLink = (user:NewUserModel, e:Event) => {
+        navigator.clipboard.writeText(authEP.SVELTE_LOGIN + "/" + user.token + "/" + user.id)
+        // e.target.innerHTML = "Copied!"
+    }
+
     $: updateUsers(form)
 </script>
 
-<form method="POST" action="?/register" use:enhance >
-    name <input type="text" name="name" />
-    email <input type="text" name="email" />
-    <input type="submit">
-</form>
+{#if $currentUser.authLvl === authLvl.ADMIN }
+    <AdminNav />
+{/if}
 
-<table>
-    <thead>
-    <tr>
-        <td>
-            Name
-        </td>
-        <td>
-            Email
-        </td>
-        <td>
-            Login
-        </td>
-    </tr>
-    </thead>
-    <tbody>
-    {#each users as user}
+<h1 class="text-center">Manage your friends</h1>
+<div class="p-3">
+
+    <form method="POST" action="?/register" use:enhance >
+        <div class="w-fit mx-auto py-3">
+        <span class="w-fit">
+            <label for="new-user-name">name</label>
+            <input id="new-user-name" type="text" name="name" />
+            <button><i class="fa-regular fa-floppy-disk"></i></button>
+        </span>
+        </div>
+        <!--        email <input id="" type="text" name="email" />-->
+
+    </form>
+</div>
+
+<div class="p-3">
+    <table class="max-w-full min-w-full">
+        <thead>
         <tr>
             <td>
-                <a href="{userSvelteEP.FIND_ONE}{user.slug}">{user.name}</a>
+                Name
             </td>
-            <td>
-                {user.email}
-            </td>
-            <td>
-                <button on:click={navigator.clipboard.writeText(authEP.SVELTE_LOGIN + "/" + user.token + "/" + user.id)}>Copy link</button>
+<!--            <td>-->
+<!--                Email-->
+<!--            </td>-->
+            <td class="w-[30%] text-right">
+                Login link
             </td>
         </tr>
-    {/each}
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+        {#each users as user}
+            <tr class="my-3">
+                <td>
+                    <a href="{userSvelteEP.FIND_ONE}{user.slug}">{user.name}</a>
+                </td>
+<!--                <td>-->
+<!--                    {user.email}-->
+<!--                </td>-->
+                <td class="text-right">
+                    <button on:click={(e) => copyLink(user, e)}><i class="fa-regular fa-copy"></i></button>
+                </td>
+            </tr>
+        {/each}
+        </tbody>
+    </table>
+</div>

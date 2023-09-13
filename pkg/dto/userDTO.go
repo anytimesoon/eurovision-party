@@ -4,6 +4,8 @@ import (
 	"eurovision/pkg/enum"
 	"eurovision/pkg/errs"
 	"github.com/google/uuid"
+	"image"
+	"mime/multipart"
 )
 
 type User struct {
@@ -15,15 +17,21 @@ type User struct {
 	AuthLvl enum.AuthLvl `json:"authLvl"`
 }
 
-type UserImage struct {
-	UUID  uuid.UUID `json:"id"`
-	Image string    `json:"img"`
-	//ImageBin image.Image
-	AuthLvl     enum.AuthLvl `json:"authLvl"`
-	TopLeft     int
-	TopRight    int
-	BottomLeft  int
-	BottomRight int
+//type UserImage struct {
+//	UUID  uuid.UUID `json:"id"`
+//	Image string    `json:"img"`
+//	//ImageBin image.Image
+//	TopLeft     int
+//	TopRight    int
+//	BottomLeft  int
+//	BottomRight int
+//}
+
+type UserAvatar struct {
+	UUID    uuid.UUID
+	File    multipart.File
+	Header  *multipart.FileHeader
+	CropBox image.Rectangle
 }
 
 func (u User) Validate() *errs.AppError {

@@ -5,9 +5,13 @@ import (
 	"eurovision/pkg/enum"
 	"eurovision/pkg/errs"
 	"eurovision/pkg/service"
+	"github.com/google/uuid"
+	"image"
 	"io"
 	"log"
+	"mime/multipart"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 )
@@ -56,24 +60,50 @@ func (uh UserHandler) UpdateUser(resp http.ResponseWriter, req *http.Request) {
 }
 
 func (uh UserHandler) UpdateImage(resp http.ResponseWriter, req *http.Request) {
-	var userImage *dto.UserImage
 	var user *dto.User
 	var appErr *errs.AppError
 
-	body, err := io.ReadAll(req.Body)
+	err := req.ParseMultipartForm(4000000)
 	if err != nil {
-		log.Println("FAILED to read body of USER IMAGE UPDATE!", err)
+		log.Println("Failed to parse form data", err)
 		return
 	}
 
-	userImage, err = dto.Decode[dto.UserImage](body)
+	id, err := uuid.Parse(req.PostFormValue("id"))
 	if err != nil {
-		return
+		log.Println("Failed to parse user id", err)
 	}
 
-	if req.Context().Value("auth").(dto.Auth).AuthLvl == enum.Admin ||
-		req.Context().Value("auth").(dto.Auth).UserId == userImage.UUID {
-		user, appErr = uh.Service.UpdateUserImage(*userImage)
+	if req.Context().Value("auth").(dto.Auth).UserId == id {
+		f, header, err := req.FormFile("img")
+		defer func(f multipart.File) {
+			err := f.Close()
+			if err != nil {
+				log.Println("Failed to close file")
+			}
+		}(f)
+		if err != nil {
+			log.Println("Failed to parse image", err)
+			return
+		}
+
+		cropX, err := strconv.Atoi(req.PostFormValue("x"))
+		cropY, err := strconv.Atoi(req.PostFormValue("y"))
+		cropH, err := strconv.Atoi(req.PostFormValue("height"))
+		cropW, err := strconv.Atoi(req.PostFormValue("width"))
+		if err != nil {
+			log.Println("Failed to parse crop data", err)
+			return
+		}
+
+		avatar := dto.UserAvatar{
+			UUID:    id,
+			File:    f,
+			Header:  header,
+			CropBox: image.Rect(cropX, cropY, cropH+cropX, cropW+cropY),
+		}
+
+		user, appErr = uh.Service.UpdateUserImage(avatar)
 	} else {
 		appErr = errs.NewUnauthorizedError(errs.Common.Unauthorized)
 	}

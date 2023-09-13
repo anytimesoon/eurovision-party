@@ -121,7 +121,7 @@ func (db AuthRepositoryDB) CreateUser(userDTO dto.NewUser) (*NewUser, *errs.AppE
 
 	// Prepare queries for transaction
 	newUserQuery := `INSERT INTO user(uuid, name, email, slug, authLvl) VALUES (?, ?, ?, ?, 0)`
-	newAuthQuery := `INSERT INTO auth(authToken, userId, authTokenExp, authLvl, slug) VALUES (?, ?, NOW() + INTERVAL 10 DAY, 0, ?)`
+	newAuthQuery := `INSERT INTO auth(authToken, userId, authTokenExp, authLvl, lastUpdated, slug) VALUES (?, ?, NOW() + INTERVAL 10 DAY, 0, NOW(), ?)`
 	findNewUserQuery := `SELECT u.uuid, u.name, u.email, u.slug, a.authToken FROM user u JOIN auth a ON u.uuid = a.userId WHERE u.uuid = ?`
 
 	// Begin transaction that will create a new user and auth then return the new user

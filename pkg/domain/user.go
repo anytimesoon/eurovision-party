@@ -33,7 +33,7 @@ type UserRepository interface {
 	UpdateUser(dto.User) (*User, *errs.AppError)
 	DeleteUser(string) *errs.AppError
 	FindRegisteredUsers() (*[]NewUser, *errs.AppError)
-	UpdateUserImage(dto.UserImage) (*User, *errs.AppError)
+	UpdateUserImage(avatarDTO dto.UserAvatar, img *dto.CroppedImage) (*User, *errs.AppError)
 }
 
 func (user User) ToDto() dto.User {

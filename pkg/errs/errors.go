@@ -44,6 +44,7 @@ type commonMessages struct {
 	NotCreated        string
 	Unauthorized      string
 	Login             string
+	NotSaved          string
 }
 
 var Common commonMessages = commonMessages{
@@ -55,4 +56,5 @@ var Common commonMessages = commonMessages{
 	NotCreated:        "Something went wrong when creating ",
 	Unauthorized:      "You are not allowed to do that!",
 	Login:             "Unable to log you in. Please try again.",
+	NotSaved:          "Couldn't save the file. Please try again.",
 }

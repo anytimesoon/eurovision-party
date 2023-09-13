@@ -6,7 +6,7 @@ import (
 )
 
 type Decodable interface {
-	Country | User | Vote | UserImage | VoteSingle
+	Country | User | Vote | VoteSingle
 }
 
 func Decode[T Decodable](body []byte) (*T, error) {

@@ -43,6 +43,7 @@ export const userSvelteEP = {
 export const userGoEP = {
     ALL: userGoURL,
     UPDATE: userGoURL,
+    UPDATE_IMAGE: userGoURL + "image",
     FIND_ONE: userGoURL, //append with user slug
     REMOVE: userGoURL,
     REGISTERED: userGoURL + "registered"

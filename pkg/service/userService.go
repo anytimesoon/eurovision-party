@@ -14,7 +14,7 @@ type UserService interface {
 	SingleUser(string) (*dto.User, *errs.AppError)
 	DeleteUser(string) *errs.AppError
 	GetRegisteredUsers() ([]*dto.NewUser, *errs.AppError)
-	UpdateUserImage(image dto.UserImage) (*dto.User, *errs.AppError)
+	UpdateUserImage(image dto.UserAvatar) (*dto.User, *errs.AppError)
 }
 
 type DefaultUserService struct {
@@ -26,7 +26,7 @@ func NewUserService(repo domain.UserRepository) DefaultUserService {
 }
 
 func (service DefaultUserService) GetAllUsers() (map[uuid.UUID]dto.User, *errs.AppError) {
-	usersDTO := make(map[uuid.UUID]dto.User, 0)
+	usersDTO := make(map[uuid.UUID]dto.User)
 
 	users, err := service.repo.FindAllUsers()
 	if err != nil {
@@ -56,20 +56,18 @@ func (service DefaultUserService) UpdateUser(userDTO dto.User) (*dto.User, *errs
 	return &userDTO, nil
 }
 
-func (service DefaultUserService) UpdateUserImage(imageDTO dto.UserImage) (*dto.User, *errs.AppError) {
-	image, appErr := stringToBin(imageDTO.Image)
+func (service DefaultUserService) UpdateUserImage(avatarDTO dto.UserAvatar) (*dto.User, *errs.AppError) {
+	img, appErr := cropImage(&avatarDTO)
 	if appErr != nil {
 		return nil, appErr
 	}
 
-	fileLocation, appErr := cropImage(imageDTO, image)
+	appErr = storeImageToDisk(img)
 	if appErr != nil {
 		return nil, appErr
 	}
 
-	imageDTO.Image = fileLocation
-
-	user, appErr := service.repo.UpdateUserImage(imageDTO)
+	user, appErr := service.repo.UpdateUserImage(avatarDTO, img)
 	if appErr != nil {
 		return nil, appErr
 	}

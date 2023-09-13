@@ -1,8 +1,11 @@
 <script lang="ts">
     import {countryStore, notParticipatingCountryStore, participatingCountryStore} from "$lib/stores/country.store";
     import type {ActionData} from "./$types";
-    import CountryForm from "$lib/components/forms/CountryForm.svelte";
+    import CountryParticipationForm from "$lib/components/forms/CountryParticipationForm.svelte";
     import type {CountryModel} from "$lib/models/classes/country.model";
+    import {currentUser} from "$lib/stores/user.store";
+    import {authLvl} from "$lib/models/enums/authLvl.enum";
+    import AdminNav from "$lib/components/AdminNav.svelte";
 
 
     export let form:ActionData
@@ -22,29 +25,37 @@
     $: updateCountry(form)
 </script>
 
-    <h1>List of all Eurovision countries</h1>
+{#if $currentUser.authLvl === authLvl.ADMIN }
+    <AdminNav />
+{/if}
 
-    <ul>
-        {#each $notParticipatingCountryStore as country}
-        <li>
-            {country.flag}
-            {country.name}
+<div class="flex flex-col max-h-max">
+    <h1 class="text-center">Selected {$participatingCountryStore.length} countries</h1>
+    <div class="rounded mb-3 overflow-auto max-h-[calc(100vh-10em)]">
+        <div class="grid grid-cols-2 gap-x-3">
+            <div>
+                <ul>
+                    {#each $notParticipatingCountryStore as country}
+                        <li class="p-3 my-1.5 border-2 border-grey-400 text-center w-full">
+                            <CountryParticipationForm country={country} />
+                        </li>
+                    {/each}
+                </ul>
+            </div>
 
-            is out of the running 😢
-            <CountryForm country={country} />
-        </li>
-        {/each}
-    </ul>
+            <div>
+                <ul>
+                    {#each $participatingCountryStore as country}
+                        <li class="p-3 my-1.5 border-2 border-amber-400 text-center w-full">
+                            <CountryParticipationForm country={country} />
+                        </li>
+                    {/each}
+                </ul>
+            </div>
+        </div>
 
-<div class="half-width">
-            {#each $participatingCountryStore as country}
-                <li>
-                    {country.flag}
-                    {country.name}
 
-                    is in the running 🎉
-                    <CountryForm country={country} />
-                </li>
-            {/each}
+
+    </div>
 </div>
 
