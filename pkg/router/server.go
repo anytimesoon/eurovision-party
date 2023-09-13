@@ -33,6 +33,11 @@ func StartServer(db *sqlx.DB, appConf conf.App) {
 	imageRouter.PathPrefix("/static/").Handler(http.StripPrefix("/content/static/", fs)).Methods(http.MethodGet)
 	imageRouter.Use(imgHeaders)
 
+	imageHandler := ImageHandler{}
+	restrictedImageRouter := imageRouter.PathPrefix("/user").Subrouter()
+	restrictedImageRouter.HandleFunc("/avatar/{file}", imageHandler.GetAvatar).Methods(http.MethodGet)
+	restrictedImageRouter.Use(authenticate)
+
 	// Restricted
 	restrictedRouter := router.PathPrefix("/restricted").Subrouter()
 	restrictedRouter.Use(authenticate)
@@ -56,7 +61,7 @@ func StartServer(db *sqlx.DB, appConf conf.App) {
 	userRouter := apiRouter.PathPrefix("/user").Subrouter()
 	userRouter.HandleFunc("/", userHandler.FindAllUsers).Methods(http.MethodGet)
 	userRouter.HandleFunc("/", userHandler.UpdateUser).Methods(http.MethodPut)        // admin or current user
-	userRouter.HandleFunc("/image", userHandler.UpdateImage).Methods(http.MethodPost) // admin or current user
+	userRouter.HandleFunc("/image", userHandler.UpdateImage).Methods(http.MethodPut)  // current user only
 	userRouter.HandleFunc("/register", authHandler.Register).Methods(http.MethodPost) // admin only
 	userRouter.HandleFunc("/registered", userHandler.FindRegisteredUsers).Methods(http.MethodGet)
 	userRouter.HandleFunc("/{slug}", userHandler.FindOneUser).Methods(http.MethodGet)

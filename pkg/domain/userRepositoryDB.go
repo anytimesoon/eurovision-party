@@ -62,7 +62,7 @@ func (db UserRepositoryDb) UpdateUser(userDTO dto.User) (*User, *errs.AppError) 
 	return &user, nil
 }
 
-func (db UserRepositoryDb) UpdateUserImage(imageDTO dto.UserImage) (*User, *errs.AppError) {
+func (db UserRepositoryDb) UpdateUserImage(avatarDTO dto.UserAvatar, img *dto.CroppedImage) (*User, *errs.AppError) {
 	var user User
 
 	updateUserImageQuery := "UPDATE user SET icon = ? WHERE uuid = ?"
@@ -70,25 +70,25 @@ func (db UserRepositoryDb) UpdateUserImage(imageDTO dto.UserImage) (*User, *errs
 
 	tx, err := db.client.Beginx()
 	if err != nil {
-		log.Printf("Error while starting image transaction for user %s. %s", imageDTO.UUID, err)
+		log.Printf("Error while starting image transaction for user %s. %s", avatarDTO.UUID, err)
 		return nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "image")
 	}
 
-	_, err = tx.Exec(updateUserImageQuery, imageDTO.Image, imageDTO.UUID.String())
+	_, err = tx.Exec(updateUserImageQuery, "/content/user/avatar/"+img.ID.String()+"."+img.FileExtension, avatarDTO.UUID.String())
 	if err != nil {
-		log.Printf("Error while updating user image for user %s. %s", imageDTO.UUID.String(), err)
+		log.Printf("Error while updating user image for user %s. %s", avatarDTO.UUID.String(), err)
 		return nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "image")
 	}
 
-	err = tx.Get(&user, getUserQuery, imageDTO.UUID.String())
+	err = tx.Get(&user, getUserQuery, avatarDTO.UUID.String())
 	if err != nil {
-		log.Printf("Error while fetching user %s after updating image %s", imageDTO.UUID.String(), err)
+		log.Printf("Error while fetching user %s after updating image %s", avatarDTO.UUID.String(), err)
 		return nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "image")
 	}
 
 	err = tx.Commit()
 	if err != nil {
-		log.Printf("Error while committing image transaction for user %s. %s", imageDTO.UUID, err)
+		log.Printf("Error while committing image transaction for user %s. %s", avatarDTO.UUID, err)
 		return nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "image")
 	}
 
