@@ -29,7 +29,11 @@
   };
 
 </script>
+<svelte:head>
+        <link rel="preload" as="image" href={staticEP.IMG + "/content/static/img/newuser.png"} />
+</svelte:head>
 <svelte:window on:click={handleWindowClick} />
+
 <main class="h-screen max-w-screen-sm mx-auto p-3 relative">
   <div class="flex flex-col">
       <div id="content" class="flex h-[calc(100vh-5rem)] pb-3">
