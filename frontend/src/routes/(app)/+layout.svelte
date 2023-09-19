@@ -5,11 +5,11 @@
   import {onMount} from "svelte";
   import "./../../../node_modules/@fortawesome/fontawesome-free/css/all.css"
   import {userStore} from "$lib/stores/user.store";
+  import {staticEP} from "$lib/models/enums/endpoints.enum";
 
 
   export let data:LayoutData
-  $countryStore = data.countries
-  $userStore = data.users
+
   let menu:HTMLElement
 
   onMount(() => {
@@ -28,6 +28,13 @@
     }
   };
 
+  $: if (data.countries) {
+      $countryStore = data.countries
+  }
+
+  $: if (data.users) {
+      $userStore = data.users
+  }
 </script>
 <svelte:head>
         <link rel="preload" as="image" href={staticEP.IMG + "/content/static/img/newuser.png"} />

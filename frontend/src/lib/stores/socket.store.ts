@@ -3,6 +3,8 @@ import {chatEP} from "$lib/models/enums/endpoints.enum";
 import {chatMsgCat} from "$lib/models/enums/chatMsgCat";
 import {CommentModel} from "$lib/models/classes/comment.model";
 import {commentStore} from "$lib/stores/comment.store";
+import type {UpdateMessageModel} from "$lib/models/classes/updateMessage.model";
+import {userStore} from "$lib/stores/user.store";
 
 export const socketStore = socket()
 
@@ -36,21 +38,23 @@ function connectToSocket(){
             const chatMessage = JSON.parse(c)
             switch (chatMessage.category) {
                 case chatMsgCat.COMMENT:
-                    let comment: CommentModel = chatMessage.body
-                    comment.createdAt = new Date(chatMessage.body.createdAt)
-                    commentStore.update(comments => {
-                        return [comment, ...comments]
-                    });
+                    addNewComment(chatMessage.body)
                     break
                 case chatMsgCat.COMMENT_ARRAY:
                     let commentModels: CommentModel[] = chatMessage.body
 
                     for (let i = 0; i < commentModels.length; i++) {
-                        commentModels[i].createdAt = new Date(commentModels[i].createdAt)
-                        commentStore.update(comments => {
-                            return [commentModels[i], ...comments]
-                        });
+                        addNewComment(commentModels[i])
                     }
+                    break
+                case chatMsgCat.UPDATE_USER:
+                    let updateMessage:UpdateMessageModel = chatMessage.body
+                    
+                    // user needs to be updated before message gets published
+                    userStore.update(users => {
+                        users[updateMessage.updatedUser.id] = updateMessage.updatedUser
+                    })
+                    addNewComment(updateMessage.comment)
                     break
                 default:
                     console.log("bad message: " + c)
@@ -60,4 +64,11 @@ function connectToSocket(){
         })
     }
     return socket
+}
+
+function addNewComment(comment:CommentModel){
+    comment.createdAt = new Date(comment.createdAt)
+    commentStore.update(comments => {
+        return [comment, ...comments]
+    });
 }
