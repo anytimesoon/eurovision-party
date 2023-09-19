@@ -30,7 +30,7 @@ type (
 type UserRepository interface {
 	FindAllUsers() ([]User, *errs.AppError)
 	FindOneUser(string) (*User, *errs.AppError)
-	UpdateUser(dto.User) (*User, *errs.AppError)
+	UpdateUser(dto.User) (oldUser *User, updatedUser *User, appError *errs.AppError)
 	DeleteUser(string) *errs.AppError
 	FindRegisteredUsers() (*[]NewUser, *errs.AppError)
 	UpdateUserImage(avatarDTO dto.UserAvatar, img *dto.CroppedImage) (*User, *errs.AppError)

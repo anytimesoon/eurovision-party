@@ -53,7 +53,7 @@ func (ch *CountryHandler) Participating(resp http.ResponseWriter, req *http.Requ
 func (ch *CountryHandler) UpdateCountry(resp http.ResponseWriter, req *http.Request) {
 	var appErr *errs.AppError
 	var country *dto.Country
-	if req.Context().Value("auth").(dto.Auth).AuthLvl == enum.Admin {
+	if req.Context().Value("auth").(dto.Auth).AuthLvl == enum.ADMIN {
 		body, err := io.ReadAll(req.Body)
 		if err != nil {
 			panic(err)

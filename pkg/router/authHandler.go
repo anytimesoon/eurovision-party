@@ -17,7 +17,7 @@ type AuthHandler struct {
 func (ah AuthHandler) Register(resp http.ResponseWriter, req *http.Request) {
 	var appErr *errs.AppError
 	var auth *dto.NewUser
-	if req.Context().Value("auth").(dto.Auth).AuthLvl == enum.Admin {
+	if req.Context().Value("auth").(dto.Auth).AuthLvl == enum.ADMIN {
 		body, err := io.ReadAll(req.Body)
 		if err != nil {
 			panic(err)

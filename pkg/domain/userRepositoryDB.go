@@ -29,8 +29,8 @@ func (db UserRepositoryDb) FindAllUsers() ([]User, *errs.AppError) {
 	return users, nil
 }
 
-func (db UserRepositoryDb) UpdateUser(userDTO dto.User) (*User, *errs.AppError) {
-	var user User
+func (db UserRepositoryDb) UpdateUser(userDTO dto.User) (*User, *User, *errs.AppError) {
+	var oldUser, updatedUser User
 
 	updateUserQuery := "UPDATE user SET name = ?, email = ? WHERE uuid = ?"
 	getUserQuery := "SELECT * FROM user WHERE uuid = ?"
@@ -38,28 +38,34 @@ func (db UserRepositoryDb) UpdateUser(userDTO dto.User) (*User, *errs.AppError) 
 	tx, err := db.client.Beginx()
 	if err != nil {
 		log.Printf("Error when starting transaction to update user %s, %s", userDTO.UUID, err)
-		return nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "user")
+		return nil, nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "user")
+	}
+
+	err = tx.Get(&oldUser, getUserQuery, userDTO.UUID.String())
+	if err != nil {
+		log.Printf("Error while fetching user %s after update %s", userDTO.Name, err)
+		return nil, nil, errs.NewNotFoundError(errs.Common.NotFound + "user")
 	}
 
 	_, err = tx.Exec(updateUserQuery, userDTO.Name, userDTO.Email, userDTO.UUID)
 	if err != nil {
 		log.Println("Error while updating user table", err)
-		return nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "user")
+		return nil, nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "user")
 	}
 
-	err = tx.Get(&user, getUserQuery, userDTO.UUID.String())
+	err = tx.Get(&updatedUser, getUserQuery, userDTO.UUID.String())
 	if err != nil {
 		log.Printf("Error while fetching user %s after update %s", userDTO.Name, err)
-		return nil, errs.NewNotFoundError(errs.Common.NotFound + "user")
+		return nil, nil, errs.NewNotFoundError(errs.Common.NotFound + "user")
 	}
 
 	err = tx.Commit()
 	if err != nil {
 		log.Printf("Error while committing user update for user %s. %s", userDTO.UUID, err)
-		return nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "user")
+		return nil, nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "user")
 	}
 
-	return &user, nil
+	return &oldUser, &updatedUser, nil
 }
 
 func (db UserRepositoryDb) UpdateUserImage(avatarDTO dto.UserAvatar, img *dto.CroppedImage) (*User, *errs.AppError) {

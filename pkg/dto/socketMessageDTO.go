@@ -5,7 +5,7 @@ import (
 	"eurovision/pkg/enum"
 )
 
-type ChatMessage struct {
+type SocketMessage struct {
 	Category enum.ChatMsgType `json:"category"`
 	Body     json.RawMessage  `json:"body"`
 }

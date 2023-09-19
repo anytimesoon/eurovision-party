@@ -1,6 +1,7 @@
 package migrations
 
 import (
+	"eurovision/conf"
 	"log"
 
 	"github.com/google/uuid"
@@ -31,7 +32,7 @@ func CreateUsersTable(db *sqlx.DB) {
 	log.Printf("User table was created 😃")
 }
 
-func AddUsers(db *sqlx.DB) {
+func AddUsers(db *sqlx.DB, config *conf.App) {
 	userQuery := "INSERT INTO user(uuid, name, email, slug, authLvl) VALUES (?, ?, ?, ?, ?)"
 	authQuery := "INSERT INTO auth(authToken, userId, authTokenExp, authLvl, slug) VALUES (?, ?, NOW() + INTERVAL 5 DAY, ?, ?)"
 
@@ -53,6 +54,10 @@ func AddUsers(db *sqlx.DB) {
 			log.Printf("http://localhost:5173/login/%s/%s", initAuth.AuthToken, id)
 			log.Printf("User %s created 👨‍💻", user.Name)
 		case 2:
+			config.BotUser = conf.BotUser{
+				ID:   id,
+				Name: user.Name,
+			}
 			log.Printf("User %s created 🤖", user.Name)
 		default:
 			log.Printf("User %s created 👨", user.Name)

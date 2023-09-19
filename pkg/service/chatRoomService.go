@@ -9,20 +9,22 @@ import (
 )
 
 type Room struct {
-	CommentService CommentService
-	clients        map[uuid.UUID]*ChatClient
-	broadcast      chan []byte
-	Register       chan *ChatClient
-	unregister     chan *ChatClient
+	CommentService       CommentService
+	clients              map[uuid.UUID]*ChatClient
+	broadcastChatMessage chan []byte
+	BroadcastUpdate      chan []byte
+	Register             chan *ChatClient
+	unregister           chan *ChatClient
 }
 
 func NewRoom(commentService CommentService) *Room {
 	return &Room{
-		CommentService: commentService,
-		broadcast:      make(chan []byte),
-		Register:       make(chan *ChatClient),
-		unregister:     make(chan *ChatClient),
-		clients:        make(map[uuid.UUID]*ChatClient),
+		CommentService:       commentService,
+		broadcastChatMessage: make(chan []byte),
+		BroadcastUpdate:      make(chan []byte),
+		Register:             make(chan *ChatClient),
+		unregister:           make(chan *ChatClient),
+		clients:              make(map[uuid.UUID]*ChatClient),
 	}
 }
 
@@ -40,7 +42,7 @@ func (r *Room) Run() {
 			if err != nil {
 				//TODO: handle error
 			}
-			chatMessages := dto.ChatMessage{
+			chatMessages := dto.SocketMessage{
 				Category: enum.COMMENT_ARRAY,
 				Body:     commentsJSON,
 			}
@@ -57,25 +59,37 @@ func (r *Room) Run() {
 				delete(r.clients, client.UserId)
 				close(client.Send)
 			}
-		case commentJSON := <-r.broadcast:
-			chatMessage := dto.ChatMessage{
+		case commentJSON := <-r.broadcastChatMessage:
+			chatMessage := dto.SocketMessage{
 				Category: enum.COMMENT,
 				Body:     commentJSON,
 			}
 
-			message, err := json.Marshal(chatMessage)
-			if err != nil {
-				log.Printf("failed to encode message to chatMessage")
-				break
+			r.broadcast(chatMessage)
+		case updateJSON := <-r.BroadcastUpdate:
+			chatMessage := dto.SocketMessage{
+				Category: enum.UPDATE_USER,
+				Body:     updateJSON,
 			}
-			for userId, client := range r.clients {
-				select {
-				case client.Send <- message:
-				default:
-					close(client.Send)
-					delete(r.clients, userId)
-				}
-			}
+
+			log.Println("Broadcasting user update")
+			r.broadcast(chatMessage)
 		}
+	}
+}
+
+func (r *Room) broadcast(msg dto.SocketMessage) {
+	message, err := json.Marshal(msg)
+	if err != nil {
+		log.Printf("failed to encode message to chatMessage")
+		return
+	}
+	for _, client := range r.clients {
+		//select {
+		client.Send <- message
+		//default:
+		//	close(client.Send)
+		//	delete(r.clients, userId)
+		//}
 	}
 }

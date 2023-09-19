@@ -26,7 +26,7 @@ var initUsers = []initialUserParams{
 		AuthLvl: 1,
 	},
 	{
-		Name:    "bot",
+		Name:    "EuroBot",
 		Email:   "bot@bot.com",
 		Slug:    "bot",
 		AuthLvl: 2,

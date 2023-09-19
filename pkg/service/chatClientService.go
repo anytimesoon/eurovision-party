@@ -68,7 +68,7 @@ func (c *ChatClient) Pub() {
 		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
 
 		// decode message
-		filteredMessage := dto.ChatMessage{}
+		filteredMessage := dto.SocketMessage{}
 		err = json.Unmarshal(message, &filteredMessage)
 		if err != nil {
 			log.Println("Failed to unmarshal message")
@@ -82,7 +82,7 @@ func (c *ChatClient) Pub() {
 				return
 			}
 			log.Println("New message received from", c.UserId.String())
-			c.Room.broadcast <- commentJSON
+			c.Room.broadcastChatMessage <- commentJSON
 		default:
 			log.Printf("Message category not recognised")
 		}

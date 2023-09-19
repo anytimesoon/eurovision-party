@@ -1,10 +1,15 @@
 package service
 
 import (
+	"encoding/json"
+	"eurovision/conf"
 	"eurovision/pkg/domain"
 	"eurovision/pkg/dto"
 	"eurovision/pkg/errs"
+	"fmt"
 	"github.com/google/uuid"
+	"log"
+	"time"
 )
 
 //go:generate mockgen -source=userService.go -destination=../../mocks/service/mockUserService.go -package=service eurovision/pkg/service
@@ -18,11 +23,13 @@ type UserService interface {
 }
 
 type DefaultUserService struct {
-	repo domain.UserRepository
+	repo      domain.UserRepository
+	botUser   conf.BotUser
+	broadcast chan []byte
 }
 
-func NewUserService(repo domain.UserRepository) DefaultUserService {
-	return DefaultUserService{repo}
+func NewUserService(repo domain.UserRepository, bot conf.BotUser, broadcast chan []byte) DefaultUserService {
+	return DefaultUserService{repo, bot, broadcast}
 }
 
 func (service DefaultUserService) GetAllUsers() (map[uuid.UUID]dto.User, *errs.AppError) {
@@ -46,14 +53,16 @@ func (service DefaultUserService) UpdateUser(userDTO dto.User) (*dto.User, *errs
 		return nil, appErr
 	}
 
-	user, appErr := service.repo.UpdateUser(userDTO)
+	oldUser, updatedUser, appErr := service.repo.UpdateUser(userDTO)
 	if appErr != nil {
 		return nil, appErr
 	}
 
-	userDTO = user.ToDto()
+	newUserDTO := updatedUser.ToDto()
 
-	return &userDTO, nil
+	go service.broadcastUserUpdate(newUserDTO, fmt.Sprintf("%s changed their name to %s", oldUser.Name, updatedUser.Name))
+
+	return &newUserDTO, nil
 }
 
 func (service DefaultUserService) UpdateUserImage(avatarDTO dto.UserAvatar) (*dto.User, *errs.AppError) {
@@ -73,6 +82,8 @@ func (service DefaultUserService) UpdateUserImage(avatarDTO dto.UserAvatar) (*dt
 	}
 
 	userDTO := user.ToDto()
+
+	go service.broadcastUserUpdate(userDTO, fmt.Sprintf("%s changed their picture", userDTO.Name))
 
 	return &userDTO, nil
 }
@@ -110,4 +121,23 @@ func (service DefaultUserService) GetRegisteredUsers() ([]*dto.NewUser, *errs.Ap
 	}
 
 	return usersDTO, nil
+}
+
+func (service DefaultUserService) broadcastUserUpdate(newUser dto.User, commentText string) {
+	updateMessage := dto.UpdateMessage{
+		UpdatedUser: newUser,
+		Comment: dto.Comment{
+			UUID:      uuid.New(),
+			UserId:    service.botUser.ID,
+			Text:      commentText,
+			CreatedAt: time.Now(),
+		},
+	}
+
+	msg, err := json.Marshal(updateMessage)
+	if err != nil {
+		log.Println("Failed to send update updateMessage")
+	}
+
+	service.broadcast <- msg
 }

@@ -46,6 +46,17 @@ func StartServer(db *sqlx.DB, appConf conf.App) {
 	apiRouter := restrictedRouter.PathPrefix("/api").Subrouter()
 	apiRouter.Use(jsHeaders)
 
+	// Chatroom
+	commentRepositoryDb := domain.NewCommentRepositoryDb(db)
+	commentService := service.NewCommentService(commentRepositoryDb)
+	chatRoomHandler := ChatRoomHandler{
+		RoomService:    service.NewRoom(commentService),
+		CommentService: commentService,
+	}
+	go chatRoomHandler.RoomService.Run()
+	chatRouter := restrictedRouter.PathPrefix("/chat").Subrouter()
+	chatRouter.HandleFunc("/connect", chatRoomHandler.Connect)
+
 	// Country
 	countryRepositoryDb := domain.NewCountryRepositoryDb(db)
 	countryHandler := CountryHandler{Service: service.NewCountryService(countryRepositoryDb)}
@@ -57,7 +68,7 @@ func StartServer(db *sqlx.DB, appConf conf.App) {
 
 	// User
 	userRepositoryDb := domain.NewUserRepositoryDb(db)
-	userHandler := UserHandler{Service: service.NewUserService(userRepositoryDb)}
+	userHandler := UserHandler{Service: service.NewUserService(userRepositoryDb, appConf.BotUser, chatRoomHandler.RoomService.BroadcastUpdate)}
 	userRouter := apiRouter.PathPrefix("/user").Subrouter()
 	userRouter.HandleFunc("/", userHandler.FindAllUsers).Methods(http.MethodGet)
 	userRouter.HandleFunc("/", userHandler.UpdateUser).Methods(http.MethodPut)        // admin or current user
@@ -75,17 +86,6 @@ func StartServer(db *sqlx.DB, appConf conf.App) {
 	voteRouter.HandleFunc("/results", voteHandler.GetResults).Methods(http.MethodGet)
 	voteRouter.HandleFunc("/results/{userId}", voteHandler.GetResultsByUser).Methods(http.MethodGet)
 	voteRouter.HandleFunc("/countryanduser/{slug}", voteHandler.GetVoteByUserAndCountry).Methods(http.MethodGet) // current user only
-
-	// Chatroom
-	commentRepositoryDb := domain.NewCommentRepositoryDb(db)
-	commentService := service.NewCommentService(commentRepositoryDb)
-	chatRoomHandler := ChatRoomHandler{
-		RoomService:    service.NewRoom(commentService),
-		CommentService: commentService,
-	}
-	go chatRoomHandler.RoomService.Run()
-	chatRouter := restrictedRouter.PathPrefix("/chat").Subrouter()
-	chatRouter.HandleFunc("/connect", chatRoomHandler.Connect)
 
 	headersOk := handlers.AllowedHeaders([]string{"Content-type", "Authorization", "Origin", "Access-Control-Allow-Origin", "Accept", "Options", "X-Requested-With"})
 	originsOk := handlers.AllowedOrigins([]string{"http://localhost:5173"})

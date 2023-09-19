@@ -35,7 +35,7 @@ func (uh UserHandler) UpdateUser(resp http.ResponseWriter, req *http.Request) {
 
 	body, err := io.ReadAll(req.Body)
 	if err != nil {
-		log.Println("FAILED to read body of USER UPDATE!", err)
+		log.Println("FAILED to read body of USER UPDATE.", err)
 		return
 	}
 
@@ -44,7 +44,7 @@ func (uh UserHandler) UpdateUser(resp http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if req.Context().Value("auth").(dto.Auth).AuthLvl == enum.Admin ||
+	if req.Context().Value("auth").(dto.Auth).AuthLvl == enum.ADMIN ||
 		req.Context().Value("auth").(dto.Auth).UserId == user.UUID {
 
 		user, appErr = uh.Service.UpdateUser(*user)
@@ -127,7 +127,7 @@ func (uh UserHandler) FindOneUser(resp http.ResponseWriter, req *http.Request) {
 
 func (uh UserHandler) RemoveUser(resp http.ResponseWriter, req *http.Request) {
 	var err *errs.AppError
-	if req.Context().Value("auth").(dto.Auth).AuthLvl == enum.Admin {
+	if req.Context().Value("auth").(dto.Auth).AuthLvl == enum.ADMIN {
 		params := mux.Vars(req)
 		err = uh.Service.DeleteUser(params["slug"])
 	} else {

@@ -12,12 +12,15 @@ func main() {
 	appConf := conf.Setup()
 
 	log.Println("Starting application")
-	db := migrations.Start(appConf.DB)
+	db := migrations.Start(&appConf)
 	log.Println("Database migrations complete 🎉")
 
 	log.Println("Starting server 🖥")
 	router.StartServer(&db, appConf)
 
-	db.Close()
+	err := db.Close()
+	if err != nil {
+		log.Fatal("Failed to close db connection")
+	}
 	log.Println("Application closed")
 }

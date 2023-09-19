@@ -1,12 +1,16 @@
 package conf
 
-import "net/smtp"
+import (
+	"github.com/google/uuid"
+	"net/smtp"
+)
 
 type App struct {
-	DB     DB
-	Server Server
-	Auth   Auth
-	Email  Email
+	DB      DB
+	Server  Server
+	Auth    Auth
+	Email   Email
+	BotUser BotUser
 }
 
 type DB struct {
@@ -32,6 +36,11 @@ type Email struct {
 	Auth          smtp.Auth
 	ServerAndPort string
 	EmailAddress  string
+}
+
+type BotUser struct {
+	ID   uuid.UUID
+	Name string
 }
 
 func Setup() App {
