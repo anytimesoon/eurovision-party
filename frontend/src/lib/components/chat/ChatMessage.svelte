@@ -1,6 +1,6 @@
 <script lang="ts">
     import {CommentModel} from "$lib/models/classes/comment.model";
-    import {currentUser, userStore} from "$lib/stores/user.store";
+    import {currentUser} from "$lib/stores/user.store";
     import {staticEP} from "$lib/models/enums/endpoints.enum";
     import {authLvl} from "$lib/models/enums/authLvl.enum";
     import {UserModel} from "$lib/models/classes/user.model";

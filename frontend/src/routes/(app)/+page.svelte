@@ -28,7 +28,7 @@
 </script>
 
 <div class="h-[calc(100vh-6rem)] flex flex-col">
-    <div id="chat-box" class="border-2 flex flex-col flex-col-reverse flex-auto border-purple-400 p-4 overflow-auto rounded mb-3">
+    <div id="chat-box" class="border-2 flex flex-col-reverse flex-auto border-purple-400 p-4 overflow-auto rounded mb-3">
         {#each $commentStore as comment}
             <ChatMessage comment={comment} user={$userStore[comment.userId]}/>
         {/each}
