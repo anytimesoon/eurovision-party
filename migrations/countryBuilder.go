@@ -15,13 +15,12 @@ func CreateCountriesTable(db *sqlx.DB) {
 	log.Println("Country table was dropped ⬇")
 
 	query = `CREATE TABLE IF NOT EXISTS country(
-    			slug VARCHAR(191) NOT NULL,
+    			slug VARCHAR(191) NOT NULL PRIMARY KEY,
 				name VARCHAR(191) NOT NULL,  
 				bandName VARCHAR(191), 
 				songName VARCHAR(191), 
 				flag BLOB NOT NULL, 
-				participating BOOLEAN NOT NULL,
-				UNIQUE (slug)) 
+				participating BOOLEAN NOT NULL) 
 			  ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci;`
 
 	_, err = db.Exec(query)
