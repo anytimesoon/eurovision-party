@@ -24,7 +24,7 @@ export const actions : Actions = {
         return {
             hideNameForm: true,
             error: userResp.error,
-            user: user
+            user: userResp.body
         }
     },
     updateImg: async ({fetch, request}) => {
