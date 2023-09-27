@@ -17,12 +17,13 @@ func CreateUsersTable(db *sqlx.DB) {
 	log.Printf("User table was dropped ⬇")
 
 	query = `CREATE TABLE IF NOT EXISTS user(
-				uuid char(36) NOT NULL, 
+				uuid char(36) NOT NULL PRIMARY KEY, 
 				name VARCHAR(191) NOT NULL,
-				email VARCHAR(191) NOT NULL, 
+				email VARCHAR(191), 
 				slug VARCHAR(191) NOT NULL UNIQUE, 
 				authLvl TINYINT DEFAULT 0, 
-				icon VARCHAR(191) DEFAULT '/content/static/img/newuser.png');`
+				icon VARCHAR(191) DEFAULT '/content/static/img/newuser.png',
+				KEY (slug));`
 
 	_, err = db.Exec(query)
 	if err != nil {

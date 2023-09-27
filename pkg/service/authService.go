@@ -115,14 +115,6 @@ func (das DefaultAuthService) Register(body []byte) (*dto.NewUser, *errs.AppErro
 		return nil, errs.NewUnexpectedError(errs.Common.BadlyFormedObject)
 	}
 
-	// verify user doesn't already exist
-	user, _ := das.repo.FindOneUserByEmail(newUserDTO.Email)
-
-	if user != nil && user.Email == newUserDTO.Email {
-		log.Printf("User with email %s alread exists", newUserDTO.Email)
-		return nil, errs.NewUnexpectedError("User with email " + newUserDTO.Email + " already exists")
-	}
-
 	newUserDTO.Slugify()
 
 	// create new user

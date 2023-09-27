@@ -53,6 +53,7 @@ function connectToSocket(){
                     // user needs to be updated before message gets published
                     userStore.update(users => {
                         users[updateMessage.updatedUser.id] = updateMessage.updatedUser
+                        return users
                     })
                     addNewComment(updateMessage.comment)
                     break
