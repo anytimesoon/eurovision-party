@@ -5,7 +5,7 @@
     import {ChatMessageModel} from "$lib/models/classes/chatMessage.model.js";
     import {chatMsgCat} from "$lib/models/enums/chatMsgCat";
     import {socketStore} from "$lib/stores/socket.store";
-    import ChatMessage from "$lib/components/chat/ChatMessage.svelte";
+    import ChatBubble from "$lib/components/chat/ChatBubble.svelte";
 
     function sendMsg() {
         const input = document.getElementById("msg")! as HTMLInputElement;
@@ -30,7 +30,7 @@
 <div class="h-[calc(100vh-6rem)] flex flex-col">
     <div id="chat-box" class="border-2 flex flex-col-reverse flex-auto border-purple-400 p-4 overflow-auto rounded mb-3">
         {#each $commentStore as comment}
-            <ChatMessage comment={comment} user={$userStore[comment.userId]}/>
+            <ChatBubble comment={comment} user={$userStore[comment.userId]}/>
         {/each}
     </div>
 
