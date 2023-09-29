@@ -17,10 +17,15 @@
         const comment = new ChatMessageModel<CommentModel>(chatMsgCat.COMMENT, new CommentModel(input.value, $currentUser.id))
         $socketStore.send(JSON.stringify(comment))
         input.value = ""
+        input.style.height = "40px"
     }
 
     function sendMsgWithKeyboard(e:KeyboardEvent){
+        e.target.style.height = "1px";
+        e.target.style.height = (24+e.target.scrollHeight)+"px";
+
         if(e.key == "Enter"){
+            console.log("here")
             sendMsg()
         }
     }
@@ -35,8 +40,10 @@
     </div>
 
     <div class="flex">
-        <textarea class="w-full border-2 border-purple-400 rounded text-sm p-3" name="msg" id="msg" on:keyup={sendMsgWithKeyboard}></textarea>
-        <input class="ml-4 p-4 bg-purple-500 text-white rounded" type="button" value="Send" on:click={sendMsg}/>
+        <textarea class="w-full h-10 border-2 border-purple-400 rounded text-sm overflow-hidden" name="msg" id="msg" on:keyup={e => sendMsgWithKeyboard(e)}></textarea>
+        <div class="flex flex-col-reverse">
+            <button class="ml-1 px-3 h-10 bg-purple-500 text-white rounded" type="button" on:click={sendMsg}><i class="fa-solid fa-angles-right"></i></button>
+        </div>
     </div>
 </div>
 
