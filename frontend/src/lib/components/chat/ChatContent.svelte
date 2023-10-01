@@ -1,7 +1,6 @@
 <script lang="ts">
     import type {CommentModel} from "$lib/models/classes/comment.model";
     import type {UserModel} from "$lib/models/classes/user.model";
-    import {currentUser} from "$lib/stores/user.store";
 
     export let comment:CommentModel
     export let user:UserModel
