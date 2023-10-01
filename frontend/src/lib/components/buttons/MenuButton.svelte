@@ -32,9 +32,9 @@
 </script>
 
 <div class="text-center">
-        <a href={dest} class="text-typography-paragraph" class:voteNav={navName === "Vote"} bind:this={element}>
+        <a href={dest} class="text-typography-nav" class:voteNav={navName === "Vote"} bind:this={element}>
             <span class="block pb-1">
-                <i class="{iconClass()} fa-solid fa-2xl text-primary"></i>
+                <i class="{iconClass()} fa-solid fa-2xl text-nav-icon"></i>
             </span>
             {navName}
         </a>

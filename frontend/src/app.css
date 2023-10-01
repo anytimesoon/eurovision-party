@@ -71,7 +71,12 @@ html[data-theme="classic"] {
     /*
         button background color
     */
-    --color-buttons: #6bffab;
+    --color-buttons: #ff32a6;
+
+    /*
+        nav button icon color
+    */
+    --color-nav-icon: #6bffab;
 
     /*
         current user chat bubble background color. should contrast secondary canvas color
@@ -106,6 +111,11 @@ html[data-theme="classic"] {
         typography color for other user chat bubble, which should contrast other user chat bubble background color
     */
     --color-typography-chat-you: #444444;
+
+    /*
+        typography color for nav menu
+    */
+    --color-typography-nav: #fff;
 
     /*
         typography color for greyed out texted
