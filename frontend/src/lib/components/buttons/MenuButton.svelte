@@ -1,46 +1,41 @@
 <script lang="ts">
-    export let icon = ""
-    export let menu:HTMLElement
+    import {onMount} from "svelte";
 
-    const openMenu = () => {
-        menu.classList.add("right-0")
-        menu.classList.remove("-right-56")
+    export let navName:string = ""
+    export let dest:string = ""
+    export let menu:HTMLElement
+    let element:HTMLElement
+
+    onMount(() => {
+        if(navName === "Vote"){
+            element.addEventListener('click', () => {
+                menu.classList.add("right-0")
+                menu.classList.remove("-right-56")
+            })
+        }
+    })
+
+    $: iconClass = ():string => {
+        switch (navName){
+            case "Chat":
+                return "fa-message"
+            case "Vote":
+                return "fa-star voteNav"
+            case "Results":
+                return "fa-medal"
+            case "Settings":
+                return "fa-gear"
+            default:
+                return ""
+        }
     }
 </script>
 
 <div class="text-center">
-
-        {#if icon === "chat" }
-            <a href="/">
-                <span class="block pb-1">
-                    <i class="fa-solid fa-message fa-2xl"></i>
-                </span>
-                Chat
-            </a>
-        {:else if icon === "votes" }
-                <a
-                   class="voteNav"
-                   href=""
-                   on:click={openMenu}
-                   role="button">
-                    <span class="block pb-1 voteNav">
-                        <i class="fa-solid fa-star fa-2xl voteNav"></i>
-                    </span>
-                    Votes
-                </a>
-        {:else if icon === "results" }
-            <a href="/results">
-                <span class="block pb-1">
-                    <i class="fa-solid fa-medal fa-2xl"></i>
-                </span>
-                Results
-            </a>
-        {:else if icon === "settings" }
-            <a href="/settings">
-                <span class="block pb-1">
-                    <i class="fa-solid fa-gear fa-2xl"></i>
-                </span>
-                Settings
-            </a>
-        {/if}
+        <a href={dest} class="text-typography-paragraph" class:voteNav={navName === "Vote"} bind:this={element}>
+            <span class="block pb-1">
+                <i class="{iconClass()} fa-solid fa-2xl text-primary"></i>
+            </span>
+            {navName}
+        </a>
 </div>

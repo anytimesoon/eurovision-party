@@ -1,3 +1,133 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    [type="text"],
+    [type="email"],
+    [type="url"],
+    [type="password"],
+    [type="number"],
+    [type="date"],
+    [type="datetime-local"],
+    [type="month"],
+    [type="search"],
+    [type="tel"],
+    [type="time"],
+    [type="week"],
+    [multiple],
+    textarea,
+    select {
+        @apply w-full border-solid bg-canvas-secondary border-2 border-gray-400 p-2 rounded-lg shadow-sm focus:border-secondary focus:outline focus:outline-secondary;
+    }
+
+    [type="checkbox"]{
+        @apply border-gray-300 rounded-lg text-indigo-600 focus:ring-indigo-500;
+    }
+
+    label {
+        @apply text-typography-paragraph
+    }
+
+    button {
+        @apply py-2 px-3 bg-buttons rounded text-typography-button
+    }
+
+    a {
+        @apply text-typography-paragraph
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        @apply text-typography-header
+    }
+
+    p {
+        @apply text-typography-paragraph
+    }
+}
+
+@layer base {
+    html {
+        --color-primary: #4285f4;
+        --color-secondary: #34a853;
+        --color-buttons: #fbbc05;
+        --color-typography: #ea4335;
+        --color-canvas: #fff;
+    }
+}
+
+
+html[data-theme="classic"] {
+    /*
+        primary color is the main highlight colour
+    */
+    --color-primary: #ff32a6;
+
+    /*
+        second color is another highlight colour
+    */
+    --color-secondary: #6bffab;
+
+    /*
+        button background color
+    */
+    --color-buttons: #6bffab;
+
+    /*
+        current user chat bubble background color. should contrast secondary canvas color
+    */
+    --color-chat-bubble-me: #ff32a6;
+    /*
+        other user's chat bubble background color. should contrast secondary canvas color
+    */
+    --color-chat-bubble-you: #c8b5e0;
+
+    /*
+        header color, which should contrast canvas-primary
+    */
+    --color-typography-header: #ffffff;
+
+    /*
+        paragraph color, which should contrast canvas-primary
+    */
+    --color-typography-paragraph: #a9a9a9;
+
+    /*
+        typography color for buttons, which should contrast button background color
+    */
+    --color-typography-button: #444444;
+
+    /*
+        typography color for current user chat bubble, which should contrast current user chat bubble background color
+    */
+    --color-typography-chat-me: #444444;
+
+    /*
+        typography color for other user chat bubble, which should contrast other user chat bubble background color
+    */
+    --color-typography-chat-you: #444444;
+
+    /*
+        typography color for greyed out texted
+    */
+    --color-typography-grey: #D3D3D3FF;
+
+    /*
+        background color of the app
+    */
+    --color-canvas-primary: #003eda;
+
+    /*
+        background color of child canvases such as chat window and form fields
+    */
+    --color-canvas-secondary: #3e67d0;
+}
+
+
+html[data-theme="light"] {
+  --color-primary: #f4cc70;
+  --color-secondary: #6ab187;
+  --color-buttons: #de7a22;
+  --color-typography: #20948b;
+  --color-canvas: #349998;
+}
