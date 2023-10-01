@@ -50,15 +50,15 @@
       </div>
       <nav class="h-4 flex w-full flex-wrap items-center justify-between">
 
-            <MenuButton icon="chat" menu={menu}/>
-            <MenuButton icon="votes" menu={menu}/>
-            <MenuButton icon="results"  menu={menu}/>
-            <MenuButton icon="settings"  menu={menu}/>
+            <MenuButton navName="Chat" dest="/" menu={menu}/>
+            <MenuButton navName="Vote" dest="" menu={menu}/>
+            <MenuButton navName="Results" dest="/results"  menu={menu}/>
+            <MenuButton navName="Settings" dest="/settings"  menu={menu}/>
 
       </nav>
   </div>
 
-  <aside id="menu" class="fixed top-0 -right-56 bg-white z-1 flex duration-500 h-screen overflow-auto">
+  <aside id="menu" class="fixed top-0 -right-56 bg-canvas-secondary z-1 flex duration-500 h-screen overflow-auto">
     <div class="w-full flex flex-col p-5">
       <ul class="list-none">
         {#each $participatingCountryStore as country}

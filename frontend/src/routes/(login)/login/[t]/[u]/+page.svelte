@@ -22,4 +22,6 @@
     $: setData(data)
 </script>
 
-<Spinner />
+<div class="h-screen">
+    <Spinner />
+</div>

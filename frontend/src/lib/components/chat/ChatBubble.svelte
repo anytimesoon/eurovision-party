@@ -14,7 +14,7 @@
     }
 
     $: currentUserBubbleContainer = isCurrentUser() ? "ml-auto justify-end" : ""
-    $: currentUserBubble = isCurrentUser() ? "bg-purple-800" : "bg-gray-300"
+    $: currentUserBubble = isCurrentUser() ? "bg-chat-bubble-me" : "bg-chat-bubble-you"
     $: roundedCorners = isCurrentUser() ? "rounded-l-lg rounded-br-lg" : "rounded-r-lg rounded-bl-lg"
 </script>
 
@@ -30,7 +30,7 @@
         <div>
 
             <div class="p-3 {roundedCorners} {currentUserBubble}">
-                <ChatContent comment={comment} user={user} />
+                <ChatContent comment={comment} user={user} isCurrentUser={isCurrentUser()}/>
             </div>
 
         </div>

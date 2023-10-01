@@ -5,16 +5,17 @@
 
     export let comment:CommentModel
     export let user:UserModel
+    export let isCurrentUser:boolean
 
     function getHRTime(comment:CommentModel):string{
         return comment.createdAt.getHours() + ":" + (comment.createdAt.getMinutes() < 10 ? "0" + comment.createdAt.getMinutes() : comment.createdAt.getMinutes())
     }
 
-    $: textRight = $currentUser.id === user.id ? "text-right" : ""
-    $: whiteText = $currentUser.id === user.id ? "text-white" : ""
-    $: timeStyle = $currentUser.id === user.id ? "text-gray-300" : "text-right"
+    $: userNameStyle = isCurrentUser ? "text-right" : ""
+    $: contentTextStyle = isCurrentUser ? "text-typography-chat-me" : "text-typography-chat-you"
+    $: timeStyle = isCurrentUser ? "" : "text-right"
 </script>
 
-<span class="block pb-1 text-sm font-bold {textRight} {whiteText}">{user.name}</span>
-<p class="{textRight} {whiteText} text-sm">{comment.text}</p>
-<span class="text-[0.6rem] block pt-1 {timeStyle}">{getHRTime(comment)}</span>
+<h4 class="block pb-1 {userNameStyle}">{user.name}</h4>
+<p class="{contentTextStyle} text-sm">{comment.text}</p>
+<span class="text-[0.6rem] block pt-1 text-typography-grey {timeStyle}">{getHRTime(comment)}</span>

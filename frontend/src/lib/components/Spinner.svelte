@@ -5,7 +5,7 @@
             animate-spin
             border-8
             border-solid
-            border-purple-500
+            border-primary
             border-t-transparent"></div>
 </div>
 

@@ -36,7 +36,7 @@
             <div>
                 <ul>
                     {#each $notParticipatingCountryStore as country}
-                        <li class="p-3 my-1.5 border-2 border-grey-400 text-center w-full">
+                        <li class="p-3 my-1.5 border-2 border-grey-400 bg-canvas-secondary text-center w-full">
                             <CountryParticipationForm country={country} />
                         </li>
                     {/each}
@@ -46,7 +46,7 @@
             <div>
                 <ul>
                     {#each $participatingCountryStore as country}
-                        <li class="p-3 my-1.5 border-2 border-amber-400 text-center w-full">
+                        <li class="p-3 my-1.5 border-2 border-primary bg-canvas-secondary text-center w-full">
                             <CountryParticipationForm country={country} />
                         </li>
                     {/each}

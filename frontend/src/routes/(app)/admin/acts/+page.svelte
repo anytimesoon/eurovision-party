@@ -33,7 +33,7 @@
 
     {#each $participatingCountryStore as country}
 
-        <div class="py-3 border-b-2 border-b-amber-500">
+        <div class="py-3 border-b-2 border-b-secondary">
             <h3>{country.flag} {country.name}</h3>
             <CountryActForm country={country}/>
         </div>

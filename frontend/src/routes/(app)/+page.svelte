@@ -33,16 +33,16 @@
 </script>
 
 <div class="h-[calc(100vh-6rem)] flex flex-col">
-    <div id="chat-box" class="border-2 flex flex-col-reverse flex-auto border-purple-400 p-4 overflow-auto rounded mb-3">
+    <div id="chat-box" class="border-2 flex flex-col-reverse flex-auto bg-canvas-secondary border-secondary p-4 overflow-auto rounded mb-3">
         {#each $commentStore as comment}
             <ChatBubble comment={comment} user={$userStore[comment.userId]}/>
         {/each}
     </div>
 
     <div class="flex">
-        <textarea class="w-full h-10 border-2 border-purple-400 rounded text-sm overflow-hidden" name="msg" id="msg" on:keyup={e => sendMsgWithKeyboard(e)}></textarea>
-        <div class="flex flex-col-reverse">
-            <button class="ml-1 px-3 h-10 bg-purple-500 text-white rounded" type="button" on:click={sendMsg}><i class="fa-solid fa-angles-right"></i></button>
+        <textarea class="h-10 text-sm overflow-hidden" name="msg" id="msg" on:keyup={e => sendMsgWithKeyboard(e)}></textarea>
+        <div class="flex flex-col-reverse ml-2">
+            <button on:click={sendMsg}><i class="fa-solid fa-angles-right"></i></button>
         </div>
     </div>
 </div>

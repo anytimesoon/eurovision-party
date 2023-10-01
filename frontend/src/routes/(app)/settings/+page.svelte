@@ -17,6 +17,7 @@
     let imageFile:File
     let imageString:string
     let avatarForm:HTMLFormElement
+    let theme:string
 
     $: if(form){
         hideNameForm = form.hideNameForm
@@ -28,14 +29,18 @@
     }
 
     $: if(imageFiles) {
-        imageFile = imageFiles[0];
+        imageFile = imageFiles[0]
 
         let reader = new FileReader()
         reader.onload = e => {
             imageString = e.target.result as string
-        };
-        reader.readAsDataURL(imageFile);
+        }
+        reader.readAsDataURL(imageFile)
         openModal()
+    }
+
+    $: if(theme) {
+        document.querySelector("html")?.setAttribute("data-theme", theme)
     }
 </script>
 
@@ -85,3 +90,8 @@
     </div>
 
 </div>
+
+<select bind:value={theme}>
+    <option value="classic">Classic</option>
+    <option value="light">Light</option>
+</select>
