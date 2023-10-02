@@ -10,7 +10,7 @@
         if(navName === "Vote"){
             element.addEventListener('click', () => {
                 menu.classList.add("right-0")
-                menu.classList.remove("-right-56")
+                menu.classList.remove("-right-[75%]")
             })
         }
     })

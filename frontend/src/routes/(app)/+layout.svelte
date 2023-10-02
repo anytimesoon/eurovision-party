@@ -19,7 +19,7 @@
   const closeMenu = () => {
     const menu = document.getElementById("menu")
     menu.classList.remove('right-0')
-    menu.classList.add('-right-56')
+    menu.classList.add('-right-[75%]')
   }
 
   const handleWindowClick = (e:Event) => {
@@ -58,11 +58,11 @@
       </nav>
   </div>
 
-  <aside id="menu" class="fixed top-0 -right-56 bg-canvas-secondary z-1 flex duration-500 h-screen overflow-auto">
+  <aside id="menu" class="fixed top-0 -right-[75%] w-[75%] bg-canvas-secondary z-1 flex duration-500 h-screen overflow-auto">
     <div class="w-full flex flex-col p-5">
       <ul class="list-none">
         {#each $participatingCountryStore as country}
-          <li class="py-2"><a href="/country/{country.slug}" on:click={closeMenu}>{country.flag} {country.name}</a></li>
+          <li class="py-2"><a href="/country/{country.slug}" on:click={closeMenu} class="text-[1.25rem]">{country.flag} {country.name}</a></li>
         {/each}
       </ul>
     </div>
