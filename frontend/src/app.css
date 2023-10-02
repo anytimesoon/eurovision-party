@@ -37,8 +37,21 @@
         @apply text-typography-paragraph
     }
 
-    h1, h2, h3, h4, h5, h6 {
+    h1, h2, h3, h4 {
         @apply text-typography-header
+    }
+
+    h1 {
+        @apply text-5xl pb-2
+    }
+    h2 {
+        @apply text-4xl pb-2
+    }
+    h3 {
+        @apply text-2xl pb-1
+    }
+    h4 {
+        @apply text-2xl
     }
 
     p {
