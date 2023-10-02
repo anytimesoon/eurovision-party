@@ -3,22 +3,25 @@
     import {countryStore} from "$lib/stores/country.store";
     import type {ResultModel} from "$lib/models/classes/result.model";
     import { enhance } from '$app/forms';
+    import {authLvl} from "$lib/models/enums/authLvl.enum";
 
     export let data:PageData
     export let form:ActionData
     let results:ResultModel[]
-    let sortBy = {col: "total", descending: true}
+    let sortBy = {col: "total", descending: true, icon: "fa-sort-down"}
 
     results = data.results
     let userArray = [...new Map(Object.entries(data.users))]
 
-    $: sort = (column) => {
+    function sort(column:string) {
 
-        if (sortBy.col == column) {
+        if (sortBy.col === column) {
             sortBy.descending = !sortBy.descending
+            sortBy.descending ? sortBy.icon = "fa-sort-down" : sortBy.icon = "fa-sort-up"
         } else {
             sortBy.col = column
             sortBy.descending = true
+            sortBy.icon = "fa-sort-down"
         }
 
         // Modifier to sorting function for ascending or descending
@@ -34,13 +37,10 @@
         results = results.sort(sort);
     }
 
-    const updateResults = (form) => {
-        if(form !== null) {
-            results = form.results
-        }
+    $: if (form) {
+        results = form.results
     }
 
-    $: updateResults(form)
 </script>
 
 <div class="h-full overflow-auto">
@@ -51,7 +51,7 @@
             <select class="w-full text-center py-3" value={form?.selection ?? ""} name="id" on:change={(e) => {e.target.parentElement.requestSubmit()}}>
                 <option value="">Main Results</option>
                 {#each userArray as userInfo}
-                    {#if userInfo[1].name !== "bot"}
+                    {#if userInfo[1].authLvl !== authLvl.BOT}
                         <option value={userInfo[0]}>{userInfo[1].name}</option>
                     {/if}
                 {/each}
@@ -65,11 +65,11 @@
             <thead>
             <tr>
                 <th>🌍</th>
-                <th on:click={sort("song")}>Song</th>
-                <th on:click={sort("performance")}>Perf.</th>
-                <th on:click={sort("costume")}>Cost.</th>
-                <th on:click={sort("props")}>Props</th>
-                <th on:click={sort("total")}>Total</th>
+                <th on:click={() => sort("song")}>Song <i class="fa-solid fa-sort"></i></th>
+                <th on:click={() => sort("performance")}>Perf. <i class="fa-solid fa-sort"></i></th>
+                <th on:click={() => sort("costume")}>Cost. <i class="fa-solid fa-sort"></i></th>
+                <th on:click={() => sort("props")}>Props <i class="fa-solid fa-sort"></i></th>
+                <th on:click={() => sort("total")}>Total <i class="fa-solid {sortBy.icon}"></i></th>
             </tr>
             </thead>
             <tbody>
