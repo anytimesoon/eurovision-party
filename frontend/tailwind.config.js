@@ -8,6 +8,7 @@ export default {
         'secondary': 'var(--color-secondary)',
         'buttons': 'var(--color-buttons)',
         'nav-icon': 'var(--color-nav-icon)',
+        'vote-star': 'var(--color-vote-star)',
         'chat-bubble-me': 'var(--color-chat-bubble-me)',
         'chat-bubble-you': 'var(--color-chat-bubble-you)',
         'typography-header': 'var(--color-typography-header)',

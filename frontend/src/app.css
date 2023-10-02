@@ -89,7 +89,12 @@ html[data-theme="classic"] {
     /*
         nav button icon color
     */
-    --color-nav-icon: #6bffab;
+    --color-nav-icon: var(--color-secondary);
+
+    /*
+        vote star color
+    */
+    --color-vote-star: rgb(250 204 21);
 
     /*
         current user chat bubble background color. should contrast secondary canvas color
