@@ -45,7 +45,7 @@
 </script>
 
 {#if $currentUser.authLvl === authLvl.ADMIN }
-    <AdminNav />
+    <AdminNav page="settings"/>
 {/if}
 
 <Modal bind:openModal={openModal}
@@ -54,13 +54,13 @@
        img={imageString}
        avatarForm={avatarForm}/>
 
-<div class="px-1">
-    <h1 class="text-center">Personal Settings</h1>
+<div class="pb-3">
+    <h2 class="text-center">Personal Settings</h2>
     <div class="py-3">
         <div class="max-w-max mx-auto">
         {#if hideNameForm }
                 <form class="inline-block" method="POST" action="?/showNameForm" use:enhance>
-                    <span class="inline-block">{$currentUser.name} <button><i class="fa-regular fa-pen-to-square"></i></button></span>
+                    <span class="inline-block text-2xl">{$currentUser.name} <button class="py-0 px-2"><i class="fa-regular fa-pen-to-square fa-2xs"></i></button></span>
                 </form>
         {:else}
             <form method="POST" action="?/updateName" use:enhance>
@@ -82,7 +82,7 @@
             <input type="hidden" name="height" bind:value={cropArea.height}>
             <input type="hidden" name="width" bind:value={cropArea.width}>
 <!--            <input type="hidden" name="zoom" bind:value={cropArea.zoom}>-->
-            <label for="avatar" class="absolute top-5 right-5 cursor-pointer">
+            <label for="avatar" class="absolute top-5 right-2 cursor-pointer bg-primary py-1 px-2 rounded">
                 <i class="fa-regular fa-pen-to-square"></i>
                 <input id="avatar" name="img" class="hidden" type="file" accept="image/png, image/jpeg" bind:files={imageFiles}>
             </label>
@@ -91,7 +91,10 @@
 
 </div>
 
-<select bind:value={theme}>
-    <option value="classic">Classic</option>
-    <option value="light">Light</option>
-</select>
+<div class="py-3">
+    <h2 class="text-center">Themes</h2>
+    <select bind:value={theme}>
+        <option value="classic">Classic</option>
+        <option value="light">Light</option>
+    </select>
+</div>

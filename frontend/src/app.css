@@ -3,6 +3,10 @@
 @tailwind utilities;
 
 @layer base {
+    /*
+        FORMS
+    */
+
     [type="text"],
     [type="email"],
     [type="url"],
@@ -18,12 +22,16 @@
     [multiple],
     textarea,
     select {
-        @apply text-typography-main w-full border-solid bg-canvas-secondary border-2 border-gray-400 p-2 rounded-lg shadow-sm focus:border-secondary focus:outline focus:outline-secondary;
+        @apply text-typography-main w-full border-solid bg-canvas-secondary border-2 border-gray-400 p-2 rounded-lg shadow-sm focus:border-secondary focus:outline focus:outline-1 focus:outline-secondary;
     }
 
     [type="checkbox"]{
         @apply border-gray-300 rounded-lg text-indigo-600 focus:ring-indigo-500;
     }
+
+    /*
+        TYPOGRAPHY
+    */
 
     label, a, p, span {
         @apply text-typography-main
@@ -48,6 +56,18 @@
     }
     h4 {
         @apply text-2xl
+    }
+
+    /*
+        TABLES
+    */
+
+    table {
+        @apply text-typography-main
+    }
+
+    tr:nth-child(even) {
+        @apply bg-canvas-secondary
     }
 }
 
