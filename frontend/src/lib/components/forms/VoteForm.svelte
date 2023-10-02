@@ -71,9 +71,8 @@
                         form.requestSubmit()
                     }}/>
                 <label
-                        class="text-yellow-400
+                        class="text-vote-star
                                text-4xl
-                               ease-in-out duration-500
                                before:content-['\2606']
                                peer-checked:before:content-['\2605']"
                         for="{cat}-star-{label}"></label>
