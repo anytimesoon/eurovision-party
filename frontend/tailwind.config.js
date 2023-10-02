@@ -12,7 +12,7 @@ export default {
         'chat-bubble-me': 'var(--color-chat-bubble-me)',
         'chat-bubble-you': 'var(--color-chat-bubble-you)',
         'typography-header': 'var(--color-typography-header)',
-        'typography-paragraph': 'var(--color-typography-paragraph)',
+        'typography-main': 'var(--color-typography-main)',
         'typography-button': 'var(--color-typography-button)',
         'typography-chat-me': 'var(--color-typography-chat-me)',
         'typography-chat-you': 'var(--color-typography-chat-you)',
