@@ -20,7 +20,7 @@ func NewCommentRepositoryDb(db *sqlx.DB) CommentRepositoryDb {
 func (db CommentRepositoryDb) FindAllComments() ([]Comment, *errs.AppError) {
 	comments := make([]Comment, 0)
 
-	query := "SELECT * FROM comment"
+	query := "SELECT * FROM comment order by createdAt"
 	err := db.client.Select(&comments, query)
 	if err != nil {
 		log.Println("Error while querying comment table", err)

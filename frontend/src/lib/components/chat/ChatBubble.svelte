@@ -1,41 +1,32 @@
 <script lang="ts">
-    import {CommentModel} from "$lib/models/classes/comment.model";
-    import {currentUser} from "$lib/stores/user.store";
+    import type {CommentModel} from "$lib/models/classes/comment.model";
     import {staticEP} from "$lib/models/enums/endpoints.enum";
     import {authLvl} from "$lib/models/enums/authLvl.enum";
-    import {UserModel} from "$lib/models/classes/user.model";
+    import type {UserModel} from "$lib/models/classes/user.model";
     import ChatContent from "$lib/components/chat/ChatContent.svelte";
 
-    export let comment:CommentModel = new CommentModel()
-    export let user:UserModel = new UserModel()
+    export let comment:CommentModel
+    export let user:UserModel
+    export let isCurrentUser:boolean
 
-    function isCurrentUser():boolean {
-        return $currentUser.id === user.id
-    }
-
-    $: currentUserBubbleContainer = isCurrentUser() ? "ml-auto justify-end" : ""
-    $: currentUserBubble = isCurrentUser() ? "bg-chat-bubble-me" : "bg-chat-bubble-you"
-    $: roundedCorners = isCurrentUser() ? "rounded-l-lg rounded-br-lg" : "rounded-r-lg rounded-bl-lg"
+    $: currentUserBubbleContainer = isCurrentUser ? "ml-auto justify-end" : ""
+    $: currentUserImage = isCurrentUser ? "order-last ml-3" : "mr-3"
+    $: currentUserBubble = isCurrentUser ? "bg-chat-bubble-me" : "bg-chat-bubble-you"
+    $: roundedCorners = isCurrentUser ? "rounded-l-lg rounded-br-lg" : "rounded-r-lg rounded-bl-lg"
 </script>
 
 {#if user.authLvl === authLvl.BOT}
-    <div class="text-center mt-2 text-s">
+    <div class="text-center mt-2 text-s p-3">
         <p class="text-sm">{comment.text}</p>
     </div>
 {:else}
-    <div class="flex w-full mt-2 space-x-3 max-w-xs {currentUserBubbleContainer}">
-        {#if !isCurrentUser()}
-            <img class="flex-shrink-0 h-10 w-10 rounded-full" src={staticEP.IMG + user.icon} alt={user.name + "'s avatar"}>
-        {/if}
-        <div>
+    <div class="flex w-full mt-2 max-w-xs {currentUserBubbleContainer}">
 
-            <div class="p-3 {roundedCorners} {currentUserBubble}">
-                <ChatContent comment={comment} user={user} isCurrentUser={isCurrentUser()}/>
-            </div>
+        <img class="flex-shrink-0 h-10 w-10 rounded-full {currentUserImage}" src={staticEP.IMG + user.icon} alt={user.name + "'s avatar"}>
 
+        <div class="p-3 {roundedCorners} {currentUserBubble}">
+            <ChatContent comment={comment} user={user} isCurrentUser={isCurrentUser}/>
         </div>
-        {#if isCurrentUser()}
-            <img class="flex-shrink-0 h-10 w-10 rounded-full" src={staticEP.IMG + user.icon} alt={user.name + "'s avatar"}>
-        {/if}
+
     </div>
 {/if}
