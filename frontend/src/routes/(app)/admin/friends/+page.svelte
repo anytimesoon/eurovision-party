@@ -1,11 +1,9 @@
 <script lang="ts">
     import { enhance } from '$app/forms';
-    import {authEP, userSvelteEP} from "$lib/models/enums/endpoints.enum";
+    import {authEP} from "$lib/models/enums/endpoints.enum";
     import type {PageData, ActionData} from "./$types";
-    import {currentUser} from "$lib/stores/user.store";
-    import {authLvl} from "$lib/models/enums/authLvl.enum";
     import AdminNav from "$lib/components/AdminNav.svelte";
-    import {NewUserModel} from "$lib/models/classes/user.model";
+    import type {NewUserModel} from "$lib/models/classes/user.model";
 
     export let data:PageData
     export let form:ActionData

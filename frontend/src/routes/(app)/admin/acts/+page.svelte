@@ -3,8 +3,6 @@
     import CountryActForm from "$lib/components/forms/CountryActForm.svelte";
     import type {ActionData} from "./$types";
     import type {CountryModel} from "$lib/models/classes/country.model";
-    import {currentUser} from "$lib/stores/user.store";
-    import {authLvl} from "$lib/models/enums/authLvl.enum";
     import AdminNav from "$lib/components/AdminNav.svelte";
 
     export let form:ActionData
