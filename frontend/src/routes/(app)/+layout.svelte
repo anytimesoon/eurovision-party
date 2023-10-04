@@ -41,22 +41,22 @@
 </svelte:head>
 <svelte:window on:click={handleWindowClick} />
 
-<main class="h-screen max-w-screen-sm mx-auto p-3 relative">
-  <div class="flex flex-col">
-      <div id="content" class="flex h-[calc(100vh-5rem)] pb-3">
-        <div class="flex-grow">
-          <slot />
-        </div>
-      </div>
-      <nav class="h-4 flex w-full flex-wrap items-center justify-between">
+<main class="h-screen max-w-screen-sm mx-auto px-3 relative flex flex-col-reverse">
+
+        <nav class="flex w-full items-center justify-between pb-1">
 
             <MenuButton navName="Chat" dest="/" menu={menu}/>
             <MenuButton navName="Vote" dest="" menu={menu}/>
             <MenuButton navName="Results" dest="/results"  menu={menu}/>
             <MenuButton navName="Settings" dest="/settings"  menu={menu}/>
 
-      </nav>
-  </div>
+        </nav>
+
+        <div id="content" class="flex-1 pb-4">
+            <slot />
+        </div>
+
+
 
   <aside id="menu" class="fixed top-0 -right-[75%] w-[75%] bg-canvas-secondary z-1 flex duration-500 h-screen overflow-auto">
     <div class="w-full flex flex-col p-5">

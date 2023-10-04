@@ -24,18 +24,22 @@
     $: updateCountry(form)
 </script>
 
-{#if $currentUser.authLvl === authLvl.ADMIN }
-    <AdminNav />
-{/if}
+<div class="h-full flex flex-col">
+    <AdminNav page="acts" />
 
-<div class="rounded mb-3 overflow-auto max-h-[calc(100vh-10em)]">
-    <h1 class="text-center">Acts</h1>
+    <h2 class="text-center">Acts</h2>
 
-    {#each $participatingCountryStore as country}
+    <div class="flex-1 overflow-auto">
+        <div class="rounded max-h-1">
+            {#each $participatingCountryStore as country}
 
-        <div class="py-3 border-b-2 border-b-secondary">
-            <h3>{country.flag} {country.name}</h3>
-            <CountryActForm country={country}/>
+                <div class="p-3">
+                    <div class="p-3 border-2 border-secondary rounded">
+                        <h3>{country.flag} {country.name}</h3>
+                        <CountryActForm country={country}/>
+                    </div>
+                </div>
+            {/each}
         </div>
-    {/each}
+    </div>
 </div>

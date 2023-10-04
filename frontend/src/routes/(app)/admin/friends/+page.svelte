@@ -20,61 +20,41 @@
 
     const copyLink = (user:NewUserModel, e:Event) => {
         navigator.clipboard.writeText(authEP.SVELTE_LOGIN + "/" + user.token + "/" + user.id)
-        // e.target.innerHTML = "Copied!"
     }
 
     $: updateUsers(form)
 </script>
 
-{#if $currentUser.authLvl === authLvl.ADMIN }
-    <AdminNav />
-{/if}
+<div class="h-full flex flex-col">
+    <AdminNav page="friends"/>
 
-<h1 class="text-center">Manage your friends</h1>
-<div class="p-3">
 
-    <form method="POST" action="?/register" use:enhance >
-        <div class="w-fit mx-auto py-3">
-        <span class="w-fit">
-            <label for="new-user-name">name</label>
-            <input id="new-user-name" type="text" name="name" />
-            <button><i class="fa-regular fa-floppy-disk"></i></button>
-        </span>
+    <h2 class="text-center">Invite your friends</h2>
+    <div class="p-3">
+
+        <form method="POST" action="?/register" use:enhance >
+            <div class="w-fit mx-auto flex justify-center">
+                <input class="mr-3" id="new-user-name" type="text" name="name" placeholder="Name"/>
+                <button><i class="fa-regular fa-floppy-disk"></i></button>
+            </div>
+
+        </form>
+    </div>
+
+    <div class="flex-1 overflow-auto">
+        <div class="rounded max-h-1">
+            {#each users as user}
+                <div class="p-3">
+                    <div class="p-3 border-2 border-secondary rounded text-center">
+                        <h3>{user.name}</h3>
+                        <p>Send the magic link to {user.name} so they can log in</p>
+                        <div class="flex justify-center space-x-2 p-3">
+                            <button on:click={(e) => copyLink(user, e)}><i class="fa-regular fa-copy"></i> Copy</button>
+    <!--                        <button ><i class="fa-solid fa-eye"></i> Show</button>-->
+                        </div>
+                    </div>
+                </div>
+            {/each}
         </div>
-        <!--        email <input id="" type="text" name="email" />-->
-
-    </form>
-</div>
-
-<div class="p-3">
-    <table class="max-w-full min-w-full">
-        <thead>
-        <tr>
-            <td>
-                Name
-            </td>
-<!--            <td>-->
-<!--                Email-->
-<!--            </td>-->
-            <td class="w-[30%] text-right">
-                Login link
-            </td>
-        </tr>
-        </thead>
-        <tbody>
-        {#each users as user}
-            <tr class="my-3">
-                <td>
-                    <a href="{userSvelteEP.FIND_ONE}{user.slug}">{user.name}</a>
-                </td>
-<!--                <td>-->
-<!--                    {user.email}-->
-<!--                </td>-->
-                <td class="text-right">
-                    <button on:click={(e) => copyLink(user, e)}><i class="fa-regular fa-copy"></i></button>
-                </td>
-            </tr>
-        {/each}
-        </tbody>
-    </table>
+    </div>
 </div>

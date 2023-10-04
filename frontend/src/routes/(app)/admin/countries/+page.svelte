@@ -25,37 +25,38 @@
     $: updateCountry(form)
 </script>
 
-{#if $currentUser.authLvl === authLvl.ADMIN }
-    <AdminNav />
-{/if}
+<div class="h-full flex flex-col">
+    <AdminNav page="countries"/>
 
-<div class="flex flex-col max-h-max">
-    <h1 class="text-center">Selected {$participatingCountryStore.length} countries</h1>
-    <div class="rounded mb-3 overflow-auto max-h-[calc(100vh-10em)]">
-        <div class="grid grid-cols-2 gap-x-3">
-            <div>
-                <ul>
-                    {#each $notParticipatingCountryStore as country}
-                        <li class="p-3 my-1.5 border-2 border-grey-400 bg-canvas-secondary text-center w-full">
-                            <CountryParticipationForm country={country} />
-                        </li>
-                    {/each}
-                </ul>
-            </div>
+    <h3 class="text-center">{$participatingCountryStore.length} countries selected</h3>
 
-            <div>
-                <ul>
-                    {#each $participatingCountryStore as country}
-                        <li class="p-3 my-1.5 border-2 border-primary bg-canvas-secondary text-center w-full">
-                            <CountryParticipationForm country={country} />
-                        </li>
-                    {/each}
-                </ul>
+    <div class="flex-1 overflow-auto">
+        <div class="rounded max-h-1">
+            <div class="grid grid-cols-2 gap-x-3">
+                <div>
+                    <ul>
+                        {#each $notParticipatingCountryStore as country}
+                            <li class="p-3 my-1.5 border-2 border-grey-400 bg-canvas-secondary text-center w-full">
+                                <CountryParticipationForm country={country} />
+                            </li>
+                        {/each}
+                    </ul>
+                </div>
+
+                <div>
+                    <ul>
+                        {#each $participatingCountryStore as country}
+                            <li class="p-3 my-1.5 border-2 border-primary bg-canvas-secondary text-center w-full">
+                                <CountryParticipationForm country={country} />
+                            </li>
+                        {/each}
+                    </ul>
+                </div>
             </div>
         </div>
-
-
-
     </div>
+
 </div>
+
+
 

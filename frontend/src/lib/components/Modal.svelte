@@ -41,12 +41,12 @@
 <div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden" id="modal">
 
     <!-- Modal window -->
-    <div class="relative top-20 p-3 border max-w-screen-sm mx-auto shadow-lg rounded-md bg-white">
+    <div class="relative top-20 p-3 border border-secondary max-w-screen-sm mx-auto shadow-lg rounded-md bg-canvas-secondary">
 
         <div>
             <!-- Close button -->
             <div class="absolute top-2 right-3">
-                <button on:click={closeModal}><i class="fa-regular fa-circle-xmark"></i></button>
+                <button class="bg-transparent" on:click={closeModal}><i class="fa-regular fa-circle-xmark"></i></button>
             </div>
 
             <!-- Content -->
@@ -61,8 +61,8 @@
             </div>
 
             <div class="w-60 mx-auto py-3 flex justify-between">
-                <button type="button" on:click={sendImage}><i class="fa-regular fa-floppy-disk"></i> Save</button>
-                <a on:click={closeModal} on:keydown={closeModal} class="cursor-pointer"><i class="fa-solid fa-ban"></i> Cancel</a>
+                <button on:click={sendImage}><i class="fa-regular fa-floppy-disk"></i> Save</button>
+                <a on:click={closeModal} on:keydown={closeModal} class="cursor-pointer pt-2"><i class="fa-solid fa-ban"></i> Cancel</a>
             </div>
 
         </div>

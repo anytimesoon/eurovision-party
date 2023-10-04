@@ -64,9 +64,11 @@
                 </form>
         {:else}
             <form method="POST" action="?/updateName" use:enhance>
-                <input type="text" name="name" bind:value={$currentUser.name} />
-                <input type="hidden" name="id" bind:value={$currentUser.id} />
-                <button><i class="fa-solid fa-floppy-disk"></i></button>
+                <div class="w-fit mx-auto flex justify-center">
+                    <input class="mr-3" type="text" name="name" bind:value={$currentUser.name} placeholder="Change your name"/>
+                    <input type="hidden" name="id" bind:value={$currentUser.id} />
+                    <button><i class="fa-solid fa-floppy-disk"></i></button>
+                </div>
             </form>
         {/if}
         </div>

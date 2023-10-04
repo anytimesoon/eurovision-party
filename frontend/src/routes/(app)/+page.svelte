@@ -31,7 +31,7 @@
 
 </script>
 
-<div class="h-[calc(100vh-6rem)] flex flex-col">
+<div class="flex flex-col h-full">
     <div id="chat-box" class="border-2 flex flex-col-reverse flex-auto bg-canvas-secondary border-secondary p-4 overflow-auto rounded mb-3">
         {#each $commentStore as comment}
             <ChatBubble comment={comment} user={$userStore[comment.userId]} isCurrentUser={($currentUser.id === comment.userId)}/>
