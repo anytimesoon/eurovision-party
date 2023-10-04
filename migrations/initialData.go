@@ -90,9 +90,9 @@ var initCountries = []initialCountryParams{
 		Slug: "slovenia",
 	},
 	{
-		Name: "Ukrain",
+		Name: "Ukraine",
 		Flag: "🇺🇦",
-		Slug: "ukrain",
+		Slug: "ukraine",
 	},
 	{
 		Name: "Bulgaria",
