@@ -18,7 +18,6 @@ func CreateUsersTable(db *sqlx.DB) {
 	query = `CREATE TABLE IF NOT EXISTS user(
 				uuid char(36) NOT NULL PRIMARY KEY, 
 				name VARCHAR(191) NOT NULL,
-				email VARCHAR(191), 
 				slug VARCHAR(191) NOT NULL UNIQUE, 
 				authLvl TINYINT DEFAULT 0, 
 				icon VARCHAR(191) DEFAULT '/content/static/img/newuser.png',
@@ -33,20 +32,20 @@ func CreateUsersTable(db *sqlx.DB) {
 }
 
 func AddUsers(db *sqlx.DB) {
-	userQuery := "INSERT INTO user(uuid, name, email, slug, authLvl) VALUES (?, ?, ?, ?, ?)"
+	userQuery := "INSERT INTO user(uuid, name, slug, authLvl) VALUES (?, ?, ?, ?)"
 	authQuery := "INSERT INTO auth(authToken, userId, authTokenExp, authLvl, slug) VALUES (?, ?, NOW() + INTERVAL 5 DAY, ?, ?)"
 
 	for _, user := range initUsers {
 		id := uuid.New()
 
-		_, err := db.Exec(userQuery, id, user.Name, user.Email, user.Slug, user.AuthLvl)
+		_, err := db.Exec(userQuery, id, user.Name, user.Slug, user.AuthLvl)
 		if err != nil {
 			log.Fatalf("User %s was not created. %s", user.Name, err)
 		}
 
 		switch user.AuthLvl {
 		case 1:
-			initAuth.GenerateSecureToken(80)
+			initAuth.GenerateSecureToken(40)
 			_, err = db.Exec(authQuery, initAuth.AuthToken, id, user.AuthLvl, user.Slug)
 			if err != nil {
 				log.Fatalf("Authentication for user %s was not created. %s", user.Name, err)

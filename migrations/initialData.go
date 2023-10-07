@@ -11,7 +11,6 @@ type initialCountryParams struct {
 
 type initialUserParams struct {
 	Name    string
-	Email   string
 	Slug    string
 	AuthLvl uint8
 }
@@ -20,14 +19,12 @@ var initAuth = domain.Auth{}
 
 var initUsers = []initialUserParams{
 	{
-		Name:    "admin",
-		Email:   "admin@admin.com",
+		Name:    "Euro Host",
 		Slug:    "admin",
 		AuthLvl: 1,
 	},
 	{
 		Name:    "EuroBot",
-		Email:   "bot@bot.com",
 		Slug:    "bot",
 		AuthLvl: 2,
 	},
