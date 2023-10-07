@@ -39,6 +39,7 @@ export const actions : Actions = {
         const userResp:ResponseModel<UserModel> = await res.json()
 
         return {
+            hideNameForm: true,
             error: userResp.error,
             user: userResp.body
         }
