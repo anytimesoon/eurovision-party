@@ -24,7 +24,6 @@ export const actions : Actions = {
     updateImg: async ({fetch, request}) => {
         const fd = await request.formData()
 
-        console.log(fd.get("img"))
         const res = await fetch(userGoEP.UPDATE_IMAGE, {
             method: "PUT",
             body: fd
