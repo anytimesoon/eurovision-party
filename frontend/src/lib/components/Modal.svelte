@@ -1,13 +1,5 @@
 <script lang="ts">
     import {onMount} from "svelte";
-    import Cropper from "svelte-easy-crop";
-    import type {CropArea} from "svelte-easy-crop/types";
-    import {ImageCropArea} from "$lib/models/classes/imageCropArea";
-
-
-
-
-
     let modal:HTMLElement
 
     onMount(() => {
