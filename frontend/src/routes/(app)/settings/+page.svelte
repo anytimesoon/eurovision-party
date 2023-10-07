@@ -7,6 +7,7 @@
     import AdminNav from "$lib/components/AdminNav.svelte";
     import Modal from "$lib/components/Modal.svelte";
     import {ImageCropArea} from "$lib/models/classes/imageCropArea";
+    import AvatarCropForm from "$lib/components/forms/AvatarCropForm.svelte";
 
     export let form:ActionData
     let hideNameForm = true
@@ -48,11 +49,13 @@
     <AdminNav page="settings"/>
 {/if}
 
-<Modal bind:openModal={openModal}
-       bind:closeModal={closeModal}
-       bind:cropArea={cropArea}
-       img={imageString}
-       avatarForm={avatarForm}/>
+<Modal bind:openModal={openModal} bind:closeModal={closeModal}>
+
+    <AvatarCropForm bind:cropArea={cropArea}
+                    img={imageString}
+                    avatarForm={avatarForm}
+                    closeModal="{closeModal}"/>
+</Modal>
 
 <div class="pb-3">
     <h2 class="text-center">Personal Settings</h2>
