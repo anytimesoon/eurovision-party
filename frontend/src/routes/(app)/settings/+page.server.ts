@@ -4,12 +4,6 @@ import {ResponseModel} from "$lib/models/classes/response.model";
 import type {UserModel} from "$lib/models/classes/user.model";
 
 export const actions : Actions = {
-    showNameForm: async ({fetch, request}) => {
-
-        return {
-            hideNameForm: false
-        }
-    },
     updateName: async ({fetch, request}) => {
         const fd = await request.formData()
         const user:UserModel = Object.fromEntries([...fd]) as UserModel
@@ -39,7 +33,6 @@ export const actions : Actions = {
         const userResp:ResponseModel<UserModel> = await res.json()
 
         return {
-            hideNameForm: true,
             error: userResp.error,
             user: userResp.body
         }

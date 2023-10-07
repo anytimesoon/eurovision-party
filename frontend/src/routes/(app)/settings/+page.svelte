@@ -43,6 +43,9 @@
     $: if(theme) {
         document.querySelector("html")?.setAttribute("data-theme", theme)
     }
+    function showNameForm() {
+        hideNameForm = !hideNameForm
+    }
 </script>
 
 {#if $currentUser.authLvl === authLvl.ADMIN }
@@ -62,9 +65,9 @@
     <div class="py-3">
         <div class="max-w-max mx-auto">
         {#if hideNameForm }
-                <form class="inline-block" method="POST" action="?/showNameForm" use:enhance>
-                    <span class="inline-block text-2xl">{$currentUser.name} <button class="py-0 px-2"><i class="fa-regular fa-pen-to-square fa-2xs"></i></button></span>
-                </form>
+<!--                <form class="inline-block" method="POST" action="?/showNameForm" use:enhance>-->
+                    <span class="inline-block text-2xl">{$currentUser.name} <button on:click={showNameForm} class="py-0 px-2"><i class="fa-regular fa-pen-to-square fa-2xs"></i></button></span>
+<!--                </form>-->
         {:else}
             <form method="POST" action="?/updateName" use:enhance>
                 <div class="w-fit mx-auto flex justify-center">
