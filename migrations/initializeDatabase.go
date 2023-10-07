@@ -9,8 +9,8 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func Start(config *conf.App) sqlx.DB {
-	sqlDb := sqlx.MustConnect("mysql", dsn(config.DB))
+func Start() sqlx.DB {
+	sqlDb := sqlx.MustConnect("mysql", dsn())
 	log.Println("Successfully connected to database")
 
 	log.Println("Building tables 🏗")
@@ -22,11 +22,11 @@ func Start(config *conf.App) sqlx.DB {
 
 	log.Println("Seeding tables 🌱")
 	AddCountries(sqlDb)
-	AddUsers(sqlDb, config)
+	AddUsers(sqlDb)
 
 	return *sqlDb
 }
 
-func dsn(config conf.DB) string {
-	return fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", config.Username, config.Password, config.Hostname, config.Port, config.DBName)
+func dsn() string {
+	return fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", conf.Db.Username, conf.Db.Password, conf.Db.Hostname, conf.Db.Port, conf.Db.Name)
 }

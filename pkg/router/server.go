@@ -17,7 +17,7 @@ import (
 
 var authService service.AuthService
 
-func StartServer(db *sqlx.DB, appConf conf.App) {
+func StartServer(db *sqlx.DB) {
 	router := mux.NewRouter().StrictSlash(true)
 	router.Use(logging)
 
@@ -68,7 +68,7 @@ func StartServer(db *sqlx.DB, appConf conf.App) {
 
 	// User
 	userRepositoryDb := domain.NewUserRepositoryDb(db)
-	userHandler := UserHandler{Service: service.NewUserService(userRepositoryDb, appConf.BotUser, chatRoomHandler.RoomService.BroadcastUpdate)}
+	userHandler := UserHandler{Service: service.NewUserService(userRepositoryDb, chatRoomHandler.RoomService.BroadcastUpdate)}
 	userRouter := apiRouter.PathPrefix("/user").Subrouter()
 	userRouter.HandleFunc("/", userHandler.FindAllUsers).Methods(http.MethodGet)
 	userRouter.HandleFunc("/", userHandler.UpdateUser).Methods(http.MethodPut)        // admin or current user
@@ -93,7 +93,7 @@ func StartServer(db *sqlx.DB, appConf conf.App) {
 	credentials := handlers.AllowCredentials()
 
 	server := &http.Server{
-		Addr:    fmt.Sprintf("%s:%s", appConf.Server.Url, appConf.Server.Port),
+		Addr:    fmt.Sprintf("%s:%s", conf.Server.Url, conf.Server.Port),
 		Handler: handlers.CORS(headersOk, originsOk, methodsOk, credentials)(router),
 		// Good practice to set timeouts to avoid Slowloris attacks.
 		WriteTimeout: time.Second * 15,
@@ -101,6 +101,6 @@ func StartServer(db *sqlx.DB, appConf conf.App) {
 		IdleTimeout:  time.Second * 60,
 	}
 
-	log.Printf("Server listening on port %s", appConf.Server.Port)
+	log.Printf("Server listening on port %s", conf.Server.Port)
 	log.Fatal(server.ListenAndServe())
 }

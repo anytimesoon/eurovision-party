@@ -1,73 +1,63 @@
 package conf
 
 import (
+	"fmt"
 	"github.com/google/uuid"
-	"net/smtp"
+	"github.com/spf13/viper"
 )
 
-type App struct {
-	DB      DB
-	Server  Server
-	Auth    Auth
-	Email   Email
-	BotUser BotUser
-}
+var (
+	Db     dbConf
+	Server serverConf
+	Bot    botConf
+	main   mainConf
+)
 
-type DB struct {
-	Username string
-	Password string
-	Hostname string
-	Port     string
-	DBName   string
-}
-
-type Server struct {
-	Port string
-	Url  string
-}
-
-type Auth struct {
-	CookieKey  []byte
-	SessionKey string
-}
-
-type Email struct {
-	UseSSL        bool
-	Auth          smtp.Auth
-	ServerAndPort string
-	EmailAddress  string
-}
-
-type BotUser struct {
-	ID   uuid.UUID
-	Name string
-}
-
-func Setup() App {
-	var db = DB{
-		Username: "eurovision",
-		Password: "P,PO)+{l4!C{ff",
-		Hostname: "127.0.0.1",
-		Port:     "3306",
-		DBName:   "eurovision",
-	}
-	var server = Server{
-		Port: "8080",
-		Url:  "127.0.0.1",
+type (
+	dbConf struct {
+		Username string `mapstructure:"username"`
+		Password string `mapstructure:"password"`
+		Hostname string `mapstructure:"hostname"`
+		Port     string `mapstructure:"port"`
+		Name     string `mapstructure:"name"`
 	}
 
-	var auth = Auth{
-		SessionKey: "testing-key-session",
+	serverConf struct {
+		Port string `mapstructure:"port"`
+		Url  string `mapstructure:"url"`
 	}
 
-	var email = Email{
-		UseSSL: false,
+	botConf struct {
+		Id   uuid.UUID `mapstructure:"id"`
+		Name string    `mapstructure:"name"`
 	}
 
-	return App{
-		DB:     db,
-		Server: server,
-		Auth:   auth,
-		Email:  email,
+	mainConf struct {
+		Db   dbConf     `mapstructure:"db"`
+		Serv serverConf `mapstructure:"server"`
+		Bot  botConf    `mapstructure:"bot"`
 	}
+)
+
+func (b *botConf) SetId(id uuid.UUID) {
+	viper.Set("bot.id", id.String())
+	b.Id = id
+}
+
+func LoadConfig() {
+	viper.SetConfigName("defaults")
+	viper.AddConfigPath("conf/")
+	err := viper.ReadInConfig()
+	if err != nil {
+		panic(fmt.Errorf("fatal error config file: %w", err))
+	}
+
+	err = viper.Unmarshal(&main)
+	if err != nil {
+		panic(fmt.Errorf("fatal error unmarshalling config: %w", err))
+	}
+
+	Db = main.Db
+	Server = main.Serv
+	Bot = main.Bot
 }
