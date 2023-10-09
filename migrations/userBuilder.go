@@ -2,6 +2,7 @@ package migrations
 
 import (
 	"eurovision/conf"
+	"eurovision/pkg/enum"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"log"
@@ -44,7 +45,7 @@ func AddUsers(db *sqlx.DB) {
 		}
 
 		switch user.AuthLvl {
-		case 1:
+		case enum.ADMIN:
 			initAuth.GenerateSecureToken(40)
 			_, err = db.Exec(authQuery, initAuth.AuthToken, id, user.AuthLvl, user.Slug)
 			if err != nil {
@@ -52,7 +53,7 @@ func AddUsers(db *sqlx.DB) {
 			}
 			log.Printf("http://localhost:5173/login/%s/%s", initAuth.AuthToken, id)
 			log.Printf("User %s created 👨‍💻", user.Name)
-		case 2:
+		case enum.BOT:
 			conf.Bot.SetId(id)
 			log.Printf("User %s created 🤖", user.Name)
 		default:
