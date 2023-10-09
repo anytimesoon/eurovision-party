@@ -4,7 +4,6 @@
     import type {PageData, ActionData} from "./$types";
     import AdminNav from "$lib/components/AdminNav.svelte";
     import type {NewUserModel} from "$lib/models/classes/user.model";
-    import {userStore} from "$lib/stores/user.store";
 
     export let data:PageData
     export let form:ActionData
