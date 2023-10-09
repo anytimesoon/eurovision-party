@@ -8,7 +8,6 @@ export const actions : Actions = {
     register: async ({fetch, request}) => {
         const fd = await request.formData()
         const newUser:NewUserModel = Object.fromEntries([...fd]) as NewUserModel;
-        console.log(newUser)
         const resProm = await fetch(authEP.REGISTER, {
             method: "POST",
             body: JSON.stringify(newUser)
