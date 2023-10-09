@@ -16,9 +16,7 @@ export const load =  ( async ({ params, fetch, cookies }) => {
     });
 
     const login: ResponseModel<SessionModel> = await res.json()
-
     cookies.set("session", login.body.token, login.body.opts)
-
 
     if (login.error != "") {
         throw redirect(303, "/login")
