@@ -17,12 +17,18 @@ export const load =  ( async ({ params, fetch, cookies }) => {
 
     const login: ResponseModel<SessionModel> = await res.json()
     cookies.set("session", login.body.token, login.body.opts)
+    const hasLoggedIn:boolean = cookies.get("visited") || false
+
+    if (!hasLoggedIn) {
+        cookies.set('visited', 'true', { path: '/' })
+    }
 
     if (login.error != "") {
         throw redirect(303, "/login")
     }
 
     return {
-        currentUser: login.body.user
+        currentUser: login.body.user,
+        hasLoggedIn
     }
 }) satisfies PageLoad;

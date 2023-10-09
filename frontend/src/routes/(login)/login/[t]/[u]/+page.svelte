@@ -11,7 +11,7 @@
     $: if(data) {
         if (browser) {
             $currentUser = data.currentUser
-            if ($currentUser.authLvl === authLvl.ADMIN) {
+            if ($currentUser.authLvl === authLvl.ADMIN && !data.hasLoggedIn) {
                 goto("/admin/countries")
             } else {
                 goto("/")
