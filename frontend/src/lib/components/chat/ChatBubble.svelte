@@ -29,7 +29,7 @@
         <div>
             <p class="block {userNameStyle}">{user.name}</p>
             <div class="p-3 {roundedCorners} {currentUserBubble}">
-                <ChatContent comment={comment} user={user} isCurrentUser={isCurrentUser}/>
+                <ChatContent comment={comment} isCurrentUser={isCurrentUser}/>
             </div>
         </div>
 

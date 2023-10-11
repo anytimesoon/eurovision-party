@@ -1,9 +1,7 @@
 <script lang="ts">
     import type {CommentModel} from "$lib/models/classes/comment.model";
-    import type {UserModel} from "$lib/models/classes/user.model";
 
     export let comment:CommentModel
-    export let user:UserModel
     export let isCurrentUser:boolean
 
     $: contentTextStyle = isCurrentUser ? "text-typography-chat-me" : "text-typography-chat-you"
