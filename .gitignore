@@ -20,6 +20,9 @@ mocks
 assets/img/avatars
 !assets/img/avatars/.gitkeep
 
+assets/svelteBuild
+!assets/svelteBuild/.gitkeep
+
 # frontend
 frontend/.DS_Store
 frontend/node_modules

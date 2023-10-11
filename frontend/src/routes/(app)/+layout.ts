@@ -4,7 +4,6 @@ import {CountryModel} from "$lib/models/classes/country.model";
 import {redirect} from "@sveltejs/kit";
 import type {UserModel} from "$lib/models/classes/user.model";
 import type {LayoutServerLoad} from "./$types";
-export const ssr = false;
 
 export const load:LayoutServerLoad =  ( async ({ fetch }) => {
     const countryRes = await fetch(countrySvelteEP.ALL)
