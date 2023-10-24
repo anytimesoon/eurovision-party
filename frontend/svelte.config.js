@@ -15,7 +15,8 @@ const config = {
 		adapter: adapter({
 			pages: "../assets/svelteBuild",
 			assets: "../assets/svelteBuild",
-			fallback: "index.html"
+			fallback: "index.html",
+			trailingSlash: "always"
 		})
 	}
 };

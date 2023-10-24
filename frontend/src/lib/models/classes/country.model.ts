@@ -10,18 +10,18 @@ export class CountryModel implements IDeserializable<ICountry>, ICountry {
 	public flag!:          string;
 	public participating!: boolean;
 
-	constructor(name:string,
-				slug:string,
-				bandName:string,
-				songName:string,
-				flag:string,
-				participating:boolean) {
-		this.slug = slug
-		this.name = name
-		this.bandName = bandName
-		this.songName = songName
-		this.flag = flag
-		this.participating = participating
+	constructor(name?:string,
+				slug?:string,
+				bandName?:string,
+				songName?:string,
+				flag?:string,
+				participating?:boolean) {
+		this.slug = slug || ""
+		this.name = name || ""
+		this.bandName = bandName || ""
+		this.songName = songName || ""
+		this.flag = flag || ""
+		this.participating = participating || false
 	}
 
 	deserialize(input: ICountry): this {

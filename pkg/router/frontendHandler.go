@@ -1,7 +1,9 @@
 package router
 
 import (
+	"errors"
 	"eurovision/assets"
+	"fmt"
 	"io/fs"
 	"log"
 	"net/http"
@@ -13,24 +15,29 @@ import (
 var svelteFS = assets.NewSvelteUIFS()
 
 func frontendHandler() http.Handler {
-	subpath, err := fs.Sub(assets.SvelteUI, "svelteBuild")
+	fsys, err := fs.Sub(assets.SvelteUI, "svelteBuild")
 	if err != nil {
 		log.Println("couldn't open the svelte subpath.", err)
 	}
+	files := http.FS(fsys)
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == "/" {
-			svelteFS.ServeHTTP(w, r)
-			return
+		path := strings.TrimPrefix(r.URL.Path, "svelteBuild")
+
+		log.Printf("Serving page %s", path)
+		//if path == "/" {
+		//	svelteFS.ServeHTTP(w, r)
+		//	return
+		//}
+
+		// try if file exists at path, if not append .html (SvelteKit adapter-static specific)
+		_, err := files.Open(path)
+		if errors.Is(err, os.ErrNotExist) {
+			log.Println("adding html file extension")
+			path = fmt.Sprintf("%s.html", path)
 		}
-		f, err := subpath.Open(strings.TrimPrefix(path.Clean(r.URL.Path), "/"))
-		if err == nil {
-			defer f.Close()
-		}
-		if os.IsNotExist(err) {
-			r.URL.Path = "/"
-		}
-		svelteFS.ServeHTTP(w, r)
+		r.URL.Path = path
+		http.FileServer(files).ServeHTTP(w, r)
 	})
 }
 

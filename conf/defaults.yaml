@@ -7,7 +7,10 @@ db:
 
 server:
   port: "8080"
-  url: "127.0.0.1"
+  url: "localhost"
+
+frontend:
+  port: "3000"
 
 bot:
   id: ""

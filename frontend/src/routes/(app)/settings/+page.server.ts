@@ -3,6 +3,8 @@ import {userGoEP} from "$lib/models/enums/endpoints.enum";
 import {ResponseModel} from "$lib/models/classes/response.model";
 import type {UserModel} from "$lib/models/classes/user.model";
 
+export const prerender = false
+
 export const actions : Actions = {
     updateName: async ({fetch, request}) => {
         const fd = await request.formData()

@@ -3,6 +3,8 @@ import {voteGoEP} from "$lib/models/enums/endpoints.enum";
 import type {ResponseModel} from "$lib/models/classes/response.model";
 import type {ResultModel} from "$lib/models/classes/result.model";
 
+export const prerender = false
+
 export const actions : Actions = {
     getUserResults: async ({fetch, request}) => {
         const fd = await request.formData()

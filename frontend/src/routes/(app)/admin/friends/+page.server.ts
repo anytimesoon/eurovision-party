@@ -4,6 +4,8 @@ import {ResponseModel} from "$lib/models/classes/response.model";
 import type {NewUserModel} from "$lib/models/classes/user.model";
 import {UserModel} from "$lib/models/classes/user.model";
 
+export const prerender = false
+
 export const actions : Actions = {
     register: async ({fetch, request}) => {
         const fd = await request.formData()

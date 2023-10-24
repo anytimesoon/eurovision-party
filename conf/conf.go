@@ -7,10 +7,11 @@ import (
 )
 
 var (
-	Db     dbConf
-	Server serverConf
-	Bot    botConf
-	main   mainConf
+	Db       dbConf
+	Server   serverConf
+	Frontend frontendConf
+	Bot      botConf
+	main     mainConf
 )
 
 type (
@@ -27,15 +28,20 @@ type (
 		Url  string `mapstructure:"url"`
 	}
 
+	frontendConf struct {
+		Port string `mapstructure:"port"`
+	}
+
 	botConf struct {
 		Id   uuid.UUID `mapstructure:"id"`
 		Name string    `mapstructure:"name"`
 	}
 
 	mainConf struct {
-		Db   dbConf     `mapstructure:"db"`
-		Serv serverConf `mapstructure:"server"`
-		Bot  botConf    `mapstructure:"bot"`
+		Db       dbConf       `mapstructure:"db"`
+		Serv     serverConf   `mapstructure:"server"`
+		Frontend frontendConf `mapstructure:"frontend"`
+		Bot      botConf      `mapstructure:"bot"`
 	}
 )
 
@@ -59,5 +65,6 @@ func LoadConfig() {
 
 	Db = main.Db
 	Server = main.Serv
+	Frontend = main.Frontend
 	Bot = main.Bot
 }

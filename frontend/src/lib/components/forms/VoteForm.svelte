@@ -3,7 +3,9 @@
     import {onMount} from "svelte";
     import {currentUser} from "$lib/stores/user.store";
     import {voteOptions} from "$lib/models/classes/voteOptions.model";
-    import { enhance } from '$app/forms';
+    import {voteSvelteEP} from "$lib/models/enums/endpoints.enum";
+    import type {VoteSingleModel} from "$lib/models/classes/voteSingle.model";
+    import Spinner from "$lib/components/Spinner.svelte";
 
     export let vote:VoteModel
     export let catName:string
@@ -12,9 +14,13 @@
     let cat:string
     let score:number
     let icon:string
-    let form:HTMLFormElement
+    let voteForm:HTMLFormElement
 
     onMount(() => {
+        updateScore()
+    })
+
+    function updateScore() {
         switch (catName) {
             case "Song":
                 score = vote.song
@@ -37,12 +43,23 @@
                 cat = "props"
                 break
         }
-    })
+    }
 
-    $: if(vote) {
-        switch (catName) {
+    async function handleSubmit(e:SubmitEvent) {
+        const form = e.target as HTMLFormElement
+        const fd:FormData = new FormData(form)
+
+        let res = await fetch(form.action, {
+            method: form.method,
+            body: fd
+        })
+
+        let voteRes:VoteSingleModel = await res.json()
+
+        switch (voteRes.cat) {
             case "Song":
-                score = vote.song
+                console.log(voteRes.score)
+                score = voteRes.score
                 break
             case "Performance":
                 score = vote.performance
@@ -56,19 +73,28 @@
         }
     }
 
+    $: if(vote) {
+        updateScore()
+    }
 </script>
 
 <div class="py-5">
     <h3 class="text-center"><i class="fa-solid {icon} text-primary"></i> {catName}</h3>
-    <p class="text-center text-typography-grey text-sm">{score}/10</p>
-    <form method="POST" action="?/vote" use:enhance bind:this={form}>
+    <div>
+        {#if score === undefined}
+            <Spinner size={4}/>
+        {:else}
+            <p class="text-center text-typography-grey text-sm">{score}/10</p>
+        {/if}
+    </div>
+    <form method="POST" action="{voteSvelteEP.UPDATE}" on:submit|preventDefault={handleSubmit} bind:this={voteForm}>
         <input name="countrySlug" type="hidden" value={countrySlug}>
         <input name="cat" type="hidden" value={cat}>
         <input name="userId" type="hidden" value={$currentUser.id}>
         <div class="flex flex-row-reverse items-center mx-auto justify-between">
             {#each localOptions.reverse() as { key, label }}
                 <input id="{cat}-star-{label}" class="hidden peer" type="radio" bind:group={score} value={key} name="score" on:click={() => {
-                        form.requestSubmit()
+                        voteForm.requestSubmit()
                     }}/>
                 <label
                         class="text-vote-star

@@ -3,6 +3,8 @@ import {CountryModel} from "$lib/models/classes/country.model";
 import type {Actions} from "./$types";
 import {countryGoEP} from "$lib/models/enums/endpoints.enum";
 
+export const prerender = false
+
 export const actions : Actions = {
     update: async ({fetch, request}) => {
         const fd = await request.formData()

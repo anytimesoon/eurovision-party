@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"github.com/gorilla/handlers"
 	"log"
+	"mime"
 	"net/http"
 	"time"
 
@@ -18,8 +19,13 @@ import (
 var authService service.AuthService
 
 func StartServer(db *sqlx.DB) {
-	router := mux.NewRouter().StrictSlash(true)
-	router.Use(logging)
+	err := mime.AddExtensionType(".js", "application/javascript")
+	if err != nil {
+		log.Fatal("Couldn't add mime type", err)
+	}
+
+	router := mux.NewRouter()
+	router.Use(logging, headers)
 
 	// Authentication
 	authRepositoryMem := domain.NewAuthRepositoryDB(db)
@@ -31,7 +37,7 @@ func StartServer(db *sqlx.DB) {
 	fs := assets.NewStaticImageFS()
 	imageRouter := router.PathPrefix("/content").Subrouter()
 	imageRouter.PathPrefix("/static/").Handler(http.StripPrefix("/content/static/", fs)).Methods(http.MethodGet)
-	imageRouter.Use(imgHeaders)
+	//imageRouter.Use(imgHeaders)
 
 	imageHandler := ImageHandler{}
 	restrictedImageRouter := imageRouter.PathPrefix("/user").Subrouter()
@@ -44,7 +50,7 @@ func StartServer(db *sqlx.DB) {
 
 	// API
 	apiRouter := restrictedRouter.PathPrefix("/api").Subrouter()
-	apiRouter.Use(jsHeaders)
+	//apiRouter.Use(jsHeaders)
 
 	// Chatroom
 	commentRepositoryDb := domain.NewCommentRepositoryDb(db)
@@ -87,10 +93,14 @@ func StartServer(db *sqlx.DB) {
 	voteRouter.HandleFunc("/results/{userId}", voteHandler.GetResultsByUser).Methods(http.MethodGet)
 	voteRouter.HandleFunc("/countryanduser/{slug}", voteHandler.GetVoteByUserAndCountry).Methods(http.MethodGet) // current user only
 
-	router.PathPrefix("/{rest:[a-zA-Z0-9=\\-\\/]+}").Handler(frontendHandler()).Methods(http.MethodGet)
+	//router.PathPrefix("/{rest:[a-zA-Z0-9=\\-\\/]+}").Handler(frontendHandler()).Methods(http.MethodGet)
+
+	router.Handle("/_app/{rest:[a-zA-Z0-9=\\-\\/]+}", frontendHandler())
+	router.Handle("/favicon.png", frontendHandler())
+	router.Handle("/", frontendHandler())
 
 	headersOk := handlers.AllowedHeaders([]string{"Content-type", "Authorization", "Origin", "Access-Control-Allow-Origin", "Accept", "Options", "X-Requested-With"})
-	originsOk := handlers.AllowedOrigins([]string{"http://localhost:5173"})
+	originsOk := handlers.AllowedOrigins([]string{"*"})
 	methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
 	credentials := handlers.AllowCredentials()
 

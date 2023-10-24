@@ -1,19 +1,33 @@
 <script lang="ts">
   import {countryStore, participatingCountryStore} from "$lib/stores/country.store";
-  import type {LayoutData} from "./$types";
   import MenuButton from "$lib/components/buttons/MenuButton.svelte";
   import {onMount} from "svelte";
   import "./../../../node_modules/@fortawesome/fontawesome-free/css/all.css"
   import {userStore} from "$lib/stores/user.store";
-  import {staticEP} from "$lib/models/enums/endpoints.enum";
-
-
-  export let data:LayoutData
+  import {countrySvelteEP, staticEP, userSvelteEP} from "$lib/models/enums/endpoints.enum";
+  import type {ResponseModel} from "$lib/models/classes/response.model";
+  import {CountryModel} from "$lib/models/classes/country.model";
+  import {redirect} from "@sveltejs/kit";
+  import type {UserModel} from "$lib/models/classes/user.model";
 
   let menu:HTMLElement
 
-  onMount(() => {
-    menu = document.getElementById("menu")
+  onMount(async () => {
+      menu = document.getElementById("menu")
+
+      if($countryStore.length === 0) {
+          const countryRes = await fetch(countrySvelteEP.ALL)
+          const countries: ResponseModel<CountryModel[]> = await countryRes.json()
+
+          $countryStore = countries.body.map((country):CountryModel => {
+              return new CountryModel().deserialize(country)
+          })
+      }
+
+      const usersRes = await fetch(userSvelteEP.ALL)
+      const users: ResponseModel<Map<string, UserModel>> = await usersRes.json()
+
+      $userStore = users.body
   })
 
   const closeMenu = () => {
@@ -23,18 +37,12 @@
   }
 
   const handleWindowClick = (e:Event) => {
-    if(menu.classList.contains("right-0") && !e.target.classList.contains("voteNav") && e.target !== menu){
+    let el = e.target as HTMLElement
+    if(menu.classList.contains("right-0") && !el.classList.contains("voteNav") && e.target !== menu){
       closeMenu()
     }
   };
 
-  $: if (data.countries) {
-      $countryStore = data.countries
-  }
-
-  $: if (data.users) {
-      $userStore = data.users
-  }
 </script>
 <svelte:head>
         <link rel="preload" as="image" href={staticEP.IMG + "/content/static/img/newuser.png"} />

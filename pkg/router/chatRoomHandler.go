@@ -1,6 +1,7 @@
 package router
 
 import (
+	"eurovision/conf"
 	"eurovision/pkg/dto"
 	"eurovision/pkg/service"
 	"github.com/gorilla/websocket"
@@ -19,7 +20,7 @@ var upgrader = websocket.Upgrader{
 	CheckOrigin: func(req *http.Request) bool {
 		origin := req.Header.Get("Origin")
 		log.Printf("Upgrade request from %s", origin)
-		return origin == "http://localhost:5173"
+		return origin == "http://"+conf.Server.Url+":"+conf.Frontend.Port || origin == "http://"+conf.Server.Url+":"+conf.Server.Port
 	},
 }
 

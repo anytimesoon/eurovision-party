@@ -1,5 +1,11 @@
-const apiBase = "http://localhost:8080/"
-const feBase = "http://localhost:5173/"
+import {
+    PUBLIC_HOST,
+    PUBLIC_GO_PORT
+} from '$env/static/public';
+import {base} from '$app/paths';
+
+const apiBase = "http://" + PUBLIC_HOST + ":" + PUBLIC_GO_PORT + "/"
+const feBase = base + "/"
 const restricted = "restricted/"
 const svelteAPI = "endpoints/"
 const goAPI = "api/"
@@ -51,7 +57,8 @@ export const userGoEP = {
 
 export const voteSvelteEP = {
     RESULTS: voteSvelteURL,
-    BY_COUNTRY_AND_USER: voteSvelteURL + "countryanduser/" //append with country slug
+    BY_COUNTRY_AND_USER: voteSvelteURL + "countryanduser/", //append with country slug
+    UPDATE: voteSvelteURL
 }
 
 export const voteGoEP = {
@@ -64,5 +71,6 @@ export const voteGoEP = {
 export const authEP = {
     LOGIN: apiBase + "login",
     SVELTE_LOGIN: feBase + "login",
+    INITIAL_DATA: feBase + svelteAPI + "login",
     REGISTER: userGoURL + "register"
 }

@@ -9,6 +9,8 @@ var (
 	//go:embed all:img
 	img embed.FS
 
+	//go:generate npm i
+	//go:generate npm run build
 	//go:embed all:svelteBuild
 	SvelteUI embed.FS
 )
