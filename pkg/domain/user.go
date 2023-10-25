@@ -52,7 +52,6 @@ func (user *NewUser) ToDTO() *dto.NewUser {
 		Name:  user.Name,
 		Slug:  user.Slug,
 		UUID:  user.UUID,
-		Email: user.Email,
 		Token: user.Token,
 	}
 }

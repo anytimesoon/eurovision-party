@@ -7,6 +7,7 @@
     import AdminNav from "$lib/components/AdminNav.svelte";
     import Modal from "$lib/components/Modal.svelte";
     import {ImageCropArea} from "$lib/models/classes/imageCropArea";
+    import AvatarCropForm from "$lib/components/forms/AvatarCropForm.svelte";
 
     export let form:ActionData
     let hideNameForm = true
@@ -42,26 +43,31 @@
     $: if(theme) {
         document.querySelector("html")?.setAttribute("data-theme", theme)
     }
+    function showNameForm() {
+        hideNameForm = !hideNameForm
+    }
 </script>
 
 {#if $currentUser.authLvl === authLvl.ADMIN }
     <AdminNav page="settings"/>
 {/if}
 
-<Modal bind:openModal={openModal}
-       bind:closeModal={closeModal}
-       bind:cropArea={cropArea}
-       img={imageString}
-       avatarForm={avatarForm}/>
+<Modal bind:openModal={openModal} bind:closeModal={closeModal}>
+
+    <AvatarCropForm bind:cropArea={cropArea}
+                    img={imageString}
+                    avatarForm={avatarForm}
+                    closeModal="{closeModal}"/>
+</Modal>
 
 <div class="pb-3">
     <h2 class="text-center">Personal Settings</h2>
     <div class="py-3">
         <div class="max-w-max mx-auto">
         {#if hideNameForm }
-                <form class="inline-block" method="POST" action="?/showNameForm" use:enhance>
-                    <span class="inline-block text-2xl">{$currentUser.name} <button class="py-0 px-2"><i class="fa-regular fa-pen-to-square fa-2xs"></i></button></span>
-                </form>
+<!--                <form class="inline-block" method="POST" action="?/showNameForm" use:enhance>-->
+                    <span class="inline-block text-2xl">{$currentUser.name} <button on:click={showNameForm} class="py-0 px-2"><i class="fa-regular fa-pen-to-square fa-2xs"></i></button></span>
+<!--                </form>-->
         {:else}
             <form method="POST" action="?/updateName" use:enhance>
                 <div class="w-fit mx-auto flex justify-center">

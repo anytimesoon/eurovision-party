@@ -4,12 +4,6 @@ import {ResponseModel} from "$lib/models/classes/response.model";
 import type {UserModel} from "$lib/models/classes/user.model";
 
 export const actions : Actions = {
-    showNameForm: async ({fetch, request}) => {
-
-        return {
-            hideNameForm: false
-        }
-    },
     updateName: async ({fetch, request}) => {
         const fd = await request.formData()
         const user:UserModel = Object.fromEntries([...fd]) as UserModel
@@ -30,7 +24,6 @@ export const actions : Actions = {
     updateImg: async ({fetch, request}) => {
         const fd = await request.formData()
 
-        console.log(fd.get("img"))
         const res = await fetch(userGoEP.UPDATE_IMAGE, {
             method: "PUT",
             body: fd

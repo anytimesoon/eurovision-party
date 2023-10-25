@@ -1,6 +1,9 @@
 package migrations
 
-import "eurovision/pkg/domain"
+import (
+	"eurovision/pkg/domain"
+	"eurovision/pkg/enum"
+)
 
 type initialCountryParams struct {
 	Name          string
@@ -11,25 +14,22 @@ type initialCountryParams struct {
 
 type initialUserParams struct {
 	Name    string
-	Email   string
 	Slug    string
-	AuthLvl uint8
+	AuthLvl enum.AuthLvl
 }
 
 var initAuth = domain.Auth{}
 
 var initUsers = []initialUserParams{
 	{
-		Name:    "admin",
-		Email:   "admin@admin.com",
+		Name:    "Euro Host",
 		Slug:    "admin",
-		AuthLvl: 1,
+		AuthLvl: enum.ADMIN,
 	},
 	{
 		Name:    "EuroBot",
-		Email:   "bot@bot.com",
 		Slug:    "bot",
-		AuthLvl: 2,
+		AuthLvl: enum.BOT,
 	},
 }
 

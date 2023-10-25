@@ -24,12 +24,11 @@ type UserService interface {
 
 type DefaultUserService struct {
 	repo      domain.UserRepository
-	botUser   conf.BotUser
 	broadcast chan []byte
 }
 
-func NewUserService(repo domain.UserRepository, bot conf.BotUser, broadcast chan []byte) DefaultUserService {
-	return DefaultUserService{repo, bot, broadcast}
+func NewUserService(repo domain.UserRepository, broadcast chan []byte) DefaultUserService {
+	return DefaultUserService{repo, broadcast}
 }
 
 func (service DefaultUserService) GetAllUsers() (map[uuid.UUID]dto.User, *errs.AppError) {
@@ -60,7 +59,7 @@ func (service DefaultUserService) UpdateUser(userDTO dto.User) (*dto.User, *errs
 
 	newUserDTO := updatedUser.ToDto()
 
-	go service.broadcastUserUpdate(newUserDTO, fmt.Sprintf("%s changed their name to %s", oldUser.Name, updatedUser.Name))
+	go service.broadcastUserUpdate(newUserDTO, fmt.Sprintf("🤖 %s changed their name to %s", oldUser.Name, updatedUser.Name))
 
 	return &newUserDTO, nil
 }
@@ -83,7 +82,7 @@ func (service DefaultUserService) UpdateUserImage(avatarDTO dto.UserAvatar) (*dt
 
 	userDTO := user.ToDto()
 
-	go service.broadcastUserUpdate(userDTO, fmt.Sprintf("%s changed their picture", userDTO.Name))
+	go service.broadcastUserUpdate(userDTO, fmt.Sprintf("🤖 %s changed their picture", userDTO.Name))
 
 	return &userDTO, nil
 }
@@ -128,7 +127,7 @@ func (service DefaultUserService) broadcastUserUpdate(newUser dto.User, commentT
 		UpdatedUser: newUser,
 		Comment: dto.Comment{
 			UUID:      uuid.New(),
-			UserId:    service.botUser.ID,
+			UserId:    conf.Bot.Id,
 			Text:      commentText,
 			CreatedAt: time.Now(),
 		},

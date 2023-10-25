@@ -8,20 +8,23 @@
 
     export let data: PageData;
 
-    function setData(data){
-        if (browser && data.currentUser != null) {
+    $: if(data) {
+        if (browser) {
             $currentUser = data.currentUser
-            if ($currentUser.authLvl === authLvl.ADMIN) {
+            if ($currentUser.authLvl === authLvl.ADMIN && !data.hasLoggedIn) {
                 goto("/admin/countries")
             } else {
                 goto("/")
             }
         }
     }
-
-    $: setData(data)
 </script>
 
-<div class="h-screen">
-    <Spinner />
+<div class="h-screen flex flex-col justify-center">
+    <div>
+        <h3 class="text-center">Good evening Europe!</h3>
+        <p class="text-center">Connecting you to this evening's entertainment</p>
+        <Spinner />
+    </div>
+
 </div>
