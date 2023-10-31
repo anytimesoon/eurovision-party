@@ -19,7 +19,7 @@ var upgrader = websocket.Upgrader{
 	CheckOrigin: func(req *http.Request) bool {
 		origin := req.Header.Get("Origin")
 		log.Printf("Upgrade request from %s", origin)
-		return origin == "http://localhost:5173"
+		return origin == conf.App.Domain
 	},
 }
 
