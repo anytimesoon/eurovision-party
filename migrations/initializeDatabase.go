@@ -1,13 +1,15 @@
 package migrations
 
 import (
-	"eurovision/conf"
 	"fmt"
+	"github.com/anytimesoon/eurovision-party/conf"
 	"log"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 )
+
+type resultCount []uint8
 
 func Start() sqlx.DB {
 	sqlDb := sqlx.MustConnect("mysql", dsn())
@@ -15,18 +17,23 @@ func Start() sqlx.DB {
 
 	log.Println("Building tables 🏗")
 	CreateAuthTable(sqlDb)
-	CreateCountriesTable(sqlDb)
-	CreateUsersTable(sqlDb)
+	hasCountries := CreateCountriesTable(sqlDb)
+	hasUsers := CreateUsersTable(sqlDb)
 	CreateCommentsTable(sqlDb)
 	CreateVotesTable(sqlDb)
 
 	log.Println("Seeding tables 🌱")
-	AddCountries(sqlDb)
-	AddUsers(sqlDb)
+	if !hasCountries {
+		AddCountries(sqlDb)
+	}
+
+	if !hasUsers {
+		AddUsers(sqlDb)
+	}
 
 	return *sqlDb
 }
 
 func dsn() string {
-	return fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", conf.Db.Username, conf.Db.Password, conf.Db.Hostname, conf.Db.Port, conf.Db.Name)
+	return fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", conf.App.DbUsername, conf.App.DbPassword, conf.App.DbHostname, conf.App.DbPort, conf.App.DbName)
 }

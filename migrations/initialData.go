@@ -1,8 +1,8 @@
 package migrations
 
 import (
-	"eurovision/pkg/domain"
-	"eurovision/pkg/enum"
+	"github.com/anytimesoon/eurovision-party/pkg/domain"
+	"github.com/anytimesoon/eurovision-party/pkg/enum"
 )
 
 type initialCountryParams struct {

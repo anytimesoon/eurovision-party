@@ -1,22 +1,24 @@
 package migrations
 
 import (
-	"eurovision/conf"
-	"eurovision/pkg/enum"
+	"github.com/anytimesoon/eurovision-party/conf"
+	"github.com/anytimesoon/eurovision-party/pkg/enum"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"log"
 )
 
-func CreateUsersTable(db *sqlx.DB) {
-	query := `DROP TABLE IF EXISTS user;`
-	_, err := db.Exec(query)
-	if err != nil {
-		log.Fatalf("Error %s when dropping user table", err)
-	}
-	log.Printf("User table was dropped ⬇")
+func CreateUsersTable(db *sqlx.DB) bool {
+	var count resultCount
 
-	query = `CREATE TABLE IF NOT EXISTS user(
+	//query := `DROP TABLE IF EXISTS user;`
+	//_, err := db.Exec(query)
+	//if err != nil {
+	//	log.Fatalf("Error %s when dropping user table", err)
+	//}
+	//log.Printf("User table was dropped ⬇")
+
+	query := `CREATE TABLE IF NOT EXISTS user(
 				uuid char(36) NOT NULL PRIMARY KEY, 
 				name VARCHAR(191) NOT NULL,
 				slug VARCHAR(191) NOT NULL UNIQUE, 
@@ -24,15 +26,24 @@ func CreateUsersTable(db *sqlx.DB) {
 				icon VARCHAR(191) DEFAULT '/content/static/img/newuser.png',
 				KEY (slug));`
 
-	_, err = db.Exec(query)
+	_, err := db.Exec(query)
 	if err != nil {
 		log.Fatalf("Error when creating user table %s", err)
 	}
 
 	log.Printf("User table was created 😃")
+
+	query = `SELECT count(*) as count FROM user;`
+	err = db.Select(&count, query)
+	if err != nil {
+		log.Fatal("Error when counting countries.", err)
+	}
+
+	return count[0] > 0
 }
 
 func AddUsers(db *sqlx.DB) {
+
 	userQuery := "INSERT INTO user(uuid, name, slug, authLvl) VALUES (?, ?, ?, ?)"
 	authQuery := "INSERT INTO auth(authToken, userId, authTokenExp, authLvl, slug) VALUES (?, ?, NOW() + INTERVAL 5 DAY, ?, ?)"
 
@@ -51,10 +62,11 @@ func AddUsers(db *sqlx.DB) {
 			if err != nil {
 				log.Fatalf("Authentication for user %s was not created. %s", user.Name, err)
 			}
-			log.Printf("http://localhost:5173/login/%s/%s", initAuth.AuthToken, id)
+			//log.Printf("http://%s:%s/login/%s/%s", conf.App.Domain, conf.App.FrontendPort, initAuth.AuthToken, id)
+			log.Printf("%s/login/%s/%s", conf.App.Domain, initAuth.AuthToken, id)
 			log.Printf("User %s created 👨‍💻", user.Name)
 		case enum.BOT:
-			conf.Bot.SetId(id)
+			conf.App.SetBotId(id)
 			log.Printf("User %s created 🤖", user.Name)
 		default:
 			log.Printf("User %s created 👨", user.Name)
