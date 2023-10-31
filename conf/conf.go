@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/spf13/viper"
-	"os"
 )
 
 var App AppConf
@@ -45,12 +44,4 @@ func LoadConfig() {
 	if err != nil {
 		panic(fmt.Errorf("fatal error unmarshalling config: %w", err))
 	}
-}
-
-func getEnvOrPanic(env string) string {
-	res := os.Getenv(env)
-	if len(res) == 0 {
-		panic("Mandatory env variable not found:" + env)
-	}
-	return res
 }
