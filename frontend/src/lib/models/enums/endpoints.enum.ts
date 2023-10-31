@@ -1,5 +1,7 @@
-const apiBase = "http://localhost:8080/"
-const feBase = "http://localhost:5173/"
+import { env } from '$env/dynamic/public';
+
+const apiBase = "http://" + env.PUBLIC_GO_HOST + "/"
+const feBase = "/"
 const restricted = "restricted/"
 const svelteAPI = "endpoints/"
 const goAPI = "api/"
@@ -12,7 +14,7 @@ const voteGoURL = apiBase + restricted  + goAPI + "vote/"
 
 
 
-export const chatEP = "ws://localhost:8080/restricted/chat/connect";
+export const chatEP = "wss://" + env.PUBLIC_GO_HOST + "/restricted/chat/connect";
 
 export const countrySvelteEP = {
     ALL: countrySvelteURL,
