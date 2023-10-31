@@ -63,7 +63,7 @@ func AddUsers(db *sqlx.DB) {
 				log.Fatalf("Authentication for user %s was not created. %s", user.Name, err)
 			}
 			//log.Printf("http://%s:%s/login/%s/%s", conf.App.Domain, conf.App.FrontendPort, initAuth.AuthToken, id)
-			log.Printf("%s/login/%s/%s", conf.App.Domain, initAuth.AuthToken, id)
+			log.Printf("%s%s/login/%s/%s", conf.App.HttpProto, conf.App.Domain, initAuth.AuthToken, id)
 			log.Printf("User %s created 👨‍💻", user.Name)
 		case enum.BOT:
 			conf.App.SetBotId(id)

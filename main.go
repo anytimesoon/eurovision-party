@@ -8,6 +8,7 @@ import (
 )
 
 func main() {
+	log.Println("Starting Eurovision backend")
 	log.Println("Loading configuration 📃")
 	conf.LoadConfig()
 	log.Println("Config loaded ✅")

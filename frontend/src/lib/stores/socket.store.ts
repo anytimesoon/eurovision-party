@@ -19,6 +19,7 @@ function socket() {
 }
 
 function connectToSocket(){
+    console.log("chat ep " + chatEP)
     let socket = new WebSocket(chatEP)
 
     socket.onopen = function () {

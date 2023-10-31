@@ -1,6 +1,6 @@
 import { env } from '$env/dynamic/public';
 
-const apiBase = "http://" + env.PUBLIC_GO_HOST + "/"
+const apiBase = env.PUBLIC_GO_HOST + "/"
 const feBase = "/"
 const restricted = "restricted/"
 const svelteAPI = "endpoints/"
@@ -14,7 +14,7 @@ const voteGoURL = apiBase + restricted  + goAPI + "vote/"
 
 
 
-export const chatEP = "wss://" + env.PUBLIC_GO_HOST + "/restricted/chat/connect";
+export const chatEP = (env.PUBLIC_CHAT ? env.PUBLIC_CHAT : "wss://eurovision-dev.delartigue.xyz") + "/restricted/chat/connect";
 
 export const countrySvelteEP = {
     ALL: countrySvelteURL,
@@ -64,7 +64,7 @@ export const voteGoEP = {
 }
 
 export const authEP = {
-    LOGIN: apiBase + "login",
+    LOGIN: apiBase + "api/login",
     SVELTE_LOGIN: feBase + "login",
     REGISTER: userGoURL + "register"
 }

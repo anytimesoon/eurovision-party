@@ -22,10 +22,8 @@ RUN CGO_ENABLED=0 go build \
 FROM scratch AS final
 LABEL maintainer="anytimesoon"
 COPY --from=build /app /app
-COPY /conf /conf
-COPY /assets /assets
-
-
+COPY --from=build /src/conf /conf
+COPY --from=build /src/assets /assets
 
 # copy ca certs
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/

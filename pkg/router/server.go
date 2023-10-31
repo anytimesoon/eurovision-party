@@ -25,7 +25,7 @@ func StartServer(db *sqlx.DB) {
 	authRepositoryMem := domain.NewAuthRepositoryDB(db)
 	authService = service.NewAuthService(authRepositoryMem)
 	authHandler := AuthHandler{Service: authService}
-	router.HandleFunc("/login", authHandler.Login).Methods(http.MethodPost) // sets auth token.
+	router.HandleFunc("/api/login", authHandler.Login).Methods(http.MethodPost) // sets auth token.
 
 	// Assets
 	fs := assets.NewStaticImageFS()
@@ -88,7 +88,7 @@ func StartServer(db *sqlx.DB) {
 	voteRouter.HandleFunc("/countryanduser/{slug}", voteHandler.GetVoteByUserAndCountry).Methods(http.MethodGet) // current user only
 
 	headersOk := handlers.AllowedHeaders([]string{"Content-type", "Authorization", "Origin", "Access-Control-Allow-Origin", "Accept", "Options", "X-Requested-With"})
-	originsOk := handlers.AllowedOrigins([]string{conf.App.Domain})
+	originsOk := handlers.AllowedOrigins([]string{"*"})
 	methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
 	credentials := handlers.AllowCredentials()
 
