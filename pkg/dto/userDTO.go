@@ -1,8 +1,8 @@
 package dto
 
 import (
-	"eurovision/pkg/enum"
-	"eurovision/pkg/errs"
+	"github.com/anytimesoon/eurovision-party/pkg/enum"
+	"github.com/anytimesoon/eurovision-party/pkg/errs"
 	"github.com/google/uuid"
 	"image"
 	"mime/multipart"
@@ -12,7 +12,6 @@ type User struct {
 	UUID    uuid.UUID    `json:"id"`
 	Name    string       `json:"name"`
 	Slug    string       `json:"slug"`
-	Email   string       `json:"email"`
 	Icon    string       `json:"icon"`
 	AuthLvl enum.AuthLvl `json:"authLvl"`
 }

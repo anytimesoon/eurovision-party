@@ -1,7 +1,7 @@
 package dto
 
 import (
-	"eurovision/pkg/enum"
+	"github.com/anytimesoon/eurovision-party/pkg/enum"
 	"log"
 	"net/http"
 	"regexp"

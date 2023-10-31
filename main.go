@@ -1,9 +1,9 @@
 package main
 
 import (
-	"eurovision/conf"
-	"eurovision/migrations"
-	"eurovision/pkg/router"
+	"github.com/anytimesoon/eurovision-party/conf"
+	"github.com/anytimesoon/eurovision-party/migrations"
+	"github.com/anytimesoon/eurovision-party/pkg/router"
 	"log"
 )
 

@@ -1,10 +1,10 @@
 package router
 
 import (
-	"eurovision/pkg/dto"
-	"eurovision/pkg/enum"
-	"eurovision/pkg/errs"
-	"eurovision/pkg/service"
+	"github.com/anytimesoon/eurovision-party/pkg/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/enum"
+	"github.com/anytimesoon/eurovision-party/pkg/errs"
+	"github.com/anytimesoon/eurovision-party/pkg/service"
 	"io"
 	"log"
 	"net/http"

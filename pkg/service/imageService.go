@@ -2,9 +2,9 @@ package service
 
 import (
 	"bytes"
-	"eurovision/pkg/dto"
-	"eurovision/pkg/errs"
 	"fmt"
+	"github.com/anytimesoon/eurovision-party/pkg/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/errs"
 	"image"
 	"image/jpeg"
 	_ "image/jpeg"

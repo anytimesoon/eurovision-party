@@ -3,9 +3,9 @@ package router
 import (
 	"bytes"
 	"encoding/json"
-	"eurovision/mocks/service"
-	"eurovision/pkg/dto"
-	"eurovision/pkg/errs"
+	"github.com/anytimesoon/eurovision-party/mocks/service"
+	"github.com/anytimesoon/eurovision-party/pkg/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/errs"
 	"net/http"
 	"net/http/httptest"
 	"testing"

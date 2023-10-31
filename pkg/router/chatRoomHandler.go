@@ -1,8 +1,9 @@
 package router
 
 import (
-	"eurovision/pkg/dto"
-	"eurovision/pkg/service"
+	"github.com/anytimesoon/eurovision-party/conf"
+	"github.com/anytimesoon/eurovision-party/pkg/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/service"
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"

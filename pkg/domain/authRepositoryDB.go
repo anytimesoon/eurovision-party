@@ -1,9 +1,9 @@
 package domain
 
 import (
-	"eurovision/pkg/dto"
-	"eurovision/pkg/errs"
 	"fmt"
+	"github.com/anytimesoon/eurovision-party/pkg/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/errs"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"log"
@@ -11,7 +11,6 @@ import (
 )
 
 type AuthRepository interface {
-	FindOneUserByEmail(string) (*User, *errs.AppError)
 	CreateUser(dto.NewUser) (*NewUser, *errs.AppError)
 	Login(*dto.Auth) (*Auth, *User, *errs.AppError)
 	Authorize(*dto.Auth) (*Auth, *errs.AppError)
@@ -91,19 +90,6 @@ func (db AuthRepositoryDB) AuthorizeChat(authDTO *dto.Auth) (*User, *errs.AppErr
 	if err != nil {
 		log.Printf("Unable to find user %s for chat. %s", authDTO.UserId, err)
 		return nil, errs.NewUnexpectedError(errs.Common.DBFail)
-	}
-
-	return &user, nil
-}
-
-func (db AuthRepositoryDB) FindOneUserByEmail(email string) (*User, *errs.AppError) {
-	var user User
-
-	query := "SELECT * FROM user WHERE email = ?"
-	err := db.client.Get(&user, query, email)
-	if err != nil {
-		log.Printf("Coudn't find a user with email address %s", email)
-		return nil, errs.NewUnexpectedError("Coudn't find a user with email address" + email)
 	}
 
 	return &user, nil

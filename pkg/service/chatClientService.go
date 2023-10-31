@@ -3,8 +3,8 @@ package service
 import (
 	"bytes"
 	"encoding/json"
-	"eurovision/pkg/dto"
-	"eurovision/pkg/enum"
+	"github.com/anytimesoon/eurovision-party/pkg/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/enum"
 	"log"
 	"time"
 

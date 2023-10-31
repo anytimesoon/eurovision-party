@@ -1,9 +1,9 @@
 package dto
 
 import (
-	"eurovision/pkg/enum"
-	"eurovision/pkg/errs"
 	"fmt"
+	"github.com/anytimesoon/eurovision-party/pkg/enum"
+	"github.com/anytimesoon/eurovision-party/pkg/errs"
 	"strings"
 )
 

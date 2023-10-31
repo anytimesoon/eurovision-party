@@ -1,7 +1,7 @@
 package dto
 
 import (
-	"eurovision/pkg/errs"
+	"github.com/anytimesoon/eurovision-party/pkg/errs"
 	"time"
 
 	"github.com/google/uuid"

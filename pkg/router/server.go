@@ -1,11 +1,11 @@
 package router
 
 import (
-	"eurovision/assets"
-	"eurovision/conf"
-	"eurovision/pkg/domain"
-	"eurovision/pkg/service"
 	"fmt"
+	"github.com/anytimesoon/eurovision-party/assets"
+	"github.com/anytimesoon/eurovision-party/conf"
+	"github.com/anytimesoon/eurovision-party/pkg/domain"
+	"github.com/anytimesoon/eurovision-party/pkg/service"
 	"github.com/gorilla/handlers"
 	"log"
 	"net/http"
@@ -88,12 +88,12 @@ func StartServer(db *sqlx.DB) {
 	voteRouter.HandleFunc("/countryanduser/{slug}", voteHandler.GetVoteByUserAndCountry).Methods(http.MethodGet) // current user only
 
 	headersOk := handlers.AllowedHeaders([]string{"Content-type", "Authorization", "Origin", "Access-Control-Allow-Origin", "Accept", "Options", "X-Requested-With"})
-	originsOk := handlers.AllowedOrigins([]string{"http://localhost:5173"})
+	originsOk := handlers.AllowedOrigins([]string{conf.App.Domain})
 	methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
 	credentials := handlers.AllowCredentials()
 
 	server := &http.Server{
-		Addr:    fmt.Sprintf("%s:%s", conf.Server.Url, conf.Server.Port),
+		Addr:    fmt.Sprintf("%s:%s", conf.App.ServHost, conf.App.ServPort),
 		Handler: handlers.CORS(headersOk, originsOk, methodsOk, credentials)(router),
 		// Good practice to set timeouts to avoid Slowloris attacks.
 		WriteTimeout: time.Second * 15,
@@ -101,6 +101,6 @@ func StartServer(db *sqlx.DB) {
 		IdleTimeout:  time.Second * 60,
 	}
 
-	log.Printf("Server listening on port %s", conf.Server.Port)
+	log.Printf("Server listening on port %s", conf.App.ServPort)
 	log.Fatal(server.ListenAndServe())
 }
