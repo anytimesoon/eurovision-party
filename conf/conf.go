@@ -4,60 +4,53 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/spf13/viper"
+	"os"
 )
 
-var (
-	Db     dbConf
-	Server serverConf
-	Bot    botConf
-	main   mainConf
-)
+var App AppConf
 
-type (
-	dbConf struct {
-		Username string `mapstructure:"username"`
-		Password string `mapstructure:"password"`
-		Hostname string `mapstructure:"hostname"`
-		Port     string `mapstructure:"port"`
-		Name     string `mapstructure:"name"`
-	}
+type AppConf struct {
+	DbUsername   string `mapstructure:"DB_USERNAME"`
+	DbPassword   string `mapstructure:"DB_PASSWORD"`
+	DbHostname   string `mapstructure:"DB_HOSTNAME"`
+	DbPort       string `mapstructure:"DB_PORT"`
+	DbName       string `mapstructure:"DB_NAME"`
+	ServPort     string `mapstructure:"BACKEND_PORT"`
+	ServHost     string `mapstructure:"BACKEND_HOSTNAME"`
+	Domain       string `mapstructure:"DOMAIN_NAME"`
+	FrontendPort string `mapstructure:"FRONTEND_PORT"`
+	BotId        uuid.UUID
+	BotName      string `mapstructure:"CHAT_BOT_NAME"`
+}
 
-	serverConf struct {
-		Port string `mapstructure:"port"`
-		Url  string `mapstructure:"url"`
-	}
-
-	botConf struct {
-		Id   uuid.UUID `mapstructure:"id"`
-		Name string    `mapstructure:"name"`
-	}
-
-	mainConf struct {
-		Db   dbConf     `mapstructure:"db"`
-		Serv serverConf `mapstructure:"server"`
-		Bot  botConf    `mapstructure:"bot"`
-	}
-)
-
-func (b *botConf) SetId(id uuid.UUID) {
-	viper.Set("bot.id", id.String())
-	b.Id = id
+func (a *AppConf) SetBotId(id uuid.UUID) {
+	a.BotId = id
 }
 
 func LoadConfig() {
-	viper.SetConfigName("defaults")
-	viper.AddConfigPath("conf/")
-	err := viper.ReadInConfig()
+	v := viper.New()
+	v.SetConfigName("app")
+	v.AddConfigPath("conf/")
+	//v.SetEnvPrefix("eurovision")
+	//v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+	v.AutomaticEnv()
+
+	err := v.ReadInConfig()
 	if err != nil {
 		panic(fmt.Errorf("fatal error config file: %w", err))
 	}
 
-	err = viper.Unmarshal(&main)
+	err = v.Unmarshal(&App)
+	fmt.Printf("%+v", App)
 	if err != nil {
 		panic(fmt.Errorf("fatal error unmarshalling config: %w", err))
 	}
+}
 
-	Db = main.Db
-	Server = main.Serv
-	Bot = main.Bot
+func getEnvOrPanic(env string) string {
+	res := os.Getenv(env)
+	if len(res) == 0 {
+		panic("Mandatory env variable not found:" + env)
+	}
+	return res
 }
