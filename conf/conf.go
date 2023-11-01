@@ -20,6 +20,7 @@ type AppConf struct {
 	Domain     string `mapstructure:"DOMAIN_NAME"`
 	BotId      uuid.UUID
 	BotName    string `mapstructure:"CHAT_BOT_NAME"`
+	Assets     string `mapstructure:"ASSET_DIR"`
 }
 
 func (a *AppConf) SetBotId(id uuid.UUID) {
@@ -30,8 +31,7 @@ func LoadConfig() {
 	v := viper.New()
 	v.SetConfigName("app")
 	v.AddConfigPath("conf/")
-	//v.SetEnvPrefix("eurovision")
-	//v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+
 	v.AutomaticEnv()
 
 	err := v.ReadInConfig()

@@ -22,16 +22,22 @@ export const actions : Actions = {
         }
     },
     updateImg: async ({fetch, request}) => {
+        console.log("uploading image")
         const fd = await request.formData()
+
+        console.log(fd)
 
         const res = await fetch(userGoEP.UPDATE_IMAGE, {
             method: "PUT",
             body: fd
         })
 
+        console.log(res)
+
         const userResp:ResponseModel<UserModel> = await res.json()
 
         return {
+            hideNameForm: true,
             error: userResp.error,
             user: userResp.body
         }

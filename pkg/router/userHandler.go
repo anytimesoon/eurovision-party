@@ -63,6 +63,8 @@ func (uh UserHandler) UpdateImage(resp http.ResponseWriter, req *http.Request) {
 	var user *dto.User
 	var appErr *errs.AppError
 
+	log.Println("Starting image save")
+
 	err := req.ParseMultipartForm(4000000)
 	if err != nil {
 		log.Println("Failed to parse form data", err)

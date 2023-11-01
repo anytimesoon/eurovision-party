@@ -3,6 +3,7 @@ package service
 import (
 	"bytes"
 	"fmt"
+	"github.com/anytimesoon/eurovision-party/conf"
 	"github.com/anytimesoon/eurovision-party/pkg/dto"
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
 	"image"
@@ -37,15 +38,9 @@ func cropImage(avatarDTO *dto.UserAvatar) (*dto.CroppedImage, *errs.AppError) {
 }
 
 func storeImageToDisk(img *dto.CroppedImage) *errs.AppError {
-	fileDir := filepath.Join(".", "assets", "img", "avatars")
-	filePath := filepath.Join(fileDir, img.ID.String()+"."+img.FileExtension)
+	filePath := filepath.Join(conf.App.Assets, img.ID.String()+"."+img.FileExtension)
 
-	err := os.MkdirAll(fileDir, 0750)
-	if err != nil {
-		log.Println("Couldn't create the avatar directory")
-		return errs.NewUnexpectedError(errs.Common.NotSaved)
-	}
-
+	log.Println("Storing user avatar", filePath)
 	file, err := os.Create(filePath)
 	if err != nil {
 		log.Printf("Failed to create avatar file for user %s. %s", img.ID.String(), err)

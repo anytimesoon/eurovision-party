@@ -1,6 +1,8 @@
 <div class="h-screen w-full flex justify-center items-center">
-    <div class="text-center">
-        <h3>Looks like you're not logged in...</h3>
-        <p>Please either use your magic link, or ask the host to provide you with one</p>
+    <div class="text-center p-3">
+        <h1>🙅</h1>
+        <h3>We're having trouble with the satelite link...</h3>
+        <p>You are not logged in on this device.</p>
+        <p>Use the link you were sent, or ask your host to send it again.</p>
     </div>
 </div>

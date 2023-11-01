@@ -2,7 +2,6 @@ package router
 
 import (
 	"fmt"
-	"github.com/anytimesoon/eurovision-party/assets"
 	"github.com/anytimesoon/eurovision-party/conf"
 	"github.com/anytimesoon/eurovision-party/pkg/domain"
 	"github.com/anytimesoon/eurovision-party/pkg/service"
@@ -28,9 +27,9 @@ func StartServer(db *sqlx.DB) {
 	router.HandleFunc("/api/login", authHandler.Login).Methods(http.MethodPost) // sets auth token.
 
 	// Assets
-	fs := assets.NewStaticImageFS()
 	imageRouter := router.PathPrefix("/content").Subrouter()
-	imageRouter.PathPrefix("/static/").Handler(http.StripPrefix("/content/static/", fs)).Methods(http.MethodGet)
+	//imageRouter.PathPrefix("/static/").Handler(assetHandler()).Methods(http.MethodGet)
+	imageRouter.PathPrefix("/static/").Handler(http.StripPrefix("/content/static/", assetHandler())).Methods(http.MethodGet)
 	imageRouter.Use(imgHeaders)
 
 	imageHandler := ImageHandler{}

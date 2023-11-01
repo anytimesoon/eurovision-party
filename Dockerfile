@@ -23,7 +23,7 @@ FROM scratch AS final
 LABEL maintainer="anytimesoon"
 COPY --from=build /app /app
 COPY --from=build /src/conf /conf
-COPY --from=build /src/assets /assets
+ADD ./assets/img.tar.gz /
 
 # copy ca certs
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
