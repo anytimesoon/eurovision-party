@@ -18,7 +18,12 @@
     }
 
     const copyLink = (user:NewUserModel, e:Event) => {
-        navigator.clipboard.writeText(authEP.SVELTE_LOGIN + "/" + user.token + "/" + user.id)
+        navigator.clipboard.writeText(authEP.SVELTE_LOGIN + user.token + "/" + user.id)
+        let button = e.target as HTMLButtonElement
+        button.innerText = "Copied!"
+        setTimeout(function(){
+            button.innerHTML = "<i class='fa-regular fa-copy'></i> Copy"
+        }, 1000);
     }
 
     $: updateUsers(form)
