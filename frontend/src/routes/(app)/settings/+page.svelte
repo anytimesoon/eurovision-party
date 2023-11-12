@@ -14,8 +14,8 @@
     let openModal:VoidFunction
     let closeModal:VoidFunction
     let cropArea = new ImageCropArea()
-    let imageFiles:FileList
-    let imageFile:File
+
+
     let imageString:string
     let avatarForm:HTMLFormElement
     let theme:string
@@ -29,16 +29,7 @@
         }
     }
 
-    $: if(imageFiles) {
-        imageFile = imageFiles[0]
 
-        let reader = new FileReader()
-        reader.onload = e => {
-            imageString = e.target.result as string
-        }
-        reader.readAsDataURL(imageFile)
-        openModal()
-    }
 
     $: if(theme) {
         document.querySelector("html")?.setAttribute("data-theme", theme)
@@ -55,7 +46,6 @@
 <Modal bind:openModal={openModal} bind:closeModal={closeModal}>
 
     <AvatarCropForm bind:cropArea={cropArea}
-                    img={imageString}
                     avatarForm={avatarForm}
                     closeModal="{closeModal}"/>
 </Modal>
@@ -83,18 +73,10 @@
     <div class="py-3 max-w-[10rem] mx-auto relative">
         <img class="w-full" src={staticEP.IMG + $currentUser.icon} alt={$currentUser.name + "'s avatar"}>
 
-        <form method="POST" action="?/updateImg" use:enhance bind:this={avatarForm}>
-            <input type="hidden" name="id" bind:value={$currentUser.id}>
-            <input type="hidden" name="x" bind:value={cropArea.x}>
-            <input type="hidden" name="y" bind:value={cropArea.y}>
-            <input type="hidden" name="height" bind:value={cropArea.height}>
-            <input type="hidden" name="width" bind:value={cropArea.width}>
-<!--            <input type="hidden" name="zoom" bind:value={cropArea.zoom}>-->
-            <label for="avatar" class="absolute top-5 right-2 cursor-pointer bg-primary py-1 px-2 rounded">
-                <i class="fa-regular fa-pen-to-square"></i>
-                <input id="avatar" name="img" class="hidden" type="file" accept="image/png, image/jpeg" bind:files={imageFiles}>
-            </label>
-        </form>
+
+        <button class="absolute top-5 right-2 cursor-pointer bg-primary py-1 px-2 rounded" on:click={openModal}>
+            <i class="fa-regular fa-pen-to-square"></i>
+        </button>
     </div>
 
 </div>
