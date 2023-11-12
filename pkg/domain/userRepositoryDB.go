@@ -80,7 +80,7 @@ func (db UserRepositoryDb) UpdateUserImage(avatarDTO dto.UserAvatar, img *dto.Cr
 		return nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "image")
 	}
 
-	_, err = tx.Exec(updateUserImageQuery, "/content/user/avatar/"+img.ID.String()+"."+img.FileExtension, avatarDTO.UUID.String())
+	_, err = tx.Exec(updateUserImageQuery, "content/user/avatar/"+img.ID.String()+"."+img.FileExtension, avatarDTO.UUID.String())
 	if err != nil {
 		log.Printf("Error while updating user image for user %s. %s", avatarDTO.UUID.String(), err)
 		return nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "image")
