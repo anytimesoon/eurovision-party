@@ -22,13 +22,20 @@ function connectToSocket(){
     console.log("chat ep " + chatEP)
     let socket = new WebSocket(chatEP)
 
+    socket.onerror = function (error){
+        console.log("Connection was lost. " + error)
+        if(socket.readyState == WebSocket.CLOSED) {
+            setTimeout(connectToSocket(), 1000)
+        }
+    }
+
     socket.onopen = function () {
         console.log("You're connected. Welcome to the party!!!🎉")
     };
 
     socket.onclose = function () {
         console.log("Connection stopped. Attempting to reconnect")
-        if(socket.readyState === 3) {
+        if(socket.readyState == WebSocket.CLOSED) {
             setTimeout(connectToSocket(), 1000)
         }
     };
@@ -50,7 +57,7 @@ function connectToSocket(){
                     break
                 case chatMsgCat.UPDATE_USER:
                     let updateMessage:UpdateMessageModel = chatMessage.body
-                    
+                    console.log(updateMessage)
                     // user needs to be updated before message gets published
                     userStore.update(users => {
                         users[updateMessage.updatedUser.id] = updateMessage.updatedUser
