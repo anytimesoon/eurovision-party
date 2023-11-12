@@ -33,7 +33,7 @@
     }
 </script>
 
-<form method="POST" action="?/updateImg" use:enhance bind:this={avatarForm} enctype="multipart/form-data">
+<form method="POST" action="?/updateImg" use:enhance enctype="multipart/form-data">
     <input type="hidden" name="id" bind:value={$currentUser.id}>
     <input type="hidden" name="x" bind:value={cropArea.x}>
     <input type="hidden" name="y" bind:value={cropArea.y}>
@@ -57,6 +57,6 @@
             <i class="fa-regular fa-image"></i> Browse
             <input id="avatar" name="img" class="hidden" type="file" accept="image/png, image/jpeg" bind:files={imageFiles}>
         </label>
-        <button><i class="fa-regular fa-floppy-disk"></i> Save</button>
+        <button type="submit"><i class="fa-regular fa-floppy-disk"></i> Save</button>
     </div>
 </form>
