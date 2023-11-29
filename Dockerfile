@@ -22,7 +22,8 @@ RUN CGO_ENABLED=0 go build \
 FROM scratch AS final
 LABEL maintainer="anytimesoon"
 COPY --from=build /app /app
-COPY --from=build /src/conf /conf
+VOLUME /conf
+
 ADD ./assets/img.tar.gz /
 
 # copy ca certs
@@ -31,6 +32,6 @@ COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 # copy users from builder (use from=0 for illustration purposes)
 COPY --from=0 /etc/passwd /etc/passwd
 
-USER myapp
+#USER myapp
 
 ENTRYPOINT ["/app"]
