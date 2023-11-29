@@ -6,7 +6,6 @@
     import {authLvl} from "$lib/models/enums/authLvl.enum";
     import AdminNav from "$lib/components/AdminNav.svelte";
     import Modal from "$lib/components/Modal.svelte";
-    import {ImageCropArea} from "$lib/models/classes/imageCropArea";
     import AvatarCropForm from "$lib/components/forms/AvatarCropForm.svelte";
 
     export let form:ActionData
