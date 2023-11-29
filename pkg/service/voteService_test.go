@@ -2,10 +2,10 @@ package service
 
 import (
 	"encoding/json"
-	mockDomain "eurovision/mocks/domain"
-	"eurovision/pkg/domain"
-	"eurovision/pkg/dto"
-	"eurovision/pkg/errs"
+	mockDomain "github.com/anytimesoon/eurovision-party/mocks/domain"
+	"github.com/anytimesoon/eurovision-party/pkg/domain"
+	"github.com/anytimesoon/eurovision-party/pkg/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/errs"
 	"net/http"
 	"testing"
 

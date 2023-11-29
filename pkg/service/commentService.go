@@ -2,9 +2,9 @@ package service
 
 import (
 	"encoding/json"
-	"eurovision/pkg/domain"
-	"eurovision/pkg/dto"
-	"eurovision/pkg/errs"
+	"github.com/anytimesoon/eurovision-party/pkg/domain"
+	"github.com/anytimesoon/eurovision-party/pkg/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/errs"
 	"github.com/google/uuid"
 	"log"
 	"time"

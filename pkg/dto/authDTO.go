@@ -1,7 +1,7 @@
 package dto
 
 import (
-	"eurovision/pkg/enum"
+	"github.com/anytimesoon/eurovision-party/pkg/enum"
 	"log"
 	"net/http"
 	"regexp"
@@ -38,7 +38,6 @@ func (a Auth) ToSession(user User) SessionAuth {
 
 type NewUser struct {
 	Name  string    `json:"name"`
-	Email string    `json:"email"`
 	Slug  string    `json:"slug"`
 	UUID  uuid.UUID `json:"id"`
 	Token string    `json:"token"`

@@ -3,8 +3,8 @@ package domain
 import (
 	"crypto/rand"
 	"encoding/hex"
-	"eurovision/pkg/dto"
-	"eurovision/pkg/enum"
+	"github.com/anytimesoon/eurovision-party/pkg/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/enum"
 	"time"
 
 	"github.com/google/uuid"

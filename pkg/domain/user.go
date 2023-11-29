@@ -1,9 +1,9 @@
 package domain
 
 import (
-	"eurovision/pkg/dto"
-	"eurovision/pkg/enum"
-	"eurovision/pkg/errs"
+	"github.com/anytimesoon/eurovision-party/pkg/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/enum"
+	"github.com/anytimesoon/eurovision-party/pkg/errs"
 
 	"github.com/google/uuid"
 )
@@ -13,14 +13,12 @@ type (
 		UUID    uuid.UUID    `db:"uuid"`
 		AuthLvl enum.AuthLvl `db:"authLvl"`
 		Name    string       `db:"name"`
-		Email   string       `db:"email"`
 		Slug    string       `db:"slug"`
 		Icon    string       `db:"icon"`
 	}
 	NewUser struct {
 		UUID  uuid.UUID `db:"uuid"`
 		Name  string    `db:"name"`
-		Email string    `db:"email"`
 		Slug  string    `db:"slug"`
 		Token string    `db:"authToken"`
 	}
@@ -40,7 +38,6 @@ func (user User) ToDto() dto.User {
 	return dto.User{
 		Name:    user.Name,
 		Slug:    user.Slug,
-		Email:   user.Email,
 		UUID:    user.UUID,
 		Icon:    user.Icon,
 		AuthLvl: user.AuthLvl,
@@ -52,7 +49,6 @@ func (user *NewUser) ToDTO() *dto.NewUser {
 		Name:  user.Name,
 		Slug:  user.Slug,
 		UUID:  user.UUID,
-		Email: user.Email,
 		Token: user.Token,
 	}
 }

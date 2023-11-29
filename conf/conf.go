@@ -1,73 +1,62 @@
 package conf
 
 import (
+	"fmt"
 	"github.com/google/uuid"
-	"net/smtp"
+	"github.com/spf13/viper"
+	"log"
 )
 
-type App struct {
-	DB      DB
-	Server  Server
-	Auth    Auth
-	Email   Email
-	BotUser BotUser
+var App AppConf
+
+var v = viper.New()
+
+type AppConf struct {
+	DbUsername  string `mapstructure:"DB_USERNAME"`
+	DbPassword  string `mapstructure:"DB_PASSWORD"`
+	DbHostname  string `mapstructure:"DB_HOSTNAME"`
+	DbPort      string `mapstructure:"DB_PORT"`
+	DbName      string `mapstructure:"DB_NAME"`
+	ServPort    string `mapstructure:"BACKEND_PORT"`
+	ServHost    string `mapstructure:"BACKEND_HOSTNAME"`
+	HttpProto   string `mapstructure:"HTTP_PROTOCOL"`
+	Domain      string `mapstructure:"DOMAIN_NAME"`
+	BotId       uuid.UUID
+	BotIdString string `mapstructure:"BOT_ID"`
+	BotName     string `mapstructure:"CHAT_BOT_NAME"`
+	Assets      string `mapstructure:"ASSET_DIR"`
 }
 
-type DB struct {
-	Username string
-	Password string
-	Hostname string
-	Port     string
-	DBName   string
-}
-
-type Server struct {
-	Port string
-	Url  string
-}
-
-type Auth struct {
-	CookieKey  []byte
-	SessionKey string
-}
-
-type Email struct {
-	UseSSL        bool
-	Auth          smtp.Auth
-	ServerAndPort string
-	EmailAddress  string
-}
-
-type BotUser struct {
-	ID   uuid.UUID
-	Name string
-}
-
-func Setup() App {
-	var db = DB{
-		Username: "eurovision",
-		Password: "P,PO)+{l4!C{ff",
-		Hostname: "127.0.0.1",
-		Port:     "3306",
-		DBName:   "eurovision",
+func (a *AppConf) SetBotId(id uuid.UUID) {
+	a.BotId = id
+	v.Set("BOT_ID", id)
+	err := v.WriteConfig()
+	if err != nil {
+		log.Fatal("Failed to write bot id to config.", err)
 	}
-	var server = Server{
-		Port: "8080",
-		Url:  "127.0.0.1",
+}
+
+func LoadConfig() {
+	v.SetConfigName("app")
+	v.AddConfigPath("conf/")
+
+	v.AutomaticEnv()
+
+	err := v.ReadInConfig()
+	if err != nil {
+		panic(fmt.Errorf("fatal error config file: %w", err))
 	}
 
-	var auth = Auth{
-		SessionKey: "testing-key-session",
+	err = v.Unmarshal(&App)
+	fmt.Printf("%+v", App)
+	if err != nil {
+		panic(fmt.Errorf("fatal error unmarshalling config: %w", err))
 	}
 
-	var email = Email{
-		UseSSL: false,
-	}
-
-	return App{
-		DB:     db,
-		Server: server,
-		Auth:   auth,
-		Email:  email,
+	if App.BotIdString != "" {
+		App.BotId, err = uuid.Parse(App.BotIdString)
+		if err != nil {
+			log.Fatalln("Failed to parse bot id.", err)
+		}
 	}
 }

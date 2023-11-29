@@ -6,7 +6,7 @@ import (
 )
 
 var (
-	//go:embed img
+	//go:embed img/newuser.png
 	img embed.FS
 )
 

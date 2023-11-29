@@ -1,10 +1,10 @@
 package router
 
 import (
-	"eurovision/pkg/dto"
-	"eurovision/pkg/enum"
-	"eurovision/pkg/errs"
-	"eurovision/pkg/service"
+	"github.com/anytimesoon/eurovision-party/pkg/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/enum"
+	"github.com/anytimesoon/eurovision-party/pkg/errs"
+	"github.com/anytimesoon/eurovision-party/pkg/service"
 	"io"
 	"log"
 	"net/http"
@@ -43,22 +43,23 @@ func (ah AuthHandler) Login(resp http.ResponseWriter, req *http.Request) {
 
 	auth, user, appErr := ah.Service.Login(body)
 
-	cookie := http.Cookie{
-		Name:     "session",
-		Value:    auth.Token,
-		Path:     "/",
-		MaxAge:   60 * 60 * 24 * 7,
-		Secure:   false,
-		HttpOnly: true,
-		SameSite: http.SameSiteLaxMode,
-		Domain:   "127.0.0.1",
-	}
-	http.SetCookie(resp, &cookie)
-
-	session := auth.ToSession(*user)
 	if appErr != nil {
-		writeResponse(resp, req, appErr.Code, session, appErr.Message)
+		writeResponse(resp, req, appErr.Code, dto.SessionAuth{}, appErr.Message)
 	} else {
+		cookie := http.Cookie{
+			Name:     "session",
+			Value:    auth.Token,
+			Path:     "/",
+			MaxAge:   60 * 60 * 24 * 7,
+			Secure:   false,
+			HttpOnly: true,
+			SameSite: http.SameSiteLaxMode,
+			Domain:   "127.0.0.1",
+		}
+		http.SetCookie(resp, &cookie)
+
+		session := auth.ToSession(*user)
+
 		writeResponse(resp, req, http.StatusOK, session, "")
 	}
 }

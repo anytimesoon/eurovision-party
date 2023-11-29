@@ -1,22 +1,24 @@
 package main
 
 import (
-	"eurovision/conf"
-	"eurovision/migrations"
-	"eurovision/pkg/router"
+	"github.com/anytimesoon/eurovision-party/conf"
+	"github.com/anytimesoon/eurovision-party/migrations"
+	"github.com/anytimesoon/eurovision-party/pkg/router"
 	"log"
 )
 
 func main() {
-	log.Println("Starting configuration 📃")
-	appConf := conf.Setup()
+	log.Println("Starting Eurovision backend")
+	log.Println("Loading configuration 📃")
+	conf.LoadConfig()
+	log.Println("Config loaded ✅")
 
 	log.Println("Starting application")
-	db := migrations.Start(&appConf)
-	log.Println("Database migrations complete 🎉")
+	db := migrations.Start()
+	log.Println("Database migrations complete ✅")
 
 	log.Println("Starting server 🖥")
-	router.StartServer(&db, appConf)
+	router.StartServer(&db)
 
 	err := db.Close()
 	if err != nil {

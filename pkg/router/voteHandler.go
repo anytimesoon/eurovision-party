@@ -1,9 +1,9 @@
 package router
 
 import (
-	"eurovision/pkg/dto"
-	"eurovision/pkg/errs"
-	"eurovision/pkg/service"
+	"github.com/anytimesoon/eurovision-party/pkg/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/errs"
+	"github.com/anytimesoon/eurovision-party/pkg/service"
 	"github.com/gorilla/mux"
 	"io"
 	"log"

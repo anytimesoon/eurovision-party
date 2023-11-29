@@ -1,8 +1,8 @@
 package domain
 
 import (
-	"eurovision/pkg/dto"
-	"eurovision/pkg/errs"
+	"github.com/anytimesoon/eurovision-party/pkg/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/errs"
 	"time"
 
 	"github.com/google/uuid"

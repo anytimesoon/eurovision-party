@@ -1,8 +1,8 @@
 package domain
 
 import (
-	"eurovision/pkg/dto"
-	"eurovision/pkg/errs"
+	"github.com/anytimesoon/eurovision-party/pkg/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/errs"
 	"log"
 
 	"github.com/jmoiron/sqlx"
@@ -32,7 +32,7 @@ func (db UserRepositoryDb) FindAllUsers() ([]User, *errs.AppError) {
 func (db UserRepositoryDb) UpdateUser(userDTO dto.User) (*User, *User, *errs.AppError) {
 	var oldUser, updatedUser User
 
-	updateUserQuery := "UPDATE user SET name = ?, email = ? WHERE uuid = ?"
+	updateUserQuery := "UPDATE user SET name = ? WHERE uuid = ?"
 	getUserQuery := "SELECT * FROM user WHERE uuid = ?"
 
 	tx, err := db.client.Beginx()
@@ -47,7 +47,7 @@ func (db UserRepositoryDb) UpdateUser(userDTO dto.User) (*User, *User, *errs.App
 		return nil, nil, errs.NewNotFoundError(errs.Common.NotFound + "user")
 	}
 
-	_, err = tx.Exec(updateUserQuery, userDTO.Name, userDTO.Email, userDTO.UUID)
+	_, err = tx.Exec(updateUserQuery, userDTO.Name, userDTO.UUID)
 	if err != nil {
 		log.Println("Error while updating user table", err)
 		return nil, nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "user")
@@ -80,7 +80,7 @@ func (db UserRepositoryDb) UpdateUserImage(avatarDTO dto.UserAvatar, img *dto.Cr
 		return nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "image")
 	}
 
-	_, err = tx.Exec(updateUserImageQuery, "/content/user/avatar/"+img.ID.String()+"."+img.FileExtension, avatarDTO.UUID.String())
+	_, err = tx.Exec(updateUserImageQuery, "content/user/avatar/"+img.ID.String()+"."+img.FileExtension, avatarDTO.UUID.String())
 	if err != nil {
 		log.Printf("Error while updating user image for user %s. %s", avatarDTO.UUID.String(), err)
 		return nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "image")
@@ -131,7 +131,7 @@ func (db UserRepositoryDb) DeleteUser(slug string) *errs.AppError {
 func (db UserRepositoryDb) FindRegisteredUsers() (*[]NewUser, *errs.AppError) {
 	users := make([]NewUser, 0)
 
-	query := "SELECT u.uuid, u.name, u.email, u.slug, a.authToken FROM user u JOIN auth a ON u.uuid = a.userId WHERE u.authLvl NOT IN (3)"
+	query := "SELECT u.uuid, u.name, u.slug, a.authToken FROM user u JOIN auth a ON u.uuid = a.userId WHERE u.authLvl NOT IN (3)"
 	err := db.client.Select(&users, query)
 	if err != nil {
 		log.Println("Error while querying user table for registered users", err)

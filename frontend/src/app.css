@@ -37,7 +37,7 @@
         @apply text-typography-main
     }
 
-    button {
+    button, [type=submit] {
         @apply py-2 px-3 bg-buttons rounded text-typography-button
     }
 
@@ -105,7 +105,7 @@ html[data-theme="classic"] {
     /*
         other user's chat bubble background color. should contrast secondary canvas color
     */
-    --color-chat-bubble-you: #c8b5e0;
+    --color-chat-bubble-you: #595959;
 
     /*
         header color, which should contrast canvas-primary
@@ -140,7 +140,7 @@ html[data-theme="classic"] {
     /*
         typography color for greyed out texted
     */
-    --color-typography-grey: #575757;
+    --color-typography-grey: #9a9a9a;
 
     /*
         background color of the app

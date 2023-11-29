@@ -1,10 +1,10 @@
 package router
 
 import (
-	"eurovision/pkg/dto"
-	"eurovision/pkg/enum"
-	"eurovision/pkg/errs"
-	"eurovision/pkg/service"
+	"github.com/anytimesoon/eurovision-party/pkg/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/enum"
+	"github.com/anytimesoon/eurovision-party/pkg/errs"
+	"github.com/anytimesoon/eurovision-party/pkg/service"
 	"github.com/google/uuid"
 	"image"
 	"io"
@@ -62,6 +62,8 @@ func (uh UserHandler) UpdateUser(resp http.ResponseWriter, req *http.Request) {
 func (uh UserHandler) UpdateImage(resp http.ResponseWriter, req *http.Request) {
 	var user *dto.User
 	var appErr *errs.AppError
+
+	log.Println("Starting image save")
 
 	err := req.ParseMultipartForm(4000000)
 	if err != nil {

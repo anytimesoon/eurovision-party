@@ -2,7 +2,7 @@ package dto
 
 import (
 	"encoding/json"
-	"eurovision/pkg/enum"
+	"github.com/anytimesoon/eurovision-party/pkg/enum"
 )
 
 type SocketMessage struct {

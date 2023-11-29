@@ -7,14 +7,14 @@ import (
 )
 
 func CreateAuthTable(db *sqlx.DB) {
-	query := `DROP TABLE IF EXISTS auth;`
-	_, err := db.Exec(query)
-	if err != nil {
-		log.Fatalf("Error when creating auth table %s", err)
-	}
-	log.Printf("Auth table was dropped ⬇")
+	//query := `DROP TABLE IF EXISTS auth;`
+	//_, err := db.Exec(query)
+	//if err != nil {
+	//	log.Fatalf("Error when creating auth table %s", err)
+	//}
+	//log.Printf("Auth table was dropped ⬇")
 
-	query = `CREATE TABLE IF NOT EXISTS auth(
+	query := `CREATE TABLE IF NOT EXISTS auth(
 				userId CHAR(36) NOT NULL, 
 				authToken VARCHAR(191) NOT NULL PRIMARY KEY, 
 				authTokenExp DATETIME NOT NULL,
@@ -25,12 +25,12 @@ func CreateAuthTable(db *sqlx.DB) {
 				slug VARCHAR(191),
                 KEY (sessionToken));`
 
-	_, err = db.Exec(query)
+	_, err := db.Exec(query)
 	if err != nil {
 		log.Fatalf("Error when creating auth table %s", err)
 	}
 
-	query = `CREATE TRIGGER dateinsert BEFORE INSERT ON auth
+	query = `CREATE TRIGGER IF NOT EXISTS dateinsert BEFORE INSERT ON auth
     		 FOR EACH ROW
     		 SET NEW.sessionTokenExp =  DATE_ADD(CURRENT_TIMESTAMP(),INTERVAL 7 DAY);`
 	_, err = db.Exec(query)

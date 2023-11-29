@@ -23,13 +23,11 @@ export class UserModel implements IDeserializable<IUser>, IUser {
 export class NewUserModel {
 	public id!:      string;
 	public name!:    string;
-	public email!:   string;
 	public slug!:    string;
 	public token!:   string;
 
 
-	constructor(name: string, email: string) {
+	constructor(name: string) {
 		this.name = name;
-		this.email = email;
 	}
 }

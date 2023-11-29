@@ -2,8 +2,8 @@ package router
 
 import (
 	"context"
-	"eurovision/pkg/dto"
-	"eurovision/pkg/errs"
+	"github.com/anytimesoon/eurovision-party/pkg/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/errs"
 	"log"
 	"net/http"
 )

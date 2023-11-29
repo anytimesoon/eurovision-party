@@ -2,7 +2,7 @@ package router
 
 import (
 	"encoding/json"
-	"eurovision/pkg/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/dto"
 	"log"
 	"net/http"
 )

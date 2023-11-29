@@ -1,11 +1,10 @@
 package router
 
 import (
-	"eurovision/assets"
-	"eurovision/conf"
-	"eurovision/pkg/domain"
-	"eurovision/pkg/service"
 	"fmt"
+	"github.com/anytimesoon/eurovision-party/conf"
+	"github.com/anytimesoon/eurovision-party/pkg/domain"
+	"github.com/anytimesoon/eurovision-party/pkg/service"
 	"github.com/gorilla/handlers"
 	"log"
 	"net/http"
@@ -17,7 +16,7 @@ import (
 
 var authService service.AuthService
 
-func StartServer(db *sqlx.DB, appConf conf.App) {
+func StartServer(db *sqlx.DB) {
 	router := mux.NewRouter().StrictSlash(true)
 	router.Use(logging)
 
@@ -25,12 +24,12 @@ func StartServer(db *sqlx.DB, appConf conf.App) {
 	authRepositoryMem := domain.NewAuthRepositoryDB(db)
 	authService = service.NewAuthService(authRepositoryMem)
 	authHandler := AuthHandler{Service: authService}
-	router.HandleFunc("/login", authHandler.Login).Methods(http.MethodPost) // sets auth token.
+	router.HandleFunc("/api/login", authHandler.Login).Methods(http.MethodPost) // sets auth token.
 
 	// Assets
-	fs := assets.NewStaticImageFS()
 	imageRouter := router.PathPrefix("/content").Subrouter()
-	imageRouter.PathPrefix("/static/").Handler(http.StripPrefix("/content/static/", fs)).Methods(http.MethodGet)
+	//imageRouter.PathPrefix("/static/").Handler(assetHandler()).Methods(http.MethodGet)
+	imageRouter.PathPrefix("/static/").Handler(http.StripPrefix("/content/static/", assetHandler())).Methods(http.MethodGet)
 	imageRouter.Use(imgHeaders)
 
 	imageHandler := ImageHandler{}
@@ -68,7 +67,7 @@ func StartServer(db *sqlx.DB, appConf conf.App) {
 
 	// User
 	userRepositoryDb := domain.NewUserRepositoryDb(db)
-	userHandler := UserHandler{Service: service.NewUserService(userRepositoryDb, appConf.BotUser, chatRoomHandler.RoomService.BroadcastUpdate)}
+	userHandler := UserHandler{Service: service.NewUserService(userRepositoryDb, chatRoomHandler.RoomService.BroadcastUpdate)}
 	userRouter := apiRouter.PathPrefix("/user").Subrouter()
 	userRouter.HandleFunc("/", userHandler.FindAllUsers).Methods(http.MethodGet)
 	userRouter.HandleFunc("/", userHandler.UpdateUser).Methods(http.MethodPut)        // admin or current user
@@ -88,12 +87,12 @@ func StartServer(db *sqlx.DB, appConf conf.App) {
 	voteRouter.HandleFunc("/countryanduser/{slug}", voteHandler.GetVoteByUserAndCountry).Methods(http.MethodGet) // current user only
 
 	headersOk := handlers.AllowedHeaders([]string{"Content-type", "Authorization", "Origin", "Access-Control-Allow-Origin", "Accept", "Options", "X-Requested-With"})
-	originsOk := handlers.AllowedOrigins([]string{"http://localhost:5173"})
+	originsOk := handlers.AllowedOrigins([]string{"*"})
 	methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
 	credentials := handlers.AllowCredentials()
 
 	server := &http.Server{
-		Addr:    fmt.Sprintf("%s:%s", appConf.Server.Url, appConf.Server.Port),
+		Addr:    fmt.Sprintf("%s:%s", conf.App.ServHost, conf.App.ServPort),
 		Handler: handlers.CORS(headersOk, originsOk, methodsOk, credentials)(router),
 		// Good practice to set timeouts to avoid Slowloris attacks.
 		WriteTimeout: time.Second * 15,
@@ -101,6 +100,6 @@ func StartServer(db *sqlx.DB, appConf conf.App) {
 		IdleTimeout:  time.Second * 60,
 	}
 
-	log.Printf("Server listening on port %s", appConf.Server.Port)
+	log.Printf("Server listening on port %s", conf.App.ServPort)
 	log.Fatal(server.ListenAndServe())
 }
