@@ -1,0 +1,18 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Frontend" type="js.build_tools.npm">
+    <package-json value="$PROJECT_DIR$/frontend/package.json" />
+    <command value="run" />
+    <scripts>
+      <script value="dev" />
+    </scripts>
+    <node-interpreter value="project" />
+    <envs>
+      <env name="PORT" value="3000" />
+      <env name="PUBLIC_CHAT" value="ws://localhost:8080" />
+      <env name="PUBLIC_DOMAIN_NAME" value="http://localhost:5173" />
+      <env name="PUBLIC_GO_HOST" value="http://localhost:8080" />
+      <env name="MAX_FILE_SIZE" value="10000000" />
+    </envs>
+    <method v="2" />
+  </configuration>
+</component>
