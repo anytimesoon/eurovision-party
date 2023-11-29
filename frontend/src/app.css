@@ -37,7 +37,7 @@
         @apply text-typography-main
     }
 
-    button {
+    button, [type=submit] {
         @apply py-2 px-3 bg-buttons rounded text-typography-button
     }
 

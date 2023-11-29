@@ -13,11 +13,6 @@
     let hideNameForm = true
     let openModal:VoidFunction
     let closeModal:VoidFunction
-    let cropArea = new ImageCropArea()
-
-
-    let imageString:string
-    let avatarForm:HTMLFormElement
     let theme:string
 
     $: if(form){
@@ -28,8 +23,6 @@
             closeModal()
         }
     }
-
-
 
     $: if(theme) {
         document.querySelector("html")?.setAttribute("data-theme", theme)
@@ -44,10 +37,7 @@
 {/if}
 
 <Modal bind:openModal={openModal} bind:closeModal={closeModal}>
-
-    <AvatarCropForm bind:cropArea={cropArea}
-                    avatarForm={avatarForm}
-                    closeModal="{closeModal}"/>
+    <AvatarCropForm />
 </Modal>
 
 <div class="pb-3">
@@ -55,9 +45,7 @@
     <div class="py-3">
         <div class="max-w-max mx-auto">
         {#if hideNameForm }
-<!--                <form class="inline-block" method="POST" action="?/showNameForm" use:enhance>-->
-                    <span class="inline-block text-2xl">{$currentUser.name} <button on:click={showNameForm} class="py-0 px-2"><i class="fa-regular fa-pen-to-square fa-2xs"></i></button></span>
-<!--                </form>-->
+            <span class="inline-block text-2xl">{$currentUser.name} <button on:click={showNameForm} class="py-0 px-2"><i class="fa-regular fa-pen-to-square fa-2xs"></i></button></span>
         {:else}
             <form method="POST" action="?/updateName" use:enhance>
                 <div class="w-fit mx-auto flex justify-center">
@@ -72,7 +60,6 @@
 
     <div class="py-3 max-w-[10rem] mx-auto relative">
         <img class="w-full" src={staticEP.IMG + $currentUser.icon} alt={$currentUser.name + "'s avatar"}>
-
 
         <button class="absolute top-5 right-2 cursor-pointer bg-primary py-1 px-2 rounded" on:click={openModal}>
             <i class="fa-regular fa-pen-to-square"></i>

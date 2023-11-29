@@ -6,12 +6,12 @@
     import { enhance } from '$app/forms';
     import {staticEP} from "$lib/models/enums/endpoints.enum";
 
+    const authorizedExtensions = ['.jpg', '.jpeg', '.png']
+    let cropArea:ImageCropArea = new ImageCropArea()
     let img:string = staticEP.IMG + $currentUser.icon
+    let noImageSelected:boolean = true
     let imageFiles:FileList
     let imageFile:File
-    export let cropArea:ImageCropArea = new ImageCropArea()
-    export let avatarForm:HTMLFormElement
-    export let closeModal:VoidFunction
     let aspect = 1
 
     let updateCrop = (e:CustomEvent) => {
@@ -22,7 +22,10 @@
         cropArea.height = pix.height
     }
 
+    $: disabledClass = noImageSelected ? "bg-gray-500 cursor-not-allowed" : ""
+
     $: if(imageFiles) {
+        noImageSelected = false
         imageFile = imageFiles[0]
 
         let reader = new FileReader()
@@ -42,21 +45,27 @@
 
 
     <div class="h-60 w-60 relative mx-auto py-3">
-        <Cropper
-                image={img}
-                bind:zoom={cropArea.zoom}
-                bind:aspect
-                on:cropcomplete={updateCrop}
-                restrictPosition={true}
-        />
+        {#if noImageSelected}
+            <div class="p-3">
+                <img src={img} alt="Avatar"/>
+            </div>
+        {:else}
+            <Cropper
+                    image={img}
+                    bind:zoom={cropArea.zoom}
+                    bind:aspect
+                    on:cropcomplete={updateCrop}
+                    restrictPosition={true}
+            />
+        {/if}
     </div>
 
 
     <div class="w-60 mx-auto py-3 flex justify-between">
         <label for="avatar" class="cursor-pointer py-2 px-3 rounded text-typography-main">
             <i class="fa-regular fa-image"></i> Browse
-            <input id="avatar" name="img" class="hidden" type="file" accept="image/png, image/jpeg" bind:files={imageFiles}>
+            <input id="avatar" name="img" class="hidden" type="file" accept={authorizedExtensions.join(',')} bind:files={imageFiles}>
         </label>
-        <button type="submit"><i class="fa-regular fa-floppy-disk"></i> Save</button>
+        <button type="submit" disabled={noImageSelected} class="{disabledClass}" ><i class="fa-regular fa-floppy-disk"></i> Save</button>
     </div>
 </form>
