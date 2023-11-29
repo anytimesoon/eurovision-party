@@ -23,4 +23,6 @@ LABEL maintainer="anytimesoon"
 WORKDIR /app
 COPY --from=frontend /app .
 
+ENV BODY_SIZE_LIMIT=0
+
 CMD ["node", "-r", "dotenv/config", "build"]
