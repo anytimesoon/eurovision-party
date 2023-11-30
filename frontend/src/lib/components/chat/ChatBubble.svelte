@@ -13,7 +13,7 @@
     $: currentUserBubbleContainer = isCurrentUser ? "ml-auto justify-end" : ""
     $: currentUserImage = isCurrentUser ? "order-last ml-3" : "mr-3"
     $: currentUserBubble = isCurrentUser ? "bg-chat-bubble-me" : "bg-chat-bubble-you"
-    $: roundedCorners = isCurrentUser ? "rounded-l-lg rounded-br-lg" : "rounded-r-lg rounded-bl-lg"
+    $: roundedCorners = isCurrentUser ? "rounded-l-md rounded-r-sm" : "rounded-r-md rounded-l-sm"
     $: compactBubble = comment.isCompact ? "mt-1" : "mt-2"
 </script>
 
@@ -24,7 +24,7 @@
 {:else}
 
 
-    <div class="flex w-full max-w-xs {currentUserBubbleContainer} {compactBubble}">
+    <div class="flex w-full max-w-[22rem] {currentUserBubbleContainer} {compactBubble}">
         {#if !comment.isCompact}
             <img class="flex-shrink-0 h-10 w-10 rounded-full {currentUserImage}" src={staticEP.IMG + user.icon} alt={user.name + "'s avatar"}>
         {:else}
@@ -37,7 +37,8 @@
             {/if}
 
             <div class="px-3 py-2 {roundedCorners} {currentUserBubble}">
-                <ChatContent comment={comment} isCurrentUser={isCurrentUser}/>
+                <ChatContent comment={comment}
+                             isCurrentUser={isCurrentUser}/>
             </div>
         </div>
 
