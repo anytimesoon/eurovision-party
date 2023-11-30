@@ -76,7 +76,7 @@ html[data-theme="classic"] {
     /*
         primary color is the main highlight colour
     */
-    --color-primary: #ff44e5;
+    --color-primary: #ff0de0;
 
     /*
         second color is another highlight colour
@@ -140,7 +140,7 @@ html[data-theme="classic"] {
     /*
         typography color for greyed out texted
     */
-    --color-typography-grey: #d2cccc;
+    --color-typography-grey: #949494;
 
     /*
         background color of the app
