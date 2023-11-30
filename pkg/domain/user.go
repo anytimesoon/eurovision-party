@@ -28,10 +28,10 @@ type (
 type UserRepository interface {
 	FindAllUsers() ([]User, *errs.AppError)
 	FindOneUser(string) (*User, *errs.AppError)
-	UpdateUser(dto.User) (oldUser *User, updatedUser *User, appError *errs.AppError)
 	DeleteUser(string) *errs.AppError
 	FindRegisteredUsers() (*[]NewUser, *errs.AppError)
-	UpdateUserImage(avatarDTO dto.UserAvatar, img *dto.CroppedImage) (*User, *errs.AppError)
+	UpdateUser(dto.User) (*User, *dto.Comment, *errs.AppError)
+	UpdateUserImage(avatarDTO dto.UserAvatar, img *dto.CroppedImage) (*User, *dto.Comment, *errs.AppError)
 }
 
 func (user User) ToDto() dto.User {

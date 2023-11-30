@@ -2,14 +2,11 @@ package service
 
 import (
 	"encoding/json"
-	"fmt"
-	"github.com/anytimesoon/eurovision-party/conf"
 	"github.com/anytimesoon/eurovision-party/pkg/domain"
 	"github.com/anytimesoon/eurovision-party/pkg/dto"
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
 	"github.com/google/uuid"
 	"log"
-	"time"
 )
 
 //go:generate mockgen -source=userService.go -destination=../../mocks/service/mockUserService.go -package=service eurovision/pkg/service
@@ -52,14 +49,14 @@ func (service DefaultUserService) UpdateUser(userDTO dto.User) (*dto.User, *errs
 		return nil, appErr
 	}
 
-	oldUser, updatedUser, appErr := service.repo.UpdateUser(userDTO)
+	user, botMessage, appErr := service.repo.UpdateUser(userDTO)
 	if appErr != nil {
 		return nil, appErr
 	}
 
-	newUserDTO := updatedUser.ToDto()
+	newUserDTO := user.ToDto()
 
-	go service.broadcastUserUpdate(newUserDTO, fmt.Sprintf("🤖 %s changed their name to %s", oldUser.Name, updatedUser.Name))
+	go service.broadcastUserUpdate(newUserDTO, botMessage)
 
 	return &newUserDTO, nil
 }
@@ -75,14 +72,14 @@ func (service DefaultUserService) UpdateUserImage(avatarDTO dto.UserAvatar) (*dt
 		return nil, appErr
 	}
 
-	user, appErr := service.repo.UpdateUserImage(avatarDTO, img)
+	user, botMessage, appErr := service.repo.UpdateUserImage(avatarDTO, img)
 	if appErr != nil {
 		return nil, appErr
 	}
 
 	userDTO := user.ToDto()
 
-	go service.broadcastUserUpdate(userDTO, fmt.Sprintf("🤖 %s changed their picture", userDTO.Name))
+	go service.broadcastUserUpdate(userDTO, botMessage)
 
 	return &userDTO, nil
 }
@@ -122,15 +119,10 @@ func (service DefaultUserService) GetRegisteredUsers() ([]*dto.NewUser, *errs.Ap
 	return usersDTO, nil
 }
 
-func (service DefaultUserService) broadcastUserUpdate(newUser dto.User, commentText string) {
+func (service DefaultUserService) broadcastUserUpdate(user dto.User, comment *dto.Comment) {
 	updateMessage := dto.UpdateMessage{
-		UpdatedUser: newUser,
-		Comment: dto.Comment{
-			UUID:      uuid.New(),
-			UserId:    conf.App.BotId,
-			Text:      commentText,
-			CreatedAt: time.Now(),
-		},
+		UpdatedUser: user,
+		Comment:     *comment,
 	}
 
 	msg, err := json.Marshal(updateMessage)
