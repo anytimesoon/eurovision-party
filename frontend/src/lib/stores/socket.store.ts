@@ -5,10 +5,8 @@ import {CommentModel} from "$lib/models/classes/comment.model";
 import {commentStore} from "$lib/stores/comment.store";
 import type {UpdateMessageModel} from "$lib/models/classes/updateMessage.model";
 import {userStore} from "$lib/stores/user.store";
-import type {ChatMessageModel} from "$lib/models/classes/chatMessage.model";
 
 export const socketStore = socket()
-let commentStoreValues:CommentModel[]
 
 function socket() {
     let ws = connectToSocket()
