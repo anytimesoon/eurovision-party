@@ -3,4 +3,5 @@ export interface IComment {
 	userId:     string;
 	text:       string;
 	createdAt:  Date;
+	isCompact:	boolean;
 }

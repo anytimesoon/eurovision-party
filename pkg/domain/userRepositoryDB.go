@@ -1,9 +1,13 @@
 package domain
 
 import (
+	"fmt"
+	"github.com/anytimesoon/eurovision-party/conf"
 	"github.com/anytimesoon/eurovision-party/pkg/dto"
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
+	"github.com/google/uuid"
 	"log"
+	"time"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -29,11 +33,12 @@ func (db UserRepositoryDb) FindAllUsers() ([]User, *errs.AppError) {
 	return users, nil
 }
 
-func (db UserRepositoryDb) UpdateUser(userDTO dto.User) (*User, *User, *errs.AppError) {
-	var oldUser, updatedUser User
+func (db UserRepositoryDb) UpdateUser(userDTO dto.User) (*User, *dto.Comment, *errs.AppError) {
+	var user User
 
 	updateUserQuery := "UPDATE user SET name = ? WHERE uuid = ?"
 	getUserQuery := "SELECT * FROM user WHERE uuid = ?"
+	addBotCommentQuery := "INSERT INTO comment(uuid, userId, text) VALUES (?, ?, ?)"
 
 	tx, err := db.client.Beginx()
 	if err != nil {
@@ -41,10 +46,22 @@ func (db UserRepositoryDb) UpdateUser(userDTO dto.User) (*User, *User, *errs.App
 		return nil, nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "user")
 	}
 
-	err = tx.Get(&oldUser, getUserQuery, userDTO.UUID.String())
+	err = tx.Get(&user, getUserQuery, userDTO.UUID.String())
 	if err != nil {
 		log.Printf("Error while fetching user %s after update %s", userDTO.Name, err)
 		return nil, nil, errs.NewNotFoundError(errs.Common.NotFound + "user")
+	}
+
+	botComment := dto.Comment{
+		UUID:      uuid.New(),
+		UserId:    conf.App.BotId,
+		Text:      fmt.Sprintf("🤖 %s changed their name to %s", user.Name, userDTO.Name),
+		CreatedAt: time.Now(),
+	}
+	_, err = tx.Exec(addBotCommentQuery, botComment.UUID, botComment.UserId, botComment.Text)
+	if err != nil {
+		log.Printf("Error while writing bot comment after name update %s", err)
+		return nil, nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "image")
 	}
 
 	_, err = tx.Exec(updateUserQuery, userDTO.Name, userDTO.UUID)
@@ -53,7 +70,7 @@ func (db UserRepositoryDb) UpdateUser(userDTO dto.User) (*User, *User, *errs.App
 		return nil, nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "user")
 	}
 
-	err = tx.Get(&updatedUser, getUserQuery, userDTO.UUID.String())
+	err = tx.Get(&user, getUserQuery, userDTO.UUID.String())
 	if err != nil {
 		log.Printf("Error while fetching user %s after update %s", userDTO.Name, err)
 		return nil, nil, errs.NewNotFoundError(errs.Common.NotFound + "user")
@@ -65,40 +82,53 @@ func (db UserRepositoryDb) UpdateUser(userDTO dto.User) (*User, *User, *errs.App
 		return nil, nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "user")
 	}
 
-	return &oldUser, &updatedUser, nil
+	return &user, &botComment, nil
 }
 
-func (db UserRepositoryDb) UpdateUserImage(avatarDTO dto.UserAvatar, img *dto.CroppedImage) (*User, *errs.AppError) {
+func (db UserRepositoryDb) UpdateUserImage(avatarDTO dto.UserAvatar, img *dto.CroppedImage) (*User, *dto.Comment, *errs.AppError) {
 	var user User
 
 	updateUserImageQuery := "UPDATE user SET icon = ? WHERE uuid = ?"
 	getUserQuery := "SELECT * FROM user WHERE uuid = ?"
+	addBotCommentQuery := "INSERT INTO comment(uuid, userId, text) VALUES (?, ?, ?)"
 
 	tx, err := db.client.Beginx()
 	if err != nil {
 		log.Printf("Error while starting image transaction for user %s. %s", avatarDTO.UUID, err)
-		return nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "image")
+		return nil, nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "image")
 	}
 
 	_, err = tx.Exec(updateUserImageQuery, "content/user/avatar/"+img.ID.String()+"."+img.FileExtension, avatarDTO.UUID.String())
 	if err != nil {
 		log.Printf("Error while updating user image for user %s. %s", avatarDTO.UUID.String(), err)
-		return nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "image")
+		return nil, nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "image")
 	}
 
 	err = tx.Get(&user, getUserQuery, avatarDTO.UUID.String())
 	if err != nil {
 		log.Printf("Error while fetching user %s after updating image %s", avatarDTO.UUID.String(), err)
-		return nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "image")
+		return nil, nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "image")
+	}
+
+	var botComment = dto.Comment{
+		UUID:      uuid.New(),
+		UserId:    conf.App.BotId,
+		Text:      fmt.Sprintf("🤖 %s changed their picture", user.Name),
+		CreatedAt: time.Now(),
+	}
+	_, err = tx.Exec(addBotCommentQuery, botComment.UUID, botComment.UserId, botComment.Text)
+	if err != nil {
+		log.Printf("Error while writing bot comment after updating image %s", err)
+		return nil, nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "image")
 	}
 
 	err = tx.Commit()
 	if err != nil {
 		log.Printf("Error while committing image transaction for user %s. %s", avatarDTO.UUID, err)
-		return nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "image")
+		return nil, nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "image")
 	}
 
-	return &user, nil
+	return &user, &botComment, nil
 }
 
 func (db UserRepositoryDb) FindOneUser(slug string) (*User, *errs.AppError) {

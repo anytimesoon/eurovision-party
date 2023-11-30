@@ -12,7 +12,7 @@
     let hideNameForm = true
     let openModal:VoidFunction
     let closeModal:VoidFunction
-    let theme:string
+    let theme = localStorage.getItem("theme")
 
     $: if(form){
         hideNameForm = form.hideNameForm
@@ -24,6 +24,7 @@
     }
 
     $: if(theme) {
+        localStorage.setItem("theme", theme)
         document.querySelector("html")?.setAttribute("data-theme", theme)
     }
     function showNameForm() {
@@ -60,7 +61,7 @@
     <div class="py-3 max-w-[10rem] mx-auto relative">
         <img class="w-full" src={staticEP.IMG + $currentUser.icon} alt={$currentUser.name + "'s avatar"}>
 
-        <button class="absolute top-5 right-2 cursor-pointer bg-primary py-1 px-2 rounded" on:click={openModal}>
+        <button class="absolute top-5 right-2 cursor-pointer py-1 px-2 rounded" on:click={openModal}>
             <i class="fa-regular fa-pen-to-square"></i>
         </button>
     </div>

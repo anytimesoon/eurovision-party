@@ -8,4 +8,10 @@ export const currentUser = writable<UserModel>(browser && JSON.parse(localStorag
 
 currentUser.subscribe((val) => {
     browser && localStorage.setItem("currentUser", JSON.stringify(val))
-});
+})
+
+export const botUser = writable<UserModel>(browser && JSON.parse(localStorage.getItem("botUser") || JSON.stringify(new UserModel())))
+
+botUser.subscribe((val) => {
+    browser && localStorage.setItem("botUser", JSON.stringify(val))
+})

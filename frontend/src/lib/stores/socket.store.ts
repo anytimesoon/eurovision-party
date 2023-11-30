@@ -19,7 +19,6 @@ function socket() {
 }
 
 function connectToSocket(){
-    console.log("chat ep " + chatEP)
     let socket = new WebSocket(chatEP)
 
     socket.onerror = function (error){
@@ -78,6 +77,10 @@ function connectToSocket(){
 function addNewComment(comment:CommentModel){
     comment.createdAt = new Date(comment.createdAt)
     commentStore.update(comments => {
+        const first = comments[0]
+        if (first && first.userId === comment.userId) {
+            comment.isCompact = true
+        }
         return [comment, ...comments]
     });
 }

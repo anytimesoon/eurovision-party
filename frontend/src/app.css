@@ -76,7 +76,7 @@ html[data-theme="classic"] {
     /*
         primary color is the main highlight colour
     */
-    --color-primary: #ff44e5;
+    --color-primary: #ff0de0;
 
     /*
         second color is another highlight colour
@@ -140,7 +140,7 @@ html[data-theme="classic"] {
     /*
         typography color for greyed out texted
     */
-    --color-typography-grey: #9a9a9a;
+    --color-typography-grey: #949494;
 
     /*
         background color of the app
@@ -155,9 +155,10 @@ html[data-theme="classic"] {
 
 
 html[data-theme="light"] {
-  --color-primary: #f4cc70;
+  --color-primary: #ffb400;
   --color-secondary: #6ab187;
-  --color-buttons: #de7a22;
+  --color-buttons: #20948b;
   --color-typography: #20948b;
-  --color-canvas: #349998;
+  --color-canvas-primary: #e3e3e3;
+  --color-canvas-secondary: #ffffff;
 }
