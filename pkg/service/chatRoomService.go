@@ -85,11 +85,6 @@ func (r *Room) broadcast(msg dto.SocketMessage) {
 		return
 	}
 	for _, client := range r.clients {
-		//select {
 		client.Send <- message
-		//default:
-		//	close(client.Send)
-		//	delete(r.clients, userId)
-		//}
 	}
 }
