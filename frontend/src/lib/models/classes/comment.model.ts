@@ -12,6 +12,7 @@ export class CommentModel implements IComment, IDeserializable<string> {
 	public userId!:      string;
 	public text!:        string;
 	public createdAt!:   Date;
+	public isCompact:	 boolean = false;
 
 	deserialize(input: string): this {
 		const obj = JSON.parse(input, function reviver(key, value) {

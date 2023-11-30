@@ -5,8 +5,10 @@ import {CommentModel} from "$lib/models/classes/comment.model";
 import {commentStore} from "$lib/stores/comment.store";
 import type {UpdateMessageModel} from "$lib/models/classes/updateMessage.model";
 import {userStore} from "$lib/stores/user.store";
+import type {ChatMessageModel} from "$lib/models/classes/chatMessage.model";
 
 export const socketStore = socket()
+let commentStoreValues:CommentModel[]
 
 function socket() {
     let ws = connectToSocket()
@@ -19,7 +21,6 @@ function socket() {
 }
 
 function connectToSocket(){
-    console.log("chat ep " + chatEP)
     let socket = new WebSocket(chatEP)
 
     socket.onerror = function (error){
@@ -78,6 +79,10 @@ function connectToSocket(){
 function addNewComment(comment:CommentModel){
     comment.createdAt = new Date(comment.createdAt)
     commentStore.update(comments => {
+        const first = comments[0]
+        if (first && first.userId === comment.userId) {
+            comment.isCompact = true
+        }
         return [comment, ...comments]
     });
 }

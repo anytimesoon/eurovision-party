@@ -6,7 +6,6 @@
     import {chatMsgCat} from "$lib/models/enums/chatMsgCat";
     import {socketStore} from "$lib/stores/socket.store";
     import ChatBubble from "$lib/components/chat/ChatBubble.svelte";
-    import {page} from "$app/stores";
     import Spinner from "$lib/components/Spinner.svelte";
 
     let chatButton:HTMLButtonElement
@@ -51,7 +50,9 @@
             </div>
         {:else if $socketStore.readyState == WebSocket.OPEN}
             {#each $commentStore as comment}
-                <ChatBubble comment={comment} user={$userStore[comment.userId]} isCurrentUser={($currentUser.id === comment.userId)}/>
+                <ChatBubble comment={comment}
+                            user={$userStore[comment.userId]}
+                            isCurrentUser={($currentUser.id === comment.userId)}/>
             {/each}
         {:else}
             <div class="h-screen flex flex-col justify-center">

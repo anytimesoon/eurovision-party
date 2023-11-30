@@ -14,6 +14,7 @@
     $: currentUserImage = isCurrentUser ? "order-last ml-3" : "mr-3"
     $: currentUserBubble = isCurrentUser ? "bg-chat-bubble-me" : "bg-chat-bubble-you"
     $: roundedCorners = isCurrentUser ? "rounded-l-lg rounded-br-lg" : "rounded-r-lg rounded-bl-lg"
+    $: compactBubble = comment.isCompact ? "mt-1" : "mt-2"
 </script>
 
 {#if user.authLvl === authLvl.BOT}
@@ -23,12 +24,19 @@
 {:else}
 
 
-    <div class="flex w-full mt-2 max-w-xs {currentUserBubbleContainer}">
-        <img class="flex-shrink-0 h-10 w-10 rounded-full {currentUserImage}" src={staticEP.IMG + user.icon} alt={user.name + "'s avatar"}>
+    <div class="flex w-full max-w-xs {currentUserBubbleContainer} {compactBubble}">
+        {#if !comment.isCompact}
+            <img class="flex-shrink-0 h-10 w-10 rounded-full {currentUserImage}" src={staticEP.IMG + user.icon} alt={user.name + "'s avatar"}>
+        {:else}
+            <div class="h-10 w-10 {currentUserImage}"></div>
+        {/if}
 
         <div>
-            <p class="block {userNameStyle}">{user.name}</p>
-            <div class="p-3 {roundedCorners} {currentUserBubble}">
+            {#if !comment.isCompact}
+                <p class="block {userNameStyle}">{user.name}</p>
+            {/if}
+
+            <div class="px-3 py-2 {roundedCorners} {currentUserBubble}">
                 <ChatContent comment={comment} isCurrentUser={isCurrentUser}/>
             </div>
         </div>
