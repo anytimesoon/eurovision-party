@@ -55,7 +55,7 @@
 </Modal>
 
 <div class="flex flex-col h-full">
-    <div id="chat-box" class="border-2 flex flex-col-reverse flex-auto bg-canvas-secondary border-secondary p-4 overflow-auto rounded mb-3">
+    <div id="chat-box" class="border-2 flex flex-col-reverse flex-auto bg-canvas-secondary border-secondary p-4 overflow-y-auto overflow-x-hidden rounded mb-3">
         {#if $socketStore.readyState == WebSocket.CONNECTING}
             <div class="h-screen flex flex-col justify-center">
                 <div>
