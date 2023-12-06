@@ -14,11 +14,17 @@
     $: contentTextStyle = isCurrentUser ? "text-typography-chat-me" : "text-typography-chat-you"
 </script>
 
+{#if comment.replyToComment}
+    {comment.replyToComment.text}
+{/if}
 
 <p class="{contentTextStyle} pr-8">{linkify(comment.text)}</p>
 <span class="text-[0.6rem] -mt-3 block {contentTextStyle} text-right">
     {
         comment.createdAt.getHours() + ":" +
-        (comment.createdAt.getMinutes() < 10 ? "0" + comment.createdAt.getMinutes() : comment.createdAt.getMinutes())
+        (comment.createdAt.getMinutes() < 10 ?
+            "0" + comment.createdAt.getMinutes() :
+            comment.createdAt.getMinutes()
+        )
     }
 </span>
