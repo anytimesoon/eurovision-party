@@ -5,7 +5,7 @@
     export let isCurrentUser:boolean
 
     $: contentTextStyle = isCurrentUser ? "text-typography-chat-me" : "text-typography-chat-you"
-    $: contentPadding = isCurrentUser ? "pl-10" : "pr-10"
+    $: contentPadding = isCurrentUser ? "pl-9" : "pr-9"
     $: timeStyle = isCurrentUser ? "" : "text-right"
 </script>
 

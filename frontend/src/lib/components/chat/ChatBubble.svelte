@@ -11,7 +11,7 @@
 
     $: userNameStyle = isCurrentUser ? "text-right" : ""
     $: currentUserBubbleContainer = isCurrentUser ? "ml-auto justify-end" : ""
-    $: currentUserImage = isCurrentUser ? "order-last ml-3" : "mr-3"
+    $: currentUserImage = isCurrentUser ? "order-last ml-2" : "mr-2"
     $: currentUserBubble = isCurrentUser ? "bg-chat-bubble-me" : "bg-chat-bubble-you"
     $: roundedCorners = isCurrentUser ? "rounded-l-md rounded-r-sm" : "rounded-r-md rounded-l-sm"
     $: compactBubble = comment.isCompact ? "mt-1" : "mt-2"
