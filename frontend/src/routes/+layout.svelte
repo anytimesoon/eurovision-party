@@ -1,9 +1,18 @@
-<script>
+<script lang="ts">
     import "../app.css";
 
-    let theme = localStorage.getItem("theme") || "classic"
+    let theme:string
 
-    document.querySelector("html")?.setAttribute("data-theme", theme);
+    if (typeof window !== "undefined"){
+        theme = window.localStorage.getItem("theme")
+
+        if (theme === null) {
+            window.localStorage.setItem("theme", "classic")
+            theme = window.localStorage.getItem("theme")
+        }
+
+        document.querySelector("html")?.setAttribute("data-theme", theme)
+    }
 </script>
 
 
