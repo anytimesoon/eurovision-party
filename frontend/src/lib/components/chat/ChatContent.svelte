@@ -15,7 +15,10 @@
 </script>
 
 {#if comment.replyToComment}
-    {comment.replyToComment.text}
+    <div class="text-sm bg-chat-bubble-you rounded px-3 py-1">
+        <span class="text-typography-chat-you">{comment.replyToComment.text}</span>
+    </div>
+
 {/if}
 
 <p class="{contentTextStyle} pr-8">{linkify(comment.text)}</p>
