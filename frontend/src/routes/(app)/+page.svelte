@@ -15,10 +15,19 @@
     let openModal:VoidFunction
     let closeModal:VoidFunction
     let userWithActiveAvatar:UserModel = new UserModel()
+    let replyComment:CommentModel = new CommentModel()
 
     const openAvatarModal = (user:UserModel) => {
         userWithActiveAvatar = user
         openModal()
+    }
+
+    const replyToComment = (comment:CommentModel) => {
+        replyComment = comment
+    }
+
+    const closeReply = () => {
+        replyComment = new CommentModel()
     }
 
     function sendMsg() {
@@ -70,7 +79,8 @@
                 <ChatBubble comment={comment}
                             user={$userStore[comment.userId]}
                             isCurrentUser={($currentUser.id === comment.userId)}
-                            openAvatarModal={openAvatarModal}/>
+                            openAvatarModal={openAvatarModal}
+                            replyToComment={replyToComment}/>
             {/each}
         {:else}
             <div class="h-screen flex flex-col justify-center">
@@ -82,12 +92,29 @@
         {/if}
     </div>
 
-    <div class="flex">
-        <textarea class="h-10 text-sm overflow-hidden" name="msg" id="msg" on:keyup={e => sendMsgWithKeyboard(e)}></textarea>
-        <div class="flex flex-col-reverse ml-2">
-            <button bind:this={chatButton} on:click={sendMsg}><i class="fa-solid fa-angles-right"></i></button>
+    <div>
+        {#if replyComment.text !== undefined}
+            <div class="bg-canvas-secondary p-2 mb-1 rounded text-typography-main text-sm relative">
+                <button class="bg-transparent absolute top-1 right-1"  on:click={closeReply}>
+                    <i class="fa-regular fa-circle-xmark"></i>
+                </button>
+
+                {#if replyComment.userId !== undefined}
+                    <div class="pb-2">
+                        {$userStore[replyComment.userId].name}
+                    </div>
+                {/if}
+                {replyComment.text}
+            </div>
+        {/if}
+        <div class="flex">
+            <textarea class="h-10 text-sm overflow-hidden" name="msg" id="msg" on:keyup={e => sendMsgWithKeyboard(e)}></textarea>
+            <div class="flex flex-col-reverse ml-2">
+                <button bind:this={chatButton} on:click={sendMsg}><i class="fa-solid fa-angles-right"></i></button>
+            </div>
         </div>
     </div>
+
 </div>
 
 

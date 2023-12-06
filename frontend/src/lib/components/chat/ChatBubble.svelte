@@ -11,9 +11,11 @@
     export let user:UserModel
     export let isCurrentUser:boolean
     export let openAvatarModal:Function
+    export let replyToComment:Function
 
     function swipedHandler(e:CustomEvent<SwipeEventData>) {
         e.target.style.right = 0
+        replyToComment(comment)
     }
 
     function swipingHandler(e:CustomEvent<SwipeEventData>) {
