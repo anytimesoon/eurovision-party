@@ -20,7 +20,18 @@ func NewCommentRepositoryDb(db *sqlx.DB) CommentRepositoryDb {
 func (db CommentRepositoryDb) FindAllComments() ([]Comment, *errs.AppError) {
 	comments := make([]Comment, 0)
 
-	query := "SELECT * FROM comment order by createdAt"
+	query := `SELECT
+					c1.uuid,
+					c1.text,
+					c1.userId,
+					c1.createdAt,
+					c2.uuid as replyTo_uuid,
+					c2.userId as replyTo_userId,
+					c2.text as replyTo_text,
+					c2.createdAt as replyTo_createdAt
+				FROM comment c1 
+					LEFT JOIN comment c2 ON c1.replyTo = c2.uuid
+				ORDER BY c1.createdAt`
 	err := db.client.Select(&comments, query)
 	if err != nil {
 		log.Println("Error while querying comment table", err)
@@ -36,7 +47,19 @@ func (db CommentRepositoryDb) CreateComment(commentDTO dto.Comment) (*Comment, *
 	newCommentId := uuid.New().String()
 
 	createCommentQuery := "INSERT INTO comment(uuid, userId, text) VALUES (?, ?, ?)"
-	getCommentQuery := "SELECT * FROM comment WHERE uuid = ?"
+	createCommentWithReplyQuery := "INSERT INTO comment(uuid, userId, text, replyTo) VALUES (?, ?, ?, ?)"
+	getCommentQuery := `SELECT
+							c1.uuid,
+							c1.text,
+							c1.userId,
+							c1.createdAt,
+							c2.uuid as replyTo_uuid,
+							c2.userId as replyTo_userId,
+							c2.text as replyTo_text,
+							c2.createdAt as replyTo_createdAt
+						FROM comment c1 
+							LEFT JOIN comment c2 ON c1.replyTo = c2.uuid
+						WHERE c1.uuid = ?`
 
 	// Begin transaction that will create a new comment then return the new comment
 	tx, err := db.client.Beginx()
@@ -45,7 +68,11 @@ func (db CommentRepositoryDb) CreateComment(commentDTO dto.Comment) (*Comment, *
 		return nil, errs.NewUnexpectedError(errs.Common.NotCreated + "you comment")
 	}
 
-	_, err = tx.Exec(createCommentQuery, newCommentId, commentDTO.UserId, commentDTO.Text)
+	if commentDTO.ReplyTo != nil {
+		_, err = tx.Exec(createCommentWithReplyQuery, newCommentId, commentDTO.UserId, commentDTO.Text, commentDTO.ReplyTo.UUID)
+	} else {
+		_, err = tx.Exec(createCommentQuery, newCommentId, commentDTO.UserId, commentDTO.Text)
+	}
 	if err != nil {
 		log.Printf("Error when creating comment from user %s, %s", commentDTO.UserId, err)
 		_ = tx.Rollback()

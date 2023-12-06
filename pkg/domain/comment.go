@@ -9,10 +9,14 @@ import (
 )
 
 type Comment struct {
-	UUID      uuid.UUID `db:"uuid"`
-	UserId    uuid.UUID `db:"userId"`
-	Text      []byte    `db:"text"`
-	CreatedAt time.Time `db:"createdAt"`
+	UUID             uuid.UUID  `db:"uuid"`
+	UserId           uuid.UUID  `db:"userId"`
+	Text             []byte     `db:"text"`
+	CreatedAt        time.Time  `db:"createdAt"`
+	ReplyToID        uuid.UUID  `db:"replyTo_uuid"`
+	ReplyToUserId    uuid.UUID  `db:"replyTo_userId"`
+	ReplyToText      []byte     `db:"replyTo_text"`
+	ReplyToCreatedAt *time.Time `db:"replyTo_createdAt"`
 }
 
 type CommentRepository interface {
@@ -22,10 +26,21 @@ type CommentRepository interface {
 }
 
 func (comment Comment) ToDto() dto.Comment {
+	var replyTo *dto.Comment
+	if comment.ReplyToID != uuid.Nil {
+		replyTo = &dto.Comment{
+			UUID:      comment.ReplyToID,
+			UserId:    comment.ReplyToUserId,
+			Text:      string(comment.ReplyToText),
+			CreatedAt: *comment.ReplyToCreatedAt,
+			ReplyTo:   nil,
+		}
+	}
 	return dto.Comment{
 		UUID:      comment.UUID,
 		UserId:    comment.UserId,
 		Text:      string(comment.Text),
+		ReplyTo:   replyTo,
 		CreatedAt: comment.CreatedAt,
 	}
 }

@@ -12,6 +12,7 @@ type Comment struct {
 	UserId    uuid.UUID `json:"userId"`
 	Text      string    `json:"text"`
 	CreatedAt time.Time `json:"createdAt"`
+	ReplyTo   *Comment  `json:"replyToComment,omitempty"`
 }
 
 func (c Comment) Validate() *errs.AppError {

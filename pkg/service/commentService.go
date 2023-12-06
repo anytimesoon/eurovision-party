@@ -44,17 +44,17 @@ func (service DefaultCommentService) CreateComment(body []byte) ([]byte, *errs.A
 	commentDTO := dto.Comment{}
 	err := json.Unmarshal(body, &commentDTO)
 	if err != nil {
-		log.Printf("Failed to unmarshal comment.", err)
+		log.Println("Failed to unmarshal comment.", err)
 		return nil, errs.NewUnexpectedError(errs.Common.BadlyFormedObject)
 	}
-
-	commentDTO.UUID = uuid.New()
-	commentDTO.CreatedAt = time.Now()
 
 	appErr := commentDTO.Validate()
 	if appErr != nil {
 		return nil, appErr
 	}
+
+	commentDTO.UUID = uuid.New()
+	commentDTO.CreatedAt = time.Now()
 
 	comment, appErr := service.repo.CreateComment(commentDTO)
 	if appErr != nil {
