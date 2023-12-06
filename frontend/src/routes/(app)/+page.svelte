@@ -7,8 +7,19 @@
     import {socketStore} from "$lib/stores/socket.store";
     import ChatBubble from "$lib/components/chat/ChatBubble.svelte";
     import Spinner from "$lib/components/Spinner.svelte";
+    import Modal from "$lib/components/Modal.svelte";
+    import {UserModel} from "$lib/models/classes/user.model";
+    import {staticEP} from "$lib/models/enums/endpoints.enum";
 
     let chatButton:HTMLButtonElement
+    let openModal:VoidFunction
+    let closeModal:VoidFunction
+    let userWithActiveAvatar:UserModel = new UserModel()
+
+    const openAvatarModal = (user:UserModel) => {
+        userWithActiveAvatar = user
+        openModal()
+    }
 
     function sendMsg() {
         const input = document.getElementById("msg")! as HTMLInputElement;
@@ -39,6 +50,10 @@
     }
 </script>
 
+<Modal bind:openModal={openModal} bind:closeModal={closeModal}>
+    <img class="mx-auto" src={staticEP.IMG + userWithActiveAvatar.icon} alt={userWithActiveAvatar.name + "'s avatar"}/>
+</Modal>
+
 <div class="flex flex-col h-full">
     <div id="chat-box" class="border-2 flex flex-col-reverse flex-auto bg-canvas-secondary border-secondary p-4 overflow-auto rounded mb-3">
         {#if $socketStore.readyState == WebSocket.CONNECTING}
@@ -52,7 +67,8 @@
             {#each $commentStore as comment}
                 <ChatBubble comment={comment}
                             user={$userStore[comment.userId]}
-                            isCurrentUser={($currentUser.id === comment.userId)}/>
+                            isCurrentUser={($currentUser.id === comment.userId)}
+                            openAvatarModal={openAvatarModal}/>
             {/each}
         {:else}
             <div class="h-screen flex flex-col justify-center">

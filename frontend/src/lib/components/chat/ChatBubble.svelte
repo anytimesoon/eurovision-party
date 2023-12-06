@@ -8,6 +8,7 @@
     export let comment:CommentModel
     export let user:UserModel
     export let isCurrentUser:boolean
+    export let openAvatarModal:Function
 
     $: userNameStyle = isCurrentUser ? "text-right" : ""
     $: currentUserBubbleContainer = isCurrentUser ? "ml-auto justify-end" : ""
@@ -26,7 +27,7 @@
 
     <div class="flex w-full max-w-[22rem] {currentUserBubbleContainer} {compactBubble}">
         {#if !comment.isCompact}
-            <img class="flex-shrink-0 h-10 w-10 rounded-full {currentUserImage}" src={staticEP.IMG + user.icon} alt={user.name + "'s avatar"}>
+            <img on:mousedown={() => openAvatarModal(user)} class="flex-shrink-0 h-10 w-10 rounded-full cursor-pointer {currentUserImage}" src={staticEP.IMG + user.icon} alt={user.name + "'s avatar"}>
         {:else}
             <div class="h-10 w-10 {currentUserImage}"></div>
         {/if}
