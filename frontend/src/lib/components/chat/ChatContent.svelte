@@ -12,13 +12,11 @@
     }
 
     $: contentTextStyle = isCurrentUser ? "text-typography-chat-me" : "text-typography-chat-you"
-    $: contentPadding = isCurrentUser ? "pl-9" : "pr-9"
-    $: timeStyle = isCurrentUser ? "" : "text-right"
 </script>
 
 
-<p class="{contentTextStyle} {contentPadding} text-sm">{linkify(comment.text)}</p>
-<span class="text-[0.6rem] -mt-3 block {contentTextStyle} {timeStyle}">
+<p class="{contentTextStyle} pr-8">{linkify(comment.text)}</p>
+<span class="text-[0.6rem] -mt-3 block {contentTextStyle} text-right">
     {
         comment.createdAt.getHours() + ":" +
         (comment.createdAt.getMinutes() < 10 ? "0" + comment.createdAt.getMinutes() : comment.createdAt.getMinutes())
