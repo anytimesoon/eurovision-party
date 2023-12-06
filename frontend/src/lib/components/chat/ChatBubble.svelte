@@ -38,27 +38,29 @@
     </div>
 {:else}
 
+    <div use:swipeable
+         on:swiping={swipingHandler}
+         on:swipedright={swipedHandler}
+         class="flex w-full max-w-[22rem] relative {currentUserBubbleContainer} {compactBubble}">
 
-            <div use:swipeable on:swiping={swipingHandler} on:swipedright={swipedHandler} class="flex w-full max-w-[22rem] relative {currentUserBubbleContainer} {compactBubble}">
-                {#if !comment.isCompact}
-                    <img on:mousedown={() => openAvatarModal(user)} class="flex-shrink-0 h-10 w-10 rounded-full cursor-pointer {currentUserImage}" src={staticEP.IMG + user.icon} alt={user.name + "'s avatar"}>
-                {:else}
-                    <div class="h-10 w-10 {currentUserImage}"></div>
-                {/if}
+        {#if !comment.isCompact}
+            <img on:mousedown={() => openAvatarModal(user)}
+                 class="flex-shrink-0 h-10 w-10 rounded-full cursor-pointer {currentUserImage}"
+                 src={staticEP.IMG + user.icon} alt={user.name + "'s avatar"}>
+        {:else}
+            <div class="h-10 w-10 {currentUserImage}"></div>
+        {/if}
 
-                <div>
-                    {#if !comment.isCompact}
-                        <p class="block {userNameStyle}">{user.name}</p>
-                    {/if}
+        <div>
+            {#if !comment.isCompact}
+                <p class="block {userNameStyle}">{user.name}</p>
+            {/if}
 
-                    <div class="px-3 py-2 {roundedCorners} {currentUserBubble}">
-                        <ChatContent comment={comment}
-                                     isCurrentUser={isCurrentUser}/>
-                    </div>
-                </div>
+            <div class="px-3 py-2 {roundedCorners} {currentUserBubble}">
+                <ChatContent comment={comment}
+                             isCurrentUser={isCurrentUser}/>
             </div>
-
-
-
+        </div>
+    </div>
 
 {/if}
