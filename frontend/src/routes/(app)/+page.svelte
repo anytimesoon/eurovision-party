@@ -37,8 +37,9 @@
             return
         }
 
-        const comment = new ChatMessageModel<CommentModel>(chatMsgCat.COMMENT, new CommentModel(input.value, $currentUser.id))
+        const comment = new ChatMessageModel<CommentModel>(chatMsgCat.COMMENT, new CommentModel(input.value, $currentUser.id, replyComment))
         $socketStore.send(JSON.stringify(comment))
+        closeReply()
         input.value = ""
         input.style.height = "40px"
     }
