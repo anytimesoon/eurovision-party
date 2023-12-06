@@ -51,7 +51,9 @@
 </script>
 
 <Modal bind:openModal={openModal} bind:closeModal={closeModal}>
-    <img class="mx-auto" src={staticEP.IMG + userWithActiveAvatar.icon} alt={userWithActiveAvatar.name + "'s avatar"}/>
+    {#if userWithActiveAvatar && userWithActiveAvatar.icon !== undefined}
+        <img class="mx-auto" src={staticEP.IMG + userWithActiveAvatar.icon} alt={userWithActiveAvatar.name + "'s avatar"}/>
+    {/if}
 </Modal>
 
 <div class="flex flex-col h-full">
