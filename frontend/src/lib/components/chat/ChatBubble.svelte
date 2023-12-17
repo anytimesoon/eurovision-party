@@ -31,7 +31,7 @@
     $: currentUserImage = isCurrentUser ? "order-last ml-2" : "mr-2"
     $: currentUserBubble = isCurrentUser ? "bg-chat-bubble-me" : "bg-chat-bubble-you"
     $: roundedCorners = isCurrentUser ? "rounded-l-md rounded-r-sm" : "rounded-r-md rounded-l-sm"
-    $: compactBubble = comment.isCompact ? "mt-1" : "mt-2"
+    $: compactBubble = comment.isCompact ? "mt-1" : "mt-3"
 </script>
 
 {#if user.authLvl === authLvl.BOT}
