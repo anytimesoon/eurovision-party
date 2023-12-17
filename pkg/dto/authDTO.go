@@ -1,6 +1,7 @@
 package dto
 
 import (
+	"github.com/anytimesoon/eurovision-party/conf"
 	"github.com/anytimesoon/eurovision-party/pkg/enum"
 	"log"
 	"net/http"
@@ -33,6 +34,7 @@ func (a Auth) ToSession(user User) SessionAuth {
 			SameSite: 3,
 		},
 		User: user,
+		Bot:  conf.App.BotId,
 	}
 }
 
@@ -57,6 +59,7 @@ type SessionAuth struct {
 	SessionToken string     `json:"token"`
 	CookieOpts   CookieOpts `json:"opts"`
 	User         User       `json:"user"`
+	Bot          uuid.UUID  `json:"botId"`
 }
 
 func (nu *NewUser) Slugify() {

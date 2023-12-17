@@ -1,6 +1,6 @@
 <script lang="ts">
     import Spinner from "$lib/components/Spinner.svelte";
-    import {currentUser} from "$lib/stores/user.store";
+    import {botId, currentUser} from "$lib/stores/user.store";
     import type { PageData } from './$types';
     import {browser} from "$app/environment";
     import {authLvl} from "$lib/models/enums/authLvl.enum";
@@ -11,6 +11,7 @@
     $: if(data) {
         if (browser) {
             $currentUser = data.currentUser
+            $botId = data.botId
             if ($currentUser.authLvl === authLvl.ADMIN && !data.hasLoggedIn) {
                 goto("/admin/countries")
             } else {

@@ -2,9 +2,10 @@ import type { IComment } from '../interfaces/icomment.interface'
 import type {IDeserializable} from "$lib/models/interfaces/ideserializable.interface";
 
 export class CommentModel implements IComment, IDeserializable<string> {
-    constructor(text?: string, userId?: string, replyToComment?: CommentModel) {
-        this.text = text;
-		this.userId = userId;
+    constructor(text?: string, userId?: string, replyToComment?: CommentModel, createdAt?: Date) {
+        this.text = text
+		this.userId = userId
+		this.createdAt = createdAt
 		if (replyToComment && replyToComment.id != undefined) {
 			this.replyToComment = replyToComment
 		}

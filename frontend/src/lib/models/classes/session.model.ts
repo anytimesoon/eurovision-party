@@ -3,10 +3,11 @@ import type {UserModel} from "$lib/models/classes/user.model";
 import type {sameSite} from "$lib/models/enums/cookie.enum";
 
 export class SessionModel implements ISession {
-    public name!: string;
-    public token!:   string;
-    public opts!: CookieOpts;
-    public user!: UserModel;
+    public name!:   string;
+    public token!:  string;
+    public opts!:   CookieOpts;
+    public user!:   UserModel;
+    public botId!:  string;
 }
 
 export class CookieOpts {
