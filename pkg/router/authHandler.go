@@ -50,7 +50,7 @@ func (ah AuthHandler) Login(resp http.ResponseWriter, req *http.Request) {
 			Name:     "session",
 			Value:    auth.Token,
 			Path:     "/",
-			MaxAge:   60 * 60 * 24 * 7,
+			MaxAge:   60 * 60 * 24 * 10,
 			Secure:   false,
 			HttpOnly: true,
 			SameSite: http.SameSiteLaxMode,
