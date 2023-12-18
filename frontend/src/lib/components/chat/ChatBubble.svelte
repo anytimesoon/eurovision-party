@@ -45,13 +45,20 @@
          on:swipedright={swipedHandler}
          class="flex w-full max-w-[22rem] relative {currentUserBubbleContainer} {compactBubble}">
 
-        {#if !comment.isCompact}
-            <img on:mousedown={() => openAvatarModal(user)}
-                 class="flex-shrink-0 h-10 w-10 rounded-full cursor-pointer {currentUserImage}"
-                 src={staticEP.IMG + user.icon} alt={user.name + "'s avatar"}>
-        {:else}
-            <div class="h-10 w-10 {currentUserImage}"></div>
-        {/if}
+
+
+        <div class="flex-shrink">
+            {#if !isCurrentUser}
+                <div class="w-10 h-10 mr-1">
+                    {#if !comment.isCompact}
+                        <img on:mousedown={() => openAvatarModal(user)}
+                             class="flex-shrink-0 rounded-full cursor-pointer {currentUserImage}"
+                             src={staticEP.IMG + user.icon} alt={user.name + "'s avatar"}>
+                    {/if}
+                </div>
+            {/if}
+        </div>
+
 
         <div>
             {#if !comment.isCompact}
