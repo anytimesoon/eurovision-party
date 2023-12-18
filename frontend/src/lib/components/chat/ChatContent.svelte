@@ -14,20 +14,29 @@
     $: contentTextStyle = isCurrentUser ? "text-typography-chat-me" : "text-typography-chat-you"
 </script>
 
-{#if comment.replyToComment}
-    <div class="text-sm bg-chat-bubble-you rounded px-3 py-1">
-        <span class="text-typography-chat-you">{comment.replyToComment.text}</span>
+<div class="flex">
+    <div>
+        {#if comment.replyToComment}
+            <div class="text-sm bg-chat-bubble-you rounded px-3 py-1">
+                <span class="text-typography-chat-you">{comment.replyToComment.text}</span>
+            </div>
+
+        {/if}
+
+        <p class="{contentTextStyle} pr-8">{linkify(comment.text)}</p>
     </div>
 
-{/if}
 
-<p class="{contentTextStyle} pr-8">{linkify(comment.text)}</p>
-<span class="text-[0.6rem] -mt-3 block {contentTextStyle} text-right">
+    <div class="flex flex-col-reverse flex-shrink">
+        <span class="text-[0.6rem] block {contentTextStyle} text-right">
     {
         comment.createdAt.getHours() + ":" +
         (comment.createdAt.getMinutes() < 10 ?
-            "0" + comment.createdAt.getMinutes() :
-            comment.createdAt.getMinutes()
+                "0" + comment.createdAt.getMinutes() :
+                comment.createdAt.getMinutes()
         )
     }
 </span>
+    </div>
+</div>
+
