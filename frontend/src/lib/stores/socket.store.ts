@@ -82,10 +82,6 @@ function addNewComment(comment:CommentModel){
     commentStore.update(comments => {
         const first = comments[0]
 
-        // if (first === undefined) {
-        //     return [comment, ...comments]
-        // }
-
         if (first && first.createdAt.getDay() != comment.createdAt.getDay() && first.userId !== botUserId) {
             let date = new Date()
             const botComment = new CommentModel(
