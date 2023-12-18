@@ -6,6 +6,7 @@ import (
 	"github.com/anytimesoon/eurovision-party/conf"
 	"github.com/anytimesoon/eurovision-party/pkg/dto"
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
+	"github.com/disintegration/imaging"
 	"image"
 	"image/jpeg"
 	_ "image/jpeg"
@@ -37,8 +38,12 @@ func cropImage(avatarDTO *dto.UserAvatar) (*dto.CroppedImage, *errs.AppError) {
 	}, nil
 }
 
+func resizeImage(img *dto.CroppedImage) {
+	img.File = imaging.Resize(img.File, 350, 0, imaging.Lanczos)
+}
+
 func storeImageToDisk(img *dto.CroppedImage) *errs.AppError {
-	filePath := filepath.Join(conf.App.Assets, img.ID.String()+"."+img.FileExtension)
+	filePath := filepath.Join(conf.App.Assets, img.ID.String()+".png")
 
 	log.Println("Storing user avatar", filePath)
 	file, err := os.Create(filePath)

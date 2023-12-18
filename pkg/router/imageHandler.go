@@ -18,6 +18,7 @@ var fs = assets.NewStaticImageFS()
 func (ih ImageHandler) GetAvatar(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	if params["file"] == "default" {
+		log.Println("default avatar image requested")
 		serveDefaultAvatar(w, r)
 		return
 	}
@@ -25,6 +26,7 @@ func (ih ImageHandler) GetAvatar(w http.ResponseWriter, r *http.Request) {
 	fileName := filepath.Join(conf.App.Assets, params["file"])
 
 	if _, err := os.Stat(fileName); errors.Is(err, os.ErrNotExist) {
+		log.Println("couldn't find avatar. returning default")
 		serveDefaultAvatar(w, r)
 		return
 	}

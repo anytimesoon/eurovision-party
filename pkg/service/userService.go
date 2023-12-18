@@ -67,6 +67,8 @@ func (service DefaultUserService) UpdateUserImage(avatarDTO dto.UserAvatar) (*dt
 		return nil, appErr
 	}
 
+	resizeImage(img)
+
 	appErr = storeImageToDisk(img)
 	if appErr != nil {
 		return nil, appErr
