@@ -61,7 +61,7 @@
 
 
         <div>
-            {#if !comment.isCompact}
+            {#if !comment.isCompact && !isCurrentUser}
                 <p class="block {userNameStyle}">{user.name}</p>
             {/if}
 
