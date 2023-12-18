@@ -20,7 +20,7 @@
 
     function swipingHandler(e:CustomEvent<SwipeEventData>) {
         if (e.detail.dir == "Right") {
-            if (e.detail.deltaX < 150) {
+            if (e.detail.deltaX < 100) {
                 e.target.style.right = (e.detail.deltaX * -1) + "px"
             }
         }
