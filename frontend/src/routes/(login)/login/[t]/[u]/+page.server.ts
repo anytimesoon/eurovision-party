@@ -29,6 +29,7 @@ export const load =  ( async ({ params, fetch, cookies }) => {
 
     return {
         currentUser: login.body.user,
+        botId: login.body.botId,
         hasLoggedIn
     }
 }) satisfies PageLoad;

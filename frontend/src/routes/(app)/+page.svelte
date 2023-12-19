@@ -60,7 +60,7 @@
     }
 </script>
 
-<Modal bind:openModal={openModal} bind:closeModal={closeModal}>
+<Modal bind:openModal={openModal} bind:closeModal={closeModal} isEasilyClosable={true}>
     {#if userWithActiveAvatar && userWithActiveAvatar.icon !== undefined}
         <img class="mx-auto" src={staticEP.IMG + userWithActiveAvatar.icon} alt={userWithActiveAvatar.name + "'s avatar"}/>
     {/if}

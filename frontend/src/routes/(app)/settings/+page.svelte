@@ -1,5 +1,5 @@
 <script lang="ts">
-    import {currentUser} from "$lib/stores/user.store";
+    import {currentUser, userStore} from "$lib/stores/user.store";
     import {staticEP} from "$lib/models/enums/endpoints.enum";
     import { enhance } from '$app/forms';
     import type {ActionData} from './$types';
@@ -7,20 +7,31 @@
     import AdminNav from "$lib/components/AdminNav.svelte";
     import Modal from "$lib/components/Modal.svelte";
     import AvatarCropForm from "$lib/components/forms/AvatarCropForm.svelte";
+    import type {UserModel} from "$lib/models/classes/user.model";
 
     export let form:ActionData
     let hideNameForm = true
     let openModal:VoidFunction
     let closeModal:VoidFunction
     let theme = localStorage.getItem("theme")
+    let iconImage = staticEP.IMG + $currentUser.icon
 
     $: if(form){
         hideNameForm = form.hideNameForm
 
         if (form.user) {
+            if(form.avatarUpdated){
+                updateAvatar()
+            }
+
             $currentUser = form.user
             closeModal()
         }
+    }
+
+    async function updateAvatar() {
+        iconImage = staticEP.IMG + $currentUser.icon + `?${Date.now()}`
+        $userStore[form.user.id].icon = iconImage
     }
 
     $: if(theme) {
@@ -59,7 +70,7 @@
     </div>
 
     <div class="py-3 max-w-[10rem] mx-auto relative">
-        <img class="w-full" src={staticEP.IMG + $currentUser.icon} alt={$currentUser.name + "'s avatar"}>
+        <img class="w-full" src={iconImage} alt={$currentUser.name + "'s avatar"}>
 
         <button class="absolute top-5 right-2 cursor-pointer py-1 px-2 rounded" on:click={openModal}>
             <i class="fa-regular fa-pen-to-square"></i>

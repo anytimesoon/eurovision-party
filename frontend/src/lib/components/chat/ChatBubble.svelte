@@ -20,7 +20,7 @@
 
     function swipingHandler(e:CustomEvent<SwipeEventData>) {
         if (e.detail.dir == "Right") {
-            if (e.detail.deltaX < 150) {
+            if (e.detail.deltaX < 100) {
                 e.target.style.right = (e.detail.deltaX * -1) + "px"
             }
         }
@@ -31,7 +31,7 @@
     $: currentUserImage = isCurrentUser ? "order-last ml-2" : "mr-2"
     $: currentUserBubble = isCurrentUser ? "bg-chat-bubble-me" : "bg-chat-bubble-you"
     $: roundedCorners = isCurrentUser ? "rounded-l-md rounded-r-sm" : "rounded-r-md rounded-l-sm"
-    $: compactBubble = comment.isCompact ? "mt-1" : "mt-2"
+    $: compactBubble = comment.isCompact ? "mt-1" : "mt-3"
 </script>
 
 {#if user.authLvl === authLvl.BOT}
@@ -45,16 +45,23 @@
          on:swipedright={swipedHandler}
          class="flex w-full max-w-[22rem] relative {currentUserBubbleContainer} {compactBubble}">
 
-        {#if !comment.isCompact}
-            <img on:mousedown={() => openAvatarModal(user)}
-                 class="flex-shrink-0 h-10 w-10 rounded-full cursor-pointer {currentUserImage}"
-                 src={staticEP.IMG + user.icon} alt={user.name + "'s avatar"}>
-        {:else}
-            <div class="h-10 w-10 {currentUserImage}"></div>
-        {/if}
+
+
+        <div class="flex-shrink">
+            {#if !isCurrentUser}
+                <div class="w-10 h-10 mr-1">
+                    {#if !comment.isCompact}
+                        <img on:click={() => openAvatarModal(user)}
+                             class="flex-shrink-0 rounded-full cursor-pointer {currentUserImage}"
+                             src={staticEP.IMG + user.icon} alt={user.name + "'s avatar"}>
+                    {/if}
+                </div>
+            {/if}
+        </div>
+
 
         <div>
-            {#if !comment.isCompact}
+            {#if !comment.isCompact && !isCurrentUser}
                 <p class="block {userNameStyle}">{user.name}</p>
             {/if}
 

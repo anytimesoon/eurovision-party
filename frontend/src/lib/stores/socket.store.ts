@@ -4,9 +4,12 @@ import {chatMsgCat} from "$lib/models/enums/chatMsgCat";
 import {CommentModel} from "$lib/models/classes/comment.model";
 import {commentStore} from "$lib/stores/comment.store";
 import type {UpdateMessageModel} from "$lib/models/classes/updateMessage.model";
-import {userStore} from "$lib/stores/user.store";
+import {botId, userStore} from "$lib/stores/user.store";
 
 export const socketStore = socket()
+let botUserId:string
+botId.subscribe(val => botUserId = val)
+
 
 function socket() {
     let ws = connectToSocket()
@@ -78,6 +81,18 @@ function addNewComment(comment:CommentModel){
     comment.createdAt = new Date(comment.createdAt)
     commentStore.update(comments => {
         const first = comments[0]
+
+        if (first && first.createdAt.getDay() != comment.createdAt.getDay() && first.userId !== botUserId) {
+            let date = new Date()
+            const botComment = new CommentModel(
+                `${comment.createdAt.getDate()}/${comment.createdAt.getMonth()}/${comment.createdAt.getFullYear()}`,
+                botUserId,
+                null,
+                date
+                )
+            return [botComment, ...comments]
+        }
+
         if (first && first.userId === comment.userId) {
             comment.isCompact = true
         }
