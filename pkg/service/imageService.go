@@ -39,7 +39,7 @@ func cropImage(avatarDTO *dto.UserAvatar) (*dto.CroppedImage, *errs.AppError) {
 }
 
 func resizeImage(img *dto.CroppedImage) {
-	img.File = imaging.Resize(img.File, 350, 0, imaging.Lanczos)
+	img.File = imaging.Resize(img.File, 400, 0, imaging.Lanczos)
 }
 
 func storeImageToDisk(img *dto.CroppedImage) *errs.AppError {
