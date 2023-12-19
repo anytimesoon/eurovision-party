@@ -51,7 +51,7 @@
             {#if !isCurrentUser}
                 <div class="w-10 h-10 mr-1">
                     {#if !comment.isCompact}
-                        <img on:mousedown={() => openAvatarModal(user)}
+                        <img on:click={() => openAvatarModal(user)}
                              class="flex-shrink-0 rounded-full cursor-pointer {currentUserImage}"
                              src={staticEP.IMG + user.icon} alt={user.name + "'s avatar"}>
                     {/if}
