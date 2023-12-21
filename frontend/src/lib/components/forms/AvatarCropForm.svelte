@@ -42,7 +42,19 @@
     }
 </script>
 
-<form method="POST" action="?/updateImg" use:enhance enctype="multipart/form-data">
+<form method="POST" action="?/updateImg" enctype="multipart/form-data" use:enhance={() => {
+        noImageSelected = true
+        const btn = document.getElementById("submit-avatar-btn")
+        const btnContent = btn.innerText
+
+        btn.innerText = "Uploading..."
+
+        return async ({ update }) => {
+            await update()
+            noImageSelected = false
+            btn.innerText = btnContent
+        };
+    }}>
     <input type="hidden" name="id" bind:value={$currentUser.id}>
     <input type="hidden" name="x" bind:value={cropArea.x}>
     <input type="hidden" name="y" bind:value={cropArea.y}>
@@ -75,7 +87,7 @@
                 <i class="fa-regular fa-image"></i> Browse
                 <input id="avatar" name="img" class="hidden" type="file" accept={authorizedExtensions.join(',')} bind:files={imageFiles}>
             </label>
-            <button type="submit" disabled={noImageSelected} class="{disabledClass}" ><i class="fa-regular fa-floppy-disk"></i> Save</button>
+            <button id="submit-avatar-btn" type="submit" disabled={noImageSelected} class="{disabledClass}" ><i class="fa-regular fa-floppy-disk"></i> Save</button>
         </div>
     </div>
 
