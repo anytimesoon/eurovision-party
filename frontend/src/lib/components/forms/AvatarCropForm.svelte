@@ -6,7 +6,7 @@
     import { enhance } from '$app/forms';
     import {staticEP} from "$lib/models/enums/endpoints.enum";
 
-    const authorizedExtensions = ['.jpg', '.jpeg', '.png']
+    const authorizedExtensions = ['image/jpg', 'image/jpeg', 'image/png']
     let cropArea:ImageCropArea = new ImageCropArea()
     let img:string = staticEP.IMG + $currentUser.icon
     let noImageSelected:boolean = true
@@ -25,18 +25,36 @@
     $: disabledClass = noImageSelected ? "bg-gray-500 cursor-not-allowed" : ""
 
     $: if(imageFiles) {
-        noImageSelected = false
         imageFile = imageFiles[0]
 
-        let reader = new FileReader()
-        reader.onload = e => {
-            img = e.target.result as string
+        if (authorizedExtensions.includes(imageFile.type)) {
+            noImageSelected = false
+            document.getElementById("avatar-upload-errors").innerText = ""
+
+            let reader = new FileReader()
+            reader.onload = e => {
+                img = e.target.result as string
+            }
+            reader.readAsDataURL(imageFile)
+        } else {
+            document.getElementById("avatar-upload-errors").innerText = "Only jpeg and png are allowed"
         }
-        reader.readAsDataURL(imageFile)
     }
 </script>
 
-<form method="POST" action="?/updateImg" use:enhance enctype="multipart/form-data">
+<form method="POST" action="?/updateImg" enctype="multipart/form-data" use:enhance={() => {
+        noImageSelected = true
+        const btn = document.getElementById("submit-avatar-btn")
+        const btnContent = btn.innerText
+
+        btn.innerText = "Uploading..."
+
+        return async ({ update }) => {
+            await update()
+            noImageSelected = false
+            btn.innerText = btnContent
+        };
+    }}>
     <input type="hidden" name="id" bind:value={$currentUser.id}>
     <input type="hidden" name="x" bind:value={cropArea.x}>
     <input type="hidden" name="y" bind:value={cropArea.y}>
@@ -61,11 +79,16 @@
     </div>
 
 
-    <div class="w-60 mx-auto py-3 flex justify-between">
-        <label for="avatar" class="cursor-pointer py-2 px-3 rounded text-typography-main">
-            <i class="fa-regular fa-image"></i> Browse
-            <input id="avatar" name="img" class="hidden" type="file" accept={authorizedExtensions.join(',')} bind:files={imageFiles}>
-        </label>
-        <button type="submit" disabled={noImageSelected} class="{disabledClass}" ><i class="fa-regular fa-floppy-disk"></i> Save</button>
+
+    <div class="w-60 mx-auto py-3 ">
+        <div id="avatar-upload-errors" class="text-center text-typography-grey"></div>
+        <div class="flex justify-between">
+            <label for="avatar" class="cursor-pointer py-2 px-3 rounded text-typography-main">
+                <i class="fa-regular fa-image"></i> Browse
+                <input id="avatar" name="img" class="hidden" type="file" accept={authorizedExtensions.join(',')} bind:files={imageFiles}>
+            </label>
+            <button id="submit-avatar-btn" type="submit" disabled={noImageSelected} class="{disabledClass}" ><i class="fa-regular fa-floppy-disk"></i> Save</button>
+        </div>
     </div>
+
 </form>
