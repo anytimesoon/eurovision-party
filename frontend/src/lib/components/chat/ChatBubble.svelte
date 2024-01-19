@@ -60,12 +60,12 @@
         </div>
 
 
-        <div>
+        <div class="max-w-[85%]">
             {#if !comment.isCompact && !isCurrentUser}
                 <p class="block {userNameStyle}">{user.name}</p>
             {/if}
 
-            <div class="px-3 py-2 {roundedCorners} {currentUserBubble}">
+            <div class="px-3 py-2 overflow-hidden {roundedCorners} {currentUserBubble}">
                 <ChatContent comment={comment}
                              isCurrentUser={isCurrentUser}/>
             </div>
