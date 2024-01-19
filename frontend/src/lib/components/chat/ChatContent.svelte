@@ -1,14 +1,24 @@
 <script lang="ts">
     import type {CommentModel} from "$lib/models/classes/comment.model";
+    import {onMount} from "svelte";
 
     export let comment:CommentModel
     export let isCurrentUser:boolean
+    let commentElement:HTMLParagraphElement = document.createElement("p")
+
+    onMount(() => {
+        linkify(comment.text)
+    })
 
     function linkify(text:string) {
         const urlRegex = /((?:(http|https|Http|Https|rtsp|Rtsp):\/\/(?:(?:[a-zA-Z0-9\$\-\_\.\+\!\*\'\(\)\,\;\?\&\=]|(?:\%[a-fA-F0-9]{2})){1,64}(?:\:(?:[a-zA-Z0-9\$\-\_\.\+\!\*\'\(\)\,\;\?\&\=]|(?:\%[a-fA-F0-9]{2})){1,25})?\@)?)?((?:(?:[a-zA-Z0-9][a-zA-Z0-9\-]{0,64}\.)+(?:(?:aero|arpa|asia|a[cdefgilmnoqrstuwxz])|(?:biz|b[abdefghijmnorstvwyz])|(?:cat|com|coop|c[acdfghiklmnoruvxyz])|d[ejkmoz]|(?:edu|e[cegrstu])|f[ijkmor]|(?:gov|g[abdefghilmnpqrstuwy])|h[kmnrtu]|(?:info|int|i[delmnoqrst])|(?:jobs|j[emop])|k[eghimnrwyz]|l[abcikrstuvy]|(?:mil|mobi|museum|m[acdghklmnopqrstuvwxyz])|(?:name|net|n[acefgilopruz])|(?:org|om)|(?:pro|p[aefghklmnrstwy])|qa|r[eouw]|s[abcdeghijklmnortuvyz]|(?:tel|travel|t[cdfghjklmnoprtvwz])|u[agkmsyz]|v[aceginu]|w[fs]|y[etu]|z[amw]))|(?:(?:25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9])\.(?:25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9]|0)\.(?:25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9]|0)\.(?:25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[0-9])))(?:\:\d{1,5})?)(\/(?:(?:[a-zA-Z0-9\;\/\?\:\@\&\=\#\~\-\.\+\!\*\'\(\)\,\_])|(?:\%[a-fA-F0-9]{2}))*)?(?:\b|$)/gi;;
-        return text.replace(urlRegex, function(url:string) {
-            return '<a href="' + url + '">' + url + '</a>';
-        });
+        const linkifiedText = text.replace(urlRegex, function(url:string) {
+            return '<a href="' + url + '">' + url + '</a>'
+        })
+        const parser = new DOMParser
+        const htmlDoc = parser.parseFromString(linkifiedText, "text/html")
+        commentElement.innerHTML = htmlDoc.body.innerHTML
+        console.log(htmlDoc.body.firstChild)
     }
 
     $: contentTextStyle = isCurrentUser ? "text-typography-chat-me" : "text-typography-chat-you"
@@ -23,7 +33,7 @@
 
         {/if}
 
-        <p class="{contentTextStyle} pr-8">{linkify(comment.text)}</p>
+        <p bind:this={commentElement} class="{contentTextStyle} pr-8"></p>
     </div>
 
 
