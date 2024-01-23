@@ -239,4 +239,19 @@ var initCountries = []initialCountryParams{
 		Flag: "🇨🇿",
 		Slug: "czech-republic",
 	},
+	{
+		Name: "Russia",
+		Flag: "🇷🇺",
+		Slug: "russia",
+	},
+	{
+		Name: "Turkey",
+		Flag: "🇹🇷",
+		Slug: "turkey",
+	},
+	{
+		Name: "Bosnia and Herzegovina",
+		Flag: "🇧🇦",
+		Slug: "bosnia-and-herzegovina",
+	},
 }
