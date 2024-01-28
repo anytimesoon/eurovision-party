@@ -18,7 +18,6 @@
         const parser = new DOMParser
         const htmlDoc = parser.parseFromString(linkifiedText, "text/html")
         commentElement.innerHTML = htmlDoc.body.innerHTML
-        console.log(htmlDoc.body.firstChild)
     }
 
     $: contentTextStyle = isCurrentUser ? "text-typography-chat-me" : "text-typography-chat-you"
@@ -28,9 +27,10 @@
     <div>
         {#if comment.replyToComment}
             <div class="text-sm bg-chat-bubble-you rounded px-3 py-1">
-                <span class="text-typography-chat-you">{comment.replyToComment.text}</span>
+                <span class="text-typography-chat-you">
+                    {comment.replyToComment.text}
+                </span>
             </div>
-
         {/if}
 
         <p bind:this={commentElement} class="{contentTextStyle} pr-8"></p>
