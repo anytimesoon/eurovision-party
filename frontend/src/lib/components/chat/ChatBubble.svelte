@@ -6,12 +6,14 @@
     import ChatContent from "$lib/components/chat/ChatContent.svelte";
     import {swipeable} from '@react2svelte/swipeable';
     import type { SwipeEventData } from '@react2svelte/swipeable';
+    import ReplyMenu from "$lib/components/chat/ReplyMenu.svelte";
 
     export let comment:CommentModel
     export let user:UserModel
     export let isCurrentUser:boolean
     export let openAvatarModal:Function
     export let replyToComment:Function
+    let shouldShowReplyMenu:boolean = false
 
     function swipedHandler(e:CustomEvent<SwipeEventData>) {
         e.target.style.right = 0
@@ -26,12 +28,17 @@
         }
     }
 
+    const replyButtonHandler = () => {
+        replyToComment(comment)
+    }
+
     $: userNameStyle = isCurrentUser ? "text-right" : ""
     $: currentUserBubbleContainer = isCurrentUser ? "ml-auto justify-end" : ""
     $: currentUserImage = isCurrentUser ? "order-last ml-2" : "mr-2"
     $: currentUserBubble = isCurrentUser ? "bg-chat-bubble-me" : "bg-chat-bubble-you"
     $: roundedCorners = isCurrentUser ? "rounded-l-md rounded-r-sm" : "rounded-r-md rounded-l-sm"
-    $: compactBubble = comment.isCompact ? "mt-1" : "mt-3"
+    $: compactBubble = comment.isCompact ? "mt-[0.1rem]" : "mt-3"
+    $: menuPadding = (shouldShowReplyMenu && comment.isCompact) ? "pt-5" : ""
 </script>
 
 {#if user.authLvl === authLvl.BOT}
@@ -43,9 +50,9 @@
     <div use:swipeable
          on:swiping={swipingHandler}
          on:swipedright={swipedHandler}
+         on:mouseenter={() => shouldShowReplyMenu = true}
+         on:mouseleave={() => shouldShowReplyMenu = false}
          class="flex w-full max-w-[22rem] relative {currentUserBubbleContainer} {compactBubble}">
-
-
 
         <div class="flex-shrink">
             {#if !isCurrentUser}
@@ -60,12 +67,16 @@
         </div>
 
 
-        <div class="max-w-[85%]">
+        <div class="max-w-[85%] {menuPadding}">
             {#if !comment.isCompact && !isCurrentUser}
                 <p class="block {userNameStyle}">{user.name}</p>
             {/if}
 
-            <div class="px-3 py-2 overflow-hidden {roundedCorners} {currentUserBubble}">
+            <div class="px-3 py-2 {roundedCorners} {currentUserBubble} relative">
+                {#if shouldShowReplyMenu}
+                    <ReplyMenu replyButtonHandler={replyButtonHandler} />
+                {/if}
+
                 <ChatContent comment={comment}
                              isCurrentUser={isCurrentUser}/>
             </div>
