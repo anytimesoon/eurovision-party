@@ -47,13 +47,11 @@
     </div>
 
     <nav class="flex w-full items-center justify-between pb-1">
-
-            <MenuButton navName="Chat" dest="/" menu={menu}/>
-            <MenuButton navName="Vote" dest="" menu={menu}/>
-            <MenuButton navName="Results" dest="/results"  menu={menu}/>
-            <MenuButton navName="Settings" dest="/settings"  menu={menu}/>
-
-        </nav>
+        <MenuButton navName="Chat" dest="/" menu={menu}/>
+        <MenuButton navName="Vote" dest="" menu={menu}/>
+        <MenuButton navName="Results" dest="/results"  menu={menu}/>
+        <MenuButton navName="Settings" dest="/settings"  menu={menu}/>
+    </nav>
 
 
 

@@ -83,6 +83,8 @@ html[data-theme="classic"] {
     */
     --color-secondary: #2efd79;
 
+    --color-warning: #FACC15FF;
+
     /*
         button background color
     */
@@ -96,7 +98,7 @@ html[data-theme="classic"] {
     /*
         vote star color
     */
-    --color-vote-star: rgb(250 204 21);
+    --color-vote-star: var(--color-warning);
 
     /*
         current user chat bubble background color. should contrast secondary canvas color

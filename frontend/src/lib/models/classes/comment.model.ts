@@ -1,14 +1,21 @@
 import type { IComment } from '../interfaces/icomment.interface'
 import type {IDeserializable} from "$lib/models/interfaces/ideserializable.interface";
+import {v4 as uuid} from 'uuid';
 
 export class CommentModel implements IComment, IDeserializable<string> {
-    constructor(text?: string, userId?: string, replyToComment?: CommentModel, createdAt?: Date) {
+    constructor(text?: string,
+				userId?: string,
+				replyToComment?: CommentModel,
+				createdAt?: Date,
+				isCompact = false) {
+		this.id = uuid()
         this.text = text
 		this.userId = userId
 		this.createdAt = createdAt
 		if (replyToComment && replyToComment.id != undefined) {
 			this.replyToComment = replyToComment
 		}
+		this.isCompact = isCompact
     }
 
 
@@ -16,7 +23,7 @@ export class CommentModel implements IComment, IDeserializable<string> {
 	public userId!:      		string;
 	public text!:        		string;
 	public createdAt!:   		Date;
-	public isCompact:	 		boolean = false;
+	public isCompact:	 		boolean;
 	public replyToComment: 		CommentModel;
 
 

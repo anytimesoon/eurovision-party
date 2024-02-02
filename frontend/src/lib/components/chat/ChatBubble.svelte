@@ -6,12 +6,13 @@
     import ChatContent from "$lib/components/chat/ChatContent.svelte";
     import {swipeable} from '@react2svelte/swipeable';
     import type { SwipeEventData } from '@react2svelte/swipeable';
+    import {onMount} from "svelte";
 
     export let comment:CommentModel
     export let user:UserModel
     export let isCurrentUser:boolean
-    export let openAvatarModal:Function
-    export let replyToComment:Function
+    export let openAvatarModal:Function = () => {}
+    export let replyToComment:Function = () => {}
 
     function swipedHandler(e:CustomEvent<SwipeEventData>) {
         e.target.style.right = 0
@@ -44,8 +45,6 @@
          on:swiping={swipingHandler}
          on:swipedright={swipedHandler}
          class="flex w-full max-w-[22rem] relative {currentUserBubbleContainer} {compactBubble}">
-
-
 
         <div class="flex-shrink">
             {#if !isCurrentUser}

@@ -4,14 +4,15 @@
     import {currentUser, userStore} from "$lib/stores/user.store";
     import {ChatMessageModel} from "$lib/models/classes/chatMessage.model.js";
     import {chatMsgCat} from "$lib/models/enums/chatMsgCat";
-    import {socketStore} from "$lib/stores/socket.store";
     import ChatBubble from "$lib/components/chat/ChatBubble.svelte";
-    import Spinner from "$lib/components/Spinner.svelte";
     import Modal from "$lib/components/Modal.svelte";
     import {UserModel} from "$lib/models/classes/user.model";
     import {staticEP} from "$lib/models/enums/endpoints.enum";
+    import {commentQueue} from "$lib/stores/commentQueue.store";
+    import CommentQueue from "$lib/components/chat/CommentQueue.svelte";
+    import {socketStateStore} from "$lib/stores/socketState.store";
+    import ConnectionSpinner from "$lib/components/chat/ConnectionSpinner.svelte";
 
-    let chatButton:HTMLButtonElement
     let openModal:VoidFunction
     let closeModal:VoidFunction
     let userWithActiveAvatar:UserModel = new UserModel()
@@ -37,11 +38,25 @@
             return
         }
 
-        const comment = new ChatMessageModel<CommentModel>(chatMsgCat.COMMENT, new CommentModel(input.value, $currentUser.id, replyComment))
-        $socketStore.send(JSON.stringify(comment))
+        const comment = new ChatMessageModel<CommentModel>(
+            chatMsgCat.COMMENT,
+            new CommentModel(
+                input.value,
+                $currentUser.id,
+                replyCommentOrNull(),
+                null,
+                true
+            )
+        )
+
+        commentQueue.addComment(comment)
         closeReply()
         input.value = ""
         input.style.height = "40px"
+    }
+
+    function replyCommentOrNull(){
+        return replyComment.createdAt != null ? replyComment : null
     }
 
     function sendMsgWithKeyboard(e:KeyboardEvent){
@@ -53,12 +68,12 @@
         }
     }
 
-    $: if ($socketStore) {
-        if (chatButton != null) {
-            chatButton.disabled = $socketStore.readyState != WebSocket.OPEN
-        }
+    $: if(socketStateStore) {
+        console.log($socketStateStore)
     }
 </script>
+
+<ConnectionSpinner/>
 
 <Modal bind:openModal={openModal} bind:closeModal={closeModal} isEasilyClosable={true}>
     {#if userWithActiveAvatar && userWithActiveAvatar.icon !== undefined}
@@ -68,29 +83,17 @@
 
 <div class="flex flex-col h-full">
     <div id="chat-box" class="border-2 flex flex-col-reverse flex-auto bg-canvas-secondary border-secondary p-4 overflow-y-auto overflow-x-hidden rounded mb-3">
-        {#if $socketStore.readyState == WebSocket.CONNECTING}
-            <div class="h-screen flex flex-col justify-center">
-                <div>
-                    <p class="text-center">Connecting to the chat</p>
-                    <Spinner />
-                </div>
-            </div>
-        {:else if $socketStore.readyState == WebSocket.OPEN}
-            {#each $commentStore as comment}
-                <ChatBubble comment={comment}
-                            user={$userStore[comment.userId]}
-                            isCurrentUser={($currentUser.id === comment.userId)}
-                            openAvatarModal={openAvatarModal}
-                            replyToComment={replyToComment}/>
-            {/each}
-        {:else}
-            <div class="h-screen flex flex-col justify-center">
-                <div class="text-center">
-                    <p>Something went very wrong! 😬</p>
-                    <p>Please refresh the page</p>
-                </div>
-            </div>
+        {#if $commentQueue && $commentQueue.length > 0}
+            <CommentQueue />
         {/if}
+
+        {#each $commentStore as comment}
+            <ChatBubble comment={comment}
+                        user={$userStore[comment.userId]}
+                        isCurrentUser={($currentUser.id === comment.userId)}
+                        openAvatarModal={openAvatarModal}
+                        replyToComment={replyToComment}/>
+        {/each}
     </div>
 
     <div>
@@ -111,7 +114,7 @@
         <div class="flex">
             <textarea class="h-10 text-sm overflow-hidden" name="msg" id="msg" on:keyup={e => sendMsgWithKeyboard(e)}></textarea>
             <div class="flex flex-col-reverse ml-2">
-                <button bind:this={chatButton} on:click={sendMsg}><i class="fa-solid fa-angles-right"></i></button>
+                <button on:click={sendMsg}><i class="fa-solid fa-angles-right"></i></button>
             </div>
         </div>
     </div>
