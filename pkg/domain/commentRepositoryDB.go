@@ -5,7 +5,6 @@ import (
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
 	"log"
 
-	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -44,8 +43,6 @@ func (db CommentRepositoryDb) FindAllComments() ([]Comment, *errs.AppError) {
 func (db CommentRepositoryDb) CreateComment(commentDTO dto.Comment) (*Comment, *errs.AppError) {
 	var comment Comment
 
-	newCommentId := uuid.New().String()
-
 	createCommentQuery := "INSERT INTO comment(uuid, userId, text) VALUES (?, ?, ?)"
 	createCommentWithReplyQuery := "INSERT INTO comment(uuid, userId, text, replyTo) VALUES (?, ?, ?, ?)"
 	getCommentQuery := `SELECT
@@ -69,9 +66,9 @@ func (db CommentRepositoryDb) CreateComment(commentDTO dto.Comment) (*Comment, *
 	}
 
 	if commentDTO.ReplyTo != nil {
-		_, err = tx.Exec(createCommentWithReplyQuery, newCommentId, commentDTO.UserId, commentDTO.Text, commentDTO.ReplyTo.UUID)
+		_, err = tx.Exec(createCommentWithReplyQuery, commentDTO.UUID.String(), commentDTO.UserId, commentDTO.Text, commentDTO.ReplyTo.UUID)
 	} else {
-		_, err = tx.Exec(createCommentQuery, newCommentId, commentDTO.UserId, commentDTO.Text)
+		_, err = tx.Exec(createCommentQuery, commentDTO.UUID.String(), commentDTO.UserId, commentDTO.Text)
 	}
 	if err != nil {
 		log.Printf("Error when creating comment from user %s, %s", commentDTO.UserId, err)
@@ -79,7 +76,7 @@ func (db CommentRepositoryDb) CreateComment(commentDTO dto.Comment) (*Comment, *
 		return nil, errs.NewUnexpectedError(errs.Common.NotCreated + "your comment")
 	}
 
-	err = tx.Get(&comment, getCommentQuery, newCommentId)
+	err = tx.Get(&comment, getCommentQuery, commentDTO.UUID.String())
 	if err != nil {
 		log.Printf("Error when fetching comment after create %s", err)
 		_ = tx.Rollback()

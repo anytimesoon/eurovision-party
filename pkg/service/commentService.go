@@ -53,7 +53,10 @@ func (service DefaultCommentService) CreateComment(body []byte) ([]byte, *errs.A
 		return nil, appErr
 	}
 
-	commentDTO.UUID = uuid.New()
+	_, err = uuid.Parse(commentDTO.UUID.String())
+	if err != nil {
+		commentDTO.UUID = uuid.New()
+	}
 	commentDTO.CreatedAt = time.Now()
 
 	comment, appErr := service.repo.CreateComment(commentDTO)
