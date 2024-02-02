@@ -11,8 +11,8 @@
     export let comment:CommentModel
     export let user:UserModel
     export let isCurrentUser:boolean
-    export let openAvatarModal:Function
-    export let replyToComment:Function
+    export let openAvatarModal:Function = () => {}
+    export let replyToComment:Function = () => {}
     let shouldShowReplyMenu:boolean = false
 
     function swipedHandler(e:CustomEvent<SwipeEventData>) {
