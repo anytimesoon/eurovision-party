@@ -6,7 +6,6 @@
     import ChatContent from "$lib/components/chat/ChatContent.svelte";
     import {swipeable} from '@react2svelte/swipeable';
     import type { SwipeEventData } from '@react2svelte/swipeable';
-    import {onMount} from "svelte";
 
     export let comment:CommentModel
     export let user:UserModel
