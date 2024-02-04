@@ -1,13 +1,22 @@
 <script lang="ts" xmlns="http://www.w3.org/1999/html">
-    import {CountryModel} from "$lib/models/classes/country.model";
+    import type {CountryModel} from "$lib/models/classes/country.model";
     import { enhance } from '$app/forms';
+    import FormButton from "$lib/components/forms/FormButton.svelte";
+    import {formButtonState} from "$lib/models/enums/formButtonState.enum";
 
-    let form;
-    export let country:CountryModel = new CountryModel("", "", "", "", "", false)
+    let formState = formButtonState.ENABLED
+    export let country:CountryModel
 
 </script>
 
-<form method="POST" action="?/update" use:enhance bind:this={form}>
+<form method="POST" action="?/update" use:enhance={() => {
+        formState = formButtonState.SENDING
+
+        return async ({ update }) => {
+            await update()
+            formState = formButtonState.ENABLED
+        };
+    }}>
     <input name="slug" type="hidden" bind:value={country.slug}>
     <input type="checkbox" name="participating" class="hidden" bind:checked={country.participating}>
 
@@ -15,5 +24,7 @@
 
     <input class="mb-3" id="{country.slug}-act" name="bandName" type="text" bind:value={country.bandName} placeholder="Act Name">
 
-    <button class="mb-3">Save</button>
+    <FormButton state={formState}>
+        <i class="fa-regular fa-floppy-disk"></i> Save
+    </FormButton>
 </form>
