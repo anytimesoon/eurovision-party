@@ -5,11 +5,13 @@
     import {currentUser} from "$lib/stores/user.store";
     import { enhance } from '$app/forms';
     import {staticSvelteEP} from "$lib/models/enums/endpoints.enum";
+    import {formButtonState} from "$lib/models/enums/formButtonState.enum";
+    import FormButton from "$lib/components/forms/FormButton.svelte";
 
     const authorizedExtensions = ['image/jpg', 'image/jpeg', 'image/png']
     let cropArea:ImageCropArea = new ImageCropArea()
     let img:string = staticSvelteEP.IMG + $currentUser.icon
-    let noImageSelected:boolean = true
+    let formState = formButtonState.DISABLED
     let imageFiles:FileList
     let imageFile:File
     let aspect = 1
@@ -22,13 +24,12 @@
         cropArea.height = pix.height
     }
 
-    $: disabledClass = noImageSelected ? "bg-gray-500 cursor-not-allowed" : ""
 
     $: if(imageFiles) {
         imageFile = imageFiles[0]
 
         if (authorizedExtensions.includes(imageFile.type)) {
-            noImageSelected = false
+            formState = formButtonState.ENABLED
             document.getElementById("avatar-upload-errors").innerText = ""
 
             let reader = new FileReader()
@@ -43,16 +44,11 @@
 </script>
 
 <form method="POST" action="?/updateImg" enctype="multipart/form-data" use:enhance={() => {
-        noImageSelected = true
-        const btn = document.getElementById("submit-avatar-btn")
-        const btnContent = btn.innerText
-
-        btn.innerText = "Uploading..."
+        formState = formButtonState.SENDING
 
         return async ({ update }) => {
             await update()
-            noImageSelected = false
-            btn.innerText = btnContent
+            formState = formButtonState.DISABLED
         };
     }}>
     <input type="hidden" name="id" bind:value={$currentUser.id}>
@@ -62,10 +58,10 @@
     <input type="hidden" name="width" bind:value={cropArea.width}>
 
 
-    <div class="h-60 w-60 relative mx-auto py-3">
-        {#if noImageSelected}
-            <div class="p-3">
-                <img src={img} alt="Avatar"/>
+    <div class="h-60 w-60 relative mx-auto">
+        {#if formState === formButtonState.DISABLED}
+            <div class="p-3 overflow-hidden">
+                <img src={staticSvelteEP.IMG + $currentUser.icon} alt="Avatar"/>
             </div>
         {:else}
             <Cropper
@@ -87,7 +83,9 @@
                 <i class="fa-regular fa-image"></i> Browse
                 <input id="avatar" name="img" class="hidden" type="file" accept={authorizedExtensions.join(',')} bind:files={imageFiles}>
             </label>
-            <button id="submit-avatar-btn" type="submit" disabled={noImageSelected} class="{disabledClass}" ><i class="fa-regular fa-floppy-disk"></i> Save</button>
+            <FormButton state={formState}>
+                <i class="fa-regular fa-floppy-disk"></i> Save
+            </FormButton>
         </div>
     </div>
 
