@@ -22,19 +22,31 @@ type Auth struct {
 	AuthLvl    enum.AuthLvl
 }
 
-func (a Auth) ToSession(user User) SessionAuth {
+func (a Auth) ToSession(user User, cookie http.Cookie) SessionAuth {
 	return SessionAuth{
 		Name:         "session",
 		SessionToken: a.Token,
 		CookieOpts: CookieOpts{
-			Path:     "/",
-			MaxAge:   60 * 60 * 24 * 7,
-			Secure:   false,
-			HttpOnly: false,
-			SameSite: 3,
+			Path:     cookie.Path,
+			MaxAge:   cookie.MaxAge,
+			Secure:   cookie.Secure,
+			HttpOnly: cookie.HttpOnly,
+			SameSite: sameSiteToString(cookie.SameSite),
+			Domain:   cookie.Domain,
 		},
 		User: user,
 		Bot:  conf.App.BotId,
+	}
+}
+
+func sameSiteToString(sameSite http.SameSite) string {
+	switch sameSite {
+	case 2:
+		return "lax"
+	case 3:
+		return "strict"
+	default:
+		return "none"
 	}
 }
 
@@ -50,7 +62,8 @@ type CookieOpts struct {
 	MaxAge   int    `json:"maxAge"`
 	Secure   bool   `json:"secure"`
 	HttpOnly bool
-	SameSite http.SameSite
+	SameSite string
+	Domain   string
 }
 
 // SessionAuth gets returned to users when they log in

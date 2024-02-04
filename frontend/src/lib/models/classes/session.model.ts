@@ -11,9 +11,10 @@ export class SessionModel implements ISession {
 }
 
 export class CookieOpts {
-    public path!: string;
+    public path: string;
     public maxAge: number;
-    public secure!: boolean;
-    public HttpOnly!: boolean;
+    public secure: boolean;
+    public HttpOnly: boolean;
     public SameSite: sameSite;
+    public Domain: string;
 }

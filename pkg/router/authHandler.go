@@ -1,6 +1,7 @@
 package router
 
 import (
+	"github.com/anytimesoon/eurovision-party/conf"
 	"github.com/anytimesoon/eurovision-party/pkg/dto"
 	"github.com/anytimesoon/eurovision-party/pkg/enum"
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
@@ -53,12 +54,15 @@ func (ah AuthHandler) Login(resp http.ResponseWriter, req *http.Request) {
 			MaxAge:   60 * 60 * 24 * 10,
 			Secure:   false,
 			HttpOnly: true,
-			SameSite: http.SameSiteLaxMode,
-			Domain:   "127.0.0.1",
+			SameSite: http.SameSiteStrictMode,
+			Domain:   conf.App.Domain,
 		}
+
+		log.Printf("%+v", cookie)
+
 		http.SetCookie(resp, &cookie)
 
-		session := auth.ToSession(*user)
+		session := auth.ToSession(*user, cookie)
 
 		writeResponse(resp, req, http.StatusOK, session, "")
 	}
