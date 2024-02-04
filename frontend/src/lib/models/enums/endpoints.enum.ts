@@ -54,6 +54,7 @@ export const userGoEP = {
 
 export const voteSvelteEP = {
     RESULTS: voteSvelteURL,
+    UPDATE: voteSvelteURL,
     BY_COUNTRY_AND_USER: voteSvelteURL + "countryanduser/" //append with country slug
 }
 
