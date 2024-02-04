@@ -14,8 +14,7 @@ const userGoURL = apiBase + restricted + goAPI + "user/"
 const voteGoURL = apiBase + restricted  + goAPI + "vote/"
 
 
-
-export const chatEP = env.PUBLIC_CHAT + "/restricted/chat/connect";
+export const chatEP = env.PUBLIC_CHAT + "/chat/connect/";
 
 export const countrySvelteEP = {
     ALL: countrySvelteURL,
@@ -31,8 +30,12 @@ export const countryGoEP = {
     PARTICIPATING: countryGoURL + "participating"
 }
 
-export const staticEP = {
-    IMG: apiBase
+export const staticSvelteEP = {
+    IMG: svelteAPI + "content/user/avatar/"
+}
+
+export const staticGoEP = {
+    IMG: apiBase + "content/user/avatar/"
 }
 
 export const userSvelteEP = {

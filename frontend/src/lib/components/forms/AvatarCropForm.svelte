@@ -4,11 +4,11 @@
     import type {CropArea} from "svelte-easy-crop/types";
     import {currentUser} from "$lib/stores/user.store";
     import { enhance } from '$app/forms';
-    import {staticEP} from "$lib/models/enums/endpoints.enum";
+    import {staticSvelteEP} from "$lib/models/enums/endpoints.enum";
 
     const authorizedExtensions = ['image/jpg', 'image/jpeg', 'image/png']
     let cropArea:ImageCropArea = new ImageCropArea()
-    let img:string = staticEP.IMG + $currentUser.icon
+    let img:string = staticSvelteEP.IMG + $currentUser.icon
     let noImageSelected:boolean = true
     let imageFiles:FileList
     let imageFile:File

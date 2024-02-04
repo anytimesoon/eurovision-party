@@ -1,6 +1,6 @@
 <script lang="ts">
     import type {CommentModel} from "$lib/models/classes/comment.model";
-    import {staticEP} from "$lib/models/enums/endpoints.enum";
+    import {staticSvelteEP} from "$lib/models/enums/endpoints.enum";
     import {authLvl} from "$lib/models/enums/authLvl.enum";
     import type {UserModel} from "$lib/models/classes/user.model";
     import ChatContent from "$lib/components/chat/ChatContent.svelte";
@@ -60,7 +60,7 @@
                     {#if !comment.isCompact}
                         <img on:click={() => openAvatarModal(user)}
                              class="flex-shrink-0 rounded-full cursor-pointer {currentUserImage}"
-                             src={staticEP.IMG + user.icon} alt={user.name + "'s avatar"}>
+                             src={staticSvelteEP.IMG + user.icon} alt={user.name + "'s avatar"}>
                     {/if}
                 </div>
             {/if}

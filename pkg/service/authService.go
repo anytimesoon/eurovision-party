@@ -20,7 +20,7 @@ type AuthService interface {
 	Login([]byte) (*dto.Auth, *dto.User, *errs.AppError)
 	Register([]byte) (*dto.NewUser, *errs.AppError)
 	Authorize(string) (*dto.Auth, *errs.AppError)
-	AuthorizeChat(token string) (*dto.User, *errs.AppError)
+	AuthorizeChat(string, string) *errs.AppError
 }
 
 type DefaultAuthService struct {
@@ -92,19 +92,13 @@ func (das DefaultAuthService) Authorize(token string) (*dto.Auth, *errs.AppError
 	return authDTO, nil
 }
 
-func (das DefaultAuthService) AuthorizeChat(token string) (*dto.User, *errs.AppError) {
-	authDTO, appErr := decrypt(token)
+func (das DefaultAuthService) AuthorizeChat(token string, userId string) *errs.AppError {
+	appErr := das.repo.AuthorizeChat(token, userId)
 	if appErr != nil {
-		return nil, appErr
+		return appErr
 	}
 
-	user, appErr := das.repo.AuthorizeChat(authDTO)
-	if appErr != nil {
-		return nil, appErr
-	}
-
-	userDTO := user.ToDto()
-	return &userDTO, nil
+	return nil
 }
 
 func (das DefaultAuthService) Register(body []byte) (*dto.NewUser, *errs.AppError) {

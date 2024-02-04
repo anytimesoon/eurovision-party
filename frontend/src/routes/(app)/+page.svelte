@@ -7,7 +7,7 @@
     import ChatBubble from "$lib/components/chat/ChatBubble.svelte";
     import Modal from "$lib/components/Modal.svelte";
     import {UserModel} from "$lib/models/classes/user.model";
-    import {staticEP} from "$lib/models/enums/endpoints.enum";
+    import {staticSvelteEP} from "$lib/models/enums/endpoints.enum";
     import {commentQueue} from "$lib/stores/commentQueue.store";
     import CommentQueue from "$lib/components/chat/CommentQueue.svelte";
     import {socketStateStore} from "$lib/stores/socketState.store";
@@ -77,7 +77,7 @@
 
 <Modal bind:openModal={openModal} bind:closeModal={closeModal} isEasilyClosable={true}>
     {#if userWithActiveAvatar && userWithActiveAvatar.icon !== undefined}
-        <img class="mx-auto" src={staticEP.IMG + userWithActiveAvatar.icon} alt={userWithActiveAvatar.name + "'s avatar"}/>
+        <img class="mx-auto" src={staticSvelteEP.IMG + userWithActiveAvatar.icon} alt={userWithActiveAvatar.name + "'s avatar"}/>
     {/if}
 </Modal>
 

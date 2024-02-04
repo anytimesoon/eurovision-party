@@ -5,7 +5,7 @@
   import {onMount} from "svelte";
   import "./../../../node_modules/@fortawesome/fontawesome-free/css/all.css"
   import {userStore} from "$lib/stores/user.store";
-  import {staticEP} from "$lib/models/enums/endpoints.enum";
+  import {staticSvelteEP} from "$lib/models/enums/endpoints.enum";
 
 
   export let data:LayoutData
@@ -36,9 +36,6 @@
       $userStore = data.users
   }
 </script>
-<svelte:head>
-        <link rel="preload" as="image" href={staticEP.IMG + "/content/static/img/newuser.png"} />
-</svelte:head>
 <svelte:window on:click={handleWindowClick} />
 
 <main class="h-screen max-w-screen-sm mx-auto px-3 relative flex flex-col">

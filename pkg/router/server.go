@@ -51,10 +51,11 @@ func StartServer(db *sqlx.DB) {
 	chatRoomHandler := ChatRoomHandler{
 		RoomService:    service.NewRoom(commentService),
 		CommentService: commentService,
+		AuthService:    authService,
 	}
 	go chatRoomHandler.RoomService.Run()
-	chatRouter := restrictedRouter.PathPrefix("/chat").Subrouter()
-	chatRouter.HandleFunc("/connect", chatRoomHandler.Connect)
+	chatRouter := router.PathPrefix("/chat").Subrouter()
+	chatRouter.HandleFunc("/connect/{t}/{u}", chatRoomHandler.Connect)
 
 	// Country
 	countryRepositoryDb := domain.NewCountryRepositoryDb(db)

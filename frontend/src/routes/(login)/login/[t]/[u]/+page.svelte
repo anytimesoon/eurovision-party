@@ -5,12 +5,14 @@
     import {browser} from "$app/environment";
     import {authLvl} from "$lib/models/enums/authLvl.enum";
     import {goto} from "$app/navigation";
+    import {loginURI} from "$lib/stores/loginURI.store";
 
     export let data: PageData;
 
     $: if(data) {
         if (browser) {
             $currentUser = data.currentUser
+            $loginURI = data.loginToken + "/" + data.currentUser.id
             $botId = data.botId
             if ($currentUser.authLvl === authLvl.ADMIN && !data.hasLoggedIn) {
                 goto("/admin/countries")
