@@ -22,6 +22,9 @@ export default {
         'canvas-primary': 'var(--color-canvas-primary)',
         'canvas-secondary': 'var(--color-canvas-secondary)',
       },
+      fontFamily: {
+        sans: ['OpenMojiFont', 'sans-serif']
+      }
     },
   },
   plugins: [],

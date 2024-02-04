@@ -3,6 +3,14 @@
 @tailwind utilities;
 
 @layer base {
+    @font-face {
+        font-family: 'OpenMojiFont';
+        src: url('/font/OpenMoji-color-glyf_colr_1.woff2');
+        font-weight: normal;
+        unicode-range: U+1F1E6-1F1FF;
+        font-display: swap;
+    }
+
     /*
         FORMS
     */
@@ -34,7 +42,7 @@
     */
 
     label, a, p, span {
-        @apply text-typography-main
+        @apply text-typography-main font-sans
     }
 
     button, [type=submit] {
@@ -42,7 +50,7 @@
     }
 
     h1, h2, h3, h4 {
-        @apply text-typography-header
+        @apply text-typography-header font-sans
     }
 
     h1 {
