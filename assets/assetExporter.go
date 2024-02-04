@@ -10,6 +10,6 @@ var (
 	img embed.FS
 )
 
-func NewStaticImageFS() http.Handler {
+func NewStaticAssetFS() http.Handler {
 	return http.FileServer(http.FS(img))
 }
