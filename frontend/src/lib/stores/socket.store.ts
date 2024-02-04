@@ -96,6 +96,7 @@ function connectToSocket(){
 function addNewComment(comment:CommentModel){
     comment.createdAt = new Date(comment.createdAt)
     let latestComment = commentLog[0]
+
     if (latestComment && latestComment.createdAt.getDay() != comment.createdAt.getDay() && latestComment.userId !== botUserId) {
         commentStore.update( comments => {
             let date = new Date()
@@ -107,15 +108,15 @@ function addNewComment(comment:CommentModel){
             )
             return [botComment, ...comments]
         })
-    } else {
-        commentStore.update( comments => {
-            if (latestComment && latestComment.userId === comment.userId) {
-                comment.isCompact = true
-            }
-
-            return [comment, ...comments]
-        })
     }
+
+    commentStore.update( comments => {
+        if (latestComment && latestComment.userId === comment.userId) {
+            comment.isCompact = true
+        }
+
+        return [comment, ...comments]
+    })
 }
 
 
