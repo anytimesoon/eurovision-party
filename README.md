@@ -28,6 +28,9 @@ To deploy the Eurovision Party, please see the (example docker compose env)[http
 # Running locally
 This project is still a work in progress, but the back end is currently in a working state. It requres a mysql server running on your machine. Once that is set up, run from the root directory:```go run .```
 
-The front end uses SvelteKit, and still requires a lot of work, but some views are currently working. This can be run by navigating to the `frontend` directory and running ```npm run dev```
+The front end uses SvelteKit, and can be run by navigating to the `frontend` directory and running ```npm run dev```
 
 You should now be able to log in using the signin link in the go logs.
+
+# Attributions
+Thank you to openmoji for designing all emojis – the open-source emoji and icon project. License: CC BY-SA 4.0
