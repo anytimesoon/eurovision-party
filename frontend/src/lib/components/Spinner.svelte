@@ -12,7 +12,7 @@
 
     const thicknessVariants = {
         s: 'border-2',
-        m: 'border-5',
+        m: 'border-4',
         l: 'border-8'
     }
 
