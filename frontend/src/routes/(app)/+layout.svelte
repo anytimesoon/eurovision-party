@@ -5,7 +5,6 @@
   import {onMount} from "svelte";
   import "./../../../node_modules/@fortawesome/fontawesome-free/css/all.css"
   import {userStore} from "$lib/stores/user.store";
-  import {staticSvelteEP} from "$lib/models/enums/endpoints.enum";
 
 
   export let data:LayoutData

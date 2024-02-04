@@ -7,7 +7,6 @@
     import AdminNav from "$lib/components/AdminNav.svelte";
     import Modal from "$lib/components/Modal.svelte";
     import AvatarCropForm from "$lib/components/forms/AvatarCropForm.svelte";
-    import type {UserModel} from "$lib/models/classes/user.model";
 
     export let form:ActionData
     let hideNameForm = true
