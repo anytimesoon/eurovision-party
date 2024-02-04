@@ -14,7 +14,7 @@ type AuthRepository interface {
 	CreateUser(dto.NewUser) (*NewUser, *errs.AppError)
 	Login(*dto.Auth) (*Auth, *User, *errs.AppError)
 	Authorize(*dto.Auth) (*Auth, *errs.AppError)
-	AuthorizeChat(*dto.Auth) (*User, *errs.AppError)
+	AuthorizeChat(string, string) *errs.AppError
 	VerifySlug(*dto.NewUser) error
 }
 
@@ -81,18 +81,17 @@ func (db AuthRepositoryDB) Authorize(authDTO *dto.Auth) (*Auth, *errs.AppError) 
 	return &auth, nil
 }
 
-func (db AuthRepositoryDB) AuthorizeChat(authDTO *dto.Auth) (*User, *errs.AppError) {
-	db.Authorize(authDTO)
+func (db AuthRepositoryDB) AuthorizeChat(token, userId string) *errs.AppError {
+	var auth Auth
 
-	var user User
-	getUserQuery := "SELECT * FROM user WHERE uuid = ?"
-	err := db.client.Get(&user, getUserQuery, authDTO.UserId.String())
+	getAuthQuery := "SELECT * FROM auth WHERE authToken = ? AND userId = ?"
+	err := db.client.Get(&auth, getAuthQuery, token, userId)
 	if err != nil {
-		log.Printf("Unable to find user %s for chat. %s", authDTO.UserId, err)
-		return nil, errs.NewUnexpectedError(errs.Common.DBFail)
+		log.Printf("Unable to find user %s for chat. %s", userId, err)
+		return errs.NewUnexpectedError(errs.Common.DBFail)
 	}
 
-	return &user, nil
+	return nil
 }
 
 func (db AuthRepositoryDB) CreateUser(userDTO dto.NewUser) (*NewUser, *errs.AppError) {

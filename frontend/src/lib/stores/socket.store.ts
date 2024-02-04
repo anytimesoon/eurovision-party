@@ -4,14 +4,23 @@ import {chatMsgCat} from "$lib/models/enums/chatMsgCat";
 import {CommentModel} from "$lib/models/classes/comment.model";
 import {commentStore} from "$lib/stores/comment.store";
 import type {UpdateMessageModel} from "$lib/models/classes/updateMessage.model";
-import {botId, userStore} from "$lib/stores/user.store";
+import {botId, currentUser, userStore} from "$lib/stores/user.store";
 import {commentQueue} from "$lib/stores/commentQueue.store";
+import {loginURI} from "$lib/stores/loginURI.store";
 import {socketStateStore} from "$lib/stores/socketState.store";
 import {socketRetryCount} from "$lib/stores/socketRetryCount.store";
 
 
+let loginEP:string
+loginURI.subscribe(val => loginEP = val)
+
+let currentUserID:string
+currentUser.subscribe(val => currentUserID = val.id)
+
 export const socketStore = socket()
+
 let botUserId:string
+
 botId.subscribe(val => botUserId = val)
 
 let commentLog: Array<CommentModel>
@@ -29,7 +38,7 @@ function socket() {
 }
 
 function connectToSocket(){
-    let socket = new WebSocket(chatEP)
+    let socket = new WebSocket(chatEP + loginEP)
 
     socket.onopen = function () {
         console.log("You're connected. Welcome to the party!!!🎉")
@@ -87,6 +96,7 @@ function connectToSocket(){
 function addNewComment(comment:CommentModel){
     comment.createdAt = new Date(comment.createdAt)
     let latestComment = commentLog[0]
+
     if (latestComment && latestComment.createdAt.getDay() != comment.createdAt.getDay() && latestComment.userId !== botUserId) {
         commentStore.update( comments => {
             let date = new Date()
@@ -98,15 +108,15 @@ function addNewComment(comment:CommentModel){
             )
             return [botComment, ...comments]
         })
-    } else {
-        commentStore.update( comments => {
-            if (latestComment && latestComment.userId === comment.userId) {
-                comment.isCompact = true
-            }
-
-            return [comment, ...comments]
-        })
     }
+
+    commentStore.update( comments => {
+        if (latestComment && latestComment.userId === comment.userId) {
+            comment.isCompact = true
+        }
+
+        return [comment, ...comments]
+    })
 }
 
 

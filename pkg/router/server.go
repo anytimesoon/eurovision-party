@@ -51,10 +51,11 @@ func StartServer(db *sqlx.DB) {
 	chatRoomHandler := ChatRoomHandler{
 		RoomService:    service.NewRoom(commentService),
 		CommentService: commentService,
+		AuthService:    authService,
 	}
 	go chatRoomHandler.RoomService.Run()
-	chatRouter := restrictedRouter.PathPrefix("/chat").Subrouter()
-	chatRouter.HandleFunc("/connect", chatRoomHandler.Connect)
+	chatRouter := router.PathPrefix("/chat").Subrouter()
+	chatRouter.HandleFunc("/connect/{t}/{u}", chatRoomHandler.Connect)
 
 	// Country
 	countryRepositoryDb := domain.NewCountryRepositoryDb(db)
@@ -86,8 +87,8 @@ func StartServer(db *sqlx.DB) {
 	voteRouter.HandleFunc("/results/{userId}", voteHandler.GetResultsByUser).Methods(http.MethodGet)
 	voteRouter.HandleFunc("/countryanduser/{slug}", voteHandler.GetVoteByUserAndCountry).Methods(http.MethodGet) // current user only
 
-	headersOk := handlers.AllowedHeaders([]string{"Content-type", "Authorization", "Origin", "Access-Control-Allow-Origin", "Accept", "Options", "X-Requested-With"})
-	originsOk := handlers.AllowedOrigins([]string{"*"})
+	headersOk := handlers.AllowedHeaders([]string{"Content-type", "Authorization", "Origin", "Accept", "Options", "X-Requested-With"})
+	originsOk := handlers.AllowedOrigins([]string{conf.App.HttpProto + conf.App.Domain})
 	methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
 	credentials := handlers.AllowCredentials()
 

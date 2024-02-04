@@ -2,8 +2,9 @@ package router
 
 import (
 	"github.com/anytimesoon/eurovision-party/conf"
-	"github.com/anytimesoon/eurovision-party/pkg/dto"
 	"github.com/anytimesoon/eurovision-party/pkg/service"
+	"github.com/google/uuid"
+	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
@@ -12,6 +13,7 @@ import (
 type ChatRoomHandler struct {
 	RoomService    *service.Room
 	CommentService service.CommentService
+	AuthService    service.AuthService
 }
 
 var upgrader = websocket.Upgrader{
@@ -25,7 +27,16 @@ var upgrader = websocket.Upgrader{
 }
 
 func (crh ChatRoomHandler) Connect(resp http.ResponseWriter, req *http.Request) {
-	userId := req.Context().Value("auth").(dto.Auth).UserId
+	params := mux.Vars(req)
+	log.Printf("Connecting user %s to chat", params["u"])
+	appErr := crh.AuthService.AuthorizeChat(params["t"], params["u"])
+	if appErr != nil {
+		log.Println(appErr)
+		return
+	}
+
+	// not processing the error because if we get here, we know the uuid is valid
+	userId, _ := uuid.Parse(params["u"])
 	conn, err := upgrader.Upgrade(resp, req, nil)
 	if err != nil {
 		log.Println(err)

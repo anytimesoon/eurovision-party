@@ -1,20 +1,19 @@
 <script lang="ts">
     import {currentUser, userStore} from "$lib/stores/user.store";
-    import {staticEP} from "$lib/models/enums/endpoints.enum";
+    import {staticSvelteEP} from "$lib/models/enums/endpoints.enum";
     import { enhance } from '$app/forms';
     import type {ActionData} from './$types';
     import {authLvl} from "$lib/models/enums/authLvl.enum";
     import AdminNav from "$lib/components/AdminNav.svelte";
     import Modal from "$lib/components/Modal.svelte";
     import AvatarCropForm from "$lib/components/forms/AvatarCropForm.svelte";
-    import type {UserModel} from "$lib/models/classes/user.model";
 
     export let form:ActionData
     let hideNameForm = true
     let openModal:VoidFunction
     let closeModal:VoidFunction
     let theme = localStorage.getItem("theme")
-    let iconImage = staticEP.IMG + $currentUser.icon
+    let iconImage = staticSvelteEP.IMG + $currentUser.icon
 
     $: if(form){
         hideNameForm = form.hideNameForm
@@ -30,8 +29,12 @@
     }
 
     async function updateAvatar() {
-        iconImage = staticEP.IMG + $currentUser.icon + `?${Date.now()}`
+        iconImage = staticSvelteEP.IMG + $currentUser.icon + `?${Date.now()}`
         $userStore[form.user.id].icon = iconImage
+    }
+
+    $: if(iconImage) {
+        console.log(iconImage)
     }
 
     $: if(theme) {
