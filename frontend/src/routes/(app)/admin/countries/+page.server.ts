@@ -7,6 +7,8 @@ export const actions : Actions = {
     update: async ({fetch, request}) => {
         const fd = await request.formData()
         const country:CountryModel = Object.fromEntries([...fd]) as CountryModel;
+        console.log(fd)
+        console.log(country)
         const resProm = await fetch(countryGoEP.UPDATE, {
             method: "PUT",
             body: JSON.stringify(country, (key, value) => {
