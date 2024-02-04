@@ -3,15 +3,19 @@
     import {onMount} from "svelte";
     import {currentUser} from "$lib/stores/user.store";
     import {voteOptions} from "$lib/models/classes/voteOptions.model";
-    import { enhance } from '$app/forms';
+    import Spinner from "$lib/components/Spinner.svelte";
+    import {VoteSingleModel} from "$lib/models/classes/voteSingle.model";
+    import {voteSvelteEP} from "$lib/models/enums/endpoints.enum";
 
     export let vote:VoteModel
     export let catName:string
     export let countrySlug:string
     const localOptions = voteOptions.slice()
+    let isFetching:boolean = false
     let cat:string
     let score:number
     let icon:string
+    let tempScore:number
     let form:HTMLFormElement
 
     onMount(() => {
@@ -39,40 +43,79 @@
         }
     })
 
-    $: if(vote) {
+    function setScore(voteResult:VoteModel) {
         switch (catName) {
             case "Song":
-                score = vote.song
+                score = voteResult.song
                 break
             case "Performance":
-                score = vote.performance
+                score = voteResult.performance
                 break
             case "Costumes":
-                score = vote.costume
+                score = voteResult.costume
                 break
             case "Staging and Props":
-                score = vote.props
+                score = voteResult.props
                 break
         }
+    }
+
+    $: shouldRotate = isFetching ? "animate-spin" : ""
+
+    const submitForm = async () => {
+        isFetching = true
+        let singleVote = new VoteSingleModel($currentUser.id, countrySlug, cat, tempScore)
+        let voteResponse = await fetch(voteSvelteEP.UPDATE, {
+            method: "PUT",
+            body: JSON.stringify(singleVote),
+            credentials: "same-origin",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        }).then((res) => res.json())
+
+        if (voteResponse.error != "") {
+            alert(voteResponse.error)
+        } else {
+            console.log("here")
+            setScore(voteResponse.body)
+        }
+
+        isFetching = false
     }
 
 </script>
 
 <div class="py-5">
     <h3 class="text-center"><i class="fa-solid {icon} text-primary"></i> {catName}</h3>
-    <p class="text-center text-typography-grey text-sm">{score}/10</p>
-    <form method="POST" action="?/vote" use:enhance bind:this={form}>
+    <p class="text-center text-typography-grey text-sm">
+        {#if isFetching}
+            <Spinner size={"s"} thickness={"s"} isBlock={false}/>
+        {:else}
+            {score}
+        {/if}/10
+    </p>
+
+    <form bind:this={form} on:submit|preventDefault={() => submitForm()}>
         <input name="countrySlug" type="hidden" value={countrySlug}>
         <input name="cat" type="hidden" value={cat}>
         <input name="userId" type="hidden" value={$currentUser.id}>
         <div class="flex flex-row-reverse items-center mx-auto justify-between">
-            {#each localOptions.reverse() as { key, label }}
-                <input id="{cat}-star-{label}" class="hidden peer" type="radio" bind:group={score} value={key} name="score" on:click={() => {
-                        form.requestSubmit()
-                    }}/>
+            {#each localOptions as { key, label }}
+                <input id="{cat}-star-{label}"
+                       class="hidden peer"
+                       type="radio"
+                       bind:group={score}
+                       value={key}
+                       name="score"
+                       on:click={() => {
+                           tempScore = key
+                           form.requestSubmit()}}/>
                 <label
                         class="text-vote-star
                                text-4xl
+                               {shouldRotate}
+                               cursor-pointer
                                before:content-['\2606']
                                peer-checked:before:content-['\2605']"
                         for="{cat}-star-{label}"></label>
