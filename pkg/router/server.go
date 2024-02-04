@@ -32,7 +32,7 @@ func StartServer(db *sqlx.DB) {
 	imageRouter.PathPrefix("/static/").Handler(http.StripPrefix("/content/static/", assetHandler())).Methods(http.MethodGet)
 	imageRouter.Use(imgHeaders)
 
-	imageHandler := ImageHandler{}
+	imageHandler := AssetHandler{}
 	restrictedImageRouter := imageRouter.PathPrefix("/user").Subrouter()
 	restrictedImageRouter.HandleFunc("/avatar/{file}", imageHandler.GetAvatar).Methods(http.MethodGet)
 	restrictedImageRouter.Use(authenticate)

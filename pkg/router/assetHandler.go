@@ -11,11 +11,11 @@ import (
 	"path/filepath"
 )
 
-type ImageHandler struct{}
+type AssetHandler struct{}
 
-var fs = assets.NewStaticImageFS()
+var fs = assets.NewStaticAssetFS()
 
-func (ih ImageHandler) GetAvatar(w http.ResponseWriter, r *http.Request) {
+func (ah AssetHandler) GetAvatar(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	if params["file"] == "default" {
 		log.Println("default avatar image requested")
