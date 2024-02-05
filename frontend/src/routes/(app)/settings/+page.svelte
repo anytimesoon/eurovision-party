@@ -33,10 +33,6 @@
         $userStore[form.user.id].icon = iconImage
     }
 
-    $: if(iconImage) {
-        console.log(iconImage)
-    }
-
     $: if(theme) {
         localStorage.setItem("theme", theme)
         document.querySelector("html")?.setAttribute("data-theme", theme)

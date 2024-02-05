@@ -9,6 +9,7 @@ const goAPI = "api/"
 const countrySvelteURL = feBase + svelteAPI + "country/"
 const userSvelteURL = feBase + svelteAPI + "user/"
 const voteSvelteURL = feBase + svelteAPI + "vote/"
+const staticSvelteURL = feBase + svelteAPI + "content/"
 const countryGoURL = apiBase + restricted + goAPI + "country/"
 const userGoURL = apiBase + restricted + goAPI + "user/"
 const voteGoURL = apiBase + restricted  + goAPI + "vote/"
@@ -31,7 +32,7 @@ export const countryGoEP = {
 }
 
 export const staticSvelteEP = {
-    IMG: svelteAPI + "content/user/avatar/"
+    IMG: staticSvelteURL + "user/avatar/"
 }
 
 export const staticGoEP = {
