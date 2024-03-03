@@ -80,11 +80,11 @@
         <div id="avatar-upload-errors" class="text-center text-typography-grey"></div>
         <div class="flex justify-between">
             <label for="avatar" class="cursor-pointer py-2 px-3 rounded text-typography-main">
-                <i class="fa-regular fa-image"></i> Browse
+                🖼 Browse
                 <input id="avatar" name="img" class="hidden" type="file" accept={authorizedExtensions.join(',')} bind:files={imageFiles}>
             </label>
             <FormButton state={formState}>
-                <i class="fa-regular fa-floppy-disk"></i> Save
+                💾 Save
             </FormButton>
         </div>
     </div>

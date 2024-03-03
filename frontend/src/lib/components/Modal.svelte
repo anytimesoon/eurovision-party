@@ -39,7 +39,7 @@
             {#if !isEasilyClosable}
                 <!-- Close button -->
                 <div class="absolute top-2 right-3">
-                    <button class="bg-transparent" on:click={closeModal}><i class="fa-regular fa-circle-xmark"></i></button>
+                    <button class="bg-transparent" on:click={closeModal}>❌</button>
                 </div>
             {/if}
 

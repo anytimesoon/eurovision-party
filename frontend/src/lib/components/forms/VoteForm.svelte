@@ -22,22 +22,22 @@
         switch (catName) {
             case "Song":
                 score = vote.song
-                icon = "fa-music"
+                icon = " 🎤"
                 cat = "song"
                 break
             case "Performance":
                 score = vote.performance
-                icon = "fa-masks-theater"
+                icon = "💃"
                 cat = "performance"
                 break
             case "Costumes":
                 score = vote.costume
-                icon = "fa-user-ninja"
+                icon = "👘"
                 cat = "costume"
                 break
             case "Staging and Props":
                 score = vote.props
-                icon = "fa-burst"
+                icon = " \t🎆"
                 cat = "props"
                 break
         }
@@ -87,7 +87,9 @@
 </script>
 
 <div class="py-5">
-    <h3 class="text-center"><i class="fa-solid {icon} text-primary"></i> {catName}</h3>
+    <h3 class="text-center">
+        <span class="text-4xl">{icon}</span>{catName}
+    </h3>
     <p class="text-center text-typography-grey text-sm">
         {#if isFetching}
             <Spinner size={"s"} thickness={"s"} isBlock={false}/>

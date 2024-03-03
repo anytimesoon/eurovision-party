@@ -60,7 +60,7 @@
                 <span class="block p-0 m-0 -mt-2.5 text-warning cursor-pointer"
                       on:mouseup={removeMessage}
                       on:tap={removeMessage}>
-                    <i class="fa-regular fa-trash-can fa-xs"></i>
+                    ❌
                 </span>
             {/if}
         {/if}
