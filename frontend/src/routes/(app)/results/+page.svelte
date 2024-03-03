@@ -66,24 +66,23 @@
                 <table class="w-full border-spacing-y-3 border-collapse">
                     <thead>
                     <tr>
-                        <th>🌍</th>
-                        <th on:click={() => sort("song")}>Song <i class="fa-solid fa-sort"></i></th>
-                        <th on:click={() => sort("performance")}>Perf. <i class="fa-solid fa-sort"></i></th>
-                        <th on:click={() => sort("costume")}>Cost. <i class="fa-solid fa-sort"></i></th>
-                        <th on:click={() => sort("props")}>Props <i class="fa-solid fa-sort"></i></th>
-                        <th on:click={() => sort("total")}>Total <i class="fa-solid {sortBy.icon}"></i></th>
+                        <th></th>
+                        <th on:click={() => sort("total")}>Total ⬇</th>
                     </tr>
                     </thead>
                     <tbody>
                     {#each results as result}
                         {#if result.total !== 0}
-                            <tr class="text-center">
-                                <td class="py-3">{$countryStore.find(c => c.slug === result.countrySlug).flag}</td>
-                                <td>{result.song}</td>
-                                <td>{result.performance}</td>
-                                <td>{result.costume}</td>
-                                <td>{result.props}</td>
-                                <td>{result.total}</td>
+                            <tr>
+                                <td class="py-3">
+                                    {$countryStore.find(c => c.slug === result.countrySlug).flag}
+                                    {$countryStore.find(c => c.slug === result.countrySlug).name}
+                                </td>
+<!--                                <td>{result.song}</td>-->
+<!--                                <td>{result.performance}</td>-->
+<!--                                <td>{result.costume}</td>-->
+<!--                                <td>{result.props}</td>-->
+                                <td class="text-center">{result.total}</td>
                             </tr>
                         {/if}
                     {/each}
