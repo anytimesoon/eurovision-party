@@ -15,16 +15,16 @@
         }
     })
 
-    $: iconClass = ():string => {
+    $: icon = ():string => {
         switch (navName){
             case "Chat":
-                return "fa-message"
+                return "🗨"
             case "Vote":
-                return "fa-star voteNav"
+                return "🌟"
             case "Results":
-                return "fa-medal"
+                return "🏅"
             case "Settings":
-                return "fa-gear"
+                return "⚙"
             default:
                 return ""
         }
@@ -34,8 +34,8 @@
 <a href={dest} class="block">
     <div class="text-center">
         <span class="text-typography-nav" class:voteNav={navName === "Vote"} bind:this={element}>
-            <span class="block pb-1">
-                <i class="{iconClass()} fa-solid fa-2xl text-nav-icon"></i>
+            <span class="block pb-1 text-4xl" class:voteNav={navName === "Vote"} bind:this={element}>
+                {icon()}
             </span>
             {navName}
         </span>

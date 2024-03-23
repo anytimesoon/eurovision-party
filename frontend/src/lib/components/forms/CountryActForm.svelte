@@ -25,6 +25,6 @@
     <input class="mb-3" id="{country.slug}-act" name="bandName" type="text" bind:value={country.bandName} placeholder="Act Name">
 
     <FormButton state={formState}>
-        <i class="fa-regular fa-floppy-disk"></i> Save
+        💾 Save
     </FormButton>
 </form>

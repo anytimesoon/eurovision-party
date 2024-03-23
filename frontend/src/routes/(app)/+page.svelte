@@ -73,6 +73,13 @@
     }
 </script>
 
+<style>
+    #chat-box {
+        /*font-family: OpenMojiFont, sans-serif;*/
+        /*font-size: 24px; !* Larger font size for emojis *!*/
+    }
+</style>
+
 <ConnectionSpinner/>
 
 <Modal bind:openModal={openModal} bind:closeModal={closeModal} isEasilyClosable={true}>
@@ -100,7 +107,7 @@
         {#if replyComment.text !== undefined}
             <div class="bg-canvas-secondary p-2 mb-1 rounded text-typography-main text-sm relative">
                 <button class="bg-transparent absolute top-1 right-1"  on:click={closeReply}>
-                    <i class="fa-regular fa-circle-xmark"></i>
+                    ❌
                 </button>
 
                 {#if replyComment.userId !== undefined}
@@ -114,7 +121,7 @@
         <div class="flex">
             <textarea class="h-10 text-sm overflow-hidden" name="msg" id="msg" on:keyup={e => sendMsgWithKeyboard(e)}></textarea>
             <div class="flex flex-col-reverse ml-2">
-                <button on:click={sendMsg}><i class="fa-solid fa-angles-right"></i></button>
+                <button on:click={sendMsg}>▶</button>
             </div>
         </div>
     </div>

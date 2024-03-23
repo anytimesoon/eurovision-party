@@ -22,7 +22,7 @@
         let button = e.target as HTMLButtonElement
         button.innerText = "Copied!"
         setTimeout(function(){
-            button.innerHTML = "<i class='fa-regular fa-copy'></i> Copy"
+            button.innerHTML = " Copy"
         }, 1000);
     }
 
@@ -39,7 +39,7 @@
         <form method="POST" action="?/register" use:enhance >
             <div class="w-fit mx-auto flex justify-center">
                 <input class="mr-3" id="new-user-name" type="text" name="name" placeholder="Name"/>
-                <button><i class="fa-regular fa-floppy-disk"></i></button>
+                <button>💾</button>
             </div>
 
         </form>
@@ -53,8 +53,7 @@
                         <h3>{user.name}</h3>
                         <p>Send the magic link to {user.name} so they can log in</p>
                         <div class="flex justify-center space-x-2 p-3">
-                            <button on:click={(e) => copyLink(user, e)}><i class="fa-regular fa-copy"></i> Copy</button>
-    <!--                        <button ><i class="fa-solid fa-eye"></i> Show</button>-->
+                            <button on:click={(e) => copyLink(user, e)}> Copy</button>
                         </div>
                     </div>
                 </div>
