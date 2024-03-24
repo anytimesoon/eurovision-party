@@ -102,7 +102,7 @@
         <input name="countrySlug" type="hidden" value={countrySlug}>
         <input name="cat" type="hidden" value={cat}>
         <input name="userId" type="hidden" value={$currentUser.id}>
-        <div class="flex flex-row-reverse items-center mx-auto justify-between">
+        <div class="flex flex-row-reverse items-center mx-auto justify-between w-full">
             {#each localOptions as { key, label }}
                 <input id="{cat}-star-{label}"
                        class="hidden peer"
@@ -114,7 +114,7 @@
                            tempScore = key
                            form.requestSubmit()}}/>
                 <label
-                        class="text-4xl
+                        class="text-2xl
                                {shouldRotate}
                                cursor-pointer
                                before:content-['\2606']
