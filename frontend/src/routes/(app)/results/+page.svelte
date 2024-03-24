@@ -105,7 +105,7 @@
 
     <div class="py-3">
         <button class="absolute top-5 right-2 cursor-pointer py-2 px-2 rounded" on:click={openModal}>
-            <span class="flex">Filter <Filter size="1.2em" class="pt-0.5 pl-0.5"/></span>
+            <span class="flex"><Filter size="1.2em" class="pt-0.5 pl-0.5"/></span>
         </button>
 
 
