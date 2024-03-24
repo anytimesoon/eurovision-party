@@ -3,6 +3,7 @@
     import { enhance } from '$app/forms';
     import FormButton from "$lib/components/forms/FormButton.svelte";
     import {formButtonState} from "$lib/models/enums/formButtonState.enum";
+    import ContentSave from "svelte-material-icons/ContentSave.svelte";
 
     let formState = formButtonState.ENABLED
     export let country:CountryModel
@@ -25,6 +26,6 @@
     <input class="mb-3" id="{country.slug}-act" name="bandName" type="text" bind:value={country.bandName} placeholder="Act Name">
 
     <FormButton state={formState}>
-        💾 Save
+        <ContentSave size="1.4em" /> Save
     </FormButton>
 </form>

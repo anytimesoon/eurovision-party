@@ -2,6 +2,8 @@
     import Cropper from "svelte-easy-crop";
     import {ImageCropArea} from "$lib/models/classes/imageCropArea";
     import type {CropArea} from "svelte-easy-crop/types";
+    import Image from "svelte-material-icons/Image.svelte";
+    import ContentSave from "svelte-material-icons/ContentSave.svelte";
     import {currentUser} from "$lib/stores/user.store";
     import { enhance } from '$app/forms';
     import {staticSvelteEP} from "$lib/models/enums/endpoints.enum";
@@ -80,11 +82,11 @@
         <div id="avatar-upload-errors" class="text-center text-typography-grey"></div>
         <div class="flex justify-between">
             <label for="avatar" class="cursor-pointer py-2 px-3 rounded text-typography-main">
-                🖼 Browse
+                <span class="flex"><Image size="1.4em"/> Browse</span>
                 <input id="avatar" name="img" class="hidden" type="file" accept={authorizedExtensions.join(',')} bind:files={imageFiles}>
             </label>
             <FormButton state={formState}>
-                💾 Save
+                <ContentSave size="1.4em" /> Save
             </FormButton>
         </div>
     </div>

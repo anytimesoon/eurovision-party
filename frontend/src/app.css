@@ -88,20 +88,7 @@
     }
 }
 
-
-html[data-theme="classic"] {
-    /*
-        primary color is the main highlight colour
-    */
-    --color-primary: #ff0de0;
-
-    /*
-        second color is another highlight colour
-    */
-    --color-secondary: #2efd79;
-
-    --color-warning: #FACC15FF;
-
+html {
     /*
         button background color
     */
@@ -120,36 +107,36 @@ html[data-theme="classic"] {
     /*
         current user chat bubble background color. should contrast secondary canvas color
     */
-    --color-chat-bubble-me: var(--color-primary);
+    --color-chat-bubble-me: var(--color-primary-light);
     /*
         other user's chat bubble background color. should contrast secondary canvas color
     */
-    --color-chat-bubble-you: #595959;
+    --color-chat-bubble-you: var(--color-secondary-light);
 
     /*
         header color, which should contrast canvas-primary
     */
-    --color-typography-header: #ffffff;
+    --color-typography-header: var(--color-typography);
 
     /*
         main typography color, which should contrast canvas-primary and canvas-secondary
     */
-    --color-typography-main: #dadada;
+    --color-typography-main: var(--color-typography);
 
     /*
         typography color for buttons, which should contrast button background color
     */
-    --color-typography-button: #ffffff;
+    --color-typography-button: var(--color-typography);
 
     /*
         typography color for current user chat bubble, which should contrast current user chat bubble background color
     */
-    --color-typography-chat-me: #ffffff;
+    --color-typography-chat-me: var(--color-typography-chat);
 
     /*
         typography color for other user chat bubble, which should contrast other user chat bubble background color
     */
-    --color-typography-chat-you: var(--color-typography-main);
+    --color-typography-chat-you: var(--color-typography-chat);
 
     /*
         typography color for nav menu
@@ -164,20 +151,47 @@ html[data-theme="classic"] {
     /*
         background color of the app
     */
-    --color-canvas-primary: #040241;
+    --color-canvas-primary: var(--color-canvas-one);
 
     /*
         background color of child canvases such as chat window and form fields
     */
-    --color-canvas-secondary: #0010a3;
+    --color-canvas-secondary: var(--color-canvas-two);
 }
 
 
 html[data-theme="light"] {
-  --color-primary: #ffb400;
-  --color-secondary: #6ab187;
-  --color-buttons: #20948b;
-  --color-typography: #20948b;
-  --color-canvas-primary: #e3e3e3;
-  --color-canvas-secondary: #ffffff;
+  --color-primary: #FFB400;
+  --color-primary-light: #D59F23;
+  --color-primary-dark: #806C40;
+
+  --color-secondary: #5300FF;
+  --color-secondary-light: #5E23D5;
+  --color-secondary-dark: #554080;
+
+  --color-typography: #343434;
+  --color-typography-chat: #ffffff;
+
+  --color-canvas-one: #e3e3e3;
+  --color-canvas-two: #ffffff;
+
+  --color-warning: #FF3A00;
+}
+
+html[data-theme="classic"] {
+    --color-primary: #ff7500;
+    --color-primary-light: #D57623;
+    --color-primary-dark: #805E40;
+
+    --color-secondary: #00D0FF;
+    --color-secondary-light: #23B4D5;
+    --color-secondary-dark: #3995AA;
+
+    --color-typography: #fff;
+    --color-typography-chat: #fff;
+
+    --color-canvas-one: #343434;
+    --color-canvas-two: #575757;
+
+    --color-warning: #FF3A00;
 }

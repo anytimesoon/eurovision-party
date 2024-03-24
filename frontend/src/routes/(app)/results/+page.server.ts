@@ -7,6 +7,7 @@ export const actions : Actions = {
     getUserResults: async ({fetch, request}) => {
         const fd = await request.formData()
         const user = Object.fromEntries(fd)
+        console.log(user)
         let userPromise:Response
         if(user.id === ""){
             userPromise = await fetch(voteGoEP.RESULTS)
@@ -15,7 +16,7 @@ export const actions : Actions = {
         }
 
         const userResultJSON:ResponseModel<ResultModel[]> = await userPromise.json()
-
+        console.log(userResultJSON)
         return {
             success: true,
             results: userResultJSON.body,

@@ -34,7 +34,7 @@
 <a href={dest} class="block">
     <div class="text-center">
         <span class="text-typography-nav" class:voteNav={navName === "Vote"} bind:this={element}>
-            <span class="block pb-1 text-4xl" class:voteNav={navName === "Vote"} bind:this={element}>
+            <span class="block pb-1 text-2xl" class:voteNav={navName === "Vote"} bind:this={element}>
                 {icon()}
             </span>
             {navName}

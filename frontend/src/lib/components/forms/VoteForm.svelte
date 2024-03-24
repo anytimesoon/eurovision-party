@@ -114,8 +114,7 @@
                            tempScore = key
                            form.requestSubmit()}}/>
                 <label
-                        class="text-vote-star
-                               text-4xl
+                        class="text-4xl
                                {shouldRotate}
                                cursor-pointer
                                before:content-['\2606']
