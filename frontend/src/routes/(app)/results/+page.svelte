@@ -7,7 +7,6 @@
     import Sort from "svelte-material-icons/Sort.svelte";
     import Filter from "svelte-material-icons/Filter.svelte";
     import {voteCats} from "$lib/models/enums/categories.enum";
-    import FileEditOutline from "svelte-material-icons/FileEditOutline.svelte";
     import Modal from "$lib/components/Modal.svelte";
 
     export let data:PageData
@@ -92,7 +91,7 @@
                     name="id">
                 {#each Object.values(voteCats) as category}
                     <option value={category} on:click={(e) => currentCategory = e.target.value}>
-                        <span class="capitalize">{category}</span>
+                        {category}
                     </option>
                 {/each}
             </select>
