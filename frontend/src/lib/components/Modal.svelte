@@ -1,5 +1,6 @@
 <script lang="ts">
     import {onMount} from "svelte";
+    import CloseCircleOutline from "svelte-material-icons/CloseCircleOutline.svelte";
 
     // this flag makes it so the modal will close if the user clicks anywhere on the screen
     export let isEasilyClosable:boolean = false
@@ -39,7 +40,9 @@
             {#if !isEasilyClosable}
                 <!-- Close button -->
                 <div class="absolute top-2 right-3">
-                    <button class="bg-transparent" on:click={closeModal}>❌</button>
+                    <button class="bg-transparent" on:click={closeModal}>
+                        <CloseCircleOutline size="1.5em"/>
+                    </button>
                 </div>
             {/if}
 

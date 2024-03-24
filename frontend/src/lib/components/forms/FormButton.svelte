@@ -19,7 +19,7 @@
 </script>
 
 
-<button type="submit" disabled={isDisabled} class="{disabledClass}" >
+<button type="submit" disabled={isDisabled} class="{disabledClass} flex" >
     {#if state === formButtonState.SENDING}
         <Spinner size={"s"} thickness={"s"} />
     {:else}

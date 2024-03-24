@@ -3,10 +3,14 @@
     import {staticSvelteEP} from "$lib/models/enums/endpoints.enum";
     import { enhance } from '$app/forms';
     import type {ActionData} from './$types';
+    import FileEditOutline from "svelte-material-icons/FileEditOutline.svelte";
     import {authLvl} from "$lib/models/enums/authLvl.enum";
     import AdminNav from "$lib/components/AdminNav.svelte";
     import Modal from "$lib/components/Modal.svelte";
     import AvatarCropForm from "$lib/components/forms/AvatarCropForm.svelte";
+    import ContentSave from "svelte-material-icons/ContentSave.svelte";
+    import FormButton from "$lib/components/forms/FormButton.svelte";
+    import {formButtonState} from "$lib/models/enums/formButtonState.enum";
 
     export let form:ActionData
     let hideNameForm = true
@@ -55,13 +59,19 @@
     <div class="py-3">
         <div class="max-w-max mx-auto">
         {#if hideNameForm }
-            <span class="inline-block text-2xl">{$currentUser.name} <button on:click={showNameForm} class="py-0 px-2"></button></span>
+            <span class="inline-block text-2xl">{$currentUser.name}
+                <button on:click={showNameForm} class="py-2 px-2">
+                    <FileEditOutline size="0.75em"/>
+                </button>
+            </span>
         {:else}
             <form method="POST" action="?/updateName" use:enhance>
                 <div class="w-fit mx-auto flex justify-center">
                     <input class="mr-3" type="text" name="name" bind:value={$currentUser.name} placeholder="Change your name"/>
                     <input type="hidden" name="id" bind:value={$currentUser.id} />
-                    <button>💾</button>
+                    <FormButton state={formButtonState.ENABLED}>
+                        <ContentSave size="1.4em" />
+                    </FormButton>
                 </div>
             </form>
         {/if}
@@ -69,10 +79,10 @@
     </div>
 
     <div class="py-3 max-w-[10rem] mx-auto relative">
-        <img class="w-full" src={iconImage} alt={$currentUser.name + "'s avatar"}>
+        <img class="w-full" src={iconImage} alt={$currentUser.name + "'s avatr"}>
 
-        <button class="absolute top-5 right-2 cursor-pointer py-1 px-2 rounded" on:click={openModal}>
-            
+        <button class="absolute top-5 right-2 cursor-pointer py-2 px-2 rounded" on:click={openModal}>
+            <FileEditOutline/>
         </button>
     </div>
 

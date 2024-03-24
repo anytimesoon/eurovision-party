@@ -12,6 +12,8 @@
     import CommentQueue from "$lib/components/chat/CommentQueue.svelte";
     import {socketStateStore} from "$lib/stores/socketState.store";
     import ConnectionSpinner from "$lib/components/chat/ConnectionSpinner.svelte";
+    import Send from "svelte-material-icons/Send.svelte";
+    import CloseCircleOutline from "svelte-material-icons/CloseCircleOutline.svelte";
 
     let openModal:VoidFunction
     let closeModal:VoidFunction
@@ -107,7 +109,7 @@
         {#if replyComment.text !== undefined}
             <div class="bg-canvas-secondary p-2 mb-1 rounded text-typography-main text-sm relative">
                 <button class="bg-transparent absolute top-1 right-1"  on:click={closeReply}>
-                    ❌
+                    <CloseCircleOutline />
                 </button>
 
                 {#if replyComment.userId !== undefined}
@@ -121,7 +123,9 @@
         <div class="flex">
             <textarea class="h-10 text-sm overflow-hidden" name="msg" id="msg" on:keyup={e => sendMsgWithKeyboard(e)}></textarea>
             <div class="flex flex-col-reverse ml-2">
-                <button on:click={sendMsg}>▶</button>
+                <button on:click={sendMsg}>
+                    <Send size="1.4em"/>
+                </button>
             </div>
         </div>
     </div>
