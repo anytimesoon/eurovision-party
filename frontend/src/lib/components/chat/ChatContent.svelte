@@ -29,7 +29,7 @@
 <div class="flex">
     <div>
         {#if comment.replyToComment}
-            <div class="text-sm bg-chat-bubble-you rounded px-3 py-1">
+            <div class="text-sm bg-canvas-secondary rounded px-3 py-1 border border-secondary">
                 <span class="text-typography-chat-you">
                     {comment.replyToComment.text}
                 </span>

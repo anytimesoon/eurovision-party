@@ -12,6 +12,12 @@
     }
 
     @font-face {
+        font-family: 'Edo';
+        src: url('/font/edo.ttf');
+        font-display: swap;
+    }
+
+    @font-face {
         font-family: 'OpenMojiFontMac';
         src: url('/font/OpenMoji-color-glyf_colr_0.woff2');
         font-weight: normal;
@@ -63,10 +69,10 @@
     }
 
     h1 {
-        @apply text-5xl pb-2
+        @apply text-5xl pb-2 font-title
     }
     h2 {
-        @apply text-4xl pb-2
+        @apply text-4xl pb-2 font-title
     }
     h3 {
         @apply text-2xl pb-1
@@ -107,11 +113,11 @@ html {
     /*
         current user chat bubble background color. should contrast secondary canvas color
     */
-    --color-chat-bubble-me: var(--color-primary-light);
+    --color-chat-bubble-me: var(--color-primary);
     /*
         other user's chat bubble background color. should contrast secondary canvas color
     */
-    --color-chat-bubble-you: var(--color-secondary-light);
+    --color-chat-bubble-you: var(--color-secondary);
 
     /*
         header color, which should contrast canvas-primary
@@ -161,31 +167,31 @@ html {
 
 
 html[data-theme="light"] {
-  --color-primary: #FFB400;
+  --color-primary: #a4d4ae;
   --color-primary-light: #D59F23;
   --color-primary-dark: #806C40;
 
-  --color-secondary: #5300FF;
+  --color-secondary: #32afa9;
   --color-secondary-light: #5E23D5;
   --color-secondary-dark: #554080;
 
   --color-typography: #343434;
-  --color-typography-chat: #ffffff;
+  --color-typography-chat: #343434;
 
-  --color-canvas-one: #e3e3e3;
-  --color-canvas-two: #ffffff;
+  --color-canvas-one: #f5deab;
+  --color-canvas-two: #eef5d6;
 
   --color-warning: #FF3A00;
 }
 
 html[data-theme="classic"] {
-    --color-primary: #ff7500;
+    --color-primary: #e27d5f;
     --color-primary-light: #D57623;
     --color-primary-dark: #805E40;
 
-    --color-secondary: #00D0FF;
-    --color-secondary-light: #23B4D5;
-    --color-secondary-dark: #3995AA;
+    --color-secondary: #7fc7bb;
+    --color-secondary-light: #24F0CE;
+    --color-secondary-dark: #49706A;
 
     --color-typography: #fff;
     --color-typography-chat: #fff;
