@@ -18,7 +18,12 @@
 </script>
 
 <div class="h-full overflow-auto p-3">
-    <h1 class="text-center">{country.flag} {country.name}</h1>
+    <h1 class="text-center">
+        <span class="font-sans">
+            {country.flag}
+        </span>
+        {country.name}
+    </h1>
 
     <div class="text-center py-3">
         {#if country.songName || country.bandName}
