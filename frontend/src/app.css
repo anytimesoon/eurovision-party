@@ -168,8 +168,8 @@ html {
 
 html[data-theme="light"] {
   --color-primary: #a4d4ae;
-  --color-primary-light: #D59F23;
-  --color-primary-dark: #806C40;
+  --color-primary-light: #4CE66A;
+  --color-primary-dark: #556658;
 
   --color-secondary: #32afa9;
   --color-secondary-light: #5E23D5;

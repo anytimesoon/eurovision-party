@@ -4,6 +4,7 @@
     import Spinner from "$lib/components/Spinner.svelte";
     import {socketRetryCount} from "$lib/stores/socketRetryCount.store";
     import {commentQueue} from "$lib/stores/commentQueue.store";
+    import {userStore} from "$lib/stores/user.store";
 
     export let comment:CommentModel
     export let isCurrentUser:boolean
@@ -29,8 +30,9 @@
 <div class="flex">
     <div>
         {#if comment.replyToComment}
-            <div class="text-sm bg-canvas-secondary rounded px-3 py-1 border border-secondary">
-                <span class="text-typography-chat-you">
+            <div class="text-sm bg-canvas-primary rounded px-3 py-1 border border-secondary">
+                <p class="text-xs">{$userStore[comment.userId].name}</p>
+                <span class="text-typography-chat-you pt-1 block">
                     {comment.replyToComment.text}
                 </span>
             </div>
