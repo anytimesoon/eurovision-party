@@ -254,4 +254,9 @@ var initCountries = []initialCountryParams{
 		Flag: "🇧🇦",
 		Slug: "bosnia-and-herzegovina",
 	},
+	{
+		Name: "Hungary",
+		Flag: "🇧🇭",
+		Slug: "hungary",
+	},
 }
