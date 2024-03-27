@@ -52,6 +52,7 @@
          on:swipedright={swipedHandler}
          on:mouseenter={() => shouldShowReplyMenu = true}
          on:mouseleave={() => shouldShowReplyMenu = false}
+         id="{comment.id}"
          class="flex w-full max-w-[22rem] relative {currentUserBubbleContainer} {compactBubble}">
 
         <div class="flex-shrink">

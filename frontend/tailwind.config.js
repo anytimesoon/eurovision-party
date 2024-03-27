@@ -23,7 +23,8 @@ export default {
         'canvas-secondary': 'var(--color-canvas-secondary)',
       },
       fontFamily: {
-        sans: ['OpenMojiFont', 'sans-serif']
+        sans: ['OpenMojiFont', 'sans-serif'],
+        title: ['Edo', 'sans-serif']
       }
     },
   },

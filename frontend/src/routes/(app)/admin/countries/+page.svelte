@@ -26,7 +26,7 @@
 <div class="h-full flex flex-col">
     <AdminNav page="countries"/>
 
-    <h3 class="text-center">{$participatingCountryStore.length} countries selected</h3>
+    <h2 class="text-center">{$participatingCountryStore.length} countries selected</h2>
 
     <div class="flex-1 overflow-auto">
         <div class="rounded max-h-1">
