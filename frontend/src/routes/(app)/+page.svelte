@@ -91,7 +91,7 @@
 </Modal>
 
 <div class="flex flex-col h-full">
-    <div id="chat-box" class="border-2 flex flex-col-reverse flex-auto bg-canvas-secondary border-secondary p-4 overflow-y-auto overflow-x-hidden rounded mb-3">
+    <div id="chat-box" class="scroll-smooth border-2 flex flex-col-reverse flex-auto bg-canvas-secondary border-secondary p-4 overflow-y-auto overflow-x-hidden rounded mb-3">
         {#if $commentQueue && $commentQueue.length > 0}
             <CommentQueue />
         {/if}

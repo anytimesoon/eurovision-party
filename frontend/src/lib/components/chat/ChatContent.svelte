@@ -30,12 +30,14 @@
 <div class="flex">
     <div>
         {#if comment.replyToComment}
-            <div class="text-sm bg-canvas-primary rounded px-3 py-1">
-                <p class="text-xs">{$userStore[comment.replyToComment.userId].name}</p>
-                <span class="text-typography-chat-you pt-1 block">
+            <a href="#{comment.replyToComment.id}">
+                <div class="text-sm bg-canvas-primary rounded px-3 py-1">
+                    <p class="text-xs">{$userStore[comment.replyToComment.userId].name}</p>
+                    <span class="text-typography-chat-you pt-1 block">
                     {comment.replyToComment.text}
                 </span>
-            </div>
+                </div>
+            </a>
         {/if}
 
         <p bind:this={commentElement} class="{contentTextStyle} pr-8"></p>
