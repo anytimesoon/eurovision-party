@@ -9,12 +9,13 @@ import (
 )
 
 type Room struct {
-	CommentService       CommentService
-	clients              map[uuid.UUID]*ChatClient
-	broadcastChatMessage chan []byte
-	BroadcastUpdate      chan []byte
-	Register             chan *ChatClient
-	unregister           chan *ChatClient
+	CommentService          CommentService
+	clients                 map[uuid.UUID]*ChatClient
+	broadcastChatMessage    chan []byte
+	BroadcastUpdate         chan []byte
+	Register                chan *ChatClient
+	unregister              chan *ChatClient
+	sendLatesMessagesToUser chan []byte
 }
 
 func NewRoom(commentService CommentService) *Room {
@@ -33,26 +34,6 @@ func (r *Room) Run() {
 		select {
 		case client := <-r.Register:
 			r.clients[client.UserId] = client
-			comments, appErr := r.CommentService.FindAllComments()
-			if appErr != nil {
-				return
-			}
-			log.Printf("%+v", r.clients)
-			commentsJSON, err := json.Marshal(comments)
-			if err != nil {
-				//TODO: handle error
-			}
-			chatMessages := dto.SocketMessage{
-				Category: enum.COMMENT_ARRAY,
-				Body:     commentsJSON,
-			}
-
-			chatMessagesJSON, err := json.Marshal(chatMessages)
-			if err != nil {
-				//TODO: handle error
-			}
-
-			client.Send <- chatMessagesJSON
 
 		case client := <-r.unregister:
 			if _, ok := r.clients[client.UserId]; ok {

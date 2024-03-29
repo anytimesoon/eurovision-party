@@ -9,7 +9,7 @@ import {commentQueue} from "$lib/stores/commentQueue.store";
 import {loginURI} from "$lib/stores/loginURI.store";
 import {socketStateStore} from "$lib/stores/socketState.store";
 import {socketRetryCount} from "$lib/stores/socketRetryCount.store";
-
+import {ChatMessageModel} from "$lib/models/classes/chatMessage.model";
 
 let loginEP:string
 loginURI.subscribe(val => loginEP = val)
@@ -17,14 +17,18 @@ loginURI.subscribe(val => loginEP = val)
 let currentUserID:string
 currentUser.subscribe(val => currentUserID = val.id)
 
-export const socketStore = socket()
-
 let botUserId:string
-
 botId.subscribe(val => botUserId = val)
 
 let commentLog: Array<CommentModel>
 commentStore.subscribe(val => commentLog = val)
+
+let retryCount:number
+socketRetryCount.subscribe(val => retryCount = val)
+
+export const socketStore = socket()
+let timeoutDuration = 1000 // in milis
+
 
 function socket() {
     let ws = connectToSocket()
@@ -43,6 +47,13 @@ function connectToSocket(){
     socket.onopen = function () {
         console.log("You're connected. Welcome to the party!!!🎉")
         socketRetryCount.reset()
+        const latestCommentId: string = commentLog.length > 0 ? commentLog[0].id : ""
+        const latestCommentMessage = new ChatMessageModel(
+            chatMsgCat.LATEST_COMMENT,
+            latestCommentId
+        )
+        socket.send(JSON.stringify(latestCommentMessage))
+
         socketStateStore.isReady(true)
         commentQueue.restart()
     }
@@ -55,7 +66,7 @@ function connectToSocket(){
         console.log("Connection stopped. Attempting to reconnect")
         socketRetryCount.increment()
         socketStateStore.isReady(false)
-        setTimeout(socketStore.reconnect(), 500)
+        setTimeout(socketStore.reconnect(), timeoutDuration * retryCount)
     }
 
     socket.onmessage = function (event) {
@@ -64,17 +75,21 @@ function connectToSocket(){
             const chatMessage = JSON.parse(c)
             switch (chatMessage.category) {
                 case chatMsgCat.COMMENT:
+                    socketStateStore.isReady(true)
                     addNewComment(chatMessage.body)
                     commentQueue.removeMessage(chatMessage.body.id)
                     break
                 case chatMsgCat.COMMENT_ARRAY:
+                    socketStateStore.isReady(true)
                     let commentModels: CommentModel[] = chatMessage.body
 
                     for (let i = 0; i < commentModels.length; i++) {
+                        commentQueue.removeMessage(commentModels[i].id)
                         addNewComment(commentModels[i])
                     }
                     break
                 case chatMsgCat.UPDATE_USER:
+                    socketStateStore.isReady(true)
                     let updateMessage:UpdateMessageModel = chatMessage.body
                     // user needs to be updated before message gets published
                     userStore.update(users => {

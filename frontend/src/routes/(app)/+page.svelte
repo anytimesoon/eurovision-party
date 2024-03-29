@@ -10,7 +10,6 @@
     import {staticSvelteEP} from "$lib/models/enums/endpoints.enum";
     import {commentQueue} from "$lib/stores/commentQueue.store";
     import CommentQueue from "$lib/components/chat/CommentQueue.svelte";
-    import {socketStateStore} from "$lib/stores/socketState.store";
     import ConnectionSpinner from "$lib/components/chat/ConnectionSpinner.svelte";
     import Send from "svelte-material-icons/Send.svelte";
     import CloseCircleOutline from "svelte-material-icons/CloseCircleOutline.svelte";
@@ -68,10 +67,6 @@
         if(e.key == "Enter"){
             sendMsg()
         }
-    }
-
-    $: if(socketStateStore) {
-        console.log($socketStateStore)
     }
 </script>
 

@@ -83,6 +83,23 @@ func (c *ChatClient) Pub() {
 			}
 			log.Println("New message received from", c.UserId.String())
 			c.Room.broadcastChatMessage <- commentJSON
+		case enum.LATEST_COMMENT:
+			commentsJSON, appErr := c.ComServ.FindCommentsAfter(filteredMessage.Body)
+			if appErr != nil {
+				return
+			}
+			log.Println("Sending latest messages to", c.UserId.String())
+			chatMessages := dto.SocketMessage{
+				Category: enum.COMMENT_ARRAY,
+				Body:     commentsJSON,
+			}
+
+			chatMessagesJSON, err := json.Marshal(chatMessages)
+			if err != nil {
+				log.Println("Failed to marshal latest messages for user", c.UserId)
+			}
+
+			c.Send <- chatMessagesJSON
 		default:
 			log.Printf("Message category not recognised")
 		}

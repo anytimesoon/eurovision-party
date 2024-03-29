@@ -3,17 +3,27 @@ import type {CommentModel} from "$lib/models/classes/comment.model";
 import type {ChatMessageModel} from "$lib/models/classes/chatMessage.model";
 import {socketStore} from "$lib/stores/socket.store";
 import {socketStateStore} from "$lib/stores/socketState.store";
+import {browser} from "$app/environment";
 
 export const commentQueue = newCommentQueue()
 
 let currentQueue: Array<ChatMessageModel<CommentModel>>
-commentQueue.subscribe( val => currentQueue = val)
+commentQueue.subscribe( val => {
+    browser && localStorage.setItem("commentQueue", JSON.stringify(val))
+    currentQueue = val
+})
 
 let socketState:boolean
 socketStateStore.subscribe(val => socketState = val)
 
 function newCommentQueue(): Writable<Array<ChatMessageModel<CommentModel>>> {
-    const {subscribe, update} = writable(new Array<ChatMessageModel<CommentModel>>())
+    const {subscribe, update} = writable(
+        browser && JSON.parse(
+            localStorage.getItem("commentQueue") ||
+            JSON.stringify(new Array<ChatMessageModel<CommentModel>>())
+        )
+    )
+
     return {
         subscribe,
         update,
