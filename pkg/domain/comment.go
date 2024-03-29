@@ -23,6 +23,7 @@ type CommentRepository interface {
 	FindAllComments() ([]Comment, *errs.AppError)
 	CreateComment(dto.Comment) (*Comment, *errs.AppError)
 	DeleteComment(string) *errs.AppError
+	FindCommentsAfter(string) ([]Comment, *errs.AppError)
 }
 
 func (comment Comment) ToDto() dto.Comment {

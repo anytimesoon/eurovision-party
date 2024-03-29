@@ -4,7 +4,12 @@ import {browser} from "$app/environment";
 
 export const userStore = writable<Map<string, UserModel>>(new Map<string, UserModel>())
 
-export const currentUser = writable<UserModel>(browser && JSON.parse(localStorage.getItem("currentUser") || JSON.stringify(new UserModel())))
+export const currentUser = writable<UserModel>(
+    browser && JSON.parse(
+        localStorage.getItem("currentUser") ||
+        JSON.stringify(new UserModel())
+    )
+)
 
 currentUser.subscribe((val) => {
     browser && localStorage.setItem("currentUser", JSON.stringify(val))

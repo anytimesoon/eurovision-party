@@ -40,6 +40,33 @@ func (db CommentRepositoryDb) FindAllComments() ([]Comment, *errs.AppError) {
 	return comments, nil
 }
 
+func (db CommentRepositoryDb) FindCommentsAfter(commentId string) ([]Comment, *errs.AppError) {
+	comments := make([]Comment, 0)
+
+	query := `SELECT
+					c1.uuid,
+					c1.text,
+					c1.userId,
+					c1.createdAt,
+					c2.uuid as replyTo_uuid,
+					c2.userId as replyTo_userId,
+					c2.text as replyTo_text,
+					c2.createdAt as replyTo_createdAt
+				FROM comment c1 
+					LEFT JOIN comment c2 ON c1.replyTo = c2.uuid
+				WHERE c1.createdAt > (SELECT createdAt
+				                      FROM comment
+				                      WHERE uuid = ?)
+				ORDER BY c1.createdAt`
+	err := db.client.Select(&comments, query, commentId)
+	if err != nil {
+		log.Println("Error while querying comment table", err)
+		return nil, errs.NewNotFoundError("No comments found")
+	}
+
+	return comments, nil
+}
+
 func (db CommentRepositoryDb) CreateComment(commentDTO dto.Comment) (*Comment, *errs.AppError) {
 	var comment Comment
 
