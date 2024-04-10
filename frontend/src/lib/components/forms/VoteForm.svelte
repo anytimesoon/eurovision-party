@@ -4,8 +4,8 @@
     import {currentUser} from "$lib/stores/user.store";
     import {voteOptions} from "$lib/models/classes/voteOptions.model";
     import Spinner from "$lib/components/Spinner.svelte";
-    import {VoteSingleModel} from "$lib/models/classes/voteSingle.model";
-    import {voteSvelteEP} from "$lib/models/enums/endpoints.enum";
+    import { enhance } from '$app/forms';
+    import {formButtonState} from "$lib/models/enums/formButtonState.enum";
 
     export let vote:VoteModel
     export let catName:string
@@ -16,6 +16,7 @@
     let score:number
     let icon:string
     let tempScore:number
+    let formState = formButtonState.ENABLED
     let form:HTMLFormElement
 
     onMount(() => {
@@ -43,47 +44,24 @@
         }
     })
 
-    function setScore(voteResult:VoteModel) {
+    $: if(vote) {
         switch (catName) {
             case "Song":
-                score = voteResult.song
+                score = vote.song
                 break
             case "Performance":
-                score = voteResult.performance
+                score = vote.performance
                 break
             case "Costumes":
-                score = voteResult.costume
+                score = vote.costume
                 break
             case "Staging and Props":
-                score = voteResult.props
+                score = vote.props
                 break
         }
     }
 
-    $: shouldRotate = isFetching ? "animate-spin" : ""
-
-    const submitForm = async () => {
-        isFetching = true
-        let singleVote = new VoteSingleModel($currentUser.id, countrySlug, cat, tempScore)
-        let voteResponse = await fetch(voteSvelteEP.UPDATE, {
-            method: "PUT",
-            body: JSON.stringify(singleVote),
-            credentials: "same-origin",
-            headers: {
-                "Content-Type": "application/json"
-            }
-        }).then((res) => res.json())
-
-        if (voteResponse.error != "") {
-            alert(voteResponse.error)
-        } else {
-            console.log("here")
-            setScore(voteResponse.body)
-        }
-
-        isFetching = false
-    }
-
+    $: shouldRotate = formState == formButtonState.SENDING ? "animate-spin" : ""
 </script>
 
 <div class="py-5">
@@ -98,7 +76,14 @@
         {/if}/10
     </p>
 
-    <form bind:this={form} on:submit|preventDefault={() => submitForm()}>
+    <form method="POST" action="?/vote" bind:this={form} use:enhance={() => {
+        formState = formButtonState.SENDING
+
+        return async ({ update }) => {
+            await update()
+            formState = formButtonState.ENABLED
+        };
+    }} >
         <input name="countrySlug" type="hidden" value={countrySlug}>
         <input name="cat" type="hidden" value={cat}>
         <input name="userId" type="hidden" value={$currentUser.id}>

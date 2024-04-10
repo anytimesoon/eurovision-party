@@ -80,13 +80,12 @@ function connectToSocket(){
                     commentQueue.removeMessage(chatMessage.body.id)
                     break
                 case chatMsgCat.COMMENT_ARRAY:
-                    socketStateStore.isReady(true)
                     let commentModels: CommentModel[] = chatMessage.body
-
                     for (let i = 0; i < commentModels.length; i++) {
                         commentQueue.removeMessage(commentModels[i].id)
                         addNewComment(commentModels[i])
                     }
+                    socketStateStore.isReady(true)
                     break
                 case chatMsgCat.UPDATE_USER:
                     socketStateStore.isReady(true)
