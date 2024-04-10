@@ -28,9 +28,9 @@ func (ah AuthHandler) Register(resp http.ResponseWriter, req *http.Request) {
 	}
 
 	if appErr != nil {
-		writeResponse(resp, req, appErr.Code, *auth, appErr.Message)
+		writeResponse(resp, req, appErr.Code, auth, appErr.Message)
 	} else {
-		writeResponse(resp, req, http.StatusOK, *auth, "")
+		writeResponse(resp, req, http.StatusOK, auth, "")
 	}
 }
 

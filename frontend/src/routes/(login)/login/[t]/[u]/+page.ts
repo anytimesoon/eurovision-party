@@ -6,7 +6,7 @@ import {redirect} from "@sveltejs/kit";
 import type {SessionModel} from "$lib/models/classes/session.model";
 import {browser} from "$app/environment";
 
-export const load =  ( async ({ params, fetch, cookies }) => {
+export const load =  ( async ({ params, fetch }) => {
 
     const payload = new LoginModel(params.t, params.u)
 
