@@ -13,7 +13,7 @@ import (
 type AuthRepository interface {
 	CreateUser(dto.NewUser) (*NewUser, *errs.AppError)
 	Login(*dto.Auth) (*Auth, *User, *errs.AppError)
-	Authorize(*dto.Auth) (*Auth, *errs.AppError)
+	Authorize(*dto.Auth) *errs.AppError
 	AuthorizeChat(string, string) *errs.AppError
 	VerifySlug(*dto.NewUser) error
 }
@@ -31,7 +31,7 @@ func (db AuthRepositoryDB) Login(authDTO *dto.Auth) (*Auth, *User, *errs.AppErro
 	var user User
 
 	getAuthQuery := "SELECT * FROM auth WHERE authToken = ? and userId = ?"
-	createSessionQuery := "UPDATE auth SET sessionToken = ?, sessionTokenExp = NOW() + INTERVAL 7 DAY WHERE userId = ?"
+	createSessionQuery := "UPDATE auth SET sessionToken = ? WHERE userId = ?"
 	getUserQuery := "SELECT * FROM user WHERE uuid = ?"
 
 	tx, err := db.client.Beginx()
@@ -68,17 +68,17 @@ func (db AuthRepositoryDB) Login(authDTO *dto.Auth) (*Auth, *User, *errs.AppErro
 	return &auth, &user, nil
 }
 
-func (db AuthRepositoryDB) Authorize(authDTO *dto.Auth) (*Auth, *errs.AppError) {
+func (db AuthRepositoryDB) Authorize(authDTO *dto.Auth) *errs.AppError {
 	var auth Auth
 
 	query := "SELECT * FROM auth WHERE sessionToken = ? and userId = ?"
 	err := db.client.Get(&auth, query, authDTO.Token, authDTO.UserId)
 	if err != nil {
 		log.Printf("Unable to authorize user %s and session token %s combination. %s", authDTO.UserId, authDTO.Token, err)
-		return nil, errs.NewUnauthorizedError("Couldn't authenticate you. Please try again.")
+		return errs.NewUnauthorizedError("Couldn't authenticate you. Please try again.")
 	}
 
-	return &auth, nil
+	return nil
 }
 
 func (db AuthRepositoryDB) AuthorizeChat(token, userId string) *errs.AppError {
@@ -124,7 +124,7 @@ func (db AuthRepositoryDB) CreateUser(userDTO dto.NewUser) (*NewUser, *errs.AppE
 		return nil, errs.NewUnexpectedError(errs.Common.NotCreated + "user")
 	}
 
-	auth.GenerateSecureToken(80)
+	auth.GenerateSecureToken(30)
 	_, err = tx.Exec(newAuthQuery, auth.AuthToken, userDTO.UUID.String(), userDTO.Slug)
 	if err != nil {
 		log.Printf("Error when creating new auth for user %s, %s", userDTO.Name, err)

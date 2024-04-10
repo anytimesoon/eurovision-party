@@ -11,14 +11,13 @@ import (
 )
 
 type Auth struct {
-	AuthToken       string       `db:"authToken"`
-	UserId          uuid.UUID    `db:"userId"`
-	AuthTokenExp    time.Time    `db:"authTokenExp"`
-	SessionToken    string       `db:"sessionToken"`
-	SessionTokenExp time.Time    `db:"sessionTokenExp"`
-	AuthLvl         enum.AuthLvl `db:"authLvl"`
-	LastUpdated     time.Time    `db:"lastUpdated"`
-	Slug            string       `db:"slug"`
+	AuthToken    string       `db:"authToken"`
+	UserId       uuid.UUID    `db:"userId"`
+	AuthTokenExp time.Time    `db:"authTokenExp"`
+	SessionToken string       `db:"sessionToken"`
+	AuthLvl      enum.AuthLvl `db:"authLvl"`
+	LastUpdated  time.Time    `db:"lastUpdated"`
+	Slug         string       `db:"slug"`
 }
 
 func (a *Auth) GenerateSecureToken(len int) {
@@ -47,10 +46,9 @@ func generateToken(len int) string {
 
 func (a *Auth) ToDTO() dto.Auth {
 	return dto.Auth{
-		Token:      a.SessionToken,
-		Expiration: a.SessionTokenExp,
-		UserId:     a.UserId,
-		AuthLvl:    a.AuthLvl,
+		Token:   a.SessionToken,
+		UserId:  a.UserId,
+		AuthLvl: a.AuthLvl,
 	}
 }
 
@@ -58,9 +56,8 @@ func (a *Auth) ToDTO() dto.Auth {
 // A modified Auth is what we will send to the client
 func (a *Auth) ToModifiedDTO(token string) dto.Auth {
 	return dto.Auth{
-		Token:      token,
-		Expiration: a.SessionTokenExp,
-		UserId:     a.UserId,
-		AuthLvl:    a.AuthLvl,
+		Token:   token,
+		UserId:  a.UserId,
+		AuthLvl: a.AuthLvl,
 	}
 }

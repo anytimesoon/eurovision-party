@@ -13,11 +13,10 @@ import (
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
 	"io"
 	"log"
-	"time"
 )
 
 type AuthService interface {
-	Login([]byte) (*dto.Auth, *dto.User, *errs.AppError)
+	Login([]byte) (*dto.SessionAuth, *errs.AppError)
 	Register([]byte) (*dto.NewUser, *errs.AppError)
 	Authorize(string) (*dto.Auth, *errs.AppError)
 	AuthorizeChat(string, string) *errs.AppError
@@ -42,35 +41,34 @@ func NewAuthService(repo domain.AuthRepositoryDB) DefaultAuthService {
 	return DefaultAuthService{repo}
 }
 
-func (das DefaultAuthService) Login(body []byte) (*dto.Auth, *dto.User, *errs.AppError) {
+func (das DefaultAuthService) Login(body []byte) (*dto.SessionAuth, *errs.AppError) {
 	var req dto.Auth
 	err := json.Unmarshal(body, &req)
 	if err != nil {
 		log.Println("FAILED to unmarshal json!", err)
-		return nil, nil, errs.NewUnexpectedError(errs.Common.BadlyFormedObject)
+		return nil, errs.NewUnexpectedError(errs.Common.BadlyFormedObject)
 	}
 
 	auth, user, appErr := das.repo.Login(&req)
 	if appErr != nil {
-		return nil, nil, appErr
+		return nil, appErr
 	}
 
 	authJson, err := json.Marshal(auth.ToDTO())
 	if err != nil {
 		log.Printf("Failed to marshall auth %+v %s", auth, err)
-		return nil, nil, errs.NewUnexpectedError(errs.Common.Login)
+		return nil, errs.NewUnexpectedError(errs.Common.Login)
 	}
 
 	e, err := encrypt(string(authJson))
 	if err != nil {
 		log.Printf("Couldn't encrypt the creds for %+v", auth)
-		return nil, nil, errs.NewUnexpectedError(errs.Common.Login)
+		return nil, errs.NewUnexpectedError(errs.Common.Login)
 	}
 
-	returnableAuth := auth.ToModifiedDTO(e)
-	userDTO := user.ToDto()
+	session := auth.ToModifiedDTO(e).ToSession(user.ToDto())
 
-	return &returnableAuth, &userDTO, nil
+	return session, nil
 }
 
 func (das DefaultAuthService) Authorize(token string) (*dto.Auth, *errs.AppError) {
@@ -78,13 +76,8 @@ func (das DefaultAuthService) Authorize(token string) (*dto.Auth, *errs.AppError
 	if appErr != nil {
 		return nil, appErr
 	}
-	log.Printf("Session %+v", authDTO)
-	if authDTO.Expiration.Before(time.Now()) {
-		log.Printf("Session has expired")
-		return nil, errs.NewUnauthorizedError(errs.Common.Login)
-	}
 
-	_, appErr = das.repo.Authorize(authDTO)
+	appErr = das.repo.Authorize(authDTO)
 	if appErr != nil {
 		return nil, appErr
 	}

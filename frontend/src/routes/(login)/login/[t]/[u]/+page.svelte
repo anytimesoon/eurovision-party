@@ -6,12 +6,14 @@
     import {authLvl} from "$lib/models/enums/authLvl.enum";
     import {goto} from "$app/navigation";
     import {loginURI} from "$lib/stores/loginURI.store";
+    import {sessionStore} from "$lib/stores/session.store";
 
     export let data: PageData;
 
     $: if(data) {
         if (browser) {
             $currentUser = data.currentUser
+            $sessionStore = data.sessionToken
             $loginURI = data.loginToken + "/" + data.currentUser.id
             $botId = data.botId
             if ($currentUser.authLvl === authLvl.ADMIN && !data.hasLoggedIn) {

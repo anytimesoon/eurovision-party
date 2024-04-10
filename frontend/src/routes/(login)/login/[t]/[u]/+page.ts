@@ -4,6 +4,7 @@ import {ResponseModel} from "$lib/models/classes/response.model";
 import type {PageLoad} from ".$/types";
 import {redirect} from "@sveltejs/kit";
 import type {SessionModel} from "$lib/models/classes/session.model";
+import {browser} from "$app/environment";
 
 export const load =  ( async ({ params, fetch, cookies }) => {
 
@@ -11,16 +12,14 @@ export const load =  ( async ({ params, fetch, cookies }) => {
 
     const res = await fetch(authEP.LOGIN, {
         method: "POST",
-        body: JSON.stringify(payload),
-        mode: 'cors'
+        body: JSON.stringify(payload)
     });
 
     const login: ResponseModel<SessionModel> = await res.json()
-    cookies.set("session", login.body.token, login.body.opts)
-    const hasLoggedIn:boolean = cookies.get("visited") || false
+    const hasLoggedIn:boolean = browser && localStorage.getItem("visited") || false
 
     if (!hasLoggedIn) {
-        cookies.set('visited', 'true', { path: '/' })
+        browser && localStorage.setItem("visited", true)
     }
 
     if (login.error != "") {
@@ -31,6 +30,7 @@ export const load =  ( async ({ params, fetch, cookies }) => {
         currentUser: login.body.user,
         botId: login.body.botId,
         hasLoggedIn,
+        sessionToken: login.body.token,
         loginToken: params.t
     }
 }) satisfies PageLoad;
