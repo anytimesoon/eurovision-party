@@ -53,7 +53,7 @@ func (c *ChatClient) Pub() {
 			log.Printf("Failed to reset read deadline for user %s in pong handler. %s", c.UserId, err)
 			return err
 		}
-		log.Printf("Received pong from user %s", c.UserId)
+		//log.Printf("Received pong from user %s", c.UserId)
 		return nil
 	})
 
@@ -171,7 +171,7 @@ func (c *ChatClient) Sub() {
 				log.Printf("Failed to set deadline for ping message for user %s. %s", c.UserId, err)
 				return
 			}
-			log.Printf("Sending ping to user %s", c.UserId)
+			//log.Printf("Sending ping to user %s", c.UserId)
 			err = c.Conn.WriteMessage(websocket.PingMessage, nil)
 			if err != nil {
 				log.Printf("Failed to send ping message for user %s. %s", c.UserId, err)
