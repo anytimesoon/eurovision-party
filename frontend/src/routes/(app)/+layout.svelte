@@ -35,6 +35,10 @@
   }
 </script>
 <svelte:window on:click={handleWindowClick} />
+<svelte:head>
+    <link rel="preload" as="font" href="/font/OpenMoji-color-glyf_colr_0.woff2" />
+    <link rel="preload" as="font" href="/font/OpenMoji-color-glyf_colr_1.woff2" />
+</svelte:head>
 
 <main class="h-screen max-w-screen-sm mx-auto px-3 relative flex flex-col">
     <div id="content" class="flex-1 pb-4 overflow-hidden">
