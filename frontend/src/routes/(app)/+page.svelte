@@ -70,13 +70,6 @@
     }
 </script>
 
-<style>
-    #chat-box {
-        /*font-family: OpenMojiFont, sans-serif;*/
-        /*font-size: 24px; !* Larger font size for emojis *!*/
-    }
-</style>
-
 <ConnectionSpinner/>
 
 <Modal bind:openModal={openModal} bind:closeModal={closeModal} isEasilyClosable={true}>

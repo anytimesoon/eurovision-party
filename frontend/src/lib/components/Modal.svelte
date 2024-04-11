@@ -12,12 +12,12 @@
 
     export const openModal = () => {
         modal.classList.remove("hidden")
-        modal.classList.add("z-50")
+        modal.classList.add("z-20")
     }
 
     export const closeModal = () => {
         modal.classList.add("hidden")
-        modal.classList.remove("z-50")
+        modal.classList.remove("z-20")
     }
 
     const closeModalCheck = () => {
@@ -30,7 +30,7 @@
 </script>
 
 <!-- Overlay -->
-<div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden" id="modal" on:mouseup={closeModalCheck}>
+<div class="fixed inset-0 z-10 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden" id="modal" on:mouseup={closeModalCheck}>
 
     <!-- Modal window -->
     <div class="relative top-20 {optionalPadding} border border-secondary max-w-screen-sm mx-auto shadow-lg rounded-md bg-canvas-secondary">

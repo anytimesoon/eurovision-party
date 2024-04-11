@@ -48,7 +48,6 @@ func LoadConfig() {
 	}
 
 	err = v.Unmarshal(&App)
-	fmt.Printf("%+v", App)
 	if err != nil {
 		panic(fmt.Errorf("fatal error unmarshalling config: %w", err))
 	}

@@ -6,14 +6,13 @@ import (
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
 	"github.com/anytimesoon/eurovision-party/pkg/service"
 	"github.com/google/uuid"
+	"github.com/gorilla/mux"
 	"image"
 	"io"
 	"log"
 	"mime/multipart"
 	"net/http"
 	"strconv"
-
-	"github.com/gorilla/mux"
 )
 
 type UserHandler struct {
@@ -53,9 +52,9 @@ func (uh UserHandler) UpdateUser(resp http.ResponseWriter, req *http.Request) {
 	}
 
 	if appErr != nil {
-		writeResponse(resp, req, appErr.Code, *user, appErr.Message)
+		writeResponse(resp, req, appErr.Code, user, appErr.Message)
 	} else {
-		writeResponse(resp, req, http.StatusOK, *user, "")
+		writeResponse(resp, req, http.StatusOK, user, "")
 	}
 }
 
@@ -65,11 +64,18 @@ func (uh UserHandler) UpdateImage(resp http.ResponseWriter, req *http.Request) {
 
 	log.Println("Starting image save")
 
-	err := req.ParseMultipartForm(4000000)
+	err := req.ParseMultipartForm(400)
 	if err != nil {
 		log.Println("Failed to parse form data", err)
 		return
 	}
+
+	defer func(MultipartForm *multipart.Form) {
+		err := MultipartForm.RemoveAll()
+		if err != nil {
+
+		}
+	}(req.MultipartForm)
 
 	id, err := uuid.Parse(req.PostFormValue("id"))
 	if err != nil {
@@ -86,7 +92,7 @@ func (uh UserHandler) UpdateImage(resp http.ResponseWriter, req *http.Request) {
 		}(f)
 		if err != nil {
 			log.Println("Failed to parse image", err)
-			return
+			writeResponse(resp, req, http.StatusInternalServerError, user, "Could not process this image. Please try another.")
 		}
 
 		cropX, err := strconv.Atoi(req.PostFormValue("x"))
@@ -111,9 +117,9 @@ func (uh UserHandler) UpdateImage(resp http.ResponseWriter, req *http.Request) {
 	}
 
 	if appErr != nil {
-		writeResponse(resp, req, appErr.Code, *user, appErr.Message)
+		writeResponse(resp, req, appErr.Code, user, appErr.Message)
 	} else {
-		writeResponse(resp, req, http.StatusOK, *user, "")
+		writeResponse(resp, req, http.StatusOK, user, "")
 	}
 }
 
@@ -121,9 +127,9 @@ func (uh UserHandler) FindOneUser(resp http.ResponseWriter, req *http.Request) {
 	params := mux.Vars(req)
 	user, err := uh.Service.SingleUser(params["slug"])
 	if err != nil {
-		writeResponse(resp, req, err.Code, *user, err.Message)
+		writeResponse(resp, req, err.Code, user, err.Message)
 	} else {
-		writeResponse(resp, req, http.StatusOK, *user, "")
+		writeResponse(resp, req, http.StatusOK, user, "")
 	}
 }
 
@@ -136,9 +142,9 @@ func (uh UserHandler) RemoveUser(resp http.ResponseWriter, req *http.Request) {
 		err = errs.NewUnauthorizedError(errs.Common.Unauthorized)
 	}
 	if err != nil {
-		writeResponse(resp, req, err.Code, dto.User{}, err.Message)
+		writeResponse(resp, req, err.Code, &dto.User{}, err.Message)
 	} else {
-		writeResponse(resp, req, http.StatusOK, dto.User{}, "")
+		writeResponse(resp, req, http.StatusOK, &dto.User{}, "")
 	}
 }
 

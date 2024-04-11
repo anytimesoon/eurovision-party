@@ -11,6 +11,7 @@
     import ContentSave from "svelte-material-icons/ContentSave.svelte";
     import FormButton from "$lib/components/forms/FormButton.svelte";
     import {formButtonState} from "$lib/models/enums/formButtonState.enum";
+    import Toaster from "$lib/components/Toaster.svelte";
 
     export let form:ActionData
     let hideNameForm = true
@@ -18,6 +19,9 @@
     let closeModal:VoidFunction
     let theme = localStorage.getItem("theme")
     let iconImage = staticSvelteEP.IMG + $currentUser.icon
+    let error:string = "get fucked"
+    let closeToaster:VoidFunction
+    let openToaster:VoidFunction
 
     $: if(form){
         hideNameForm = form.hideNameForm
@@ -29,6 +33,11 @@
 
             $currentUser = form.user
             closeModal()
+        }
+
+        if (form.error) {
+            error = form.error
+            openToaster()
         }
     }
 
@@ -44,11 +53,16 @@
     function showNameForm() {
         hideNameForm = !hideNameForm
     }
+
 </script>
 
 {#if $currentUser.authLvl === authLvl.ADMIN }
     <AdminNav page="settings"/>
 {/if}
+
+<Toaster bind:openToaster={openToaster} bind:closeToaster={closeToaster}>
+    {error}
+</Toaster>
 
 <Modal bind:openModal={openModal} bind:closeModal={closeModal}>
     <AvatarCropForm />
