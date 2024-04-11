@@ -42,8 +42,8 @@
     }
 
     async function updateAvatar() {
-        iconImage = staticSvelteEP.IMG + $currentUser.icon + `?${Date.now()}`
-        $userStore[form.user.id].icon = iconImage
+        iconImage = staticSvelteEP.IMG + form.user.icon + `?${Date.now()}`
+        $userStore[form.user.id].icon = form.user.icon
     }
 
     $: if(theme) {
