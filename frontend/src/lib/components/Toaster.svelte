@@ -1,31 +1,26 @@
 <script lang="ts">
-    import Spinner from "$lib/components/Spinner.svelte";
-    import {socketStateStore} from "$lib/stores/socketState.store";
-    import {socketRetryCount} from "$lib/stores/socketRetryCount.store";
-    import {onMount} from "svelte";
-    let toaster:HTMLElement
+    import { fade } from 'svelte/transition';
 
-    onMount(() => {
-        toaster = document.getElementById("toaster")
-    })
+    let shouldDisplay = false
 
     export const openToaster = () => {
-        toaster.classList.remove("hidden")
-        toaster.classList.add("z-40")
+        shouldDisplay = true
+        setTimeout(closeToaster, 2000)
     }
 
     export const closeToaster = () => {
-        toaster.classList.add("hidden")
-        toaster.classList.remove("z-40")
+        shouldDisplay = false
     }
 </script>
 
-<div class="fixed inset-0 z-30 overflow-y-auto h-full w-full hidden" id="toaster" on:mouseup={closeToaster}>
-    <div class="top-20 max-w-screen-sm">
-        <div class="bg-warning rounded py-3 mt-2 shadow-lg shadow-gray-800 w-[75%] mx-auto">
-            <p class="text-center">
-                <slot />
-            </p>
+{#if shouldDisplay}
+    <div transition:fade={{ delay: 250, duration: 300 }} class="fixed inset-0 z-30 overflow-y-auto h-full w-full z-40" on:mouseup={closeToaster}>
+        <div class="top-20 max-w-screen-sm">
+            <div class="bg-warning rounded py-3 px-1.5 mt-2 shadow-lg shadow-gray-800 w-[75%] mx-auto">
+                <p class="text-center">
+                    <slot />
+                </p>
+            </div>
         </div>
     </div>
-</div>
+{/if}

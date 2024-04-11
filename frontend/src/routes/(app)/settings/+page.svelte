@@ -65,7 +65,7 @@
 </Toaster>
 
 <Modal bind:openModal={openModal} bind:closeModal={closeModal}>
-    <AvatarCropForm />
+    <AvatarCropForm bind:error={error} bind:openToaster={openToaster}/>
 </Modal>
 
 <div class="pb-3">

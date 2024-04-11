@@ -10,6 +10,8 @@
     import {formButtonState} from "$lib/models/enums/formButtonState.enum";
     import FormButton from "$lib/components/forms/FormButton.svelte";
 
+    export let error:string
+    export let openToaster:VoidFunction
     const authorizedExtensions = ['image/jpg', 'image/jpeg', 'image/png']
     let cropArea:ImageCropArea = new ImageCropArea()
     let img:string = staticSvelteEP.IMG + $currentUser.icon
@@ -40,7 +42,9 @@
             }
             reader.readAsDataURL(imageFile)
         } else {
-            document.getElementById("avatar-upload-errors").innerText = "Only jpeg and png are allowed"
+            // document.getElementById("avatar-upload-errors").innerText = "Only jpeg and png are allowed"
+            error = "Only jpeg and png files are allowed"
+            openToaster()
         }
     }
 </script>
