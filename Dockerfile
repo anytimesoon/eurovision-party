@@ -23,6 +23,7 @@ FROM scratch AS final
 LABEL maintainer="anytimesoon"
 COPY --from=build /app /app
 VOLUME /conf
+VOLUME /tmp
 
 ADD ./assets/img.tar.gz /
 
