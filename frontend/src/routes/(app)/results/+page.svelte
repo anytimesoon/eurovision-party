@@ -8,7 +8,6 @@
     import Filter from "svelte-material-icons/Filter.svelte";
     import {voteCats} from "$lib/models/enums/categories.enum";
     import Modal from "$lib/components/Modal.svelte";
-    import Spinner from "$lib/components/Spinner.svelte";
 
     export let data:PageData
     export let form:ActionData
