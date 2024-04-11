@@ -36,14 +36,14 @@ func authenticate(next http.Handler) http.Handler {
 		session, err := r.Cookie("session")
 		if err != nil {
 			log.Println("No session cookie was found. Trying authorization header.")
-			writeResponse(w, r, http.StatusUnauthorized, dto.User{}, errs.Common.Unauthorized)
+			writeResponse(w, r, http.StatusUnauthorized, &dto.User{}, errs.Common.Unauthorized)
 			return
 		}
 
 		auth, appErr := authService.Authorize(session.Value)
 		if appErr != nil {
 			log.Printf("%s method %s was requested by %q and rejected because token was rejected. %s", r.RequestURI, r.Method, r.RemoteAddr, appErr)
-			writeResponse(w, r, http.StatusUnauthorized, dto.User{}, errs.Common.Unauthorized)
+			writeResponse(w, r, http.StatusUnauthorized, &dto.User{}, errs.Common.Unauthorized)
 			return
 		}
 

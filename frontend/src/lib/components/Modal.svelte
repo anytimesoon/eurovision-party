@@ -1,23 +1,19 @@
 <script lang="ts">
-    import {onMount} from "svelte";
     import CloseCircleOutline from "svelte-material-icons/CloseCircleOutline.svelte";
+    import { fade } from 'svelte/transition';
+    import {cubicInOut} from "svelte/easing";
 
     // this flag makes it so the modal will close if the user clicks anywhere on the screen
     export let isEasilyClosable:boolean = false
-    let modal:HTMLElement
-
-    onMount(() => {
-        modal = document.getElementById("modal")
-    })
+    let shouldDisplay = false
 
     export const openModal = () => {
-        modal.classList.remove("hidden")
-        modal.classList.add("z-50")
+        console.log("hello")
+        shouldDisplay = true
     }
 
     export const closeModal = () => {
-        modal.classList.add("hidden")
-        modal.classList.remove("z-50")
+        shouldDisplay = false
     }
 
     const closeModalCheck = () => {
@@ -29,26 +25,28 @@
     $: optionalPadding = isEasilyClosable ? "" : "p-3"
 </script>
 
-<!-- Overlay -->
-<div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden" id="modal" on:mouseup={closeModalCheck}>
+{#if shouldDisplay}
+    <!-- Overlay -->
+    <div transition:fade={{ duration: 300, easing: cubicInOut }} class="fixed inset-0 z-10 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full" on:mouseup={closeModalCheck}>
 
-    <!-- Modal window -->
-    <div class="relative top-20 {optionalPadding} border border-secondary max-w-screen-sm mx-auto shadow-lg rounded-md bg-canvas-secondary">
+        <!-- Modal window -->
+        <div class="relative top-20 {optionalPadding} border border-secondary max-w-screen-sm mx-auto shadow-lg rounded-md bg-canvas-secondary">
 
-        <div>
+            <div>
 
-            {#if !isEasilyClosable}
-                <!-- Close button -->
-                <div class="absolute top-2 right-3">
-                    <button class="bg-transparent" on:click={closeModal}>
-                        <CloseCircleOutline size="1.5em"/>
-                    </button>
-                </div>
-            {/if}
+                {#if !isEasilyClosable}
+                    <!-- Close button -->
+                    <div class="absolute top-2 right-3">
+                        <button class="bg-transparent" on:click={closeModal}>
+                            <CloseCircleOutline size="1.5em"/>
+                        </button>
+                    </div>
+                {/if}
 
-            <!-- Content -->
-            <slot />
+                <!-- Content -->
+                <slot />
 
+            </div>
         </div>
     </div>
-</div>
+{/if}

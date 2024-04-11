@@ -181,7 +181,7 @@ html[data-theme="light"] {
   --color-canvas-one: #f5deab;
   --color-canvas-two: #eef5d6;
 
-  --color-warning: #FF3A00;
+  --color-warning: #FF7146;
 }
 
 html[data-theme="classic"] {
@@ -199,5 +199,5 @@ html[data-theme="classic"] {
     --color-canvas-one: #343434;
     --color-canvas-two: #575757;
 
-    --color-warning: #FF3A00;
+    --color-warning: #AE2800;
 }

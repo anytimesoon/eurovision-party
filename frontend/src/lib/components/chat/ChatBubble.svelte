@@ -41,11 +41,11 @@
     $: menuPadding = (shouldShowReplyMenu && comment.isCompact) ? "pt-5" : ""
 </script>
 
-{#if user.authLvl === authLvl.BOT}
+{#if user && user.authLvl === authLvl.BOT}
     <div class="text-center mt-2 text-s p-3">
         <p class="text-sm">{comment.text}</p>
     </div>
-{:else}
+{:else if user}
 
     <div use:swipeable
          on:swiping={swipingHandler}
@@ -83,5 +83,7 @@
             </div>
         </div>
     </div>
-
+{:else}
+<!-- If this happens, it probably because your botId isn't set in the env vars -->
+<!-- If it keeps happening after it's set, try logging in again -->
 {/if}
