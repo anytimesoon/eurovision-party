@@ -90,8 +90,12 @@ function connectToSocket(){
                 case chatMsgCat.UPDATE_USER:
                     socketStateStore.isReady(true)
                     let updateMessage:UpdateMessageModel = chatMessage.body
+                    // setTimeout(()=>{}, 500)
                     // user needs to be updated before message gets published
                     userStore.update(users => {
+                        if (users[updateMessage.updatedUser.id].icon === updateMessage.updatedUser.icon) {
+                            updateMessage.updatedUser.icon += `?${Date.now()}`
+                        }
                         users[updateMessage.updatedUser.id] = updateMessage.updatedUser
                         return users
                     })
