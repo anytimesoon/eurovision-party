@@ -47,6 +47,7 @@
             openToaster()
         }
     }
+    console.log("crop")
 </script>
 
 <form method="POST" action="?/updateImg" enctype="multipart/form-data" use:enhance={() => {

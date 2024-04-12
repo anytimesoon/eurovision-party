@@ -1,5 +1,5 @@
 <script lang="ts">
-    import {currentUser, userStore} from "$lib/stores/user.store";
+    import {currentUser} from "$lib/stores/user.store";
     import {staticSvelteEP} from "$lib/models/enums/endpoints.enum";
     import { enhance } from '$app/forms';
     import type {ActionData} from './$types';
@@ -18,8 +18,7 @@
     let openModal:VoidFunction
     let closeModal:VoidFunction
     let theme = localStorage.getItem("theme")
-    let iconImage = staticSvelteEP.IMG + $currentUser.icon
-    let error:string = "get fucked"
+    let error:string = ""
     let closeToaster:VoidFunction
     let openToaster:VoidFunction
 
@@ -27,23 +26,16 @@
         hideNameForm = form.hideNameForm
 
         if (form.user) {
-            if(form.avatarUpdated){
-                updateAvatar()
-            }
+            form.user.icon += `?${Date.now()}`
 
             $currentUser = form.user
             closeModal()
         }
-
         if (form.error) {
             error = form.error
             openToaster()
         }
-    }
-
-    async function updateAvatar() {
-        iconImage = staticSvelteEP.IMG + form.user.icon + `?${Date.now()}`
-        $userStore[form.user.id].icon = form.user.icon
+        form = null
     }
 
     $: if(theme) {
@@ -93,7 +85,7 @@
     </div>
 
     <div class="py-3 max-w-[10rem] mx-auto relative">
-        <img class="w-full" src={iconImage} alt={$currentUser.name + "'s avatr"}>
+        <img class="w-full" src={staticSvelteEP.IMG + $currentUser.icon} alt={$currentUser.name + "'s avatr"}>
 
         <button class="absolute top-5 right-2 cursor-pointer py-2 px-2 rounded" on:click={openModal}>
             <FileEditOutline/>
