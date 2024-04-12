@@ -85,10 +85,10 @@
         </div>
     </div>
 
-    <div class="py-3 max-w-[10rem] mx-auto relative">
+    <div class="w-[10rem] h-[10rem] mx-auto relative">
 <!--        <img class="w-full" src={staticSvelteEP.IMG + $currentUser.icon} alt={$currentUser.name + "'s avatr"}>-->
         <ImageLoader customClasses="w-full" src={staticSvelteEP.IMG + $currentUser.icon} alt={$currentUser.name + "'s avatar"}/>
-        <button class="absolute top-5 right-2 cursor-pointer py-2 px-2 rounded" on:click={openModal}>
+        <button class="absolute top-2 right-2 cursor-pointer py-2 px-2 rounded" on:click={openModal}>
             <FileEditOutline/>
         </button>
     </div>
