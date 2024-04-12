@@ -12,6 +12,7 @@
     import FormButton from "$lib/components/forms/FormButton.svelte";
     import {formButtonState} from "$lib/models/enums/formButtonState.enum";
     import Toaster from "$lib/components/Toaster.svelte";
+    import ImageLoader from "$lib/components/images/ImageLoader.svelte";
 
     export let form:ActionData
     let hideNameForm = true
@@ -85,8 +86,8 @@
     </div>
 
     <div class="py-3 max-w-[10rem] mx-auto relative">
-        <img class="w-full" src={staticSvelteEP.IMG + $currentUser.icon} alt={$currentUser.name + "'s avatr"}>
-
+<!--        <img class="w-full" src={staticSvelteEP.IMG + $currentUser.icon} alt={$currentUser.name + "'s avatr"}>-->
+        <ImageLoader customClasses="w-full" src={staticSvelteEP.IMG + $currentUser.icon} alt={$currentUser.name + "'s avatar"}/>
         <button class="absolute top-5 right-2 cursor-pointer py-2 px-2 rounded" on:click={openModal}>
             <FileEditOutline/>
         </button>

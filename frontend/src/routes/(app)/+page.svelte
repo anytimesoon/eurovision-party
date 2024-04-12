@@ -11,6 +11,8 @@
     import {commentQueue} from "$lib/stores/commentQueue.store";
     import CommentQueue from "$lib/components/chat/CommentQueue.svelte";
     import ConnectionSpinner from "$lib/components/chat/ConnectionSpinner.svelte";
+    import { scale } from 'svelte/transition';
+    import {quintInOut, quintOut} from 'svelte/easing';
     import Send from "svelte-material-icons/Send.svelte";
     import CloseCircleOutline from "svelte-material-icons/CloseCircleOutline.svelte";
 
@@ -95,7 +97,7 @@
 
     <div>
         {#if replyComment.text !== undefined}
-            <div class="bg-canvas-secondary p-2 mb-1 rounded text-typography-main text-sm relative">
+            <div transition:scale={{ duration: 300, opacity: 0.5, easing: quintInOut }} class="bg-canvas-secondary p-2 mb-1 rounded text-typography-main text-sm relative">
                 <button class="bg-transparent absolute top-1 right-1"  on:click={closeReply}>
                     <CloseCircleOutline />
                 </button>

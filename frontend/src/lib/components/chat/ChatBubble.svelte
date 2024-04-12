@@ -7,6 +7,7 @@
     import {swipeable} from '@react2svelte/swipeable';
     import type { SwipeEventData } from '@react2svelte/swipeable';
     import ReplyMenu from "$lib/components/chat/ReplyMenu.svelte";
+    import ImageLoader from "$lib/components/images/ImageLoader.svelte";
 
     export let comment:CommentModel
     export let user:UserModel
@@ -53,15 +54,16 @@
          on:mouseenter={() => shouldShowReplyMenu = true}
          on:mouseleave={() => shouldShowReplyMenu = false}
          id="{comment.id}"
-         class="flex w-full max-w-[22rem] relative {currentUserBubbleContainer} {compactBubble}">
+         class="flex w-full max-w-[22rem] relative {currentUserBubbleContainer} {compactBubble} transition-all">
 
         <div class="flex-shrink">
             {#if !isCurrentUser}
                 <div class="w-10 h-10 mr-1">
                     {#if !comment.isCompact}
-                        <img on:click={() => openAvatarModal(user)}
-                             class="flex-shrink-0 rounded-full cursor-pointer {currentUserImage}"
-                             src={staticSvelteEP.IMG + user.icon} alt={user.name + "'s avatar"}>
+                        <div on:mouseup={() => openAvatarModal(user)}>
+                            <ImageLoader customClasses="flex-shrink-0 rounded-full cursor-pointer {currentUserImage}"
+                                         src={staticSvelteEP.IMG + user.icon} alt={user.name + "'s avatar"}/>
+                        </div>
                     {/if}
                 </div>
             {/if}
