@@ -8,7 +8,6 @@
     let shouldDisplay = false
 
     export const openModal = () => {
-        console.log("hello")
         shouldDisplay = true
     }
 
