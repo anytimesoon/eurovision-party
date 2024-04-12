@@ -54,7 +54,7 @@
          on:mouseenter={() => shouldShowReplyMenu = true}
          on:mouseleave={() => shouldShowReplyMenu = false}
          id="{comment.id}"
-         class="flex w-full max-w-[22rem] relative {currentUserBubbleContainer} {compactBubble} transition-all">
+         class="flex touch-pan-x w-full max-w-[22rem] relative {currentUserBubbleContainer} {compactBubble} transition-all">
 
         <div class="flex-shrink">
             {#if !isCurrentUser}
