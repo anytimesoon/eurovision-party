@@ -15,21 +15,23 @@
     export let openAvatarModal:Function = () => {}
     export let replyToComment:Function = () => {}
     let shouldShowReplyMenu:boolean = false
+    let bubble:HTMLDivElement
 
-    function swipedHandler(e:CustomEvent<SwipeEventData>) {
-        const bubble = e.target as HTMLDivElement
+    function swipedHandler() {
         bubble.style.right = "0px"
         bubble.parentElement.classList.remove("overflow-y-hidden")
         bubble.parentElement.classList.add("overflow-y-auto")
+    }
+
+    function swipedRightHandler() {
         replyToComment(comment)
     }
 
     function swipingHandler(e:CustomEvent<SwipeEventData>) {
         if (e.detail.dir == "Right") {
-            const bubble = e.target as HTMLDivElement
-            bubble.parentElement.classList.add("overflow-y-hidden")
-            bubble.parentElement.classList.remove("overflow-y-auto")
             if (e.detail.deltaX < 50) {
+                bubble.parentElement.classList.add("overflow-y-hidden")
+                bubble.parentElement.classList.remove("overflow-y-auto")
                 bubble.style.right = (e.detail.deltaX * -2.5) + "px"
             }
         }
@@ -56,9 +58,11 @@
 
     <div use:swipeable
          on:swiping={swipingHandler}
+         on:swipedright={swipedRightHandler}
          on:swiped={swipedHandler}
          on:mouseenter={() => shouldShowReplyMenu = true}
          on:mouseleave={() => shouldShowReplyMenu = false}
+         bind:this={bubble}
          id="{comment.id}"
          class="flex w-full max-w-[22rem] relative {currentUserBubbleContainer} {compactBubble} transition-all">
 
