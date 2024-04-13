@@ -98,7 +98,7 @@
 
     <div>
         {#if replyComment.text !== undefined}
-            <div transition:scale={{ duration: 300, opacity: 0.5, easing: quintInOut }} class="bg-canvas-secondary p-2 mb-1 rounded text-typography-main text-sm relative">
+            <div transition:scale={{ duration: 500, opacity: 0.5, easing: quintInOut }} class="bg-canvas-secondary p-2 mb-1 rounded text-typography-main text-sm relative">
                 <button class="bg-transparent absolute top-1 right-1"  on:click={closeReply}>
                     <CloseCircleOutline />
                 </button>
