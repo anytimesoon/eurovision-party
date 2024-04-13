@@ -56,6 +56,7 @@
         closeReply()
         input.value = ""
         input.style.height = "40px"
+        input.focus()
     }
 
     function replyCommentOrNull(){
