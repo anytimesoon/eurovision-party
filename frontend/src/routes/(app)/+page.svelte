@@ -12,7 +12,7 @@
     import CommentQueue from "$lib/components/chat/CommentQueue.svelte";
     import ConnectionSpinner from "$lib/components/chat/ConnectionSpinner.svelte";
     import { scale } from 'svelte/transition';
-    import {quintInOut, quintOut} from 'svelte/easing';
+    import {quintInOut} from 'svelte/easing';
     import Send from "svelte-material-icons/Send.svelte";
     import CloseCircleOutline from "svelte-material-icons/CloseCircleOutline.svelte";
 
@@ -64,8 +64,9 @@
     }
 
     function sendMsgWithKeyboard(e:KeyboardEvent){
-        e.target.style.height = "1px"
-        e.target.style.height = (4+e.target.scrollHeight)+"px"
+        const input = e.target as HTMLInputElement
+        input.style.height = "1px"
+        input.style.height = (4+input.scrollHeight)+"px"
 
         if(e.key == "Enter"){
             sendMsg()
