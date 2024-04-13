@@ -12,7 +12,7 @@
     import CommentQueue from "$lib/components/chat/CommentQueue.svelte";
     import ConnectionSpinner from "$lib/components/chat/ConnectionSpinner.svelte";
     import { scale } from 'svelte/transition';
-    import {quintInOut, quintOut} from 'svelte/easing';
+    import {quintInOut} from 'svelte/easing';
     import Send from "svelte-material-icons/Send.svelte";
     import CloseCircleOutline from "svelte-material-icons/CloseCircleOutline.svelte";
 
@@ -56,6 +56,7 @@
         closeReply()
         input.value = ""
         input.style.height = "40px"
+        input.focus()
     }
 
     function replyCommentOrNull(){
@@ -63,8 +64,9 @@
     }
 
     function sendMsgWithKeyboard(e:KeyboardEvent){
-        e.target.style.height = "1px"
-        e.target.style.height = (4+e.target.scrollHeight)+"px"
+        const input = e.target as HTMLInputElement
+        input.style.height = "1px"
+        input.style.height = (4+input.scrollHeight)+"px"
 
         if(e.key == "Enter"){
             sendMsg()
@@ -97,7 +99,7 @@
 
     <div>
         {#if replyComment.text !== undefined}
-            <div transition:scale={{ duration: 300, opacity: 0.5, easing: quintInOut }} class="bg-canvas-secondary p-2 mb-1 rounded text-typography-main text-sm relative">
+            <div transition:scale={{ duration: 500, opacity: 0.5, easing: quintInOut }} class="bg-canvas-secondary p-2 mb-1 rounded text-typography-main text-sm relative">
                 <button class="bg-transparent absolute top-1 right-1"  on:click={closeReply}>
                     <CloseCircleOutline />
                 </button>
