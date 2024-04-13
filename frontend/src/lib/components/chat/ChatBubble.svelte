@@ -17,14 +17,20 @@
     let shouldShowReplyMenu:boolean = false
 
     function swipedHandler(e:CustomEvent<SwipeEventData>) {
-        e.target.style.right = 0
+        const bubble = e.target as HTMLDivElement
+        bubble.style.right = "0px"
+        bubble.parentElement.classList.remove("overflow-y-hidden")
+        bubble.parentElement.classList.add("overflow-y-auto")
         replyToComment(comment)
     }
 
     function swipingHandler(e:CustomEvent<SwipeEventData>) {
         if (e.detail.dir == "Right") {
-            if (e.detail.deltaX < 100) {
-                e.target.style.right = (e.detail.deltaX * -1) + "px"
+            const bubble = e.target as HTMLDivElement
+            bubble.parentElement.classList.add("overflow-y-hidden")
+            bubble.parentElement.classList.remove("overflow-y-auto")
+            if (e.detail.deltaX < 50) {
+                bubble.style.right = (e.detail.deltaX * -2.5) + "px"
             }
         }
     }
@@ -50,11 +56,11 @@
 
     <div use:swipeable
          on:swiping={swipingHandler}
-         on:swipedright={swipedHandler}
+         on:swiped={swipedHandler}
          on:mouseenter={() => shouldShowReplyMenu = true}
          on:mouseleave={() => shouldShowReplyMenu = false}
          id="{comment.id}"
-         class="flex touch-pan-x w-full max-w-[22rem] relative {currentUserBubbleContainer} {compactBubble} transition-all">
+         class="flex w-full max-w-[22rem] relative {currentUserBubbleContainer} {compactBubble} transition-all">
 
         <div class="flex-shrink">
             {#if !isCurrentUser}
