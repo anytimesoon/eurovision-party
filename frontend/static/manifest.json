@@ -1,0 +1,14 @@
+{
+  "name": "Eurovision Party",
+  "short_name": "Eurovision",
+  "display": "standalone",
+  "start_url": "/",
+  "icons": [
+    {
+      "src": "images/favicon.png",
+      "sizes": "425x425",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
