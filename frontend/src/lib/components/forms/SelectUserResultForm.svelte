@@ -8,10 +8,11 @@
     export let showTitle = false
     let form:HTMLFormElement
     let userArray = [...new Map(Object.entries($userStore))]
+    let currentCat
 
-    const changeCat = (e:Event) => {
-        const option = e.target as HTMLOptionElement
-        $resultPageState.category = option.value
+    const changeCat = () => {
+        $resultPageState.category = currentCat
+        console.log(currentCat)
     }
 </script>
 
@@ -48,21 +49,23 @@
             <label for="id">Category</label>
         </div>
         <div class="w-1/2">
-            <select class="w-full text-center py-2 capitalize" name="id">
+            <select class="w-full text-center py-2 capitalize"
+                    name="id"
+                    bind:value={currentCat}
+                    on:change={changeCat}>
                 <option selected={$resultPageState.category === voteCats.TOTAL}
-                        value={voteCats.TOTAL}
-                        on:click={changeCat}>
+                        value={voteCats.TOTAL}>
                     Total
                 </option>
 
                 <option selected={$resultPageState.category === voteCats.SONG}
                         value={voteCats.SONG}
-                        on:click={changeCat}>
+                        on:select={changeCat}>
                     Song
                 </option>
                 <option selected={$resultPageState.category === voteCats.PERFORMANCE}
                         value={voteCats.PERFORMANCE}
-                        on:click={changeCat}>
+                        on:select={changeCat}>
                     Performance
                 </option>
                 <option selected={$resultPageState.category === voteCats.COSTUME}
