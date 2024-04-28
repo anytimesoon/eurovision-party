@@ -12,7 +12,6 @@
 
     const changeCat = () => {
         $resultPageState.category = currentCat
-        console.log(currentCat)
     }
 </script>
 
@@ -59,23 +58,19 @@
                 </option>
 
                 <option selected={$resultPageState.category === voteCats.SONG}
-                        value={voteCats.SONG}
-                        on:select={changeCat}>
+                        value={voteCats.SONG}>
                     Song
                 </option>
                 <option selected={$resultPageState.category === voteCats.PERFORMANCE}
-                        value={voteCats.PERFORMANCE}
-                        on:select={changeCat}>
+                        value={voteCats.PERFORMANCE}>
                     Performance
                 </option>
                 <option selected={$resultPageState.category === voteCats.COSTUME}
-                        value={voteCats.COSTUME}
-                        on:click={changeCat}>
+                        value={voteCats.COSTUME}>
                     Costume
                 </option>
                 <option selected={$resultPageState.category === voteCats.PROPS}
-                        value={voteCats.PROPS}
-                        on:click={changeCat}>
+                        value={voteCats.PROPS}>
                     Props
                 </option>
             </select>
