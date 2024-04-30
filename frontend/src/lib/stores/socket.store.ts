@@ -66,7 +66,7 @@ function connectToSocket(){
         console.log("Connection stopped. Attempting to reconnect")
         socketRetryCount.increment()
         socketStateStore.isReady(false)
-        setTimeout(socketStore.reconnect(), timeoutDuration * retryCount)
+        setTimeout(() => socketStore.reconnect(), timeoutDuration * retryCount)
     }
 
     socket.onmessage = function (event) {

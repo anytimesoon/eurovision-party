@@ -8,12 +8,12 @@
     import type { SwipeEventData } from '@react2svelte/swipeable';
     import ReplyMenu from "$lib/components/chat/ReplyMenu.svelte";
     import ImageLoader from "$lib/components/images/ImageLoader.svelte";
+    import {replyComment} from "$lib/stores/replyComment.store";
 
     export let comment:CommentModel
     export let user:UserModel
     export let isCurrentUser:boolean
     export let openAvatarModal:Function = () => {}
-    export let replyToComment:Function = () => {}
     let shouldShowReplyMenu:boolean = false
     let bubble:HTMLDivElement
 
@@ -24,7 +24,7 @@
     }
 
     function swipedRightHandler() {
-        replyToComment(comment)
+        replyComment.set(comment)
     }
 
     function swipingHandler(e:CustomEvent<SwipeEventData>) {
@@ -38,7 +38,7 @@
     }
 
     const replyButtonHandler = () => {
-        replyToComment(comment)
+        replyComment.set(comment)
     }
 
     $: userNameStyle = isCurrentUser ? "text-right" : ""

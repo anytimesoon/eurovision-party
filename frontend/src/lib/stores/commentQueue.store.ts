@@ -16,7 +16,7 @@ commentQueue.subscribe( val => {
 let socketState:boolean
 socketStateStore.subscribe(val => socketState = val)
 
-function newCommentQueue(): Writable<Array<ChatMessageModel<CommentModel>>> {
+function newCommentQueue() {
     const {subscribe, update} = writable(
         browser && JSON.parse(
             localStorage.getItem("commentQueue") ||
@@ -57,6 +57,6 @@ function addCommentHandler(chatMessage:ChatMessageModel<CommentModel>) {
     }
 }
 
-function send(message) {
+function send(message: ChatMessageModel<CommentModel>) {
     socketStore.send(JSON.stringify(message))
 }

@@ -1,11 +1,13 @@
-import {type Writable, writable} from "svelte/store";
+import {writable} from "svelte/store";
 
 export const socketRetryCount = newSocketRetryCountStore()
 
-function newSocketRetryCountStore(): Writable<number> {
+function newSocketRetryCountStore() {
     const {subscribe, update, set} = writable(0)
     return {
         subscribe,
+        set,
+        update,
         increment: () => update((n) => n + 1),
         reset: () => set(0)
     }
