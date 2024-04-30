@@ -1,4 +1,4 @@
-import {type Writable, writable} from "svelte/store";
+import {writable} from "svelte/store";
 import type {CommentModel} from "$lib/models/classes/comment.model";
 import type {ChatMessageModel} from "$lib/models/classes/chatMessage.model";
 import {socketStore} from "$lib/stores/socket.store";

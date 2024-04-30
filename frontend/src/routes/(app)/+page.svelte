@@ -1,6 +1,5 @@
 <script lang="ts">
     import {commentStore} from "$lib/stores/comment.store";
-    import type {CommentModel} from "$lib/models/classes/comment.model";
     import {currentUser, userStore} from "$lib/stores/user.store";
     import ChatBubble from "$lib/components/chat/ChatBubble.svelte";
     import Modal from "$lib/components/Modal.svelte";
@@ -10,7 +9,6 @@
     import CommentQueue from "$lib/components/chat/CommentQueue.svelte";
     import ConnectionSpinner from "$lib/components/chat/ConnectionSpinner.svelte";
     import ChatInputForm from "$lib/components/forms/ChatInputForm.svelte";
-    import {replyComment} from "$lib/stores/replyComment.store";
 
     let openModal:VoidFunction
     let closeModal:VoidFunction
