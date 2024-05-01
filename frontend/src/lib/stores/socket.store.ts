@@ -14,9 +14,6 @@ import {ChatMessageModel} from "$lib/models/classes/chatMessage.model";
 let loginEP:string
 loginURI.subscribe(val => loginEP = val)
 
-let currentUserID:string
-currentUser.subscribe(val => currentUserID = val.id)
-
 let botUserId:string
 botId.subscribe(val => botUserId = val)
 
@@ -32,12 +29,11 @@ let timeoutDuration = 1000 // in milis
 
 function socket() {
     let ws = connectToSocket()
-    const {subscribe, update} = writable(ws)
+    const {subscribe, update, set} = writable(ws)
     return {
         subscribe,
         update,
-        send: (message:string) => ws.send(message),
-        reconnect: () => ws = connectToSocket()
+        set
     }
 }
 
@@ -66,7 +62,7 @@ function connectToSocket(){
         console.log("Connection stopped. Attempting to reconnect")
         socketRetryCount.increment()
         socketStateStore.isReady(false)
-        setTimeout(() => socketStore.reconnect(), timeoutDuration * retryCount)
+        setTimeout(() => socketStore.set(connectToSocket()), timeoutDuration)
     }
 
     socket.onmessage = function (event) {
@@ -75,7 +71,6 @@ function connectToSocket(){
             const chatMessage = JSON.parse(c)
             switch (chatMessage.category) {
                 case chatMsgCat.COMMENT:
-                    socketStateStore.isReady(true)
                     addNewComment(chatMessage.body)
                     commentQueue.removeMessage(chatMessage.body.id)
                     break
@@ -85,12 +80,9 @@ function connectToSocket(){
                         commentQueue.removeMessage(commentModels[i].id)
                         addNewComment(commentModels[i])
                     }
-                    socketStateStore.isReady(true)
                     break
                 case chatMsgCat.UPDATE_USER:
-                    socketStateStore.isReady(true)
                     let updateMessage:UpdateMessageModel = chatMessage.body
-                    // setTimeout(()=>{}, 500)
                     // user needs to be updated before message gets published
                     userStore.update(users => {
                         if (users[updateMessage.updatedUser.id].icon === updateMessage.updatedUser.icon) {

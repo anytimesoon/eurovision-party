@@ -16,6 +16,9 @@ commentQueue.subscribe( val => {
 let socketState:boolean
 socketStateStore.subscribe(val => socketState = val)
 
+let socket:WebSocket
+socketStore.subscribe(val => socket = val)
+
 function newCommentQueue() {
     const {subscribe, update} = writable(
         browser && JSON.parse(
@@ -41,7 +44,7 @@ function restart() {
 
 function removeMessageHandler(messageId:string) {
     commentQueue.update( queue => {
-        return queue.filter( message => message.body.id != messageId)
+        return queue.filter( (message:ChatMessageModel<CommentModel>) => message.body.id != messageId)
     })
 
     if(currentQueue.length > 0 && socketState) {
@@ -58,5 +61,7 @@ function addCommentHandler(chatMessage:ChatMessageModel<CommentModel>) {
 }
 
 function send(message: ChatMessageModel<CommentModel>) {
-    socketStore.send(JSON.stringify(message))
+    if(socket !== undefined) {
+        socket.send(JSON.stringify(message))
+    }
 }

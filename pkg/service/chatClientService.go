@@ -16,7 +16,7 @@ const (
 	writeWait      = 10 * time.Second
 	pongWait       = 60 * time.Second
 	pingPeriod     = (pongWait * 9) / 10
-	maxMessageSize = 512
+	maxMessageSize = 5120
 )
 
 var (
@@ -93,7 +93,7 @@ func (c *ChatClient) Pub() {
 				Category: enum.COMMENT_ARRAY,
 				Body:     commentsJSON,
 			}
-
+			log.Println(chatMessages)
 			chatMessagesJSON, err := json.Marshal(chatMessages)
 			if err != nil {
 				log.Println("Failed to marshal latest messages for user", c.UserId)
