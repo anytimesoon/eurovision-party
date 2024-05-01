@@ -42,7 +42,9 @@
         {/if}
 
         {#if comment.fileName !== ""}
-            <ImageLoader src={comment.fileName} alt="comment image" customClasses=""/>
+            <div class="mr-3 rounded overflow-hidden">
+                <ImageLoader src={comment.fileName} alt="comment image" customClasses=""/>
+            </div>
         {/if}
 
         <p bind:this={commentElement} class="{contentTextStyle} pr-8"></p>
