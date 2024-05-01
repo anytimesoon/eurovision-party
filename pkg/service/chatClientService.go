@@ -93,7 +93,6 @@ func (c *ChatClient) Pub() {
 				Category: enum.COMMENT_ARRAY,
 				Body:     commentsJSON,
 			}
-			log.Println(chatMessages)
 			chatMessagesJSON, err := json.Marshal(chatMessages)
 			if err != nil {
 				log.Println("Failed to marshal latest messages for user", c.UserId)
