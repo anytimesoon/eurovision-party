@@ -1,6 +1,5 @@
 <script lang="ts">
     import type {CommentModel} from "$lib/models/classes/comment.model";
-    import {onMount} from "svelte";
     import Spinner from "$lib/components/Spinner.svelte";
     import {socketRetryCount} from "$lib/stores/socketRetryCount.store";
     import {commentQueue} from "$lib/stores/commentQueue.store";

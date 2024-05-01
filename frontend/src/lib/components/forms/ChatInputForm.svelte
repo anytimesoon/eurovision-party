@@ -1,73 +1,97 @@
 <script lang="ts">
-    import {quintInOut} from "svelte/easing";
     import {currentUser, userStore} from "$lib/stores/user.store";
     import Send from "svelte-material-icons/Send.svelte";
-    import CloseCircleOutline from "svelte-material-icons/CloseCircleOutline.svelte";
+    import Image from "svelte-material-icons/Image.svelte";
     import {ChatMessageModel} from "$lib/models/classes/chatMessage.model";
     import {CommentModel} from "$lib/models/classes/comment.model";
     import {chatMsgCat} from "$lib/models/enums/chatMsgCat";
     import {commentQueue} from "$lib/stores/commentQueue.store";
     import {replyComment} from "$lib/stores/replyComment.store";
-    import { scale } from 'svelte/transition';
+    import ReplyComment from "$lib/components/chat/ReplyComment.svelte";
+
+    let textArea:HTMLTextAreaElement
+    let message:string
 
     function sendMsg() {
-        const input = document.getElementById("msg")! as HTMLInputElement;
-
-        if(input.value === "" || input.value === null) {
+        message.trim()
+        if(message === "" || message.length === 0) {
+            resetTextArea()
             return
         }
 
         const comment = new ChatMessageModel<CommentModel>(
             chatMsgCat.COMMENT,
                 new CommentModel(
-                    input.value,
+                    message,
                     $currentUser.id,
-                    replyCommentOrNull(),
+                    $replyComment.createdAt != null ? $replyComment : null,
                     null,
                     true
                 )
         )
 
         commentQueue.addComment(comment)
+        resetTextArea()
+    }
+
+    function resetTextArea() {
         replyComment.close()
-        input.value = ""
-        input.style.height = "40px"
-        input.focus()
+        message = ""
+        textArea.style.height = "1.25rem"
+        textArea.focus()
     }
 
-    function replyCommentOrNull(){
-        return $replyComment.createdAt != null ? $replyComment : null
-    }
-
-    function sendMsgWithKeyboard(e:KeyboardEvent){
-        const input = e.target as HTMLInputElement
-        input.style.height = "1px"
-        input.style.height = (4+input.scrollHeight)+"px"
+    function sendOrResize(e:KeyboardEvent){
+        textArea.style.height = "1px"
+        textArea.style.height = `${textArea.scrollHeight}px`
 
         if(e.key == "Enter"){
+            message = message.slice(0, -1)
             sendMsg()
         }
     }
-</script>
-<div>
-    {#if $replyComment.text !== undefined}
-        <div transition:scale={{ duration: 500, opacity: 0.5, easing: quintInOut }} class="bg-canvas-secondary p-2 mb-1 rounded text-typography-main text-sm relative">
-            <button class="bg-transparent absolute top-1 right-1"  on:click={() => replyComment.close()}>
-                <CloseCircleOutline />
-            </button>
 
-            {#if $replyComment.userId !== undefined}
-                <div class="pb-2">
-                    {$userStore[$replyComment.userId].name}
-                </div>
-            {/if}
-            {$replyComment.text}
-        </div>
-    {/if}
+    $: if($replyComment) {
+        if($replyComment.text !== undefined && textArea !== undefined) {
+            textArea.focus()
+        }
+    }
+</script>
+
+<div>
     <div class="flex">
-        <textarea class="h-10 text-sm overflow-hidden" name="msg" id="msg" on:keyup={e => sendMsgWithKeyboard(e)}></textarea>
-        <div class="flex flex-col-reverse ml-2">
-            <button on:click={sendMsg}>
+        <div class="flex flex-col-reverse">
+            <button class="rounded-full py-3">
+                <Image size="1.4em"/>
+            </button>
+        </div>
+        <div class="flex-1
+                    mx-3
+                    border-solid
+                    bg-canvas-secondary
+                    border-2
+                    border-gray-400
+                    p-2
+                    rounded-lg
+                    shadow-sm">
+
+            <ReplyComment />
+
+            <textarea class="text-sm
+                            h-5
+                            p-0
+                            overflow-hidden
+                            border-0
+                            focus:border-0
+                            focus:outline-0"
+                      name="msg"
+                      bind:this={textArea}
+                      bind:value={message}
+                      on:keyup={e => sendOrResize(e)}></textarea>
+        </div>
+
+        <div class="flex flex-col-reverse">
+            <button on:click={sendMsg} class="rounded-full py-3">
                 <Send size="1.4em"/>
             </button>
         </div>
