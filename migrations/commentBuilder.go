@@ -17,7 +17,8 @@ func CreateCommentsTable(db *sqlx.DB) {
 	query := `CREATE TABLE IF NOT EXISTS comment(
 				uuid CHAR(36) NOT NULL, 
 				userId CHAR(36) NOT NULL, 
-				text VARCHAR(191) NOT NULL, 
+				text VARCHAR(191) NOT NULL,
+				fileName VARCHAR(255), 
 				replyTo CHAR(36),
 				createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 PRIMARY KEY (uuid));`

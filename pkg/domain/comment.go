@@ -12,6 +12,7 @@ type Comment struct {
 	UUID             uuid.UUID  `db:"uuid"`
 	UserId           uuid.UUID  `db:"userId"`
 	Text             []byte     `db:"text"`
+	FileName         string     `db:"fileName"`
 	CreatedAt        time.Time  `db:"createdAt"`
 	ReplyToID        uuid.UUID  `db:"replyTo_uuid"`
 	ReplyToUserId    uuid.UUID  `db:"replyTo_userId"`
@@ -41,6 +42,7 @@ func (comment Comment) ToDto() dto.Comment {
 		UUID:      comment.UUID,
 		UserId:    comment.UserId,
 		Text:      string(comment.Text),
+		FileName:  comment.FileName,
 		ReplyTo:   replyTo,
 		CreatedAt: comment.CreatedAt,
 	}

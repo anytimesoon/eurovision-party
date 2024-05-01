@@ -5,6 +5,7 @@
     import {commentQueue} from "$lib/stores/commentQueue.store";
     import {userStore} from "$lib/stores/user.store";
     import CloseCircleOutline from "svelte-material-icons/CloseCircleOutline.svelte";
+    import ImageLoader from "$lib/components/images/ImageLoader.svelte";
 
     export let comment:CommentModel
     export let isCurrentUser:boolean
@@ -38,6 +39,10 @@
                 </span>
                 </div>
             </a>
+        {/if}
+
+        {#if comment.fileName !== ""}
+            <ImageLoader src={comment.fileName} alt="comment image" customClasses=""/>
         {/if}
 
         <p bind:this={commentElement} class="{contentTextStyle} pr-8"></p>
