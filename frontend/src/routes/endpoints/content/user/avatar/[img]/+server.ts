@@ -1,4 +1,4 @@
-import {RequestHandler} from "@sveltejs/kit";
+import type {RequestHandler} from "@sveltejs/kit";
 import {staticGoEP} from "$lib/models/enums/endpoints.enum";
 
 export const GET :RequestHandler = async ({fetch, params}): Promise<Response> => {

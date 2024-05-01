@@ -32,7 +32,8 @@ export const countryGoEP = {
 }
 
 export const staticSvelteEP = {
-    IMG: staticSvelteURL + "user/avatar/"
+    IMG: staticSvelteURL + "user/avatar/",
+    CHAT_IMG: staticSvelteURL + "chat"
 }
 
 export const staticGoEP = {

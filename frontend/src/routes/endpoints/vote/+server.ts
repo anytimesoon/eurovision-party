@@ -1,7 +1,7 @@
-import {json, RequestHandler} from "@sveltejs/kit";
+import {json, type RequestHandler} from "@sveltejs/kit";
 import {voteGoEP} from "$lib/models/enums/endpoints.enum";
-import {VoteModel} from "$lib/models/classes/vote.model";
-import {ResponseModel} from "$lib/models/classes/response.model";
+import type {VoteModel} from "$lib/models/classes/vote.model";
+import type {ResponseModel} from "$lib/models/classes/response.model";
 
 export const GET :RequestHandler = async ({fetch}): Promise<Response> => {
     const voteRes = await fetch(voteGoEP.RESULTS);
