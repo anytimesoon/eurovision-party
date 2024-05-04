@@ -19,6 +19,8 @@ mocks
 
 assets/img/avatars
 !assets/img/avatars/.gitkeep
+!assets/img/chat/
+!assets/img/chat/.gitkeep
 
 # frontend
 frontend/.DS_Store
