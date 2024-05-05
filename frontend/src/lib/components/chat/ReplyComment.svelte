@@ -4,6 +4,7 @@
     import {userStore} from "$lib/stores/user.store";
     import CloseCircleOutline from "svelte-material-icons/CloseCircleOutline.svelte";
     import { scale } from 'svelte/transition';
+    import {staticSvelteEP} from "$lib/models/enums/endpoints.enum";
 
     let shouldDisplay = false
 
@@ -28,6 +29,17 @@
                 {$userStore[$replyComment.userId].name}
             </div>
         {/if}
-        {$replyComment.text}
+        <div class="flex">
+            {#if $replyComment.fileName !== ""}
+                <div class="pr-3">
+
+                    <img src={staticSvelteEP.CHAT_IMG + $replyComment.fileName} alt="" class="max-h-[20px]"/>
+
+                </div>
+            {/if}
+            <div class="flex-1">
+                {$replyComment.text}
+            </div>
+        </div>
     </div>
 {/if}
