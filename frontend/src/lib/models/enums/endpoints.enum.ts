@@ -32,12 +32,15 @@ export const countryGoEP = {
 }
 
 export const staticSvelteEP = {
-    IMG: staticSvelteURL + "user/avatar/",
-    CHAT_IMG: staticSvelteURL + "chat"
+    AVATAR_IMG: staticSvelteURL + "user/avatar/",
+    CHAT_IMG: staticSvelteURL + "user/chat/",
+    CREATE_CHAT_IMG: staticSvelteURL + "chat/"
 }
 
 export const staticGoEP = {
-    IMG: apiBase + "content/user/avatar/"
+    AVATAR_IMG: apiBase + "content/user/avatar/",
+    CHAT_IMG: apiBase + "content/user/chat/",
+    CREATE_CHAT_IMG: apiBase + "content/user/chat"
 }
 
 export const userSvelteEP = {
