@@ -13,6 +13,7 @@
     import {formButtonState} from "$lib/models/enums/formButtonState.enum";
     import ImageLoader from "$lib/components/images/ImageLoader.svelte";
     import {errorStore} from "$lib/stores/error.store";
+    import type {UserModel} from "$lib/models/classes/user.model";
 
     export let form:ActionData
     let hideNameForm = true
@@ -50,7 +51,7 @@
 {/if}
 
 <Modal bind:openModal={openModal} bind:closeModal={closeModal}>
-    <AvatarCropForm />
+    <AvatarCropForm closer={closeModal}/>
 </Modal>
 
 <div class="pb-3">

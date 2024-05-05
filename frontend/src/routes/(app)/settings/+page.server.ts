@@ -24,26 +24,14 @@ export const actions : Actions = {
     },
     updateImg: async ({fetch, request}) => {
         const fd = await request.formData()
-        let user:UserModel
-        let error:string
-
         const res = await fetch(userGoEP.UPDATE_IMAGE, {
             method: "PUT",
             body: fd
         })
 
-        if (!res.ok) {
-            error = "Could not process the image. Please try another."
-        } else {
-            const userResp = await res.json()
-            user = userResp.body
-        }
-
+        const userResp = await res.json()
         return {
-            hideNameForm: true,
-            avatarUpdated: true,
-            error,
-            user: user
+            user: userResp
         }
     }
 }
