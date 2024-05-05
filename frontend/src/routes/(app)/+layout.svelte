@@ -4,6 +4,8 @@
   import MenuButton from "$lib/components/buttons/MenuButton.svelte";
   import {onMount} from "svelte";
   import {userStore} from "$lib/stores/user.store";
+  import {errorStore} from "$lib/stores/error.store";
+  import Toaster from "$lib/components/Toaster.svelte";
 
 
   export let data:LayoutData
@@ -35,6 +37,10 @@
   }
 </script>
 <svelte:window on:click={handleWindowClick} />
+
+{#if $errorStore !== ""}
+    <Toaster />
+{/if}
 
 <main class="h-screen max-w-screen-sm mx-auto px-3 relative flex flex-col">
     <div id="content" class="flex-1 pb-4 overflow-hidden">

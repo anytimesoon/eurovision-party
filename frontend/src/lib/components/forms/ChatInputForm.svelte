@@ -1,69 +1,28 @@
 <script lang="ts">
     import {currentUser} from "$lib/stores/user.store";
     import Send from "svelte-material-icons/Send.svelte";
-    import Image from "svelte-material-icons/Image.svelte";
+    import ImagePic from "svelte-material-icons/Image.svelte";
     import {ChatMessageModel} from "$lib/models/classes/chatMessage.model";
     import {CommentModel} from "$lib/models/classes/comment.model";
     import {chatMsgCat} from "$lib/models/enums/chatMsgCat";
     import {commentQueue} from "$lib/stores/commentQueue.store";
     import {replyComment} from "$lib/stores/replyComment.store";
     import ReplyComment from "$lib/components/chat/ReplyComment.svelte";
-    import Dropzone from "dropzone";
-    import {staticSvelteEP} from "$lib/models/enums/endpoints.enum";
-    import {onMount} from "svelte";
-    import CloseCircleOutline from "svelte-material-icons/CloseCircleOutline.svelte";
     import Spinner from "$lib/components/Spinner.svelte";
+    import ImagePreviewGallery from "$lib/components/chat/ImagePreviewGallery.svelte";
+    import {errorStore} from "$lib/stores/error.store";
 
     let textArea:HTMLTextAreaElement
     let message:string = ""
-    let gallery:HTMLDivElement
-    let previewTemplate:HTMLDivElement
-    let uploader:Dropzone
+    let previewImage:string|ArrayBuffer
+    let imageFiles:FileList
+    let imageFile:File
     let fileName:string = ""
     let isDisabled = false
-
-    onMount(() => {
-        const template = previewTemplate.innerHTML
-        previewTemplate.parentNode.removeChild(previewTemplate);
-
-        uploader = new Dropzone("#uploader", {
-            url: staticSvelteEP.CHAT_IMG,
-            maxFiles: 1,
-            acceptedFiles: "image/*",
-            thumbnailWidth: 60,
-            thumbnailHeight: 60,
-            previewTemplate: template,
-            previewsContainer: gallery,
-            clickable: ".clickable",
-            renameFile(file:File):string {
-                return fileName
-            }
-        });
-
-        uploader.on("addedfile", (file:File) => {
-            fileName = new Date().getTime() + '_' + file.name
-        })
-
-        uploader.on("removedfile", () => {
-            fileName = ""
-        })
-
-        uploader.on("processing", () => {
-            isDisabled = true
-        })
-
-        uploader.on("queuecomplete", () => {
-            isDisabled = false
-        })
-    })
-
+    let controler:AbortController
 
     function sendMsg() {
         message.trim()
-        // if(message === "" || message.length === 0) {
-        //     resetTextArea()
-        //     return
-        // }
 
         const comment = new ChatMessageModel<CommentModel>(
             chatMsgCat.COMMENT,
@@ -87,7 +46,6 @@
         textArea.style.height = "1.25rem"
         textArea.focus()
         fileName = ""
-        uploader.removeAllFiles()
     }
 
     function sendOrResize(e:KeyboardEvent){
@@ -100,6 +58,100 @@
         }
     }
 
+    async function uploadImage(){
+        let uploadableImage:Blob
+        isDisabled = true
+        imageFile = imageFiles[0]
+        const reader = new FileReader();
+        // Closure to capture the file information.
+        reader.onload = (function(theFile) {
+            return function(e) {
+                previewImage = e.target.result
+            };
+        })(imageFile);
+        // Read in the image file as a data URL.
+        // if allowedExtensions = /(\.jpg|\.jpeg|\.png|\.gif)$/i
+
+        reader.readAsDataURL(imageFile)
+
+        fileName = Date.now() + "-" + imageFile.name
+
+        const gifExtension = /(\.gif)$/i
+        if (gifExtension.exec(fileName)){
+            uploadableImage = imageFile
+        } else {
+            uploadableImage = await resizeImage(imageFile, 1500)
+        }
+
+        controler = new AbortController()
+        const signal = controler.signal
+
+        let fd = new FormData()
+        fd.append('file', uploadableImage, fileName)
+        const ok = await fetch("?/uploadChatImg", {method: "POST", body: fd, signal: signal}).then(() => isDisabled = false)
+        if (!ok) {
+            $errorStore = "Oops... something went wrong. Please try another file"
+            cancelUpload()
+        }
+    }
+
+    const resizeImage = (file:File, maxSize:number):Promise<Blob> => {
+        const reader = new FileReader();
+        const image = new Image();
+        const canvas = document.createElement('canvas');
+        const dataURItoBlob = (dataURI: string) => {
+            const bytes = dataURI.split(',')[0].indexOf('base64') >= 0 ?
+                atob(dataURI.split(',')[1]) :
+                unescape(dataURI.split(',')[1]);
+            const mime = dataURI.split(',')[0].split(':')[1].split(';')[0];
+            const max = bytes.length;
+            const ia = new Uint8Array(max);
+            for (var i = 0; i < max; i++) ia[i] = bytes.charCodeAt(i);
+            return new Blob([ia], {type:mime});
+        };
+        const resize = () => {
+            let width = image.width;
+            let height = image.height;
+
+            if (width > height) {
+                if (width > maxSize) {
+                    height *= maxSize / width;
+                    width = maxSize;
+                }
+            } else {
+                if (height > maxSize) {
+                    width *= maxSize / height;
+                    height = maxSize;
+                }
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            canvas.getContext('2d').drawImage(image, 0, 0, width, height);
+            let dataUrl = canvas.toDataURL('image/jpeg');
+            return dataURItoBlob(dataUrl);
+        };
+
+        return new Promise((ok, no) => {
+            if (!file.type.match(/image.*/)) {
+                no(new Error("Not an image"));
+                return;
+            }
+
+            reader.onload = (readerEvent: any) => {
+                image.onload = () => ok(resize());
+                image.src = readerEvent.target.result;
+            };
+            reader.readAsDataURL(file);
+        })
+    };
+
+    function cancelUpload() {
+        imageFiles = null
+        fileName = ''
+        controler.abort()
+    }
+
     $: if($replyComment) {
         if($replyComment.text !== undefined && textArea !== undefined) {
             textArea.focus()
@@ -107,12 +159,23 @@
     }
 </script>
 
-<div id="uploader">
+<div>
     <div class="flex">
         <div class="flex flex-col-reverse">
-            <button class="rounded-full py-3 clickable">
-                <Image size="1.4em" class="clickable"/>
-            </button>
+
+            <label for="upload"
+                   class="cursor-pointer text-typography-main"
+                   on:change={uploadImage}>
+
+                <div class="rounded-full bg-primary p-3">
+                    <span class="flex">
+                        <ImagePic size="1.4em"/>
+                    </span>
+                    <input id="upload" class="hidden" name="file" type="file" accept="image/*" bind:files={imageFiles}>
+                </div>
+
+            </label>
+
         </div>
         <div class="flex-1
                     mx-3
@@ -125,8 +188,8 @@
                     shadow-sm">
 
             <ReplyComment />
+            <ImagePreviewGallery fileName={fileName} previewImage={previewImage} cancelUpload={cancelUpload}/>
 
-            <div bind:this={gallery} class="dropzone-previews"></div>
 
             <textarea class="text-sm
                             h-5
@@ -153,21 +216,3 @@
     </div>
 </div>
 
-
-<!-- preview template -->
-<div class="files" >
-    <div id="template" class="file-row" bind:this={previewTemplate}>
-        <!-- This is used as the file preview template -->
-        <div class="flex">
-            <div>
-                <span class="preview relative">
-                    <img data-dz-thumbnail />
-                    <button data-dz-remove class="bg-transparent absolute top-2 left-[3.3rem]">
-                        <CloseCircleOutline />
-                    </button>
-                </span>
-            </div>
-            <div class="flex flex-col-reverse data-dz-errormessage p-3"></div>
-        </div>
-    </div>
-</div>

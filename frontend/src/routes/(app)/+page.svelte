@@ -24,7 +24,7 @@
 
 <Modal bind:openModal={openModal} bind:closeModal={closeModal} isEasilyClosable={true}>
     {#if userWithActiveAvatar && userWithActiveAvatar.icon !== undefined}
-        <img class="mx-auto" src={staticSvelteEP.IMG + userWithActiveAvatar.icon} alt={userWithActiveAvatar.name + "'s avatar"}/>
+        <img class="mx-auto" src={staticSvelteEP.AVATAR_IMG + userWithActiveAvatar.icon} alt={userWithActiveAvatar.name + "'s avatar"}/>
     {/if}
 </Modal>
 

@@ -9,12 +9,11 @@
     import {staticSvelteEP} from "$lib/models/enums/endpoints.enum";
     import {formButtonState} from "$lib/models/enums/formButtonState.enum";
     import FormButton from "$lib/components/forms/FormButton.svelte";
+    import {errorStore} from "$lib/stores/error.store";
 
-    export let error:string
-    export let openToaster:VoidFunction
     const authorizedExtensions = ['image/jpg', 'image/jpeg', 'image/png']
     let cropArea:ImageCropArea = new ImageCropArea()
-    let img:string = staticSvelteEP.IMG + $currentUser.icon
+    let img:string = staticSvelteEP.AVATAR_IMG + $currentUser.icon
     let formState = formButtonState.DISABLED
     let imageFiles:FileList
     let imageFile:File
@@ -34,7 +33,6 @@
 
         if (authorizedExtensions.includes(imageFile.type)) {
             formState = formButtonState.ENABLED
-            document.getElementById("avatar-upload-errors").innerText = ""
 
             let reader = new FileReader()
             reader.onload = e => {
@@ -42,12 +40,9 @@
             }
             reader.readAsDataURL(imageFile)
         } else {
-            // document.getElementById("avatar-upload-errors").innerText = "Only jpeg and png are allowed"
-            error = "Only jpeg and png files are allowed"
-            openToaster()
+            $errorStore = "Only jpeg and png files are allowed"
         }
     }
-    console.log("crop")
 </script>
 
 <form method="POST" action="?/updateImg" enctype="multipart/form-data" use:enhance={() => {
@@ -68,7 +63,7 @@
     <div class="h-60 w-60 relative mx-auto">
         {#if formState === formButtonState.DISABLED}
             <div class="p-3 overflow-hidden">
-                <img src={staticSvelteEP.IMG + $currentUser.icon} alt="Avatar"/>
+                <img src={staticSvelteEP.AVATAR_IMG + $currentUser.icon} alt="Avatar"/>
             </div>
         {:else}
             <Cropper
@@ -84,7 +79,6 @@
 
 
     <div class="w-60 mx-auto py-3 ">
-        <div id="avatar-upload-errors" class="text-center text-typography-grey"></div>
         <div class="flex justify-between">
             <label for="avatar" class="cursor-pointer py-2 px-3 rounded text-typography-main">
                 <span class="flex"><Image size="1.4em"/> Browse</span>

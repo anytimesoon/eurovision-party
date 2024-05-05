@@ -13,15 +13,13 @@
     import {formButtonState} from "$lib/models/enums/formButtonState.enum";
     import Toaster from "$lib/components/Toaster.svelte";
     import ImageLoader from "$lib/components/images/ImageLoader.svelte";
+    import {errorStore} from "$lib/stores/error.store";
 
     export let form:ActionData
     let hideNameForm = true
     let openModal:VoidFunction
     let closeModal:VoidFunction
     let theme = localStorage.getItem("theme")
-    let error:string = ""
-    let closeToaster:VoidFunction
-    let openToaster:VoidFunction
 
     $: if(form){
         hideNameForm = form.hideNameForm
@@ -33,8 +31,7 @@
             closeModal()
         }
         if (form.error) {
-            error = form.error
-            openToaster()
+            $errorStore = form.error
         }
         form = null
     }
@@ -53,12 +50,8 @@
     <AdminNav page="settings"/>
 {/if}
 
-<Toaster bind:openToaster={openToaster} bind:closeToaster={closeToaster}>
-    {error}
-</Toaster>
-
 <Modal bind:openModal={openModal} bind:closeModal={closeModal}>
-    <AvatarCropForm bind:error={error} bind:openToaster={openToaster}/>
+    <AvatarCropForm />
 </Modal>
 
 <div class="pb-3">
@@ -86,8 +79,7 @@
     </div>
 
     <div class="w-[10rem] h-[10rem] mx-auto relative">
-<!--        <img class="w-full" src={staticSvelteEP.IMG + $currentUser.icon} alt={$currentUser.name + "'s avatr"}>-->
-        <ImageLoader customClasses="w-full" src={staticSvelteEP.IMG + $currentUser.icon} alt={$currentUser.name + "'s avatar"}/>
+        <ImageLoader customClasses="w-full" src={staticSvelteEP.AVATAR_IMG + $currentUser.icon} alt={$currentUser.name + "'s avatar"}/>
         <button class="absolute top-2 right-2 cursor-pointer py-2 px-2 rounded" on:click={openModal}>
             <FileEditOutline/>
         </button>

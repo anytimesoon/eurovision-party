@@ -68,11 +68,11 @@
 
         <div class="flex-shrink">
             {#if !isCurrentUser}
-                <div class="w-10 h-10 mr-1">
+                <div class="w-10 h-10 mr-1 rounded-full overflow-hidden">
                     {#if !comment.isCompact}
                         <div on:mouseup={() => openAvatarModal(user)}>
-                            <ImageLoader customClasses="flex-shrink-0 rounded-full cursor-pointer {currentUserImage}"
-                                         src={staticSvelteEP.IMG + user.icon} alt={user.name + "'s avatar"}/>
+                            <ImageLoader customClasses="cursor-pointer {currentUserImage}"
+                                         src={staticSvelteEP.AVATAR_IMG + user.icon} alt={user.name + "'s avatar"}/>
                         </div>
                     {/if}
                 </div>
