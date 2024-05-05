@@ -1,22 +1,23 @@
 package router
 
 import (
+	"github.com/anytimesoon/eurovision-party/conf"
 	"github.com/anytimesoon/eurovision-party/pkg/dto"
 	"github.com/anytimesoon/eurovision-party/pkg/enum"
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
 	"github.com/anytimesoon/eurovision-party/pkg/service"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
-	"image"
 	"io"
 	"log"
 	"mime/multipart"
 	"net/http"
-	"strconv"
+	"path/filepath"
 )
 
 type UserHandler struct {
-	Service service.UserService
+	Service      service.UserService
+	AssetService service.AssetService
 }
 
 func (uh UserHandler) FindAllUsers(resp http.ResponseWriter, req *http.Request) {
@@ -64,7 +65,7 @@ func (uh UserHandler) UpdateImage(resp http.ResponseWriter, req *http.Request) {
 
 	log.Println("Starting image save")
 
-	err := req.ParseMultipartForm(400)
+	err := req.ParseMultipartForm(5 * 1024 * 1024)
 	if err != nil {
 		log.Println("Failed to parse form data", err)
 		return
@@ -83,35 +84,14 @@ func (uh UserHandler) UpdateImage(resp http.ResponseWriter, req *http.Request) {
 	}
 
 	if req.Context().Value("auth").(dto.Auth).UserId == id {
-		f, header, err := req.FormFile("img")
-		defer func(f multipart.File) {
-			err := f.Close()
-			if err != nil {
-				log.Println("Failed to close file")
-			}
-		}(f)
-		if err != nil {
-			log.Println("Failed to parse image", err)
-			writeResponse(resp, req, http.StatusInternalServerError, user, "Could not process this image. Please try another.")
+
+		fileHeaders := req.MultipartForm.File["file"]
+		appErr = uh.AssetService.PersistImage(fileHeaders, filepath.Join(conf.App.Assets, "avatars"))
+		if appErr != nil {
+			writeResponse(resp, req, appErr.Code, user, appErr.Message)
 		}
 
-		cropX, err := strconv.Atoi(req.PostFormValue("x"))
-		cropY, err := strconv.Atoi(req.PostFormValue("y"))
-		cropH, err := strconv.Atoi(req.PostFormValue("height"))
-		cropW, err := strconv.Atoi(req.PostFormValue("width"))
-		if err != nil {
-			log.Println("Failed to parse crop data", err)
-			return
-		}
-
-		avatar := dto.UserAvatar{
-			UUID:    id,
-			File:    f,
-			Header:  header,
-			CropBox: image.Rect(cropX, cropY, cropH+cropX, cropW+cropY),
-		}
-
-		user, appErr = uh.Service.UpdateUserImage(avatar)
+		user, appErr = uh.Service.UpdateUserImage(id)
 	} else {
 		appErr = errs.NewUnauthorizedError(errs.Common.Unauthorized)
 	}

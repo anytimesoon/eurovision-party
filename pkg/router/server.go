@@ -73,7 +73,7 @@ func StartServer(db *sqlx.DB) {
 
 	// User
 	userRepositoryDb := domain.NewUserRepositoryDb(db)
-	userHandler := UserHandler{Service: service.NewUserService(userRepositoryDb, chatRoomHandler.RoomService.BroadcastUpdate)}
+	userHandler := UserHandler{Service: service.NewUserService(userRepositoryDb, chatRoomHandler.RoomService.BroadcastUpdate), AssetService: service.NewAssetService()}
 	userRouter := apiRouter.PathPrefix("/user").Subrouter()
 	userRouter.HandleFunc("/", userHandler.FindAllUsers).Methods(http.MethodGet)
 	userRouter.HandleFunc("/", userHandler.UpdateUser).Methods(http.MethodPut)        // admin or current user
