@@ -1,7 +1,6 @@
 package service
 
 import (
-	"github.com/anytimesoon/eurovision-party/conf"
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
 	"io"
 	"log"
@@ -35,7 +34,7 @@ func (a DefaultAssetService) PersistImage(fileHeaders []*multipart.FileHeader, p
 
 	fileName := fileHeaders[0].Filename
 
-	f, err := os.Create(filepath.Join(conf.App.Assets, "chat", fileName))
+	f, err := os.Create(filepath.Join(path, fileName))
 	if err != nil {
 		log.Println("Failed to create image.", err)
 		return errs.NewUnexpectedError(errs.Common.NotSaved)
