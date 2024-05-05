@@ -6,6 +6,7 @@
 
     const sizeVariants = {
         s: 'w-3 h-3',
+        sm: 'w-[20px] h-[20px]',
         m: 'w-7 h-7',
         l: 'w-12 h-12'
     }

@@ -2,5 +2,5 @@ import type {RequestHandler} from "@sveltejs/kit";
 import {staticGoEP} from "$lib/models/enums/endpoints.enum";
 
 export const GET :RequestHandler = async ({fetch, params}): Promise<Response> => {
-    return await fetch(staticGoEP.AVATAR_IMG+params.img)
+    return await fetch(staticGoEP.CHAT_IMG+params.img)
 }

@@ -1,4 +1,4 @@
-import {type Writable, writable} from "svelte/store";
+import {writable} from "svelte/store";
 import type {CommentModel} from "$lib/models/classes/comment.model";
 import type {ChatMessageModel} from "$lib/models/classes/chatMessage.model";
 import {socketStore} from "$lib/stores/socket.store";
@@ -16,7 +16,10 @@ commentQueue.subscribe( val => {
 let socketState:boolean
 socketStateStore.subscribe(val => socketState = val)
 
-function newCommentQueue(): Writable<Array<ChatMessageModel<CommentModel>>> {
+let socket:WebSocket
+socketStore.subscribe(val => socket = val)
+
+function newCommentQueue() {
     const {subscribe, update} = writable(
         browser && JSON.parse(
             localStorage.getItem("commentQueue") ||
@@ -29,6 +32,7 @@ function newCommentQueue(): Writable<Array<ChatMessageModel<CommentModel>>> {
         update,
         restart: () => restart(),
         removeMessage: (messageId:string) => removeMessageHandler(messageId),
+        removeFirstMessage: () => removeFirstMessageHandler(),
         addComment: (chatMessage:ChatMessageModel<CommentModel>) => addCommentHandler(chatMessage)
     }
 }
@@ -39,9 +43,16 @@ function restart() {
     }
 }
 
+function removeFirstMessageHandler() {
+    commentQueue.update( queue => {
+        queue.shift()
+        return queue
+    })
+}
+
 function removeMessageHandler(messageId:string) {
     commentQueue.update( queue => {
-        return queue.filter( message => message.body.id != messageId)
+        return queue.filter( (message:ChatMessageModel<CommentModel>) => message.body.id != messageId)
     })
 
     if(currentQueue.length > 0 && socketState) {
@@ -57,6 +68,8 @@ function addCommentHandler(chatMessage:ChatMessageModel<CommentModel>) {
     }
 }
 
-function send(message) {
-    socketStore.send(JSON.stringify(message))
+function send(message: ChatMessageModel<CommentModel>) {
+    if(socket !== undefined) {
+        socket.send(JSON.stringify(message))
+    }
 }

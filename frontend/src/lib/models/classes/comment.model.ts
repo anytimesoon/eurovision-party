@@ -7,7 +7,8 @@ export class CommentModel implements IComment, IDeserializable<string> {
 				userId?: string,
 				replyToComment?: CommentModel,
 				createdAt?: Date,
-				isCompact = false) {
+				isCompact = false,
+				fileName = "") {
 		this.id = uuid()
         this.text = text
 		this.userId = userId
@@ -16,6 +17,7 @@ export class CommentModel implements IComment, IDeserializable<string> {
 			this.replyToComment = replyToComment
 		}
 		this.isCompact = isCompact
+		this.fileName = fileName
     }
 
 
@@ -25,6 +27,7 @@ export class CommentModel implements IComment, IDeserializable<string> {
 	public createdAt!:   		Date;
 	public isCompact:	 		boolean;
 	public replyToComment: 		CommentModel;
+	public fileName:			string;
 
 
 	deserialize(input: string): this {

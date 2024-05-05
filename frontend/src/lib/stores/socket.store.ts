@@ -4,18 +4,16 @@ import {chatMsgCat} from "$lib/models/enums/chatMsgCat";
 import {CommentModel} from "$lib/models/classes/comment.model";
 import {commentStore} from "$lib/stores/comment.store";
 import type {UpdateMessageModel} from "$lib/models/classes/updateMessage.model";
-import {botId, currentUser, userStore} from "$lib/stores/user.store";
+import {botId, userStore} from "$lib/stores/user.store";
 import {commentQueue} from "$lib/stores/commentQueue.store";
 import {loginURI} from "$lib/stores/loginURI.store";
 import {socketStateStore} from "$lib/stores/socketState.store";
 import {socketRetryCount} from "$lib/stores/socketRetryCount.store";
 import {ChatMessageModel} from "$lib/models/classes/chatMessage.model";
+import {errorStore} from "$lib/stores/error.store";
 
 let loginEP:string
 loginURI.subscribe(val => loginEP = val)
-
-let currentUserID:string
-currentUser.subscribe(val => currentUserID = val.id)
 
 let botUserId:string
 botId.subscribe(val => botUserId = val)
@@ -32,12 +30,11 @@ let timeoutDuration = 1000 // in milis
 
 function socket() {
     let ws = connectToSocket()
-    const {subscribe, update} = writable(ws)
+    const {subscribe, update, set} = writable(ws)
     return {
         subscribe,
         update,
-        send: (message:string) => ws.send(message),
-        reconnect: () => ws = connectToSocket()
+        set
     }
 }
 
@@ -66,7 +63,7 @@ function connectToSocket(){
         console.log("Connection stopped. Attempting to reconnect")
         socketRetryCount.increment()
         socketStateStore.isReady(false)
-        setTimeout(socketStore.reconnect(), timeoutDuration * retryCount)
+        setTimeout(() => socketStore.set(connectToSocket()), timeoutDuration)
     }
 
     socket.onmessage = function (event) {
@@ -75,7 +72,6 @@ function connectToSocket(){
             const chatMessage = JSON.parse(c)
             switch (chatMessage.category) {
                 case chatMsgCat.COMMENT:
-                    socketStateStore.isReady(true)
                     addNewComment(chatMessage.body)
                     commentQueue.removeMessage(chatMessage.body.id)
                     break
@@ -85,12 +81,9 @@ function connectToSocket(){
                         commentQueue.removeMessage(commentModels[i].id)
                         addNewComment(commentModels[i])
                     }
-                    socketStateStore.isReady(true)
                     break
                 case chatMsgCat.UPDATE_USER:
-                    socketStateStore.isReady(true)
                     let updateMessage:UpdateMessageModel = chatMessage.body
-                    // setTimeout(()=>{}, 500)
                     // user needs to be updated before message gets published
                     userStore.update(users => {
                         if (users[updateMessage.updatedUser.id].icon === updateMessage.updatedUser.icon) {
@@ -101,8 +94,13 @@ function connectToSocket(){
                     })
                     addNewComment(updateMessage.comment)
                     break
+                case chatMsgCat.ERROR:
+                    const error = chatMessage.body.message === "" ? "Some pyros went off by accident. We lost your message" : chatMessage.body.message
+                    errorStore.set(error)
+                    commentQueue.removeFirstMessage()
+                    break
                 default:
-                    console.log("bad message: " + c)
+                    errorStore.set("Oops... something just went very wrong. Please stay seated while the performances continue.")
             }
 
 

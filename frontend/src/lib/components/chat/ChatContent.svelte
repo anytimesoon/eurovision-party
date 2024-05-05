@@ -1,11 +1,12 @@
 <script lang="ts">
     import type {CommentModel} from "$lib/models/classes/comment.model";
-    import {onMount} from "svelte";
     import Spinner from "$lib/components/Spinner.svelte";
     import {socketRetryCount} from "$lib/stores/socketRetryCount.store";
     import {commentQueue} from "$lib/stores/commentQueue.store";
     import {userStore} from "$lib/stores/user.store";
     import CloseCircleOutline from "svelte-material-icons/CloseCircleOutline.svelte";
+    import ImageLoader from "$lib/components/images/ImageLoader.svelte";
+    import {staticSvelteEP} from "$lib/models/enums/endpoints.enum.js";
 
     export let comment:CommentModel
     export let isCurrentUser:boolean
@@ -32,13 +33,19 @@
     <div>
         {#if comment.replyToComment}
             <a href="#{comment.replyToComment.id}">
-                <div class="text-sm bg-canvas-primary rounded px-3 py-1">
+                <div class="text-sm bg-canvas-primary rounded px-3 py-1 mb-1">
                     <p class="text-xs">{$userStore[comment.replyToComment.userId].name}</p>
                     <span class="text-typography-chat-you pt-1 block">
-                    {comment.replyToComment.text}
-                </span>
+                        {comment.replyToComment.text}
+                    </span>
                 </div>
             </a>
+        {/if}
+
+        {#if comment.fileName !== ""}
+            <div class="mr-3 mb-1 rounded overflow-hidden max-w-[400px]">
+                <ImageLoader src={staticSvelteEP.CHAT_IMG + comment.fileName} alt="comment image" customClasses=""/>
+            </div>
         {/if}
 
         <p bind:this={commentElement} class="{contentTextStyle} pr-8"></p>

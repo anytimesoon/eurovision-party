@@ -11,6 +11,7 @@ type Comment struct {
 	UUID      uuid.UUID `json:"id"`
 	UserId    uuid.UUID `json:"userId"`
 	Text      string    `json:"text"`
+	FileName  string    `json:"fileName"`
 	CreatedAt time.Time `json:"createdAt"`
 	ReplyTo   *Comment  `json:"replyToComment,omitempty"`
 }
@@ -23,9 +24,10 @@ func (c Comment) Validate() *errs.AppError {
 		messages = append(messages, "You're not a user? We're as confused as you")
 	}
 
-	message = isPresent(c.Text, "Message body")
-	if message != "" {
-		messages = append(messages, message)
+	commentTextMessage := isPresent(c.Text, "Comment text")
+	commentImageMessage := isPresent(c.FileName, "Comment image")
+	if commentTextMessage != "" && commentImageMessage != "" {
+		messages = append(messages, commentTextMessage, commentImageMessage)
 	}
 
 	return messagesToError(messages)

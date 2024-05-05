@@ -1,11 +1,12 @@
 import type {Actions} from "./$types";
 import {userGoEP} from "$lib/models/enums/endpoints.enum";
-import {ResponseModel} from "$lib/models/classes/response.model";
-import {UserModel} from "$lib/models/classes/user.model";
+import type {ResponseModel} from "$lib/models/classes/response.model";
+import type {UserModel} from "$lib/models/classes/user.model";
 
 export const actions : Actions = {
     updateName: async ({fetch, request}) => {
         const fd = await request.formData()
+        // @ts-ignore
         const user:UserModel = Object.fromEntries([...fd]) as UserModel
 
         const res = await fetch(userGoEP.UPDATE, {
@@ -23,30 +24,14 @@ export const actions : Actions = {
     },
     updateImg: async ({fetch, request}) => {
         const fd = await request.formData()
-        console.log(fd)
-        let user:UserModel
-        let error:string
-
         const res = await fetch(userGoEP.UPDATE_IMAGE, {
             method: "PUT",
             body: fd
         })
 
-        if (!res.ok) {
-            error = "Could not process the image. Please try another."
-        } else {
-            const userResp = await res.json()
-            user = userResp.body
-        }
-
-        console.log(user)
-        console.log(error)
-
+        const userResp = await res.json()
         return {
-            hideNameForm: true,
-            avatarUpdated: true,
-            error,
-            user: user
+            user: userResp
         }
     }
 }

@@ -23,6 +23,7 @@ func (db CommentRepositoryDb) FindAllComments() ([]Comment, *errs.AppError) {
 					c1.uuid,
 					c1.text,
 					c1.userId,
+					c1.fileName,
 					c1.createdAt,
 					c2.uuid as replyTo_uuid,
 					c2.userId as replyTo_userId,
@@ -47,6 +48,7 @@ func (db CommentRepositoryDb) FindCommentsAfter(commentId string) ([]Comment, *e
 					c1.uuid,
 					c1.text,
 					c1.userId,
+					c1.fileName,
 					c1.createdAt,
 					c2.uuid as replyTo_uuid,
 					c2.userId as replyTo_userId,
@@ -70,12 +72,13 @@ func (db CommentRepositoryDb) FindCommentsAfter(commentId string) ([]Comment, *e
 func (db CommentRepositoryDb) CreateComment(commentDTO dto.Comment) (*Comment, *errs.AppError) {
 	var comment Comment
 
-	createCommentQuery := "INSERT INTO comment(uuid, userId, text) VALUES (?, ?, ?)"
-	createCommentWithReplyQuery := "INSERT INTO comment(uuid, userId, text, replyTo) VALUES (?, ?, ?, ?)"
+	createCommentQuery := "INSERT INTO comment(uuid, userId, text, fileName) VALUES (?, ?, ?, ?)"
+	createCommentWithReplyQuery := "INSERT INTO comment(uuid, userId, text, fileName, replyTo) VALUES (?, ?, ?, ?, ?)"
 	getCommentQuery := `SELECT
 							c1.uuid,
 							c1.text,
 							c1.userId,
+							c1.fileName,
 							c1.createdAt,
 							c2.uuid as replyTo_uuid,
 							c2.userId as replyTo_userId,
@@ -93,9 +96,9 @@ func (db CommentRepositoryDb) CreateComment(commentDTO dto.Comment) (*Comment, *
 	}
 
 	if commentDTO.ReplyTo != nil {
-		_, err = tx.Exec(createCommentWithReplyQuery, commentDTO.UUID.String(), commentDTO.UserId, commentDTO.Text, commentDTO.ReplyTo.UUID)
+		_, err = tx.Exec(createCommentWithReplyQuery, commentDTO.UUID.String(), commentDTO.UserId, commentDTO.Text, commentDTO.FileName, commentDTO.ReplyTo.UUID)
 	} else {
-		_, err = tx.Exec(createCommentQuery, commentDTO.UUID.String(), commentDTO.UserId, commentDTO.Text)
+		_, err = tx.Exec(createCommentQuery, commentDTO.UUID.String(), commentDTO.UserId, commentDTO.Text, commentDTO.FileName)
 	}
 	if err != nil {
 		log.Printf("Error when creating comment from user %s, %s", commentDTO.UserId, err)

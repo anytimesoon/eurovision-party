@@ -16,7 +16,7 @@ type UserService interface {
 	SingleUser(string) (*dto.User, *errs.AppError)
 	DeleteUser(string) *errs.AppError
 	GetRegisteredUsers() ([]*dto.NewUser, *errs.AppError)
-	UpdateUserImage(image dto.UserAvatar) (*dto.User, *errs.AppError)
+	UpdateUserImage(uuid.UUID) (*dto.User, *errs.AppError)
 }
 
 type DefaultUserService struct {
@@ -61,20 +61,9 @@ func (service DefaultUserService) UpdateUser(userDTO dto.User) (*dto.User, *errs
 	return &newUserDTO, nil
 }
 
-func (service DefaultUserService) UpdateUserImage(avatarDTO dto.UserAvatar) (*dto.User, *errs.AppError) {
-	img, appErr := cropImage(&avatarDTO)
-	if appErr != nil {
-		return nil, appErr
-	}
+func (service DefaultUserService) UpdateUserImage(id uuid.UUID) (*dto.User, *errs.AppError) {
 
-	resizeImage(img)
-
-	appErr = storeImageToDisk(img)
-	if appErr != nil {
-		return nil, appErr
-	}
-
-	user, botMessage, appErr := service.repo.UpdateUserImage(avatarDTO, img)
+	user, botMessage, appErr := service.repo.UpdateUserImage(id)
 	if appErr != nil {
 		return nil, appErr
 	}

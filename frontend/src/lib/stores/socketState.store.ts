@@ -1,11 +1,12 @@
-import {type Writable, writable} from "svelte/store";
+import {writable} from "svelte/store";
 
-export const socketStateStore:Writable<boolean> =newSocketStateStore()
+export const socketStateStore =newSocketStateStore()
 
-function newSocketStateStore(): Writable<boolean> {
+function newSocketStateStore() {
     const {subscribe, set} = writable(false)
     return {
         subscribe,
+        set,
         isReady: (state:boolean) => set(state)
     }
 }

@@ -21,7 +21,7 @@
 
 <button type="submit" disabled={isDisabled} class="{disabledClass} flex" >
     {#if state === formButtonState.SENDING}
-        <Spinner size={"s"} thickness={"s"} />
+        <Spinner size={"sm"} thickness={"s"} />
     {:else}
         <slot/>
     {/if}

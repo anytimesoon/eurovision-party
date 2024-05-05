@@ -31,7 +31,7 @@ type UserRepository interface {
 	DeleteUser(string) *errs.AppError
 	FindRegisteredUsers() (*[]NewUser, *errs.AppError)
 	UpdateUser(dto.User) (*User, *dto.Comment, *errs.AppError)
-	UpdateUserImage(avatarDTO dto.UserAvatar, img *dto.CroppedImage) (*User, *dto.Comment, *errs.AppError)
+	UpdateUserImage(uuid.UUID) (*User, *dto.Comment, *errs.AppError)
 }
 
 func (user User) ToDto() dto.User {
