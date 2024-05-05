@@ -19,10 +19,14 @@
     let imageFile:File
     let fileName:string = ""
     let isDisabled = false
-    let controler:AbortController
+    let controller:AbortController
 
     function sendMsg() {
         message.trim()
+        if (message === "" && fileName === "") {
+            resetTextArea()
+            return
+        }
 
         const comment = new ChatMessageModel<CommentModel>(
             chatMsgCat.COMMENT,
@@ -83,19 +87,20 @@
             uploadableImage = await resizeImage(imageFile, 1500)
         }
 
-        controler = new AbortController()
-        const signal = controler.signal
+        controller = new AbortController()
+        const signal = controller.signal
 
         let fd = new FormData()
         fd.append('file', uploadableImage, fileName)
-        const ok = await fetch("?/uploadChatImg", {method: "POST", body: fd, signal: signal}).then(() => isDisabled = false)
-        if (!ok) {
+        const resp = await fetch("?/uploadChatImg", {method: "POST", body: fd, signal: signal})
+        if (!resp.ok) {
             $errorStore = "Oops... something went wrong. Please try another file"
             cancelUpload()
         }
+        isDisabled = false
     }
 
-    const resizeImage = (file:File, maxSize:number):Promise<Blob> => {
+    const resizeImage = async (file:File, maxSize:number):Promise<Blob> => {
         const reader = new FileReader();
         const image = new Image();
         const canvas = document.createElement('canvas');
@@ -149,7 +154,7 @@
     function cancelUpload() {
         imageFiles = null
         fileName = ''
-        controler.abort()
+        controller.abort()
     }
 
     $: if($replyComment) {
