@@ -18,7 +18,7 @@ func CreateCommentsTable(db *sqlx.DB) {
 				uuid CHAR(36) NOT NULL, 
 				userId CHAR(36) NOT NULL, 
 				text VARCHAR(191) NOT NULL,
-				fileName VARCHAR(255), 
+				fileName VARCHAR(255) DEFAULT '', 
 				replyTo CHAR(36),
 				createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 PRIMARY KEY (uuid));`

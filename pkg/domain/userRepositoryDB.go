@@ -85,7 +85,7 @@ func (db UserRepositoryDb) UpdateUser(userDTO dto.User) (*User, *dto.Comment, *e
 	return &user, &botComment, nil
 }
 
-func (db UserRepositoryDb) UpdateUserImage(avatarDTO dto.UserAvatar, img *dto.CroppedImage) (*User, *dto.Comment, *errs.AppError) {
+func (db UserRepositoryDb) UpdateUserImage(avatarDTO dto.UserAvatar, img *dto.ProcessedImage) (*User, *dto.Comment, *errs.AppError) {
 	var user User
 
 	updateUserImageQuery := "UPDATE user SET icon = ? WHERE uuid = ?"
@@ -98,7 +98,7 @@ func (db UserRepositoryDb) UpdateUserImage(avatarDTO dto.UserAvatar, img *dto.Cr
 		return nil, nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "image")
 	}
 
-	_, err = tx.Exec(updateUserImageQuery, img.ID.String()+".png", avatarDTO.UUID.String())
+	_, err = tx.Exec(updateUserImageQuery, img.ID+".png", avatarDTO.UUID.String())
 	if err != nil {
 		log.Printf("Error while updating user image for user %s. %s", avatarDTO.UUID.String(), err)
 		return nil, nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "image")

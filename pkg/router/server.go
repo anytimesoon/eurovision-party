@@ -27,15 +27,20 @@ func StartServer(db *sqlx.DB) {
 	router.HandleFunc("/api/login", authHandler.Login).Methods(http.MethodPost) // sets auth token.
 
 	// Assets
+	imageHandler := AssetHandler{Service: service.NewAssetService()}
+
 	imageRouter := router.PathPrefix("/content").Subrouter()
-	//imageRouter.PathPrefix("/static/").Handler(assetHandler()).Methods(http.MethodGet)
 	imageRouter.PathPrefix("/static/").Handler(http.StripPrefix("/content/static/", assetHandler())).Methods(http.MethodGet)
 	imageRouter.Use(imgHeaders)
 
-	imageHandler := AssetHandler{}
 	restrictedImageRouter := imageRouter.PathPrefix("/user").Subrouter()
 	restrictedImageRouter.HandleFunc("/avatar/{file}", imageHandler.GetAvatar).Methods(http.MethodGet)
+	restrictedImageRouter.HandleFunc("/chat/{file}", imageHandler.GetChatImage).Methods(http.MethodGet)
 	restrictedImageRouter.Use(authenticate)
+
+	restrictedImageUploadRouter := router.PathPrefix("/content/user").Subrouter()
+	restrictedImageUploadRouter.HandleFunc("/chat", imageHandler.CreateChatImage).Methods(http.MethodPost)
+	restrictedImageUploadRouter.Use(authenticate, jsHeaders)
 
 	// Restricted
 	restrictedRouter := router.PathPrefix("/restricted").Subrouter()

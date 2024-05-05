@@ -1,12 +1,13 @@
 package dto
 
 import (
-	"github.com/google/uuid"
 	"image"
+	"mime/multipart"
 )
 
-type CroppedImage struct {
-	File          image.Image
-	FileExtension string
-	ID            uuid.UUID
+type ProcessedImage struct {
+	MultiPartImage *multipart.File
+	File           image.Image
+	FileExtension  string
+	ID             string
 }
