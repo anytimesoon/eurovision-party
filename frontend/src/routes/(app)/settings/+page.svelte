@@ -11,7 +11,6 @@
     import ContentSave from "svelte-material-icons/ContentSave.svelte";
     import FormButton from "$lib/components/forms/FormButton.svelte";
     import {formButtonState} from "$lib/models/enums/formButtonState.enum";
-    import Toaster from "$lib/components/Toaster.svelte";
     import ImageLoader from "$lib/components/images/ImageLoader.svelte";
     import {errorStore} from "$lib/stores/error.store";
 

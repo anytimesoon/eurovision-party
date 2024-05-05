@@ -167,12 +167,12 @@
                    class="cursor-pointer text-typography-main"
                    on:change={uploadImage}>
 
-                <div class="rounded-full bg-primary p-3">
+                <span class="rounded-full bg-primary p-3 block">
                     <span class="flex">
                         <ImagePic size="1.4em"/>
                     </span>
                     <input id="upload" class="hidden" name="file" type="file" accept="image/*" bind:files={imageFiles}>
-                </div>
+                </span>
 
             </label>
 
