@@ -35,6 +35,7 @@
             <a href="#{comment.replyToComment.id}">
                 <div class="text-sm bg-canvas-primary rounded px-3 py-1 mb-1">
                     <p class="text-xs">{$userStore[comment.replyToComment.userId].name}</p>
+                    <img src={staticSvelteEP.CHAT_IMG+comment.replyToComment.fileName} alt="" class="max-h-[40px]" />
                     <span class="text-typography-chat-you pt-1 block">
                         {comment.replyToComment.text}
                     </span>

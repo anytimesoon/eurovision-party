@@ -27,6 +27,7 @@ func (db CommentRepositoryDb) FindAllComments() ([]Comment, *errs.AppError) {
 					c1.createdAt,
 					c2.uuid as replyTo_uuid,
 					c2.userId as replyTo_userId,
+					c2.fileName as replyTo_fileName,
 					c2.text as replyTo_text,
 					c2.createdAt as replyTo_createdAt
 				FROM comment c1 
@@ -52,6 +53,7 @@ func (db CommentRepositoryDb) FindCommentsAfter(commentId string) ([]Comment, *e
 					c1.createdAt,
 					c2.uuid as replyTo_uuid,
 					c2.userId as replyTo_userId,
+					c2.fileName as replyTo_fileName,
 					c2.text as replyTo_text,
 					c2.createdAt as replyTo_createdAt
 				FROM comment c1 
@@ -82,6 +84,7 @@ func (db CommentRepositoryDb) CreateComment(commentDTO dto.Comment) (*Comment, *
 							c1.createdAt,
 							c2.uuid as replyTo_uuid,
 							c2.userId as replyTo_userId,
+							c2.fileName as replyTo_fileName,
 							c2.text as replyTo_text,
 							c2.createdAt as replyTo_createdAt
 						FROM comment c1 
