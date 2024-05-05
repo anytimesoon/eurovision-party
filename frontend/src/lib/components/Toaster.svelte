@@ -7,7 +7,7 @@
 
     onMount(() => {
         shouldDisplay = true
-        setTimeout(closeToaster, 2000)
+        // setTimeout(closeToaster, 2000)
     })
 
     export const closeToaster = () => {
@@ -17,8 +17,8 @@
 </script>
 
 {#if shouldDisplay}
-<div transition:fade={{ delay: 250, duration: 300 }} class="fixed inset-0 z-30 overflow-y-auto h-full w-full z-40" on:mouseup={closeToaster}>
-    <div class="top-20 max-w-screen-sm">
+<div transition:fade={{ delay: 250, duration: 300 }} class="fixed inset-0 overflow-y-auto h-full w-full z-50" on:mouseup={closeToaster}>
+    <div class="top-20">
         <div class="bg-warning rounded py-3 px-1.5 mt-2 shadow-lg shadow-gray-800 w-[75%] mx-auto">
             <p class="text-center">
                 {$errorStore}

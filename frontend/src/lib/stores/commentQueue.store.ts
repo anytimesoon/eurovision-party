@@ -32,6 +32,7 @@ function newCommentQueue() {
         update,
         restart: () => restart(),
         removeMessage: (messageId:string) => removeMessageHandler(messageId),
+        removeFirstMessage: () => removeFirstMessageHandler(),
         addComment: (chatMessage:ChatMessageModel<CommentModel>) => addCommentHandler(chatMessage)
     }
 }
@@ -40,6 +41,13 @@ function restart() {
     if(currentQueue.length > 0 && socketState) {
         send(currentQueue[0])
     }
+}
+
+function removeFirstMessageHandler() {
+    commentQueue.update( queue => {
+        queue.shift()
+        return queue
+    })
 }
 
 function removeMessageHandler(messageId:string) {

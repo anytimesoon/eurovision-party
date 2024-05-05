@@ -4,12 +4,13 @@ import {chatMsgCat} from "$lib/models/enums/chatMsgCat";
 import {CommentModel} from "$lib/models/classes/comment.model";
 import {commentStore} from "$lib/stores/comment.store";
 import type {UpdateMessageModel} from "$lib/models/classes/updateMessage.model";
-import {botId, currentUser, userStore} from "$lib/stores/user.store";
+import {botId, userStore} from "$lib/stores/user.store";
 import {commentQueue} from "$lib/stores/commentQueue.store";
 import {loginURI} from "$lib/stores/loginURI.store";
 import {socketStateStore} from "$lib/stores/socketState.store";
 import {socketRetryCount} from "$lib/stores/socketRetryCount.store";
 import {ChatMessageModel} from "$lib/models/classes/chatMessage.model";
+import {errorStore} from "$lib/stores/error.store";
 
 let loginEP:string
 loginURI.subscribe(val => loginEP = val)
@@ -93,8 +94,13 @@ function connectToSocket(){
                     })
                     addNewComment(updateMessage.comment)
                     break
+                case chatMsgCat.ERROR:
+                    const error = chatMessage.body.message === "" ? "Some pyros went off by accident. We lost your message" : chatMessage.body.message
+                    errorStore.set(error)
+                    commentQueue.removeFirstMessage()
+                    break
                 default:
-                    console.log("bad message: " + c)
+                    errorStore.set("Oops... something just went very wrong. Please stay seated while the performances continue.")
             }
 
 

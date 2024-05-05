@@ -53,7 +53,6 @@ func (c *ChatClient) Pub() {
 			log.Printf("Failed to reset read deadline for user %s in pong handler. %s", c.UserId, err)
 			return err
 		}
-		//log.Printf("Received pong from user %s", c.UserId)
 		return nil
 	})
 
@@ -72,6 +71,13 @@ func (c *ChatClient) Pub() {
 		err = json.Unmarshal(message, &filteredMessage)
 		if err != nil {
 			log.Println("Failed to unmarshal message")
+			errorDTO, _ := json.Marshal(dto.NewChatErrorDTO("Oops... something went wrong"))
+			message := dto.SocketMessage{
+				Category: enum.ERROR,
+				Body:     errorDTO,
+			}
+			errorJSON, _ := json.Marshal(message)
+			c.Send <- errorJSON
 			continue
 		}
 
@@ -79,6 +85,14 @@ func (c *ChatClient) Pub() {
 		case enum.COMMENT:
 			commentJSON, appErr := c.ComServ.CreateComment(filteredMessage.Body)
 			if appErr != nil {
+				log.Println("Failed to create comment. Sending error to client.", appErr.Message)
+				errorDTO, _ := json.Marshal("Some pyros went off by accident. We lost your message")
+				message := dto.SocketMessage{
+					Category: enum.ERROR,
+					Body:     errorDTO,
+				}
+				errorJSON, _ := json.Marshal(message)
+				c.Send <- errorJSON
 				return
 			}
 			log.Println("New message received from", c.UserId.String())
