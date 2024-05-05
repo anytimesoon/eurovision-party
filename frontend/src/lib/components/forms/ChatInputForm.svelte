@@ -23,10 +23,10 @@
 
     function sendMsg() {
         message.trim()
-        // if (message === "" && fileName === "") {
-        //     resetTextArea()
-        //     return
-        // }
+        if (message === "" && fileName === "") {
+            resetTextArea()
+            return
+        }
 
         const comment = new ChatMessageModel<CommentModel>(
             chatMsgCat.COMMENT,
