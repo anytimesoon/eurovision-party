@@ -2,18 +2,18 @@ package dto
 
 import "github.com/google/uuid"
 
-type Responsable interface {
-	Comment | Country | *User | Vote | NewUser | []*NewUser | SessionAuth |
+type ApiResponseBody interface {
+	Comment | Country | *User | Vote | *NewUser | []*NewUser | SessionAuth |
 		[]Comment | []Country | []User | []Vote | map[uuid.UUID]User | []Result
 }
 
-type Payload[T Responsable] struct {
+type ApiPayload[T ApiResponseBody] struct {
 	Body  T      `json:"body"`
 	Error string `json:"error"`
 }
 
-func NewPayload[T Responsable](payload T, error string) Payload[T] {
-	return Payload[T]{
+func NewApiPayload[T ApiResponseBody](payload T, error string) ApiPayload[T] {
+	return ApiPayload[T]{
 		Body:  payload,
 		Error: error,
 	}

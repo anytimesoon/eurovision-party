@@ -31,10 +31,8 @@
         {/if}
         <div class="flex">
             {#if $replyComment.fileName !== ""}
-                <div class="pr-3">
-
-                    <img src={staticSvelteEP.CHAT_IMG + $replyComment.fileName} alt="" class="max-h-[20px]"/>
-
+                <div class="mr-3 max-h-[20px] rounded overflow-hidden">
+                    <img src={staticSvelteEP.CHAT_IMG + $replyComment.fileName} alt="" class="h-[20px]"/>
                 </div>
             {/if}
             <div class="flex-1">

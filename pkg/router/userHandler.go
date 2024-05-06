@@ -20,6 +20,26 @@ type UserHandler struct {
 	AssetService service.AssetService
 }
 
+func (uh UserHandler) Register(resp http.ResponseWriter, req *http.Request) {
+	var appErr *errs.AppError
+	var auth *dto.NewUser
+	if req.Context().Value("auth").(dto.Auth).AuthLvl == enum.ADMIN {
+		body, err := io.ReadAll(req.Body)
+		if err != nil {
+			panic(err)
+		}
+		auth, appErr = uh.Service.Register(body)
+	} else {
+		appErr = errs.NewUnauthorizedError(errs.Common.Unauthorized)
+	}
+
+	if appErr != nil {
+		writeResponse(resp, req, appErr.Code, auth, appErr.Message)
+	} else {
+		writeResponse(resp, req, http.StatusOK, auth, "")
+	}
+}
+
 func (uh UserHandler) FindAllUsers(resp http.ResponseWriter, req *http.Request) {
 	users, err := uh.Service.GetAllUsers()
 	if err != nil {

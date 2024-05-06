@@ -78,7 +78,7 @@ func StartServer(db *sqlx.DB) {
 	userRouter.HandleFunc("/", userHandler.FindAllUsers).Methods(http.MethodGet)
 	userRouter.HandleFunc("/", userHandler.UpdateUser).Methods(http.MethodPut)        // admin or current user
 	userRouter.HandleFunc("/image", userHandler.UpdateImage).Methods(http.MethodPut)  // current user only
-	userRouter.HandleFunc("/register", authHandler.Register).Methods(http.MethodPost) // admin only
+	userRouter.HandleFunc("/register", userHandler.Register).Methods(http.MethodPost) // admin only
 	userRouter.HandleFunc("/registered", userHandler.FindRegisteredUsers).Methods(http.MethodGet)
 	userRouter.HandleFunc("/{slug}", userHandler.FindOneUser).Methods(http.MethodGet)
 	userRouter.HandleFunc("/{slug}", userHandler.RemoveUser).Methods(http.MethodDelete) // admin only

@@ -7,6 +7,7 @@ import (
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
 	"github.com/google/uuid"
 	"log"
+	"strconv"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -18,6 +19,83 @@ type UserRepositoryDb struct {
 
 func NewUserRepositoryDb(db *sqlx.DB) UserRepositoryDb {
 	return UserRepositoryDb{db}
+}
+
+func (db UserRepositoryDb) CreateUser(userDTO dto.NewUser) (*NewUser, *errs.AppError) {
+	var user NewUser
+	var auth Auth
+
+	err := db.VerifySlug(&userDTO)
+	if err != nil {
+		log.Printf("Error when slufigying user %s with message %s", userDTO.Name, err)
+		return nil, errs.NewUnexpectedError(errs.Common.NotCreated + "user")
+	}
+
+	// Prepare queries for transaction
+	newUserQuery := `INSERT INTO user(uuid, name, slug, authLvl) VALUES (?, ?, ?, 0)`
+	newAuthQuery := `INSERT INTO auth(authToken, userId, authTokenExp, authLvl, lastUpdated, slug) VALUES (?, ?, NOW() + INTERVAL 10 DAY, 0, NOW(), ?)`
+	findNewUserQuery := `SELECT u.uuid, u.name, u.slug, a.authToken FROM user u JOIN auth a ON u.uuid = a.userId WHERE u.uuid = ?`
+
+	// Begin transaction that will create a new user and auth then return the new user
+	tx, err := db.client.Beginx()
+	if err != nil {
+		log.Printf("Error when starting transaction for new auth for user %s, %s", userDTO.Name, err)
+		return nil, errs.NewUnexpectedError(errs.Common.NotCreated + "auth")
+	}
+
+	userDTO.UUID = uuid.New()
+	_, err = tx.Exec(newUserQuery, userDTO.UUID.String(), userDTO.Name, userDTO.Slug)
+	if err != nil {
+		log.Printf("Error when creating new user %s, %s", userDTO.Name, err)
+		_ = tx.Rollback()
+		return nil, errs.NewUnexpectedError(errs.Common.NotCreated + "user")
+	}
+
+	auth.GenerateSecureToken(80)
+	_, err = tx.Exec(newAuthQuery, auth.AuthToken, userDTO.UUID.String(), userDTO.Slug)
+	if err != nil {
+		log.Printf("Error when creating new auth for user %s, %s", userDTO.Name, err)
+		_ = tx.Rollback()
+		return nil, errs.NewUnexpectedError(errs.Common.NotCreated + "a new user")
+	}
+
+	err = tx.Get(&user, findNewUserQuery, userDTO.UUID)
+	if err != nil {
+		log.Printf("Error when retrieving new user %s after transaction. %s", userDTO.Name, err)
+		return nil, errs.NewUnexpectedError(errs.Common.NotCreated + "a new user")
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		log.Printf("Error when commiting auth transaction for new user %s. %s", userDTO.Name, err)
+		return nil, errs.NewUnexpectedError(errs.Common.NotCreated + "a new user")
+	}
+
+	return &user, nil
+}
+
+func (db UserRepositoryDb) VerifySlug(userDTO *dto.NewUser) error {
+	// Verify the name is unique or add a number to the end
+	counter := 0
+	for {
+		if counter > 0 {
+			userDTO.Slug = userDTO.Slug + "-" + strconv.Itoa(counter)
+		}
+
+		query := fmt.Sprintf("SELECT * FROM user WHERE slug = '%s'", userDTO.Slug)
+		rows, err := db.client.Query(query)
+		if err != nil {
+			return err
+		}
+
+		if !rows.Next() {
+			break
+		}
+
+		counter++
+	}
+
+	return nil
 }
 
 func (db UserRepositoryDb) FindAllUsers() ([]User, *errs.AppError) {
