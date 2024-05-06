@@ -18,7 +18,6 @@ import (
 
 type AuthService interface {
 	Login([]byte) (*dto.Auth, *dto.User, *errs.AppError)
-	Register([]byte) (*dto.NewUser, *errs.AppError)
 	Authorize(string) (*dto.Auth, *errs.AppError)
 	AuthorizeChat(string, string) *errs.AppError
 }
@@ -99,26 +98,6 @@ func (das DefaultAuthService) AuthorizeChat(token string, userId string) *errs.A
 	}
 
 	return nil
-}
-
-func (das DefaultAuthService) Register(body []byte) (*dto.NewUser, *errs.AppError) {
-	var newUserDTO dto.NewUser
-	err := json.Unmarshal(body, &newUserDTO)
-	if err != nil {
-		log.Println("FAILED to unmarshal json!", err)
-		return nil, errs.NewUnexpectedError(errs.Common.BadlyFormedObject)
-	}
-
-	newUserDTO.Slugify()
-
-	// create new user
-	newUser, appErr := das.repo.CreateUser(newUserDTO)
-	if appErr != nil {
-		log.Println("Failed to create user", appErr)
-		return nil, errs.NewUnexpectedError(errs.Common.DBFail)
-	}
-
-	return newUser.ToDTO(), nil
 }
 
 func encrypt(auth string) (string, error) {

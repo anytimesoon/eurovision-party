@@ -71,11 +71,7 @@ func (c *ChatClient) Pub() {
 		err = json.Unmarshal(message, &filteredMessage)
 		if err != nil {
 			log.Println("Failed to unmarshal message")
-			errorDTO, _ := json.Marshal(dto.NewChatErrorDTO("Oops... something went wrong"))
-			message := dto.SocketMessage{
-				Category: enum.ERROR,
-				Body:     errorDTO,
-			}
+			message := dto.NewSocketErrorMessage("")
 			errorJSON, _ := json.Marshal(message)
 			c.Send <- errorJSON
 			continue
@@ -86,21 +82,21 @@ func (c *ChatClient) Pub() {
 			commentJSON, appErr := c.ComServ.CreateComment(filteredMessage.Body)
 			if appErr != nil {
 				log.Println("Failed to create comment. Sending error to client.", appErr.Message)
-				errorDTO, _ := json.Marshal("Some pyros went off by accident. We lost your message")
-				message := dto.SocketMessage{
-					Category: enum.ERROR,
-					Body:     errorDTO,
-				}
+				message := dto.NewSocketErrorMessage("")
 				errorJSON, _ := json.Marshal(message)
 				c.Send <- errorJSON
-				return
+				continue
 			}
 			log.Println("New message received from", c.UserId.String())
 			c.Room.broadcastChatMessage <- commentJSON
 		case enum.LATEST_COMMENT:
 			commentsJSON, appErr := c.ComServ.FindCommentsAfter(filteredMessage.Body)
 			if appErr != nil {
-				return
+				log.Println("Failed to fetch comments. Sending error to client.", appErr.Message)
+				message := dto.NewSocketErrorMessage("Couldn't find past messages!")
+				errorJSON, _ := json.Marshal(message)
+				c.Send <- errorJSON
+				continue
 			}
 			log.Println("Sending latest messages to", c.UserId.String())
 			chatMessages := dto.SocketMessage{

@@ -13,7 +13,7 @@ import (
 //go:generate mockgen -source=commentService.go -destination=../../mocks/service/mockCommentService.go -package=service eurovision/pkg/service
 type CommentService interface {
 	FindAllComments() ([]dto.Comment, *errs.AppError)
-	CreateComment([]byte) ([]byte, *errs.AppError)
+	CreateComment([]byte) (*dto.Comment, *errs.AppError)
 	DeleteComment(string) *errs.AppError
 	FindCommentsAfter(json.RawMessage) ([]byte, *errs.AppError)
 }
@@ -76,7 +76,7 @@ func (service DefaultCommentService) FindCommentsAfter(commentIdJSON json.RawMes
 	return commentsJSON, nil
 }
 
-func (service DefaultCommentService) CreateComment(body []byte) ([]byte, *errs.AppError) {
+func (service DefaultCommentService) CreateComment(body []byte) (*dto.Comment, *errs.AppError) {
 	commentDTO := dto.Comment{}
 	err := json.Unmarshal(body, &commentDTO)
 	if err != nil {
@@ -102,13 +102,7 @@ func (service DefaultCommentService) CreateComment(body []byte) ([]byte, *errs.A
 
 	commentDTO = comment.ToDto()
 
-	commentJSON, err := json.Marshal(commentDTO)
-	if err != nil {
-		log.Println("FAILED to marshal commentDTO!", err)
-		return nil, errs.NewUnexpectedError(errs.Common.BadlyFormedObject)
-	}
-
-	return commentJSON, nil
+	return &commentDTO, nil
 }
 
 func (service DefaultCommentService) DeleteComment(uuid string) *errs.AppError {

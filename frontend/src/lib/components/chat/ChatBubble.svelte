@@ -60,7 +60,10 @@
          on:swiping={swipingHandler}
          on:swipedright={swipedRightHandler}
          on:swiped={swipedHandler}
-         on:mouseenter={() => shouldShowReplyMenu = true}
+         on:mouseenter={(e) =>{
+             console.log(e)
+             shouldShowReplyMenu = true
+         }}
          on:mouseleave={() => shouldShowReplyMenu = false}
          bind:this={bubble}
          id="{comment.id}"

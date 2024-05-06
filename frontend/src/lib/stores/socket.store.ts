@@ -11,6 +11,7 @@ import {socketStateStore} from "$lib/stores/socketState.store";
 import {socketRetryCount} from "$lib/stores/socketRetryCount.store";
 import {ChatMessageModel} from "$lib/models/classes/chatMessage.model";
 import {errorStore} from "$lib/stores/error.store";
+import type {UserModel} from "$lib/models/classes/user.model";
 
 let loginEP:string
 loginURI.subscribe(val => loginEP = val)
@@ -69,38 +70,50 @@ function connectToSocket(){
     socket.onmessage = function (event) {
         const split = event.data.split("\n")
         split.map((c: string) => {
-            const chatMessage = JSON.parse(c)
-            switch (chatMessage.category) {
-                case chatMsgCat.COMMENT:
-                    addNewComment(chatMessage.body)
-                    commentQueue.removeMessage(chatMessage.body.id)
-                    break
-                case chatMsgCat.COMMENT_ARRAY:
-                    let commentModels: CommentModel[] = chatMessage.body
-                    for (let i = 0; i < commentModels.length; i++) {
-                        commentQueue.removeMessage(commentModels[i].id)
-                        addNewComment(commentModels[i])
-                    }
-                    break
-                case chatMsgCat.UPDATE_USER:
-                    let updateMessage:UpdateMessageModel = chatMessage.body
-                    // user needs to be updated before message gets published
-                    userStore.update(users => {
-                        if (users[updateMessage.updatedUser.id].icon === updateMessage.updatedUser.icon) {
-                            updateMessage.updatedUser.icon += `?${Date.now()}`
+            if (c.length === 0 ) {
+                // do nothing
+            } else {
+                const chatMessage = JSON.parse(c)
+                switch (chatMessage.category) {
+                    case chatMsgCat.COMMENT:
+                        addNewComment(chatMessage.body)
+                        commentQueue.removeMessage(chatMessage.body.id)
+                        break
+                    case chatMsgCat.COMMENT_ARRAY:
+                        let commentModels: CommentModel[] = chatMessage.body
+                        for (let i = 0; i < commentModels.length; i++) {
+                            commentQueue.removeMessage(commentModels[i].id)
+                            addNewComment(commentModels[i])
                         }
-                        users[updateMessage.updatedUser.id] = updateMessage.updatedUser
-                        return users
-                    })
-                    addNewComment(updateMessage.comment)
-                    break
-                case chatMsgCat.ERROR:
-                    const error = chatMessage.body.message === "" ? "Some pyros went off by accident. We lost your message" : chatMessage.body.message
-                    errorStore.set(error)
-                    commentQueue.removeFirstMessage()
-                    break
-                default:
-                    errorStore.set("Oops... something just went very wrong. Please stay seated while the performances continue.")
+                        break
+                    case chatMsgCat.UPDATE_USER:
+                        let updateMessage:UpdateMessageModel = chatMessage.body
+                        // user needs to be updated before message gets published
+                        userStore.update(users => {
+                            if (users[updateMessage.updatedUser.id].icon === updateMessage.updatedUser.icon) {
+                                updateMessage.updatedUser.icon += `?${Date.now()}`
+                            }
+                            users[updateMessage.updatedUser.id] = updateMessage.updatedUser
+                            return users
+                        })
+                        addNewComment(updateMessage.comment)
+                        break
+                    case chatMsgCat.NEW_USER:
+                        let newUser:UserModel = chatMessage.body
+                        userStore.update(users => {
+                            users[newUser.id] = newUser
+                            return users
+                        })
+                        break
+                    case chatMsgCat.ERROR:
+                        const error = chatMessage.body
+                        console.log(error)
+                        errorStore.set(error)
+                        commentQueue.removeFirstMessage()
+                        break
+                    default:
+                        errorStore.set("Oops... something just went very wrong. Please stay seated while the performances continue.")
+                }
             }
 
 

@@ -11,8 +11,8 @@ import (
 type Room struct {
 	CommentService          CommentService
 	clients                 map[uuid.UUID]*ChatClient
-	broadcastChatMessage    chan []byte
-	BroadcastUpdate         chan []byte
+	broadcastChatMessage    chan *dto.Comment
+	BroadcastUpdate         chan dto.SocketMessage
 	Register                chan *ChatClient
 	unregister              chan *ChatClient
 	sendLatesMessagesToUser chan []byte
@@ -21,8 +21,8 @@ type Room struct {
 func NewRoom(commentService CommentService) *Room {
 	return &Room{
 		CommentService:       commentService,
-		broadcastChatMessage: make(chan []byte),
-		BroadcastUpdate:      make(chan []byte),
+		broadcastChatMessage: make(chan *dto.Comment),
+		BroadcastUpdate:      make(chan dto.SocketMessage),
 		Register:             make(chan *ChatClient),
 		unregister:           make(chan *ChatClient),
 		clients:              make(map[uuid.UUID]*ChatClient),
@@ -41,20 +41,14 @@ func (r *Room) Run() {
 				close(client.Send)
 			}
 		case commentJSON := <-r.broadcastChatMessage:
-			chatMessage := dto.SocketMessage{
-				Category: enum.COMMENT,
-				Body:     commentJSON,
-			}
-
+			chatMessage := dto.NewSocketMessage(
+				enum.COMMENT,
+				commentJSON,
+			)
 			r.broadcast(chatMessage)
-		case updateJSON := <-r.BroadcastUpdate:
-			chatMessage := dto.SocketMessage{
-				Category: enum.UPDATE_USER,
-				Body:     updateJSON,
-			}
-
+		case updateMessage := <-r.BroadcastUpdate:
 			log.Println("Broadcasting user update")
-			r.broadcast(chatMessage)
+			r.broadcast(updateMessage)
 		}
 	}
 }

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/anytimesoon/eurovision-party/pkg/domain"
 	"github.com/anytimesoon/eurovision-party/pkg/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/enum"
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
 	"github.com/google/uuid"
 	"log"
@@ -17,14 +18,15 @@ type UserService interface {
 	DeleteUser(string) *errs.AppError
 	GetRegisteredUsers() ([]*dto.NewUser, *errs.AppError)
 	UpdateUserImage(uuid.UUID) (*dto.User, *errs.AppError)
+	Register([]byte) (*dto.NewUser, *errs.AppError)
 }
 
 type DefaultUserService struct {
 	repo      domain.UserRepository
-	broadcast chan []byte
+	broadcast chan dto.SocketMessage
 }
 
-func NewUserService(repo domain.UserRepository, broadcast chan []byte) DefaultUserService {
+func NewUserService(repo domain.UserRepository, broadcast chan dto.SocketMessage) DefaultUserService {
 	return DefaultUserService{repo, broadcast}
 }
 
@@ -110,16 +112,43 @@ func (service DefaultUserService) GetRegisteredUsers() ([]*dto.NewUser, *errs.Ap
 	return usersDTO, nil
 }
 
-func (service DefaultUserService) broadcastUserUpdate(user dto.User, comment *dto.Comment) {
-	updateMessage := dto.UpdateMessage{
-		UpdatedUser: user,
-		Comment:     *comment,
+func (service DefaultUserService) Register(body []byte) (*dto.NewUser, *errs.AppError) {
+	var newUserDTO dto.NewUser
+	err := json.Unmarshal(body, &newUserDTO)
+	if err != nil {
+		log.Println("FAILED to unmarshal json!", err)
+		return nil, errs.NewUnexpectedError(errs.Common.BadlyFormedObject)
 	}
 
-	msg, err := json.Marshal(updateMessage)
-	if err != nil {
-		log.Println("Failed to send update updateMessage")
+	newUserDTO.Slugify()
+
+	// create new user
+	newUser, appErr := service.repo.CreateUser(newUserDTO)
+	if appErr != nil {
+		log.Println("Failed to create user", appErr)
+		return nil, errs.NewUnexpectedError(errs.Common.DBFail)
 	}
+
+	createdUserDTO := newUser.ToDTO()
+	go service.broadcastNewUser(createdUserDTO)
+
+	return createdUserDTO, nil
+}
+func (service DefaultUserService) broadcastNewUser(newUser *dto.NewUser) {
+	msg := dto.NewSocketMessage(
+		enum.NEW_USER,
+		newUser)
+
+	service.broadcast <- msg
+}
+
+func (service DefaultUserService) broadcastUserUpdate(user dto.User, comment *dto.Comment) {
+	msg := dto.NewSocketMessage(
+		enum.UPDATE_USER,
+		dto.UpdateMessage{
+			UpdatedUser: user,
+			Comment:     *comment,
+		})
 
 	service.broadcast <- msg
 }

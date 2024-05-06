@@ -22,16 +22,17 @@
     let controller:AbortController
 
     function sendMsg() {
-        message.trim()
-        if (message === "" && fileName === "") {
-            resetTextArea()
+        const trimmedMessage = message.trim()
+        if (trimmedMessage === "" && fileName === "") {
+            $errorStore = "Say something! Messages can't be blank"
+            textArea.focus()
             return
         }
 
         const comment = new ChatMessageModel<CommentModel>(
             chatMsgCat.COMMENT,
                 new CommentModel(
-                    message,
+                    trimmedMessage,
                     $currentUser.id,
                     $replyComment.createdAt != null ? $replyComment : null,
                     null,
@@ -78,7 +79,7 @@
 
         reader.readAsDataURL(imageFile)
 
-        fileName = Date.now() + "-" + imageFile.name
+        fileName = Date.now() + "-" + $currentUser.id + imageFile.type.replace("image/", ".")
 
         const gifExtension = /(\.gif)$/i
         if (gifExtension.exec(fileName)){
@@ -89,7 +90,7 @@
 
         controller = new AbortController()
         const signal = controller.signal
-
+        console.log(imageFile.type)
         let fd = new FormData()
         fd.append('file', uploadableImage, fileName)
         const resp = await fetch("?/uploadChatImg", {method: "POST", body: fd, signal: signal})
@@ -200,9 +201,14 @@
                             h-5
                             p-0
                             overflow-hidden
-                            border-0
-                            focus:border-0
-                            focus:outline-0"
+                            border-none
+                            bg-transparent
+                            shadow-none
+                            resize-none
+                            outline-none
+                            focus:border-none
+                            focus:outline-none
+                            focus:resize-none"
                       name="msg"
                       bind:this={textArea}
                       bind:value={message}

@@ -26,12 +26,14 @@ type (
 
 //go:generate mockgen -source=user.go -destination=../../mocks/domain/mockUserRepository.go -package=domain eurovision/pkg/domain
 type UserRepository interface {
+	CreateUser(dto.NewUser) (*NewUser, *errs.AppError)
 	FindAllUsers() ([]User, *errs.AppError)
 	FindOneUser(string) (*User, *errs.AppError)
 	DeleteUser(string) *errs.AppError
 	FindRegisteredUsers() (*[]NewUser, *errs.AppError)
 	UpdateUser(dto.User) (*User, *dto.Comment, *errs.AppError)
 	UpdateUserImage(uuid.UUID) (*User, *dto.Comment, *errs.AppError)
+	VerifySlug(*dto.NewUser) error
 }
 
 func (user User) ToDto() dto.User {
