@@ -74,6 +74,7 @@ function connectToSocket(){
                 // do nothing
             } else {
                 const chatMessage = JSON.parse(c)
+                console.log(chatMsgCat)
                 switch (chatMessage.category) {
                     case chatMsgCat.COMMENT:
                         addNewComment(chatMessage.body)

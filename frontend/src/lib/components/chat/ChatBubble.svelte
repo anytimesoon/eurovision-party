@@ -29,10 +29,10 @@
 
     function swipingHandler(e:CustomEvent<SwipeEventData>) {
         if (e.detail.dir == "Right") {
-            if (e.detail.deltaX < 50) {
+            if (e.detail.deltaX < 100) {
                 bubble.parentElement.classList.add("overflow-y-hidden")
                 bubble.parentElement.classList.remove("overflow-y-auto")
-                bubble.style.right = (e.detail.deltaX * -2.5) + "px"
+                bubble.style.right = (e.detail.deltaX * -1) + "px"
             }
         }
     }
@@ -60,10 +60,7 @@
          on:swiping={swipingHandler}
          on:swipedright={swipedRightHandler}
          on:swiped={swipedHandler}
-         on:mouseenter={(e) =>{
-             console.log(e)
-             shouldShowReplyMenu = true
-         }}
+         on:mouseenter={() =>{shouldShowReplyMenu = true}}
          on:mouseleave={() => shouldShowReplyMenu = false}
          bind:this={bubble}
          id="{comment.id}"
@@ -83,7 +80,7 @@
         </div>
 
 
-        <div class="max-w-[85%] {menuPadding}">
+        <div class="max-w-[75%] {menuPadding}">
             {#if !comment.isCompact && !isCurrentUser}
                 <p class="block {userNameStyle}">{user.name}</p>
             {/if}
@@ -96,6 +93,11 @@
                 <ChatContent comment={comment}
                              isCurrentUser={isCurrentUser}/>
             </div>
+        </div>
+    </div>
+    <div class="absolute">
+        <div class="relative">
+
         </div>
     </div>
 {:else}

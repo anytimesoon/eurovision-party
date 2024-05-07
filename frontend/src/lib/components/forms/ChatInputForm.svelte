@@ -11,6 +11,7 @@
     import Spinner from "$lib/components/Spinner.svelte";
     import ImagePreviewGallery from "$lib/components/chat/ImagePreviewGallery.svelte";
     import {errorStore} from "$lib/stores/error.store";
+    import {staticGoEP} from "$lib/models/enums/endpoints.enum";
 
     let textArea:HTMLTextAreaElement
     let message:string = ""
@@ -64,33 +65,47 @@
     }
 
     async function uploadImage(){
-        let uploadableImage:Blob
         isDisabled = true
         imageFile = imageFiles[0]
+        controller = new AbortController()
+        if (!imageFile.type.includes("image") && !imageFile.type.includes("mp4")) {
+            $errorStore = "Unsupported file type"
+            cancelUpload()
+            return
+        }
+
+        let uploadableImage:Blob
         const reader = new FileReader();
         // Closure to capture the file information.
         reader.onload = (function(theFile) {
             return function(e) {
-                previewImage = e.target.result
+                if(theFile.type.includes("image")) {
+                    previewImage = e.target.result
+                } else {
+                    previewImage = staticGoEP.IMG + "video.png"
+                }
             };
         })(imageFile);
         // Read in the image file as a data URL.
-        // if allowedExtensions = /(\.jpg|\.jpeg|\.png|\.gif)$/i
-
+        console.log(imageFile)
         reader.readAsDataURL(imageFile)
 
-        fileName = Date.now() + "-" + $currentUser.id + imageFile.type.replace("image/", ".")
+        fileName = Date.now() + "-" + $currentUser.id + imageFile.type.replace(/(image\/|video\/)/, ".")
 
-        const gifExtension = /(\.gif)$/i
+        const gifExtension = /(\.gif|\.mp4)$/i
         if (gifExtension.exec(fileName)){
+            if (imageFile.size > 1024 * 1024 * 5) {
+                $errorStore = "File is too large"
+                cancelUpload()
+                return
+            }
             uploadableImage = imageFile
         } else {
             uploadableImage = await resizeImage(imageFile, 1500)
         }
 
-        controller = new AbortController()
         const signal = controller.signal
-        console.log(imageFile.type)
+
         let fd = new FormData()
         fd.append('file', uploadableImage, fileName)
         const resp = await fetch("?/uploadChatImg", {method: "POST", body: fd, signal: signal})
@@ -156,6 +171,7 @@
         imageFiles = null
         fileName = ''
         controller.abort()
+        isDisabled = false
     }
 
     $: if($replyComment) {
@@ -177,7 +193,7 @@
                     <span class="flex">
                         <ImagePic size="1.4em"/>
                     </span>
-                    <input id="upload" class="hidden" name="file" type="file" accept="image/*" bind:files={imageFiles}>
+                    <input id="upload" class="hidden" name="file" type="file" accept="image/*, video/mp4" bind:files={imageFiles}>
                 </span>
 
             </label>
