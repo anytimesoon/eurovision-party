@@ -77,7 +77,7 @@
         </div>
     </div>
 
-    <div class="w-[10rem] h-[10rem] mx-auto relative">
+    <div class="w-[10rem] h-[10rem] mx-auto relative rounded overflow-hidden">
         <ImageLoader customClasses="w-full" src={staticSvelteEP.AVATAR_IMG + $currentUser.icon} alt={$currentUser.name + "'s avatar"}/>
         <button class="absolute top-2 right-2 cursor-pointer py-2 px-2 rounded" on:click={openModal}>
             <FileEditOutline/>

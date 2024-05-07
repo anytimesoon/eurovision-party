@@ -87,9 +87,16 @@ func (ah AssetHandler) GetAvatar(w http.ResponseWriter, r *http.Request) {
 
 func assetHandler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		r.URL.Path = "img/" + r.URL.Path
 		fs.ServeHTTP(w, r)
 	})
 }
+
+//
+//func GetCameraIcon(w http.ResponseWriter, r *http.Request) {
+//	r.URL.Path = "img/camera.png"
+//	fs.ServeHTTP(w, r)
+//}
 
 func serveDefaultAvatar(w http.ResponseWriter, r *http.Request) {
 	r.URL.Path = "img/newuser.png"

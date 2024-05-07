@@ -3,12 +3,19 @@
   "short_name": "Eurovision",
   "display": "standalone",
   "start_url": "/",
+  "description": "Chat and vote with your friends during the greatest song contest in the world!",
   "icons": [
     {
       "src": "favicon.png",
-      "sizes": "425x425",
+      "sizes": "500x500",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "favicon.png",
+      "sizes": "500x500",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }

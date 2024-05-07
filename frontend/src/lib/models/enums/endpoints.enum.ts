@@ -38,6 +38,7 @@ export const staticSvelteEP = {
 }
 
 export const staticGoEP = {
+    IMG: apiBase + "content/static/",
     AVATAR_IMG: apiBase + "content/user/avatar/",
     CHAT_IMG: apiBase + "content/user/chat/",
     CREATE_CHAT_IMG: apiBase + "content/user/chat"
