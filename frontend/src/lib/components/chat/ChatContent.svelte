@@ -11,6 +11,7 @@
 
     export let comment:CommentModel
     export let isCurrentUser:boolean
+    let thisVid:HTMLVideoElement
     let commentElement:HTMLParagraphElement = document.createElement("p")
 
     $: if(comment) {
@@ -60,7 +61,11 @@
         {#if comment.fileName !== ""}
             <div class="mr-3 mb-1 rounded overflow-hidden max-w-[400px]">
                 {#if comment.fileName.includes("mp4")}
-                    <video src={staticSvelteEP.CHAT_IMG + comment.fileName} muted loop autoplay/>
+                    <div class="bg-canvas-secondary">
+                        <video autoplay loop muted playsinline>
+                            <source src={staticSvelteEP.CHAT_IMG + comment.fileName} type="video/mp4" />
+                        </video>
+                    </div>
                 {:else}
                     <ImageLoader src={staticSvelteEP.CHAT_IMG + comment.fileName} alt="comment image" customClasses=""/>
                 {/if}

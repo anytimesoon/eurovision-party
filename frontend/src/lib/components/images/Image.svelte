@@ -17,6 +17,6 @@
     $: pulse = loaded ? "" : "animate-pulse"
 </script>
 
-<div class="bg-canvas-primary {pulse}">
+<div class="bg-canvas-secondary {pulse}">
     <img {src} {alt} class="{imageOpacity} {customClasses} transition-opacity ease-out duration-1000" bind:this={thisImage} />
 </div>
