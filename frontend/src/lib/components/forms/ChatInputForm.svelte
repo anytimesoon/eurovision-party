@@ -16,6 +16,7 @@
     let textArea:HTMLTextAreaElement
     let message:string = ""
     let previewImage:string|ArrayBuffer
+    const authorizedExtensions = ['image/*', 'video/mp4', 'video/webm']
     let imageFiles:FileList
     let imageFile:File
     let fileName:string = ""
@@ -68,7 +69,7 @@
         isDisabled = true
         imageFile = imageFiles[0]
         controller = new AbortController()
-        if (!imageFile.type.includes("image") && !imageFile.type.includes("mp4")) {
+        if (!authorizedExtensions.includes(imageFile.type)) {
             $errorStore = "Unsupported file type"
             cancelUpload()
             return
@@ -92,7 +93,7 @@
 
         fileName = Date.now() + "-" + $currentUser.id + imageFile.type.replace(/(image\/|video\/)/, ".")
 
-        const gifExtension = /(\.gif|\.mp4)$/i
+        const gifExtension = /(\.gif|\.mp4|\.webm)$/i
         if (gifExtension.exec(fileName)){
             if (imageFile.size > 1024 * 1024 * 5) {
                 $errorStore = "File is too large"
@@ -193,7 +194,7 @@
                     <span class="flex">
                         <ImagePic size="1.4em"/>
                     </span>
-                    <input id="upload" class="hidden" name="file" type="file" accept="image/*, video/mp4" bind:files={imageFiles}>
+                    <input id="upload" class="hidden" name="file" type="file" accept={authorizedExtensions.join(",")} bind:files={imageFiles}>
                 </span>
 
             </label>

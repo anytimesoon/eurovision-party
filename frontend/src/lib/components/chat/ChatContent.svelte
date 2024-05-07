@@ -66,6 +66,12 @@
                             <source src={staticSvelteEP.CHAT_IMG + comment.fileName} type="video/mp4" />
                         </video>
                     </div>
+                {:else if comment.fileName.includes("webm")}
+                    <div class="bg-canvas-secondary">
+                        <video autoplay loop muted playsinline>
+                            <source src={staticSvelteEP.CHAT_IMG + comment.fileName} type="video/webm" />
+                        </video>
+                    </div>
                 {:else}
                     <ImageLoader src={staticSvelteEP.CHAT_IMG + comment.fileName} alt="comment image" customClasses=""/>
                 {/if}
