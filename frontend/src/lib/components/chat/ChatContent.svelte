@@ -8,6 +8,7 @@
     import ImageLoader from "$lib/components/images/ImageLoader.svelte";
     import {staticSvelteEP} from "$lib/models/enums/endpoints.enum.js";
     import {emojiRegex, urlRegex} from "$lib/models/utils";
+    import VideoLoader from "$lib/components/images/VideoLoader.svelte";
 
     export let comment:CommentModel
     export let isCurrentUser:boolean
@@ -61,17 +62,19 @@
         {#if comment.fileName !== ""}
             <div class="mr-3 mb-1 rounded overflow-hidden max-w-[400px]">
                 {#if comment.fileName.includes("mp4")}
-                    <div class="bg-canvas-secondary">
-                        <video autoplay loop muted playsinline>
-                            <source src={staticSvelteEP.CHAT_IMG + comment.fileName} type="video/mp4" />
-                        </video>
-                    </div>
+<!--                    <div class="bg-canvas-secondary">-->
+<!--                        <video autoplay loop muted playsinline>-->
+<!--                            <source src={staticSvelteEP.CHAT_IMG + comment.fileName} type="video/mp4" />-->
+<!--                        </video>-->
+<!--                    </div>-->
+                    <VideoLoader src={staticSvelteEP.CHAT_IMG + comment.fileName} alt="" customClasses=""/>
                 {:else if comment.fileName.includes("webm")}
-                    <div class="bg-canvas-secondary">
-                        <video autoplay loop muted playsinline>
-                            <source src={staticSvelteEP.CHAT_IMG + comment.fileName} type="video/webm" />
-                        </video>
-                    </div>
+<!--                    <div class="bg-canvas-secondary">-->
+<!--                        <video autoplay loop muted playsinline>-->
+<!--                            <source src={staticSvelteEP.CHAT_IMG + comment.fileName} type="video/webm" />-->
+<!--                        </video>-->
+<!--                    </div>-->
+                    <VideoLoader src={staticSvelteEP.CHAT_IMG + comment.fileName} alt="" customClasses=""/>
                 {:else}
                     <ImageLoader src={staticSvelteEP.CHAT_IMG + comment.fileName} alt="comment image" customClasses=""/>
                 {/if}
