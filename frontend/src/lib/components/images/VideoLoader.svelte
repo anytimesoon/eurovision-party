@@ -1,7 +1,6 @@
 <script lang="ts">
 
     import IntersectionObserver from "$lib/components/images/IntersectionObserver.svelte";
-    import Image from "$lib/components/images/Image.svelte";
     import Video from "$lib/components/images/Video.svelte";
 
     export let src:string

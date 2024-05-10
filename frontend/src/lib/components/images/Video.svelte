@@ -1,6 +1,5 @@
 <script lang="ts">
     import { onMount } from 'svelte'
-    import {staticSvelteEP} from "$lib/models/enums/endpoints.enum";
 
     export let src:string
     export let alt:string
