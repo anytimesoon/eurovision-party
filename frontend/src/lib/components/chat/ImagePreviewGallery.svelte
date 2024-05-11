@@ -11,7 +11,7 @@
 
 {#if fileName !== ``}
     <div bind:this={gallery} transition:scale={{ duration: 500, opacity: 0.5, easing: quintInOut }} class="flex">
-<!--        <img class="h-[60px] mb-2" src={previewImage} alt="preview"/>-->
+        <img class="h-[60px] mb-2" src={previewImage} alt="preview"/>
         <div class="pl-3">
             <button on:click={cancelUpload}>
                 <CloseCircleOutline />

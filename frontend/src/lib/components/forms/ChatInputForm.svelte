@@ -16,7 +16,7 @@
     let textArea:HTMLTextAreaElement
     let message:string = ""
     let previewImage:string|ArrayBuffer
-    const authorizedExtensions = ['image/*', 'video/mp4', 'video/webm']
+    const authorizedExtensions = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'video/mp4', 'video/webm']
     let imageFiles:FileList
     let imageFile:File
     let fileName:string = ""
@@ -70,6 +70,7 @@
         imageFile = imageFiles[0]
         controller = new AbortController()
         if (!authorizedExtensions.includes(imageFile.type)) {
+            console.log(imageFile.type)
             $errorStore = "Unsupported file type"
             cancelUpload()
             return
