@@ -61,8 +61,18 @@
     <div class="w-full flex flex-col p-5">
       <ul class="list-none">
         {#each $participatingCountryStore as country}
-          <li class="py-2"><a href="/country/{country.slug}" on:click={closeMenu} class="text-[1.25rem]">{country.flag} {country.name}</a></li>
+          <li class="py-2">
+              <a href="/country/{country.slug}" on:click={closeMenu} class="text-[1.25rem] block">
+                  {country.flag} {country.name}
+              </a>
+          </li>
         {/each}
+
+        <!--
+            Some user reports of the countries on the bottom not being visible in chrome on iphone.
+            Added some blank space to "solve", because I don't have an iphone to replicate the issue.
+        -->
+        <li class="my-96"></li>
       </ul>
     </div>
   </aside>
