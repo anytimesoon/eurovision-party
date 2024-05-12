@@ -23,7 +23,7 @@ func CreateUsersTable(db *sqlx.DB) bool {
 				name VARCHAR(191) NOT NULL,
 				slug VARCHAR(191) NOT NULL UNIQUE, 
 				authLvl TINYINT DEFAULT 0, 
-				icon VARCHAR(191) DEFAULT '/default',
+				icon VARCHAR(191) DEFAULT 'default',
 				KEY (slug));`
 
 	_, err := db.Exec(query)
