@@ -6,12 +6,13 @@
     export let previewImage:string
     export let fileName = ""
     export let cancelUpload:VoidFunction
-    let gallery:HTMLDivElement
 </script>
 
 {#if fileName !== ``}
-    <div bind:this={gallery} transition:scale={{ duration: 500, opacity: 0.5, easing: quintInOut }} class="flex">
-<!--        <img class="h-[60px] mb-2" src={previewImage} alt="preview"/>-->
+    <div transition:scale={{ duration: 500, opacity: 0.5, easing: quintInOut }} class="flex">
+        <div class="h-[60px] overflow-hidden rounded mb-2">
+            <img src={previewImage} alt="preview"/>
+        </div>
         <div class="pl-3">
             <button on:click={cancelUpload}>
                 <CloseCircleOutline />
