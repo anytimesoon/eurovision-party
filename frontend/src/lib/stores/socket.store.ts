@@ -125,7 +125,7 @@ function connectToSocket(){
 
 function addNewComment(comment:CommentModel){
     comment.createdAt = new Date(comment.createdAt)
-    let latestComment = commentLog[0]
+    let latestComment = commentLog[commentLog.length - 1]
 
     if (latestComment && latestComment.createdAt.getDay() != comment.createdAt.getDay() && latestComment.userId !== botUserId) {
         commentStore.update( comments => {
@@ -136,7 +136,7 @@ function addNewComment(comment:CommentModel){
                 null,
                 date
             )
-            return [botComment, ...comments]
+            return [...comments, botComment]
         })
     }
 
@@ -145,7 +145,7 @@ function addNewComment(comment:CommentModel){
             comment.isCompact = true
         }
 
-        return [comment, ...comments]
+        return [...comments, comment]
     })
 }
 

@@ -1,5 +1,7 @@
 <script lang="ts">
-    import {commentStore} from "$lib/stores/comment.store";
+    import {olderComments, recentComments} from "$lib/stores/comment.store";
+    import Reload from "svelte-material-icons/Reload.svelte";
+    import CursorDefaultClick from "svelte-material-icons/CursorDefaultClick.svelte";
     import {currentUser, userStore} from "$lib/stores/user.store";
     import ChatBubble from "$lib/components/chat/ChatBubble.svelte";
     import Modal from "$lib/components/Modal.svelte";
@@ -9,10 +11,12 @@
     import CommentQueue from "$lib/components/chat/CommentQueue.svelte";
     import ConnectionSpinner from "$lib/components/chat/ConnectionSpinner.svelte";
     import ChatInputForm from "$lib/components/forms/ChatInputForm.svelte";
+    import Filter from "svelte-material-icons/Filter.svelte";
 
     let openModal:VoidFunction
     let closeModal:VoidFunction
     let userWithActiveAvatar:UserModel = new UserModel()
+    let showCommentHistory = false
 
     const openAvatarModal = (user:UserModel) => {
         userWithActiveAvatar = user
@@ -34,12 +38,33 @@
             <CommentQueue />
         {/if}
 
-        {#each $commentStore as comment}
+        {#each {length: $recentComments.length} as _, index}
+            {@const reverseIndex = $recentComments.length - 1 - index}
+            {@const comment = $recentComments[reverseIndex]}
             <ChatBubble comment={comment}
                         user={$userStore[comment.userId]}
                         isCurrentUser={($currentUser.id === comment.userId)}
                         openAvatarModal={openAvatarModal}/>
         {/each}
+
+        {#if $olderComments.length > 0 && !showCommentHistory}
+            <div class="p-3 mx-auto">
+                <button on:click={() => showCommentHistory = true} class="drop-shadow-lg">
+                    <span class="flex">
+                        <Reload size="1.2em" class="pt-1 pr-0.5"/> Load older comments <CursorDefaultClick size="1.2em" class="pt-1 pl-0.5"/>
+                    </span>
+                </button>
+            </div>
+        {:else}
+            {#each {length: $olderComments.length} as _, index}
+                {@const reverseIndex = $olderComments.length - 1 - index}
+                {@const comment = $olderComments[reverseIndex]}
+                <ChatBubble comment={comment}
+                            user={$userStore[comment.userId]}
+                            isCurrentUser={($currentUser.id === comment.userId)}
+                            openAvatarModal={openAvatarModal}/>
+            {/each}
+        {/if}
     </div>
 
     <ChatInputForm />

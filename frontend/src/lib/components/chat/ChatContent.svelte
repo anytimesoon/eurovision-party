@@ -25,7 +25,7 @@
 
         const processedText = linkifiedText.replace(emojiRegex, function(emoji:string) {
             if(emojiCount <= 3 && noEmojis === 0) {
-                return '<span class="text-[4em] -tracking-[0.35em]">' + emoji + '</span>'
+                return '<span class="text-[3em] -tracking-[0.35em]">' + emoji + '</span>'
             }
             return '<span class="text-lg -tracking-[0.25em]">' + emoji + '</span>'
         })
