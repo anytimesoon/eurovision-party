@@ -11,14 +11,20 @@ import (
 )
 
 type Auth struct {
-	AuthToken       string       `db:"authToken"`
-	UserId          uuid.UUID    `db:"userId"`
-	AuthTokenExp    time.Time    `db:"authTokenExp"`
-	SessionToken    string       `db:"sessionToken"`
-	SessionTokenExp time.Time    `db:"sessionTokenExp"`
-	AuthLvl         enum.AuthLvl `db:"authLvl"`
-	LastUpdated     time.Time    `db:"lastUpdated"`
-	Slug            string       `db:"slug"`
+	AuthToken       string `boltholdKey:"AuthToken"`
+	UserId          uuid.UUID
+	AuthTokenExp    time.Time
+	SessionToken    string
+	SessionTokenExp time.Time
+	AuthLvl         enum.AuthLvl
+	LastUpdated     time.Time
+	Slug            string
+}
+
+type Session struct {
+	AuthToken    string
+	SessionToken string `boltholdKey:"SessionToken"`
+	UserId       uuid.UUID
 }
 
 func (a *Auth) GenerateSecureToken(len int) {

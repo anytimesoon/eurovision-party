@@ -19,6 +19,9 @@
         };
     }}>
     <input name="slug" type="hidden" bind:value={country.slug}>
+    <input name="name" type="hidden" bind:value={country.name}>
+    <input name="flag" type="hidden" bind:value={country.flag}>
+
     <input type="checkbox" name="participating" class="hidden" bind:checked={country.participating}>
 
     <input class="mb-3" id="{country.slug}-song" name="songName" type="text" bind:value={country.songName} placeholder="Song Title">

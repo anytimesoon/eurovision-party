@@ -6,6 +6,7 @@ import (
 	"github.com/anytimesoon/eurovision-party/pkg/domain"
 	"github.com/anytimesoon/eurovision-party/pkg/service"
 	"github.com/gorilla/handlers"
+	"github.com/timshannon/bolthold"
 	"log"
 	"net/http"
 	"time"
@@ -16,12 +17,12 @@ import (
 
 var authService service.AuthService
 
-func StartServer(db *sqlx.DB) {
+func StartServer(db *sqlx.DB, store *bolthold.Store) {
 	router := mux.NewRouter().StrictSlash(true)
 	router.Use(logging)
 
 	// Authentication
-	authRepositoryMem := domain.NewAuthRepositoryDB(db)
+	authRepositoryMem := domain.NewAuthRepositoryDB(db, store)
 	authService = service.NewAuthService(authRepositoryMem)
 	authHandler := AuthHandler{Service: authService}
 	router.HandleFunc("/api/login", authHandler.Login).Methods(http.MethodPost) // sets auth token.
@@ -51,7 +52,7 @@ func StartServer(db *sqlx.DB) {
 	apiRouter.Use(jsHeaders)
 
 	// Chatroom
-	commentRepositoryDb := domain.NewCommentRepositoryDb(db)
+	commentRepositoryDb := domain.NewCommentRepositoryDb(db, store)
 	commentService := service.NewCommentService(commentRepositoryDb)
 	chatRoomHandler := ChatRoomHandler{
 		RoomService:    service.NewRoom(commentService),
@@ -63,7 +64,7 @@ func StartServer(db *sqlx.DB) {
 	chatRouter.HandleFunc("/connect/{t}/{u}", chatRoomHandler.Connect)
 
 	// Country
-	countryRepositoryDb := domain.NewCountryRepositoryDb(db)
+	countryRepositoryDb := domain.NewCountryRepositoryDb(db, store)
 	countryHandler := CountryHandler{Service: service.NewCountryService(countryRepositoryDb)}
 	countryRouter := apiRouter.PathPrefix("/country").Subrouter()
 	countryRouter.HandleFunc("/", countryHandler.FindAllCountries).Methods(http.MethodGet) // admin only
@@ -72,7 +73,7 @@ func StartServer(db *sqlx.DB) {
 	countryRouter.HandleFunc("/{slug}", countryHandler.FindOneCountry).Methods(http.MethodGet)
 
 	// User
-	userRepositoryDb := domain.NewUserRepositoryDb(db)
+	userRepositoryDb := domain.NewUserRepositoryDb(db, store)
 	userHandler := UserHandler{Service: service.NewUserService(userRepositoryDb, chatRoomHandler.RoomService.BroadcastUpdate), AssetService: service.NewAssetService()}
 	userRouter := apiRouter.PathPrefix("/user").Subrouter()
 	userRouter.HandleFunc("/", userHandler.FindAllUsers).Methods(http.MethodGet)
@@ -84,7 +85,7 @@ func StartServer(db *sqlx.DB) {
 	userRouter.HandleFunc("/{slug}", userHandler.RemoveUser).Methods(http.MethodDelete) // admin only
 
 	// Vote
-	voteRepositoryDb := domain.NewVoteRepositoryDb(db)
+	voteRepositoryDb := domain.NewVoteRepositoryDb(db, store)
 	voteHandler := VoteHandler{Service: service.NewVoteService(voteRepositoryDb)}
 	voteRouter := apiRouter.PathPrefix("/vote").Subrouter()
 	voteRouter.HandleFunc("/", voteHandler.UpdateVote).Methods(http.MethodPut) // current user only

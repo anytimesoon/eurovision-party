@@ -51,10 +51,11 @@ func sameSiteToString(sameSite http.SameSite) string {
 }
 
 type NewUser struct {
-	Name  string    `json:"name"`
-	Slug  string    `json:"slug"`
-	UUID  uuid.UUID `json:"id"`
-	Token string    `json:"token"`
+	Name    string       `json:"name"`
+	Slug    string       `json:"slug"`
+	UUID    uuid.UUID    `json:"id"`
+	AuthLvl enum.AuthLvl `json:"authLvl"`
+	Token   string       `json:"token"`
 }
 
 type CookieOpts struct {

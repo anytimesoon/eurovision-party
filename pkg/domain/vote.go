@@ -9,21 +9,22 @@ import (
 
 type (
 	Vote struct {
-		UserId      uuid.UUID `db:"userId"`
-		CountrySlug string    `db:"countrySlug"`
-		Costume     uint8     `db:"costume"`
-		Song        uint8     `db:"song"`
-		Performance uint8     `db:"performance"`
-		Props       uint8     `db:"props"`
+		UserId      uuid.UUID `boltholdIndex:"UserId"`
+		CountrySlug string    //`boltholdKey:"CountrySlug"`
+		Costume     uint8
+		Song        uint8
+		Performance uint8
+		Props       uint8
+		Total       int
 	}
 
 	Result struct {
-		CountrySlug string `db:"countrySlug"`
-		Costume     int    `db:"costume_total"`
-		Song        int    `db:"song_total"`
-		Performance int    `db:"performance_total"`
-		Props       int    `db:"props_total"`
-		Total       int    `db:"total"`
+		CountrySlug string
+		Costume     int
+		Song        int
+		Performance int
+		Props       int
+		Total       int
 	}
 )
 
@@ -44,7 +45,7 @@ type VoteRepository interface {
 	UpdateVote(dto.VoteSingle) (*Vote, *errs.AppError)
 	GetVoteByUserAndCountry(uuid.UUID, string) (*Vote, *errs.AppError)
 	GetResults() (*[]Result, *errs.AppError)
-	GetResultsByUser(userId string) (*[]Result, *errs.AppError)
+	GetResultsByUser(userId uuid.UUID) (*[]Result, *errs.AppError)
 }
 
 func (vote Vote) ToDto() dto.Vote {
@@ -55,5 +56,27 @@ func (vote Vote) ToDto() dto.Vote {
 		Song:        vote.Song,
 		Performance: vote.Performance,
 		Props:       vote.Props,
+	}
+}
+
+func (vote Vote) FromDTO(voteDTO dto.Vote) Vote {
+	return Vote{
+		UserId:      voteDTO.UserId,
+		CountrySlug: voteDTO.CountrySlug,
+		Costume:     voteDTO.Costume,
+		Song:        voteDTO.Song,
+		Performance: voteDTO.Performance,
+		Props:       voteDTO.Props,
+	}
+}
+
+func (vote Vote) ToResult() Result {
+	return Result{
+		CountrySlug: vote.CountrySlug,
+		Costume:     int(vote.Costume),
+		Song:        int(vote.Song),
+		Performance: int(vote.Performance),
+		Props:       int(vote.Props),
+		Total:       vote.Total,
 	}
 }

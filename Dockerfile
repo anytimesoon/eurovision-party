@@ -24,6 +24,7 @@ LABEL maintainer="anytimesoon"
 COPY --from=build /app /app
 VOLUME /conf
 VOLUME /tmp
+VOLUME /storage
 
 ADD ./assets/img.tar.gz /
 

@@ -17,6 +17,7 @@ type AppConf struct {
 	DbHostname  string `mapstructure:"DB_HOSTNAME"`
 	DbPort      string `mapstructure:"DB_PORT"`
 	DbName      string `mapstructure:"DB_NAME"`
+	DbPath      string `mapstructure:"DB_PATH"`
 	ServPort    string `mapstructure:"BACKEND_PORT"`
 	ServHost    string `mapstructure:"BACKEND_HOSTNAME"`
 	HttpProto   string `mapstructure:"HTTP_PROTOCOL"`

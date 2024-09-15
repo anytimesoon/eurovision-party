@@ -64,9 +64,14 @@ func (service DefaultVoteService) GetResults() (*[]dto.Result, *errs.AppError) {
 }
 
 func (service DefaultVoteService) GetResultsByUser(userId string) (*[]dto.Result, *errs.AppError) {
-	results, err := service.repo.GetResultsByUser(userId)
+	id, err := uuid.Parse(userId)
 	if err != nil {
-		return nil, err
+		return nil, errs.NewUnexpectedError(errs.Common.BadlyFormedObject)
+	}
+
+	results, appErr := service.repo.GetResultsByUser(id)
+	if appErr != nil {
+		return nil, appErr
 	}
 
 	resultsDTO := make([]dto.Result, 0)
