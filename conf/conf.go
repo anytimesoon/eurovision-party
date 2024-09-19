@@ -12,11 +12,7 @@ var App AppConf
 var v = viper.New()
 
 type AppConf struct {
-	DbUsername  string `mapstructure:"DB_USERNAME"`
-	DbPassword  string `mapstructure:"DB_PASSWORD"`
-	DbHostname  string `mapstructure:"DB_HOSTNAME"`
-	DbPort      string `mapstructure:"DB_PORT"`
-	DbName      string `mapstructure:"DB_NAME"`
+	DbPath      string `mapstructure:"DB_PATH"`
 	ServPort    string `mapstructure:"BACKEND_PORT"`
 	ServHost    string `mapstructure:"BACKEND_HOSTNAME"`
 	HttpProto   string `mapstructure:"HTTP_PROTOCOL"`

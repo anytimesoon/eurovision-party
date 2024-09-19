@@ -10,7 +10,6 @@ import (
 	"log"
 )
 
-//go:generate mockgen -source=userService.go -destination=../../mocks/service/mockUserService.go -package=service eurovision/pkg/service
 type UserService interface {
 	GetAllUsers() (map[uuid.UUID]dto.User, *errs.AppError)
 	UpdateUser(dto.User) (*dto.User, *errs.AppError)

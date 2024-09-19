@@ -8,3 +8,7 @@ const (
 	Performance = "performance"
 	Props       = "props"
 )
+
+func (c Categories) String() string {
+	return string(c)
+}

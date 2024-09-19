@@ -3,8 +3,9 @@ package domain
 import (
 	"github.com/anytimesoon/eurovision-party/pkg/dto"
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
-	"github.com/jmoiron/sqlx"
+	"github.com/timshannon/bolthold"
 	"log"
+	"time"
 )
 
 type AuthRepository interface {
@@ -14,50 +15,52 @@ type AuthRepository interface {
 }
 
 type AuthRepositoryDB struct {
-	client *sqlx.DB
+	store *bolthold.Store
 }
 
-func NewAuthRepositoryDB(db *sqlx.DB) AuthRepositoryDB {
-	return AuthRepositoryDB{db}
+func NewAuthRepositoryDB(store *bolthold.Store) AuthRepositoryDB {
+	return AuthRepositoryDB{store}
 }
 
 func (db AuthRepositoryDB) Login(authDTO *dto.Auth) (*Auth, *User, *errs.AppError) {
 	var auth Auth
 	var user User
 
-	getAuthQuery := "SELECT * FROM auth WHERE authToken = ? and userId = ?"
-	createSessionQuery := "UPDATE auth SET sessionToken = ?, sessionTokenExp = NOW() + INTERVAL 7 DAY WHERE userId = ?"
-	getUserQuery := "SELECT * FROM user WHERE uuid = ?"
-
-	tx, err := db.client.Beginx()
-	if err != nil {
-		log.Printf("Error when starting transaction login user %s, %s", authDTO.UserId, err)
-		return nil, nil, errs.NewUnexpectedError(errs.Common.Login)
-	}
-
-	err = tx.Get(&auth, getAuthQuery, authDTO.Token, authDTO.UserId)
+	err := db.store.Get(authDTO.Token, &auth)
 	if err != nil {
 		log.Printf("Unable to authenticate user %s and token %s combination. %s", authDTO.UserId, authDTO.Token, err)
 		return nil, nil, errs.NewUnauthorizedError(errs.Common.Login)
 	}
 
 	auth.GenerateSecureSessionToken(20)
-	_, err = tx.Exec(createSessionQuery, auth.SessionToken, authDTO.UserId)
+	auth.SessionTokenExp = time.Now().Add(7 * 24 * time.Hour)
+	err = db.store.Update(auth.AuthToken, auth)
 	if err != nil {
 		log.Printf("Unable to generate new session token for user %s. %s", authDTO.UserId, err)
 		return nil, nil, errs.NewUnauthorizedError(errs.Common.Login)
 	}
 
-	err = tx.Get(&user, getUserQuery, authDTO.UserId)
-	if err != nil {
-		log.Printf("Unable to find user %s. %s", authDTO.UserId, err)
-		return nil, nil, errs.NewUnauthorizedError(errs.Common.Login)
-	}
+	err = db.store.Upsert(auth.SessionToken,
+		Session{
+			auth.AuthToken,
+			auth.SessionToken,
+			authDTO.UserId},
+	)
 
-	err = tx.Commit()
+	err = db.store.FindOne(&user, bolthold.Where(bolthold.Key).Eq(authDTO.UserId))
 	if err != nil {
-		log.Printf("Error when commiting login transaction for user %s. %s", authDTO.UserId, err)
-		return nil, nil, errs.NewUnexpectedError(errs.Common.Login)
+		log.Printf("Unable to find user during login, trying again. %s", err)
+		err = db.store.FindOne(&user, bolthold.Where("UUID").Eq(authDTO.UserId))
+		if err != nil {
+			log.Printf("Unable to find user %s during login. %s", authDTO.UserId, err)
+			return nil, nil, errs.NewUnauthorizedError(errs.Common.Login)
+		}
+		//err = db.store.Update(user.UUID, user)
+		users := make([]User, 0)
+		err = db.store.Find(&users, bolthold.Where(bolthold.Key).Eq(authDTO.UserId))
+		if err != nil {
+			log.Printf("What the fuck, dude")
+		}
 	}
 
 	return &auth, &user, nil
@@ -65,25 +68,45 @@ func (db AuthRepositoryDB) Login(authDTO *dto.Auth) (*Auth, *User, *errs.AppErro
 
 func (db AuthRepositoryDB) Authorize(authDTO *dto.Auth) (*Auth, *errs.AppError) {
 	var auth Auth
+	var user User
+	var session Session
 
-	query := "SELECT * FROM auth WHERE sessionToken = ? and userId = ?"
-	err := db.client.Get(&auth, query, authDTO.Token, authDTO.UserId)
+	err := db.store.Get(authDTO.Token, &session)
 	if err != nil {
-		log.Printf("Unable to authorize user %s and session token %s combination. %s", authDTO.UserId, authDTO.Token, err)
-		return nil, errs.NewUnauthorizedError("Couldn't authenticate you. Please try again.")
+		log.Println("Unable to find session", err)
+		return nil, errs.NewUnauthorizedError(errs.Common.Login)
+	}
+	//err = db.store.FindOne(&user, bolthold.Where(bolthold.Key).Eq(authDTO.UserId))
+	err = db.store.Get(authDTO.UserId.String(), &user)
+	if err != nil {
+		log.Println("Unable to find user during auth", err)
+		return nil, errs.NewUnauthorizedError(errs.Common.Login)
+	}
+
+	err = db.store.Get(session.AuthToken, &auth)
+	if err != nil {
+		log.Println("Unable to find auth", err)
+		return nil, errs.NewUnauthorizedError(errs.Common.Login)
 	}
 
 	return &auth, nil
 }
 
-func (db AuthRepositoryDB) AuthorizeChat(token, userId string) *errs.AppError {
+func (db AuthRepositoryDB) AuthorizeChat(token string, userId string) *errs.AppError {
 	var auth Auth
+	var user User
 
-	getAuthQuery := "SELECT * FROM auth WHERE authToken = ? AND userId = ?"
-	err := db.client.Get(&auth, getAuthQuery, token, userId)
+	err := db.store.Get(token, &auth)
 	if err != nil {
-		log.Printf("Unable to find user %s for chat. %s", userId, err)
-		return errs.NewUnexpectedError(errs.Common.DBFail)
+		log.Println("Unable to find auth for chat", err)
+		return errs.NewUnauthorizedError(errs.Common.Login)
+	}
+
+	//err = db.store.FindOne(&user, bolthold.Where(bolthold.Key).Eq(userId))
+	err = db.store.Get(userId, &user)
+	if err != nil {
+		log.Println("Unable to find user for chat", err)
+		return errs.NewUnauthorizedError(errs.Common.Login)
 	}
 
 	return nil

@@ -3,26 +3,25 @@ package domain
 import (
 	"github.com/anytimesoon/eurovision-party/pkg/dto"
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
+	"github.com/timshannon/bolthold"
 	"log"
-
-	"github.com/jmoiron/sqlx"
 )
 
 type CountryRepositoryDb struct {
-	client *sqlx.DB
+	store *bolthold.Store
 }
 
-func NewCountryRepositoryDb(db *sqlx.DB) CountryRepositoryDb {
-	return CountryRepositoryDb{db}
+func NewCountryRepositoryDb(store *bolthold.Store) CountryRepositoryDb {
+	return CountryRepositoryDb{store}
 }
 
 func (db CountryRepositoryDb) FindAllCountries() (*[]Country, *errs.AppError) {
 	countries := make([]Country, 0)
 
-	query := "SELECT * FROM country"
-	err := db.client.Select(&countries, query)
+	var q bolthold.Query
+
+	err := db.store.Find(&countries, &q)
 	if err != nil {
-		log.Println("Error while querying country table", err)
 		return nil, errs.NewUnexpectedError(errs.Common.DBFail)
 	}
 
@@ -32,11 +31,8 @@ func (db CountryRepositoryDb) FindAllCountries() (*[]Country, *errs.AppError) {
 func (db CountryRepositoryDb) FindOneCountry(slug string) (*Country, *errs.AppError) {
 	var country Country
 
-	query := "SELECT * FROM country WHERE slug = ?"
-
-	err := db.client.Get(&country, query, slug)
+	err := db.store.Get(slug, &country)
 	if err != nil {
-		log.Println("Error while selecting one country", err)
 		return nil, errs.NewUnexpectedError(errs.Common.NotFound + "country")
 	}
 
@@ -46,30 +42,13 @@ func (db CountryRepositoryDb) FindOneCountry(slug string) (*Country, *errs.AppEr
 func (db CountryRepositoryDb) UpdateCountry(countryDTO dto.Country) (*Country, *errs.AppError) {
 	var country Country
 
-	updateCountryQuery := "UPDATE country SET bandName = ?, songName = ?, participating = ? WHERE slug = ?"
-	getCountryQuery := "SELECT * FROM country WHERE slug = ?"
+	country = country.FromDTO(countryDTO)
+	//var countries []Country
+	//_ = db.store.Find(&countries, &bolthold.Query{})
 
-	tx, err := db.client.Beginx()
+	err := db.store.Update(country.Slug, country)
 	if err != nil {
-		log.Printf("Error while beginning tx for country %s. %s", countryDTO.Name, err)
-		return nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "country")
-	}
-
-	_, err = tx.Exec(updateCountryQuery, countryDTO.BandName, countryDTO.SongName, countryDTO.Participating, countryDTO.Slug)
-	if err != nil {
-		log.Printf("Error while updating country table for %s. %s", countryDTO.Name, err)
-		return nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "country")
-	}
-
-	err = tx.Get(&country, getCountryQuery, countryDTO.Slug)
-	if err != nil {
-		log.Printf("Error while fetching country %s after update. %s", countryDTO.Name, err)
-		return nil, errs.NewUnexpectedError(errs.Common.NotFound + "country")
-	}
-
-	err = tx.Commit()
-	if err != nil {
-		log.Printf("Error while committing tx for country %s. %s", countryDTO.Name, err)
+		log.Println(err)
 		return nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "country")
 	}
 
@@ -79,11 +58,9 @@ func (db CountryRepositoryDb) UpdateCountry(countryDTO dto.Country) (*Country, *
 func (db CountryRepositoryDb) FindParticipating() (*[]Country, *errs.AppError) {
 	countries := make([]Country, 0)
 
-	query := "SELECT * FROM country WHERE participating = true"
-	err := db.client.Select(&countries, query)
+	err := db.store.Find(&countries, bolthold.Where("Participating").Eq(true))
 	if err != nil {
-		log.Println("Error while querying country table", err)
-		return nil, errs.NewUnexpectedError(errs.Common.DBFail)
+		return nil, errs.NewUnexpectedError(errs.Common.NotFound + "country")
 	}
 
 	return &countries, nil

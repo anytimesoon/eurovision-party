@@ -7,7 +7,6 @@ import (
 	"github.com/google/uuid"
 )
 
-//go:generate mockgen -source=voteService.go -destination=../../mocks/service/mockVoteService.go -package=service eurovision/pkg/service
 type VoteService interface {
 	UpdateVote(dto.VoteSingle) (*dto.Vote, *errs.AppError)
 	GetVoteByUserAndCountry(uuid.UUID, string) (*dto.Vote, *errs.AppError)
@@ -64,9 +63,14 @@ func (service DefaultVoteService) GetResults() (*[]dto.Result, *errs.AppError) {
 }
 
 func (service DefaultVoteService) GetResultsByUser(userId string) (*[]dto.Result, *errs.AppError) {
-	results, err := service.repo.GetResultsByUser(userId)
+	id, err := uuid.Parse(userId)
 	if err != nil {
-		return nil, err
+		return nil, errs.NewUnexpectedError(errs.Common.BadlyFormedObject)
+	}
+
+	results, appErr := service.repo.GetResultsByUser(id)
+	if appErr != nil {
+		return nil, appErr
 	}
 
 	resultsDTO := make([]dto.Result, 0)

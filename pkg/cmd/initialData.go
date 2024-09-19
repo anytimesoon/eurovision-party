@@ -1,39 +1,28 @@
-package migrations
+package main
 
 import (
 	"github.com/anytimesoon/eurovision-party/pkg/domain"
 	"github.com/anytimesoon/eurovision-party/pkg/enum"
+	"github.com/google/uuid"
 )
 
-type initialCountryParams struct {
-	Name          string
-	Flag          string
-	Slug          string
-	Participating bool
+var initAdminUser = domain.User{
+	UUID:    uuid.New(),
+	Name:    "Euro Host",
+	Slug:    "admin",
+	AuthLvl: enum.ADMIN,
+	Icon:    "default",
 }
 
-type initialUserParams struct {
-	Name    string
-	Slug    string
-	AuthLvl enum.AuthLvl
+var initBotUser = domain.User{
+	UUID:    uuid.New(),
+	Name:    "EuroBot",
+	Slug:    "bot",
+	AuthLvl: enum.BOT,
+	Icon:    "default",
 }
 
-var initAuth = domain.Auth{}
-
-var initUsers = []initialUserParams{
-	{
-		Name:    "Euro Host",
-		Slug:    "admin",
-		AuthLvl: enum.ADMIN,
-	},
-	{
-		Name:    "EuroBot",
-		Slug:    "bot",
-		AuthLvl: enum.BOT,
-	},
-}
-
-var initCountries = []initialCountryParams{
+var initCountriesWithParticipating = []domain.Country{
 	{
 		Name:          "Italy",
 		Flag:          "🇮🇹",

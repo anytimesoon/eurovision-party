@@ -23,6 +23,7 @@
     }}>
         <input name="slug" type="hidden" bind:value={country.slug}>
         <input name="name" type="hidden" bind:value={country.name}>
+        <input name="flag" type="hidden" bind:value={country.flag}>
         <input name="songName" type="hidden" bind:value={country.songName}>
         <input name="bandName" type="hidden" bind:value={country.bandName}>
 

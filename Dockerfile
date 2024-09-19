@@ -15,6 +15,7 @@ COPY ./ ./
 
 # Build the executable
 RUN CGO_ENABLED=0 go build \
+    -C pkg/cmd \
     -installsuffix 'static' \
     -o /app .
 
@@ -24,6 +25,7 @@ LABEL maintainer="anytimesoon"
 COPY --from=build /app /app
 VOLUME /conf
 VOLUME /tmp
+VOLUME /storage
 
 ADD ./assets/img.tar.gz /
 

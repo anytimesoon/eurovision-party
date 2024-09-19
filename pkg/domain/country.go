@@ -6,15 +6,14 @@ import (
 )
 
 type Country struct {
-	Name          string `db:"name"`
-	Slug          string `db:"slug"`
-	BandName      string `db:"bandName"`
-	SongName      string `db:"songName"`
-	Flag          string `db:"flag"`
-	Participating bool   `db:"participating"`
+	Name          string
+	Slug          string `boltholdKey:"Slug" boltholdUnique:"UniqueSlug"`
+	BandName      string
+	SongName      string
+	Flag          string
+	Participating bool
 }
 
-//go:generate mockgen -source=country.go -destination=../../mocks/domain/mockCountryRepository.go -package=domain eurovision/pkg/domain
 type CountryRepository interface {
 	FindAllCountries() (*[]Country, *errs.AppError)
 	FindOneCountry(string) (*Country, *errs.AppError)
@@ -30,5 +29,16 @@ func (c Country) ToDto() dto.Country {
 		SongName:      c.SongName,
 		Flag:          c.Flag,
 		Participating: c.Participating,
+	}
+}
+
+func (c Country) FromDTO(dto dto.Country) Country {
+	return Country{
+		Name:          dto.Name,
+		Slug:          dto.Slug,
+		BandName:      dto.BandName,
+		SongName:      dto.SongName,
+		Flag:          dto.Flag,
+		Participating: dto.Participating,
 	}
 }
