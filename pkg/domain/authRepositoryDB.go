@@ -3,7 +3,6 @@ package domain
 import (
 	"github.com/anytimesoon/eurovision-party/pkg/dto"
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
-	"github.com/jmoiron/sqlx"
 	"github.com/timshannon/bolthold"
 	"log"
 	"time"
@@ -16,12 +15,11 @@ type AuthRepository interface {
 }
 
 type AuthRepositoryDB struct {
-	client *sqlx.DB
-	store  *bolthold.Store
+	store *bolthold.Store
 }
 
-func NewAuthRepositoryDB(db *sqlx.DB, store *bolthold.Store) AuthRepositoryDB {
-	return AuthRepositoryDB{db, store}
+func NewAuthRepositoryDB(store *bolthold.Store) AuthRepositoryDB {
+	return AuthRepositoryDB{store}
 }
 
 func (db AuthRepositoryDB) Login(authDTO *dto.Auth) (*Auth, *User, *errs.AppError) {

@@ -12,17 +12,14 @@ import (
 	"log"
 	"strconv"
 	"time"
-
-	"github.com/jmoiron/sqlx"
 )
 
 type UserRepositoryDb struct {
-	client *sqlx.DB
-	store  *bolthold.Store
+	store *bolthold.Store
 }
 
-func NewUserRepositoryDb(db *sqlx.DB, store *bolthold.Store) UserRepositoryDb {
-	return UserRepositoryDb{db, store}
+func NewUserRepositoryDb(store *bolthold.Store) UserRepositoryDb {
+	return UserRepositoryDb{store}
 }
 
 func (db UserRepositoryDb) CreateUser(userDTO dto.NewUser) (*NewUser, *errs.AppError) {

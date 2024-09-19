@@ -3,18 +3,16 @@ package domain
 import (
 	"github.com/anytimesoon/eurovision-party/pkg/dto"
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
-	"github.com/jmoiron/sqlx"
 	"github.com/timshannon/bolthold"
 	"log"
 )
 
 type CountryRepositoryDb struct {
-	client *sqlx.DB
-	store  *bolthold.Store
+	store *bolthold.Store
 }
 
-func NewCountryRepositoryDb(db *sqlx.DB, store *bolthold.Store) CountryRepositoryDb {
-	return CountryRepositoryDb{db, store}
+func NewCountryRepositoryDb(store *bolthold.Store) CountryRepositoryDb {
+	return CountryRepositoryDb{store}
 }
 
 func (db CountryRepositoryDb) FindAllCountries() (*[]Country, *errs.AppError) {

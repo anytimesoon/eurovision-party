@@ -6,17 +6,14 @@ import (
 	"github.com/timshannon/bolthold"
 	"log"
 	"sort"
-
-	"github.com/jmoiron/sqlx"
 )
 
 type CommentRepositoryDb struct {
-	client *sqlx.DB
-	store  *bolthold.Store
+	store *bolthold.Store
 }
 
-func NewCommentRepositoryDb(db *sqlx.DB, store *bolthold.Store) CommentRepositoryDb {
-	return CommentRepositoryDb{db, store}
+func NewCommentRepositoryDb(store *bolthold.Store) CommentRepositoryDb {
+	return CommentRepositoryDb{store}
 }
 
 func (db CommentRepositoryDb) FindAllComments() ([]Comment, *errs.AppError) {

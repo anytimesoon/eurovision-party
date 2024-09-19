@@ -12,17 +12,16 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/jmoiron/sqlx"
 )
 
 var authService service.AuthService
 
-func StartServer(db *sqlx.DB, store *bolthold.Store) {
+func StartServer(store *bolthold.Store) {
 	router := mux.NewRouter().StrictSlash(true)
 	router.Use(logging)
 
 	// Authentication
-	authRepositoryMem := domain.NewAuthRepositoryDB(db, store)
+	authRepositoryMem := domain.NewAuthRepositoryDB(store)
 	authService = service.NewAuthService(authRepositoryMem)
 	authHandler := AuthHandler{Service: authService}
 	router.HandleFunc("/api/login", authHandler.Login).Methods(http.MethodPost) // sets auth token.
@@ -52,7 +51,7 @@ func StartServer(db *sqlx.DB, store *bolthold.Store) {
 	apiRouter.Use(jsHeaders)
 
 	// Chatroom
-	commentRepositoryDb := domain.NewCommentRepositoryDb(db, store)
+	commentRepositoryDb := domain.NewCommentRepositoryDb(store)
 	commentService := service.NewCommentService(commentRepositoryDb)
 	chatRoomHandler := ChatRoomHandler{
 		RoomService:    service.NewRoom(commentService),
@@ -64,7 +63,7 @@ func StartServer(db *sqlx.DB, store *bolthold.Store) {
 	chatRouter.HandleFunc("/connect/{t}/{u}", chatRoomHandler.Connect)
 
 	// Country
-	countryRepositoryDb := domain.NewCountryRepositoryDb(db, store)
+	countryRepositoryDb := domain.NewCountryRepositoryDb(store)
 	countryHandler := CountryHandler{Service: service.NewCountryService(countryRepositoryDb)}
 	countryRouter := apiRouter.PathPrefix("/country").Subrouter()
 	countryRouter.HandleFunc("/", countryHandler.FindAllCountries).Methods(http.MethodGet) // admin only
@@ -73,7 +72,7 @@ func StartServer(db *sqlx.DB, store *bolthold.Store) {
 	countryRouter.HandleFunc("/{slug}", countryHandler.FindOneCountry).Methods(http.MethodGet)
 
 	// User
-	userRepositoryDb := domain.NewUserRepositoryDb(db, store)
+	userRepositoryDb := domain.NewUserRepositoryDb(store)
 	userHandler := UserHandler{Service: service.NewUserService(userRepositoryDb, chatRoomHandler.RoomService.BroadcastUpdate), AssetService: service.NewAssetService()}
 	userRouter := apiRouter.PathPrefix("/user").Subrouter()
 	userRouter.HandleFunc("/", userHandler.FindAllUsers).Methods(http.MethodGet)
@@ -85,7 +84,7 @@ func StartServer(db *sqlx.DB, store *bolthold.Store) {
 	userRouter.HandleFunc("/{slug}", userHandler.RemoveUser).Methods(http.MethodDelete) // admin only
 
 	// Vote
-	voteRepositoryDb := domain.NewVoteRepositoryDb(db, store)
+	voteRepositoryDb := domain.NewVoteRepositoryDb(store)
 	voteHandler := VoteHandler{Service: service.NewVoteService(voteRepositoryDb)}
 	voteRouter := apiRouter.PathPrefix("/vote").Subrouter()
 	voteRouter.HandleFunc("/", voteHandler.UpdateVote).Methods(http.MethodPut) // current user only
@@ -101,7 +100,7 @@ func StartServer(db *sqlx.DB, store *bolthold.Store) {
 	server := &http.Server{
 		Addr:    fmt.Sprintf("%s:%s", conf.App.ServHost, conf.App.ServPort),
 		Handler: handlers.CORS(headersOk, originsOk, methodsOk, credentials)(router),
-		// Good practice to set timeouts to avoid Slowloris attacks.
+		// Good practice to set timeouts to avoid Slow loris attacks.
 		WriteTimeout: time.Second * 15,
 		ReadTimeout:  time.Second * 15,
 		IdleTimeout:  time.Second * 60,

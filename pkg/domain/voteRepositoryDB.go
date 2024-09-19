@@ -9,16 +9,14 @@ import (
 	"log"
 
 	"github.com/google/uuid"
-	"github.com/jmoiron/sqlx"
 )
 
 type VoteRepositoryDb struct {
-	client *sqlx.DB
-	store  *bolthold.Store
+	store *bolthold.Store
 }
 
-func NewVoteRepositoryDb(db *sqlx.DB, store *bolthold.Store) VoteRepositoryDb {
-	return VoteRepositoryDb{db, store}
+func NewVoteRepositoryDb(store *bolthold.Store) VoteRepositoryDb {
+	return VoteRepositoryDb{store}
 }
 
 func (db VoteRepositoryDb) CreateVote(voteDTO dto.Vote) (*Vote, *errs.AppError) {
@@ -75,8 +73,6 @@ func (db VoteRepositoryDb) UpdateVote(voteDTO dto.VoteSingle) (*Vote, *errs.AppE
 func (db VoteRepositoryDb) GetVoteByUserAndCountry(userId uuid.UUID, countrySlug string) (*Vote, *errs.AppError) {
 	var vote Vote
 
-	//query := "SELECT * FROM vote WHERE userId = ? AND countrySlug = ?"
-	//err := db.client.Get(&vote, query, userId.String(), countrySlug)
 	err := db.store.Get(voteKey(userId, countrySlug), &vote)
 	if err != nil && err.Error() == "No data found for this key" {
 		log.Println("Found 0 votes from country and user. Creating a new vote")
@@ -97,21 +93,6 @@ func (db VoteRepositoryDb) GetResults() (*[]Result, *errs.AppError) {
 	votes := make([]Vote, 0)
 	resultsMap := make(map[string]*Result)
 
-	//query := `select countrySlug,
-	//				   costume_total,
-	//				   song_total,
-	//				   performance_total,
-	//				   props_total,
-	//				   costume_total + song_total + performance_total + props_total as total
-	//			from (select countrySlug, sum(costume) as costume_total,
-	//						sum(song) as song_total,
-	//						sum(performance) as performance_total,
-	//						sum(props) as props_total
-	//					from vote
-	//					group by countrySlug) v
-	//			order by total desc;`
-	//
-	//err := db.client.Select(&results, query)
 	err := db.store.Find(&votes, &bolthold.Query{})
 	if err != nil {
 		log.Println("Error while querying vote table", err)
@@ -142,18 +123,6 @@ func (db VoteRepositoryDb) GetResultsByUser(userId uuid.UUID) (*[]Result, *errs.
 	votes := make([]Vote, 0)
 	results := make([]Result, 0)
 
-	//query := `select countrySlug,
-	//				   costume as costume_total,
-	//				   song as song_total,
-	//				   performance as performance_total,
-	//				   props as props_total,
-	//				   costume + song + performance + props as total
-	//			from vote
-	//			where userId = ?
-	//			group by countrySlug, costume, song, performance, props
-	//			order by total desc;`
-
-	//err := db.client.Select(&results, query, userId)
 	err := db.store.Find(&votes, bolthold.Where("UserId").Eq(userId).Index("UserId"))
 	if err != nil {
 		log.Println("Error while querying vote table", err)

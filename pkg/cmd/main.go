@@ -1,47 +1,56 @@
-package migrations
+package main
 
 import (
-	"fmt"
 	"github.com/anytimesoon/eurovision-party/conf"
 	"github.com/anytimesoon/eurovision-party/pkg/domain"
 	"github.com/anytimesoon/eurovision-party/pkg/enum"
+	"github.com/anytimesoon/eurovision-party/pkg/router"
 	"github.com/timshannon/bolthold"
 	"log"
+	"path/filepath"
 	"time"
-
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/jmoiron/sqlx"
 )
 
-type resultCount []uint8
+func main() {
+	log.Println("Starting Eurovision backend")
+	log.Println("Loading configuration 📃")
+	conf.LoadConfig()
+	log.Println("Config loaded ✅")
 
-func Start(store *bolthold.Store) sqlx.DB {
-	sqlDb := sqlx.MustConnect("mysql", dsn())
-	log.Println("Successfully connected to database")
+	log.Println("Starting application")
+	store, err := bolthold.Open(filepath.Join(conf.App.DbPath, "data.db"), 0600, nil)
+	if err != nil {
+		log.Fatal("Failed to open KV database")
+	}
 
-	log.Println("Building tables 🏗")
-	//CreateAuthTable(sqlDb)
-	//hasCountries := CreateCountriesTable(sqlDb)
-	//hasUsers := CreateUsersTable(sqlDb)
-	//CreateCommentsTable(sqlDb)
-	CreateVotesTable(sqlDb)
+	defer func(store *bolthold.Store) {
+		err := store.Close()
+		if err != nil {
+			log.Fatal("Failed to close KV database")
+		}
+	}(store)
 
-	log.Println("Seeding tables 🌱")
-	//if !hasCountries {
-	//	AddCountries(sqlDb)
-	//}
-	//
-	//if !hasUsers {
-	//	AddUsers(sqlDb)
-	//}
+	addCountries(store)
+	addUsers(store)
 
-	addCountriesBolt(store)
-	addUsersBolt(store)
+	log.Println("Database migrations complete ✅")
 
-	return *sqlDb
+	log.Println("Starting server 🖥")
+	router.StartServer(store)
+
+	log.Println("Application closed")
 }
 
-func addUsersBolt(store *bolthold.Store) {
+func addCountries(store *bolthold.Store) {
+	for _, country := range initCountriesWithParticipating {
+		err := store.Insert(country.Slug, country)
+		if err != nil {
+			log.Printf("Skipping %s %s: already exists in country table", country.Flag, country.Name)
+		}
+	}
+}
+
+func addUsers(store *bolthold.Store) {
 	admins := make([]domain.User, 0)
 	err := store.Find(
 		&admins,
@@ -90,18 +99,5 @@ func addUsersBolt(store *bolthold.Store) {
 			log.Printf("%s alread exists in user table", initBotUser.Name)
 		}
 		conf.App.SetBotId(initBotUser.UUID)
-	}
-}
-
-func dsn() string {
-	return fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", conf.App.DbUsername, conf.App.DbPassword, conf.App.DbHostname, conf.App.DbPort, conf.App.DbName)
-}
-
-func addCountriesBolt(store *bolthold.Store) {
-	for _, country := range initCountriesWithParticipating {
-		err := store.Insert(country.Slug, country)
-		if err != nil {
-			log.Printf("Skipping %s %s: already exists in country table", country.Flag, country.Name)
-		}
 	}
 }
