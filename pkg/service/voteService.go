@@ -7,7 +7,6 @@ import (
 	"github.com/google/uuid"
 )
 
-//go:generate mockgen -source=voteService.go -destination=../../mocks/service/mockVoteService.go -package=service eurovision/pkg/service
 type VoteService interface {
 	UpdateVote(dto.VoteSingle) (*dto.Vote, *errs.AppError)
 	GetVoteByUserAndCountry(uuid.UUID, string) (*dto.Vote, *errs.AppError)

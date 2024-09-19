@@ -39,7 +39,6 @@ func (r Result) ToDto() dto.Result {
 	}
 }
 
-//go:generate mockgen -source=vote.go -destination=../../mocks/domain/mockVoteRepository.go -package=domain eurovision/pkg/domain
 type VoteRepository interface {
 	CreateVote(dto.Vote) (*Vote, *errs.AppError)
 	UpdateVote(dto.VoteSingle) (*Vote, *errs.AppError)

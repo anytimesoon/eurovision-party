@@ -14,7 +14,6 @@ type Country struct {
 	Participating bool
 }
 
-//go:generate mockgen -source=country.go -destination=../../mocks/domain/mockCountryRepository.go -package=domain eurovision/pkg/domain
 type CountryRepository interface {
 	FindAllCountries() (*[]Country, *errs.AppError)
 	FindOneCountry(string) (*Country, *errs.AppError)

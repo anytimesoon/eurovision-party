@@ -26,7 +26,6 @@ type (
 	}
 )
 
-//go:generate mockgen -source=user.go -destination=../../mocks/domain/mockUserRepository.go -package=domain eurovision/pkg/domain
 type UserRepository interface {
 	CreateUser(dto.NewUser) (*NewUser, *errs.AppError)
 	FindAllUsers() ([]User, *errs.AppError)
