@@ -2,35 +2,35 @@ package service
 
 import (
 	"encoding/json"
-	"github.com/anytimesoon/eurovision-party/pkg/domain"
-	"github.com/anytimesoon/eurovision-party/pkg/dto"
-	"github.com/anytimesoon/eurovision-party/pkg/enum"
+	dto2 "github.com/anytimesoon/eurovision-party/pkg/api/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/api/enum"
+	"github.com/anytimesoon/eurovision-party/pkg/data"
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
 	"github.com/google/uuid"
 	"log"
 )
 
 type UserService interface {
-	GetAllUsers() (map[uuid.UUID]dto.User, *errs.AppError)
-	UpdateUser(dto.User) (*dto.User, *errs.AppError)
-	SingleUser(string) (*dto.User, *errs.AppError)
+	GetAllUsers() (map[uuid.UUID]dto2.User, *errs.AppError)
+	UpdateUser(dto2.User) (*dto2.User, *errs.AppError)
+	SingleUser(string) (*dto2.User, *errs.AppError)
 	DeleteUser(string) *errs.AppError
-	GetRegisteredUsers() ([]*dto.NewUser, *errs.AppError)
-	UpdateUserImage(uuid.UUID) (*dto.User, *errs.AppError)
-	Register([]byte) (*dto.NewUser, *errs.AppError)
+	GetRegisteredUsers() ([]*dto2.NewUser, *errs.AppError)
+	UpdateUserImage(uuid.UUID) (*dto2.User, *errs.AppError)
+	Register([]byte) (*dto2.NewUser, *errs.AppError)
 }
 
 type DefaultUserService struct {
-	repo      domain.UserRepository
-	broadcast chan dto.SocketMessage
+	repo      data.UserRepository
+	broadcast chan dto2.SocketMessage
 }
 
-func NewUserService(repo domain.UserRepository, broadcast chan dto.SocketMessage) DefaultUserService {
+func NewUserService(repo data.UserRepository, broadcast chan dto2.SocketMessage) DefaultUserService {
 	return DefaultUserService{repo, broadcast}
 }
 
-func (service DefaultUserService) GetAllUsers() (map[uuid.UUID]dto.User, *errs.AppError) {
-	usersDTO := make(map[uuid.UUID]dto.User)
+func (service DefaultUserService) GetAllUsers() (map[uuid.UUID]dto2.User, *errs.AppError) {
+	usersDTO := make(map[uuid.UUID]dto2.User)
 
 	users, err := service.repo.FindAllUsers()
 	if err != nil {
@@ -44,7 +44,7 @@ func (service DefaultUserService) GetAllUsers() (map[uuid.UUID]dto.User, *errs.A
 	return usersDTO, nil
 }
 
-func (service DefaultUserService) UpdateUser(userDTO dto.User) (*dto.User, *errs.AppError) {
+func (service DefaultUserService) UpdateUser(userDTO dto2.User) (*dto2.User, *errs.AppError) {
 	appErr := userDTO.Validate()
 	if appErr != nil {
 		return nil, appErr
@@ -62,7 +62,7 @@ func (service DefaultUserService) UpdateUser(userDTO dto.User) (*dto.User, *errs
 	return &newUserDTO, nil
 }
 
-func (service DefaultUserService) UpdateUserImage(id uuid.UUID) (*dto.User, *errs.AppError) {
+func (service DefaultUserService) UpdateUserImage(id uuid.UUID) (*dto2.User, *errs.AppError) {
 
 	user, botMessage, appErr := service.repo.UpdateUserImage(id)
 	if appErr != nil {
@@ -76,7 +76,7 @@ func (service DefaultUserService) UpdateUserImage(id uuid.UUID) (*dto.User, *err
 	return &userDTO, nil
 }
 
-func (service DefaultUserService) SingleUser(slug string) (*dto.User, *errs.AppError) {
+func (service DefaultUserService) SingleUser(slug string) (*dto2.User, *errs.AppError) {
 	user, err := service.repo.FindOneUser(slug)
 	if err != nil {
 		return nil, err
@@ -96,8 +96,8 @@ func (service DefaultUserService) DeleteUser(slug string) *errs.AppError {
 	return nil
 }
 
-func (service DefaultUserService) GetRegisteredUsers() ([]*dto.NewUser, *errs.AppError) {
-	usersDTO := make([]*dto.NewUser, 0)
+func (service DefaultUserService) GetRegisteredUsers() ([]*dto2.NewUser, *errs.AppError) {
+	usersDTO := make([]*dto2.NewUser, 0)
 
 	users, err := service.repo.FindRegisteredUsers()
 	if err != nil {
@@ -111,8 +111,8 @@ func (service DefaultUserService) GetRegisteredUsers() ([]*dto.NewUser, *errs.Ap
 	return usersDTO, nil
 }
 
-func (service DefaultUserService) Register(body []byte) (*dto.NewUser, *errs.AppError) {
-	var newUserDTO dto.NewUser
+func (service DefaultUserService) Register(body []byte) (*dto2.NewUser, *errs.AppError) {
+	var newUserDTO dto2.NewUser
 	err := json.Unmarshal(body, &newUserDTO)
 	if err != nil {
 		log.Println("FAILED to unmarshal json!", err)
@@ -133,18 +133,18 @@ func (service DefaultUserService) Register(body []byte) (*dto.NewUser, *errs.App
 
 	return createdUserDTO, nil
 }
-func (service DefaultUserService) broadcastNewUser(newUser *dto.NewUser) {
-	msg := dto.NewSocketMessage(
+func (service DefaultUserService) broadcastNewUser(newUser *dto2.NewUser) {
+	msg := dto2.NewSocketMessage(
 		enum.NEW_USER,
 		newUser)
 
 	service.broadcast <- msg
 }
 
-func (service DefaultUserService) broadcastUserUpdate(user dto.User, comment *dto.Comment) {
-	msg := dto.NewSocketMessage(
+func (service DefaultUserService) broadcastUserUpdate(user dto2.User, comment *dto2.Comment) {
+	msg := dto2.NewSocketMessage(
 		enum.UPDATE_USER,
-		dto.UpdateMessage{
+		dto2.UpdateMessage{
 			UpdatedUser: user,
 			Comment:     *comment,
 		})

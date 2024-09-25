@@ -1,8 +1,8 @@
-package router
+package api
 
 import (
 	"github.com/anytimesoon/eurovision-party/conf"
-	"github.com/anytimesoon/eurovision-party/pkg/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/api/dto"
 	"github.com/anytimesoon/eurovision-party/pkg/service"
 	"io"
 	"log"
@@ -23,7 +23,7 @@ func (ah AuthHandler) Login(resp http.ResponseWriter, req *http.Request) {
 	auth, user, appErr := ah.Service.Login(body)
 
 	if appErr != nil {
-		writeResponse(resp, req, appErr.Code, dto.SessionAuth{}, appErr.Message)
+		WriteResponse(resp, req, appErr.Code, dto.SessionAuth{}, appErr.Message)
 	} else {
 		cookie := http.Cookie{
 			Name:     "session",
@@ -42,6 +42,6 @@ func (ah AuthHandler) Login(resp http.ResponseWriter, req *http.Request) {
 
 		session := auth.ToSession(*user, cookie)
 
-		writeResponse(resp, req, http.StatusOK, session, "")
+		WriteResponse(resp, req, http.StatusOK, session, "")
 	}
 }

@@ -1,4 +1,4 @@
-package router
+package api
 
 import (
 	"github.com/anytimesoon/eurovision-party/conf"

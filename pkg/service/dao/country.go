@@ -1,8 +1,7 @@
-package domain
+package dao
 
 import (
-	"github.com/anytimesoon/eurovision-party/pkg/dto"
-	"github.com/anytimesoon/eurovision-party/pkg/errs"
+	"github.com/anytimesoon/eurovision-party/pkg/api/dto"
 )
 
 type Country struct {
@@ -12,13 +11,6 @@ type Country struct {
 	SongName      string
 	Flag          string
 	Participating bool
-}
-
-type CountryRepository interface {
-	FindAllCountries() (*[]Country, *errs.AppError)
-	FindOneCountry(string) (*Country, *errs.AppError)
-	UpdateCountry(dto.Country) (*Country, *errs.AppError)
-	FindParticipating() (*[]Country, *errs.AppError)
 }
 
 func (c Country) ToDto() dto.Country {

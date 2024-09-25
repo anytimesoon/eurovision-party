@@ -8,8 +8,8 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/anytimesoon/eurovision-party/pkg/domain"
-	"github.com/anytimesoon/eurovision-party/pkg/dto"
+	dto2 "github.com/anytimesoon/eurovision-party/pkg/api/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/data"
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
 	"io"
 	"log"
@@ -17,13 +17,13 @@ import (
 )
 
 type AuthService interface {
-	Login([]byte) (*dto.Auth, *dto.User, *errs.AppError)
-	Authorize(string) (*dto.Auth, *errs.AppError)
+	Login([]byte) (*dto2.Auth, *dto2.User, *errs.AppError)
+	Authorize(string) (*dto2.Auth, *errs.AppError)
 	AuthorizeChat(string, string) *errs.AppError
 }
 
 type DefaultAuthService struct {
-	repo domain.AuthRepositoryDB
+	repo data.AuthRepositoryDB
 }
 
 var secretKey []byte
@@ -37,12 +37,12 @@ func init() {
 	}
 }
 
-func NewAuthService(repo domain.AuthRepositoryDB) DefaultAuthService {
+func NewAuthService(repo data.AuthRepositoryDB) DefaultAuthService {
 	return DefaultAuthService{repo}
 }
 
-func (das DefaultAuthService) Login(body []byte) (*dto.Auth, *dto.User, *errs.AppError) {
-	var req dto.Auth
+func (das DefaultAuthService) Login(body []byte) (*dto2.Auth, *dto2.User, *errs.AppError) {
+	var req dto2.Auth
 	err := json.Unmarshal(body, &req)
 	if err != nil {
 		log.Println("FAILED to unmarshal json!", err)
@@ -72,7 +72,7 @@ func (das DefaultAuthService) Login(body []byte) (*dto.Auth, *dto.User, *errs.Ap
 	return &returnableAuth, &userDTO, nil
 }
 
-func (das DefaultAuthService) Authorize(token string) (*dto.Auth, *errs.AppError) {
+func (das DefaultAuthService) Authorize(token string) (*dto2.Auth, *errs.AppError) {
 	authDTO, appErr := decrypt(token)
 	if appErr != nil {
 		return nil, appErr
@@ -132,7 +132,7 @@ func encrypt(auth string) (string, error) {
 	return base64Value, nil
 }
 
-func decrypt(base64Token string) (*dto.Auth, *errs.AppError) {
+func decrypt(base64Token string) (*dto2.Auth, *errs.AppError) {
 	token, err := base64.RawURLEncoding.DecodeString(base64Token)
 	if err != nil {
 		log.Println("Failed to decode base 64", err)
@@ -176,7 +176,7 @@ func decrypt(base64Token string) (*dto.Auth, *errs.AppError) {
 		return nil, errs.NewUnexpectedError(errs.Common.Login)
 	}
 
-	var auth dto.Auth
+	var auth dto2.Auth
 	err = json.Unmarshal(plaintext, &auth)
 	if err != nil {
 		log.Printf("Failed to unmarshal %s token %s", plaintext, err)

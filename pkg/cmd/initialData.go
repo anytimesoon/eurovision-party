@@ -1,12 +1,12 @@
 package main
 
 import (
-	"github.com/anytimesoon/eurovision-party/pkg/domain"
-	"github.com/anytimesoon/eurovision-party/pkg/enum"
+	"github.com/anytimesoon/eurovision-party/pkg/api/enum"
+	"github.com/anytimesoon/eurovision-party/pkg/service/dao"
 	"github.com/google/uuid"
 )
 
-var initAdminUser = domain.User{
+var initAdminUser = dao.User{
 	UUID:    uuid.New(),
 	Name:    "Euro Host",
 	Slug:    "admin",
@@ -14,7 +14,7 @@ var initAdminUser = domain.User{
 	Icon:    "default",
 }
 
-var initBotUser = domain.User{
+var initBotUser = dao.User{
 	UUID:    uuid.New(),
 	Name:    "EuroBot",
 	Slug:    "bot",
@@ -22,7 +22,7 @@ var initBotUser = domain.User{
 	Icon:    "default",
 }
 
-var initCountriesWithParticipating = []domain.Country{
+var initCountriesWithParticipating = []dao.Country{
 	{
 		Name:          "Italy",
 		Flag:          "🇮🇹",

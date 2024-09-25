@@ -1,16 +1,17 @@
-package domain
+package data
 
 import (
-	"github.com/anytimesoon/eurovision-party/pkg/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/api/dto"
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
+	"github.com/anytimesoon/eurovision-party/pkg/service/dao"
 	"github.com/timshannon/bolthold"
 	"log"
 	"time"
 )
 
 type AuthRepository interface {
-	Login(*dto.Auth) (*Auth, *User, *errs.AppError)
-	Authorize(*dto.Auth) (*Auth, *errs.AppError)
+	Login(*dto.Auth) (*dao.Auth, *dao.User, *errs.AppError)
+	Authorize(*dto.Auth) (*dao.Auth, *errs.AppError)
 	AuthorizeChat(string, string) *errs.AppError
 }
 
@@ -22,9 +23,9 @@ func NewAuthRepositoryDB(store *bolthold.Store) AuthRepositoryDB {
 	return AuthRepositoryDB{store}
 }
 
-func (db AuthRepositoryDB) Login(authDTO *dto.Auth) (*Auth, *User, *errs.AppError) {
-	var auth Auth
-	var user User
+func (db AuthRepositoryDB) Login(authDTO *dto.Auth) (*dao.Auth, *dao.User, *errs.AppError) {
+	var auth dao.Auth
+	var user dao.User
 
 	err := db.store.Get(authDTO.Token, &auth)
 	if err != nil {
@@ -41,13 +42,13 @@ func (db AuthRepositoryDB) Login(authDTO *dto.Auth) (*Auth, *User, *errs.AppErro
 	}
 
 	err = db.store.Upsert(auth.SessionToken,
-		Session{
-			auth.AuthToken,
-			auth.SessionToken,
-			authDTO.UserId},
+		dao.Session{
+			AuthToken:    auth.AuthToken,
+			SessionToken: auth.SessionToken,
+			UserId:       authDTO.UserId},
 	)
 
-	err = db.store.FindOne(&user, bolthold.Where(bolthold.Key).Eq(authDTO.UserId))
+	err = db.store.Get(authDTO.UserId, &user)
 	if err != nil {
 		log.Printf("Unable to find user during login, trying again. %s", err)
 		err = db.store.FindOne(&user, bolthold.Where("UUID").Eq(authDTO.UserId))
@@ -56,7 +57,7 @@ func (db AuthRepositoryDB) Login(authDTO *dto.Auth) (*Auth, *User, *errs.AppErro
 			return nil, nil, errs.NewUnauthorizedError(errs.Common.Login)
 		}
 		//err = db.store.Update(user.UUID, user)
-		users := make([]User, 0)
+		users := make([]dao.User, 0)
 		err = db.store.Find(&users, bolthold.Where(bolthold.Key).Eq(authDTO.UserId))
 		if err != nil {
 			log.Printf("What the fuck, dude")
@@ -66,10 +67,10 @@ func (db AuthRepositoryDB) Login(authDTO *dto.Auth) (*Auth, *User, *errs.AppErro
 	return &auth, &user, nil
 }
 
-func (db AuthRepositoryDB) Authorize(authDTO *dto.Auth) (*Auth, *errs.AppError) {
-	var auth Auth
-	var user User
-	var session Session
+func (db AuthRepositoryDB) Authorize(authDTO *dto.Auth) (*dao.Auth, *errs.AppError) {
+	var auth dao.Auth
+	var user dao.User
+	var session dao.Session
 
 	err := db.store.Get(authDTO.Token, &session)
 	if err != nil {
@@ -93,8 +94,8 @@ func (db AuthRepositoryDB) Authorize(authDTO *dto.Auth) (*Auth, *errs.AppError) 
 }
 
 func (db AuthRepositoryDB) AuthorizeChat(token string, userId string) *errs.AppError {
-	var auth Auth
-	var user User
+	var auth dao.Auth
+	var user dao.User
 
 	err := db.store.Get(token, &auth)
 	if err != nil {

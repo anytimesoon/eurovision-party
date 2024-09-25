@@ -1,9 +1,7 @@
-package domain
+package dao
 
 import (
-	"github.com/anytimesoon/eurovision-party/pkg/dto"
-	"github.com/anytimesoon/eurovision-party/pkg/errs"
-
+	dto2 "github.com/anytimesoon/eurovision-party/pkg/api/dto"
 	"github.com/google/uuid"
 )
 
@@ -28,8 +26,8 @@ type (
 	}
 )
 
-func (r Result) ToDto() dto.Result {
-	return dto.Result{
+func (r Result) ToDto() dto2.Result {
+	return dto2.Result{
 		CountrySlug: r.CountrySlug,
 		Costume:     r.Costume,
 		Song:        r.Song,
@@ -39,16 +37,8 @@ func (r Result) ToDto() dto.Result {
 	}
 }
 
-type VoteRepository interface {
-	CreateVote(dto.Vote) (*Vote, *errs.AppError)
-	UpdateVote(dto.VoteSingle) (*Vote, *errs.AppError)
-	GetVoteByUserAndCountry(uuid.UUID, string) (*Vote, *errs.AppError)
-	GetResults() (*[]Result, *errs.AppError)
-	GetResultsByUser(userId uuid.UUID) (*[]Result, *errs.AppError)
-}
-
-func (vote Vote) ToDto() dto.Vote {
-	return dto.Vote{
+func (vote Vote) ToDto() dto2.Vote {
+	return dto2.Vote{
 		UserId:      vote.UserId,
 		CountrySlug: vote.CountrySlug,
 		Costume:     vote.Costume,
@@ -58,7 +48,7 @@ func (vote Vote) ToDto() dto.Vote {
 	}
 }
 
-func (vote Vote) FromDTO(voteDTO dto.Vote) Vote {
+func (vote Vote) FromDTO(voteDTO dto2.Vote) Vote {
 	return Vote{
 		UserId:      voteDTO.UserId,
 		CountrySlug: voteDTO.CountrySlug,

@@ -1,18 +1,30 @@
-package domain
+package data
 
 import (
 	"errors"
 	"fmt"
 	"github.com/anytimesoon/eurovision-party/conf"
-	"github.com/anytimesoon/eurovision-party/pkg/dto"
-	"github.com/anytimesoon/eurovision-party/pkg/enum"
+	dto2 "github.com/anytimesoon/eurovision-party/pkg/api/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/api/enum"
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
+	"github.com/anytimesoon/eurovision-party/pkg/service/dao"
 	"github.com/google/uuid"
 	"github.com/timshannon/bolthold"
 	"log"
 	"strconv"
 	"time"
 )
+
+type UserRepository interface {
+	CreateUser(dto2.NewUser) (*dao.NewUser, *errs.AppError)
+	FindAllUsers() ([]dao.User, *errs.AppError)
+	FindOneUser(string) (*dao.User, *errs.AppError)
+	DeleteUser(string) *errs.AppError
+	FindRegisteredUsers() (*[]dao.NewUser, *errs.AppError)
+	UpdateUser(dto2.User) (*dao.User, *dto2.Comment, *errs.AppError)
+	UpdateUserImage(uuid.UUID) (*dao.User, *dto2.Comment, *errs.AppError)
+	VerifySlug(*dto2.NewUser) error
+}
 
 type UserRepositoryDb struct {
 	store *bolthold.Store
@@ -22,8 +34,8 @@ func NewUserRepositoryDb(store *bolthold.Store) UserRepositoryDb {
 	return UserRepositoryDb{store}
 }
 
-func (db UserRepositoryDb) CreateUser(userDTO dto.NewUser) (*NewUser, *errs.AppError) {
-	var newUser NewUser
+func (db UserRepositoryDb) CreateUser(userDTO dto2.NewUser) (*dao.NewUser, *errs.AppError) {
+	var newUser dao.NewUser
 
 	err := db.VerifySlug(&userDTO)
 	if err != nil {
@@ -49,11 +61,11 @@ func (db UserRepositoryDb) CreateUser(userDTO dto.NewUser) (*NewUser, *errs.AppE
 	return &newUser, nil
 }
 
-func (db UserRepositoryDb) VerifySlug(userDTO *dto.NewUser) error {
+func (db UserRepositoryDb) VerifySlug(userDTO *dto2.NewUser) error {
 	// Verify the name is unique or add a number to the end
 	counter := 0
 	for {
-		var user User
+		var user dao.User
 		if counter > 0 {
 			userDTO.Slug = userDTO.Slug + "-" + strconv.Itoa(counter)
 		}
@@ -71,8 +83,8 @@ func (db UserRepositoryDb) VerifySlug(userDTO *dto.NewUser) error {
 	}
 }
 
-func (db UserRepositoryDb) FindAllUsers() ([]User, *errs.AppError) {
-	users := make([]User, 0)
+func (db UserRepositoryDb) FindAllUsers() ([]dao.User, *errs.AppError) {
+	users := make([]dao.User, 0)
 
 	//query := "SELECT * FROM user"
 	query := &bolthold.Query{}
@@ -85,8 +97,8 @@ func (db UserRepositoryDb) FindAllUsers() ([]User, *errs.AppError) {
 	return users, nil
 }
 
-func (db UserRepositoryDb) UpdateUser(userDTO dto.User) (*User, *dto.Comment, *errs.AppError) {
-	var user User
+func (db UserRepositoryDb) UpdateUser(userDTO dto2.User) (*dao.User, *dto2.Comment, *errs.AppError) {
+	var user dao.User
 
 	err := db.store.Get(userDTO.UUID.String(), &user)
 	if err != nil {
@@ -101,7 +113,7 @@ func (db UserRepositoryDb) UpdateUser(userDTO dto.User) (*User, *dto.Comment, *e
 		return nil, nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "user")
 	}
 
-	botComment := Comment{
+	botComment := dao.Comment{
 		UUID:      uuid.New(),
 		UserId:    conf.App.BotId,
 		Text:      fmt.Sprintf("🤖 %s changed their name to %s", user.Name, userDTO.Name),
@@ -117,8 +129,8 @@ func (db UserRepositoryDb) UpdateUser(userDTO dto.User) (*User, *dto.Comment, *e
 	return &user, &botCommentDTO, nil
 }
 
-func (db UserRepositoryDb) UpdateUserImage(id uuid.UUID) (*User, *dto.Comment, *errs.AppError) {
-	var user User
+func (db UserRepositoryDb) UpdateUserImage(id uuid.UUID) (*dao.User, *dto2.Comment, *errs.AppError) {
+	var user dao.User
 
 	err := db.store.Get(id.String(), &user)
 	if err != nil {
@@ -134,7 +146,7 @@ func (db UserRepositoryDb) UpdateUserImage(id uuid.UUID) (*User, *dto.Comment, *
 		return nil, nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "image")
 	}
 
-	var botComment = dto.Comment{
+	var botComment = dto2.Comment{
 		UUID:      uuid.New(),
 		UserId:    conf.App.BotId,
 		Text:      fmt.Sprintf("🤖 %s changed their picture", user.Name),
@@ -150,8 +162,8 @@ func (db UserRepositoryDb) UpdateUserImage(id uuid.UUID) (*User, *dto.Comment, *
 	return &user, &botComment, nil
 }
 
-func (db UserRepositoryDb) FindOneUser(slug string) (*User, *errs.AppError) {
-	var user User
+func (db UserRepositoryDb) FindOneUser(slug string) (*dao.User, *errs.AppError) {
+	var user dao.User
 
 	err := db.store.FindOne(&user, bolthold.Where("slug").Eq(slug))
 	if err != nil {
@@ -163,7 +175,7 @@ func (db UserRepositoryDb) FindOneUser(slug string) (*User, *errs.AppError) {
 }
 
 func (db UserRepositoryDb) DeleteUser(slug string) *errs.AppError {
-	var user User
+	var user dao.User
 
 	err := db.store.FindOne(&user, bolthold.Where("slug").Eq(slug))
 	if err != nil {
@@ -180,9 +192,9 @@ func (db UserRepositoryDb) DeleteUser(slug string) *errs.AppError {
 	return nil
 }
 
-func (db UserRepositoryDb) FindRegisteredUsers() (*[]NewUser, *errs.AppError) {
-	users := make([]User, 0)
-	newUsers := make([]NewUser, 0)
+func (db UserRepositoryDb) FindRegisteredUsers() (*[]dao.NewUser, *errs.AppError) {
+	users := make([]dao.User, 0)
+	newUsers := make([]dao.NewUser, 0)
 
 	err := db.store.Find(&users, bolthold.Where("AuthLvl").Ne(enum.BOT))
 	if err != nil {
@@ -191,7 +203,7 @@ func (db UserRepositoryDb) FindRegisteredUsers() (*[]NewUser, *errs.AppError) {
 	}
 
 	for _, user := range users {
-		var auth Auth
+		var auth dao.Auth
 		newUser := user.ToNewUser()
 
 		err = db.store.FindOne(&auth, bolthold.Where("UserId").Eq(user.UUID))

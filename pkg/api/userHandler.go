@@ -1,9 +1,9 @@
-package router
+package api
 
 import (
 	"github.com/anytimesoon/eurovision-party/conf"
-	"github.com/anytimesoon/eurovision-party/pkg/dto"
-	"github.com/anytimesoon/eurovision-party/pkg/enum"
+	dto2 "github.com/anytimesoon/eurovision-party/pkg/api/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/api/enum"
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
 	"github.com/anytimesoon/eurovision-party/pkg/service"
 	"github.com/google/uuid"
@@ -22,8 +22,8 @@ type UserHandler struct {
 
 func (uh UserHandler) Register(resp http.ResponseWriter, req *http.Request) {
 	var appErr *errs.AppError
-	var auth *dto.NewUser
-	if req.Context().Value("auth").(dto.Auth).AuthLvl == enum.ADMIN {
+	var auth *dto2.NewUser
+	if req.Context().Value("auth").(dto2.Auth).AuthLvl == enum.ADMIN {
 		body, err := io.ReadAll(req.Body)
 		if err != nil {
 			panic(err)
@@ -34,23 +34,23 @@ func (uh UserHandler) Register(resp http.ResponseWriter, req *http.Request) {
 	}
 
 	if appErr != nil {
-		writeResponse(resp, req, appErr.Code, auth, appErr.Message)
+		WriteResponse(resp, req, appErr.Code, auth, appErr.Message)
 	} else {
-		writeResponse(resp, req, http.StatusOK, auth, "")
+		WriteResponse(resp, req, http.StatusOK, auth, "")
 	}
 }
 
 func (uh UserHandler) FindAllUsers(resp http.ResponseWriter, req *http.Request) {
 	users, err := uh.Service.GetAllUsers()
 	if err != nil {
-		writeResponse(resp, req, err.Code, users, err.Message)
+		WriteResponse(resp, req, err.Code, users, err.Message)
 	} else {
-		writeResponse(resp, req, http.StatusOK, users, "")
+		WriteResponse(resp, req, http.StatusOK, users, "")
 	}
 }
 
 func (uh UserHandler) UpdateUser(resp http.ResponseWriter, req *http.Request) {
-	var user *dto.User
+	var user *dto2.User
 	var appErr *errs.AppError
 
 	body, err := io.ReadAll(req.Body)
@@ -59,13 +59,13 @@ func (uh UserHandler) UpdateUser(resp http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	user, err = dto.Decode[dto.User](body)
+	user, err = dto2.Decode[dto2.User](body)
 	if err != nil {
 		return
 	}
 
-	if req.Context().Value("auth").(dto.Auth).AuthLvl == enum.ADMIN ||
-		req.Context().Value("auth").(dto.Auth).UserId == user.UUID {
+	if req.Context().Value("auth").(dto2.Auth).AuthLvl == enum.ADMIN ||
+		req.Context().Value("auth").(dto2.Auth).UserId == user.UUID {
 
 		user, appErr = uh.Service.UpdateUser(*user)
 	} else {
@@ -73,14 +73,14 @@ func (uh UserHandler) UpdateUser(resp http.ResponseWriter, req *http.Request) {
 	}
 
 	if appErr != nil {
-		writeResponse(resp, req, appErr.Code, user, appErr.Message)
+		WriteResponse(resp, req, appErr.Code, user, appErr.Message)
 	} else {
-		writeResponse(resp, req, http.StatusOK, user, "")
+		WriteResponse(resp, req, http.StatusOK, user, "")
 	}
 }
 
 func (uh UserHandler) UpdateImage(resp http.ResponseWriter, req *http.Request) {
-	var user *dto.User
+	var user *dto2.User
 	var appErr *errs.AppError
 
 	log.Println("Starting image save")
@@ -103,12 +103,12 @@ func (uh UserHandler) UpdateImage(resp http.ResponseWriter, req *http.Request) {
 		log.Println("Failed to parse user id", err)
 	}
 
-	if req.Context().Value("auth").(dto.Auth).UserId == id {
+	if req.Context().Value("auth").(dto2.Auth).UserId == id {
 
 		fileHeaders := req.MultipartForm.File["file"]
 		appErr = uh.AssetService.PersistImage(fileHeaders, filepath.Join(conf.App.Assets, "avatars"))
 		if appErr != nil {
-			writeResponse(resp, req, appErr.Code, user, appErr.Message)
+			WriteResponse(resp, req, appErr.Code, user, appErr.Message)
 		}
 
 		user, appErr = uh.Service.UpdateUserImage(id)
@@ -117,9 +117,9 @@ func (uh UserHandler) UpdateImage(resp http.ResponseWriter, req *http.Request) {
 	}
 
 	if appErr != nil {
-		writeResponse(resp, req, appErr.Code, user, appErr.Message)
+		WriteResponse(resp, req, appErr.Code, user, appErr.Message)
 	} else {
-		writeResponse(resp, req, http.StatusOK, user, "")
+		WriteResponse(resp, req, http.StatusOK, user, "")
 	}
 }
 
@@ -127,32 +127,32 @@ func (uh UserHandler) FindOneUser(resp http.ResponseWriter, req *http.Request) {
 	params := mux.Vars(req)
 	user, err := uh.Service.SingleUser(params["slug"])
 	if err != nil {
-		writeResponse(resp, req, err.Code, user, err.Message)
+		WriteResponse(resp, req, err.Code, user, err.Message)
 	} else {
-		writeResponse(resp, req, http.StatusOK, user, "")
+		WriteResponse(resp, req, http.StatusOK, user, "")
 	}
 }
 
 func (uh UserHandler) RemoveUser(resp http.ResponseWriter, req *http.Request) {
 	var err *errs.AppError
-	if req.Context().Value("auth").(dto.Auth).AuthLvl == enum.ADMIN {
+	if req.Context().Value("auth").(dto2.Auth).AuthLvl == enum.ADMIN {
 		params := mux.Vars(req)
 		err = uh.Service.DeleteUser(params["slug"])
 	} else {
 		err = errs.NewUnauthorizedError(errs.Common.Unauthorized)
 	}
 	if err != nil {
-		writeResponse(resp, req, err.Code, &dto.User{}, err.Message)
+		WriteResponse(resp, req, err.Code, &dto2.User{}, err.Message)
 	} else {
-		writeResponse(resp, req, http.StatusOK, &dto.User{}, "")
+		WriteResponse(resp, req, http.StatusOK, &dto2.User{}, "")
 	}
 }
 
 func (uh UserHandler) FindRegisteredUsers(resp http.ResponseWriter, req *http.Request) {
 	users, err := uh.Service.GetRegisteredUsers()
 	if err != nil {
-		writeResponse(resp, req, err.Code, users, err.Message)
+		WriteResponse(resp, req, err.Code, users, err.Message)
 	} else {
-		writeResponse(resp, req, http.StatusOK, users, "")
+		WriteResponse(resp, req, http.StatusOK, users, "")
 	}
 }

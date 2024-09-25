@@ -1,10 +1,10 @@
-package domain
+package dao
 
 import (
 	"crypto/rand"
 	"encoding/hex"
-	"github.com/anytimesoon/eurovision-party/pkg/dto"
-	"github.com/anytimesoon/eurovision-party/pkg/enum"
+	"github.com/anytimesoon/eurovision-party/pkg/api/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/api/enum"
 	"time"
 
 	"github.com/google/uuid"

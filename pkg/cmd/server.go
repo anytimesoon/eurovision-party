@@ -1,9 +1,10 @@
-package router
+package main
 
 import (
 	"fmt"
 	"github.com/anytimesoon/eurovision-party/conf"
-	"github.com/anytimesoon/eurovision-party/pkg/domain"
+	"github.com/anytimesoon/eurovision-party/pkg/api"
+	"github.com/anytimesoon/eurovision-party/pkg/data"
 	"github.com/anytimesoon/eurovision-party/pkg/service"
 	"github.com/gorilla/handlers"
 	"github.com/timshannon/bolthold"
@@ -18,42 +19,42 @@ var authService service.AuthService
 
 func StartServer(store *bolthold.Store) {
 	router := mux.NewRouter().StrictSlash(true)
-	router.Use(logging)
+	router.Use(Logging)
 
 	// Authentication
-	authRepositoryMem := domain.NewAuthRepositoryDB(store)
+	authRepositoryMem := data.NewAuthRepositoryDB(store)
 	authService = service.NewAuthService(authRepositoryMem)
-	authHandler := AuthHandler{Service: authService}
+	authHandler := api.AuthHandler{Service: authService}
 	router.HandleFunc("/api/login", authHandler.Login).Methods(http.MethodPost) // sets auth token.
 
 	// Assets
-	imageHandler := AssetHandler{Service: service.NewAssetService()}
+	imageHandler := api.AssetHandler{Service: service.NewAssetService()}
 
 	imageRouter := router.PathPrefix("/content").Subrouter()
-	imageRouter.PathPrefix("/static/").Handler(http.StripPrefix("/content/static/", assetHandler())).Methods(http.MethodGet)
-	imageRouter.Use(imgHeaders)
+	imageRouter.PathPrefix("/static/").Handler(http.StripPrefix("/content/static/", api.DefaultAssetHandler())).Methods(http.MethodGet)
+	imageRouter.Use(ImgHeaders)
 
 	restrictedImageRouter := imageRouter.PathPrefix("/user").Subrouter()
 	restrictedImageRouter.HandleFunc("/avatar/{file}", imageHandler.GetAvatar).Methods(http.MethodGet)
 	restrictedImageRouter.HandleFunc("/chat/{file}", imageHandler.GetChatImage).Methods(http.MethodGet)
-	restrictedImageRouter.Use(authenticate)
+	restrictedImageRouter.Use(Authenticate)
 
 	restrictedImageUploadRouter := router.PathPrefix("/content/user").Subrouter()
 	restrictedImageUploadRouter.HandleFunc("/chat", imageHandler.CreateChatImage).Methods(http.MethodPost)
-	restrictedImageUploadRouter.Use(authenticate, jsHeaders)
+	restrictedImageUploadRouter.Use(Authenticate, JsHeaders)
 
 	// Restricted
 	restrictedRouter := router.PathPrefix("/restricted").Subrouter()
-	restrictedRouter.Use(authenticate)
+	restrictedRouter.Use(Authenticate)
 
 	// API
 	apiRouter := restrictedRouter.PathPrefix("/api").Subrouter()
-	apiRouter.Use(jsHeaders)
+	apiRouter.Use(JsHeaders)
 
 	// Chatroom
-	commentRepositoryDb := domain.NewCommentRepositoryDb(store)
+	commentRepositoryDb := data.NewCommentRepositoryDb(store)
 	commentService := service.NewCommentService(commentRepositoryDb)
-	chatRoomHandler := ChatRoomHandler{
+	chatRoomHandler := api.ChatRoomHandler{
 		RoomService:    service.NewRoom(commentService),
 		CommentService: commentService,
 		AuthService:    authService,
@@ -63,8 +64,8 @@ func StartServer(store *bolthold.Store) {
 	chatRouter.HandleFunc("/connect/{t}/{u}", chatRoomHandler.Connect)
 
 	// Country
-	countryRepositoryDb := domain.NewCountryRepositoryDb(store)
-	countryHandler := CountryHandler{Service: service.NewCountryService(countryRepositoryDb)}
+	countryRepositoryDb := data.NewCountryRepositoryDb(store)
+	countryHandler := api.CountryHandler{Service: service.NewCountryService(countryRepositoryDb)}
 	countryRouter := apiRouter.PathPrefix("/country").Subrouter()
 	countryRouter.HandleFunc("/", countryHandler.FindAllCountries).Methods(http.MethodGet) // admin only
 	countryRouter.HandleFunc("/", countryHandler.UpdateCountry).Methods(http.MethodPut)    // admin only
@@ -72,8 +73,8 @@ func StartServer(store *bolthold.Store) {
 	countryRouter.HandleFunc("/{slug}", countryHandler.FindOneCountry).Methods(http.MethodGet)
 
 	// User
-	userRepositoryDb := domain.NewUserRepositoryDb(store)
-	userHandler := UserHandler{Service: service.NewUserService(userRepositoryDb, chatRoomHandler.RoomService.BroadcastUpdate), AssetService: service.NewAssetService()}
+	userRepositoryDb := data.NewUserRepositoryDb(store)
+	userHandler := api.UserHandler{Service: service.NewUserService(userRepositoryDb, chatRoomHandler.RoomService.BroadcastUpdate), AssetService: service.NewAssetService()}
 	userRouter := apiRouter.PathPrefix("/user").Subrouter()
 	userRouter.HandleFunc("/", userHandler.FindAllUsers).Methods(http.MethodGet)
 	userRouter.HandleFunc("/", userHandler.UpdateUser).Methods(http.MethodPut)        // admin or current user
@@ -84,8 +85,8 @@ func StartServer(store *bolthold.Store) {
 	userRouter.HandleFunc("/{slug}", userHandler.RemoveUser).Methods(http.MethodDelete) // admin only
 
 	// Vote
-	voteRepositoryDb := domain.NewVoteRepositoryDb(store)
-	voteHandler := VoteHandler{Service: service.NewVoteService(voteRepositoryDb)}
+	voteRepositoryDb := data.NewVoteRepositoryDb(store)
+	voteHandler := api.VoteHandler{Service: service.NewVoteService(voteRepositoryDb)}
 	voteRouter := apiRouter.PathPrefix("/vote").Subrouter()
 	voteRouter.HandleFunc("/", voteHandler.UpdateVote).Methods(http.MethodPut) // current user only
 	voteRouter.HandleFunc("/results", voteHandler.GetResults).Methods(http.MethodGet)
