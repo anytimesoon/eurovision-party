@@ -1,7 +1,7 @@
 package dao
 
 import (
-	dto2 "github.com/anytimesoon/eurovision-party/pkg/api/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/api/dto"
 	"github.com/google/uuid"
 )
 
@@ -26,8 +26,8 @@ type (
 	}
 )
 
-func (r Result) ToDto() dto2.Result {
-	return dto2.Result{
+func (r Result) ToDto() dto.Result {
+	return dto.Result{
 		CountrySlug: r.CountrySlug,
 		Costume:     r.Costume,
 		Song:        r.Song,
@@ -37,8 +37,8 @@ func (r Result) ToDto() dto2.Result {
 	}
 }
 
-func (vote Vote) ToDto() dto2.Vote {
-	return dto2.Vote{
+func (vote Vote) ToDto() dto.Vote {
+	return dto.Vote{
 		UserId:      vote.UserId,
 		CountrySlug: vote.CountrySlug,
 		Costume:     vote.Costume,
@@ -48,7 +48,7 @@ func (vote Vote) ToDto() dto2.Vote {
 	}
 }
 
-func (vote Vote) FromDTO(voteDTO dto2.Vote) Vote {
+func (vote Vote) FromDTO(voteDTO dto.Vote) Vote {
 	return Vote{
 		UserId:      voteDTO.UserId,
 		CountrySlug: voteDTO.CountrySlug,

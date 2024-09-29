@@ -1,7 +1,7 @@
 package api
 
 import (
-	dto2 "github.com/anytimesoon/eurovision-party/pkg/api/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/api/dto"
 	"github.com/anytimesoon/eurovision-party/pkg/api/enum"
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
 	"github.com/anytimesoon/eurovision-party/pkg/service"
@@ -18,7 +18,7 @@ type CountryHandler struct {
 
 func (ch *CountryHandler) FindAllCountries(resp http.ResponseWriter, req *http.Request) {
 	var err *errs.AppError
-	var countries *[]dto2.Country
+	var countries *[]dto.Country
 	countries, err = ch.Service.GetAllCountries()
 
 	if err != nil {
@@ -52,8 +52,8 @@ func (ch *CountryHandler) Participating(resp http.ResponseWriter, req *http.Requ
 
 func (ch *CountryHandler) UpdateCountry(resp http.ResponseWriter, req *http.Request) {
 	var appErr *errs.AppError
-	var country *dto2.Country
-	if req.Context().Value("auth").(dto2.Auth).AuthLvl == enum.ADMIN {
+	var country *dto.Country
+	if req.Context().Value("auth").(dto.Auth).AuthLvl == enum.ADMIN {
 		body, err := io.ReadAll(req.Body)
 		if err != nil {
 			panic(err)
