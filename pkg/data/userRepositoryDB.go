@@ -8,6 +8,7 @@ import (
 	"github.com/anytimesoon/eurovision-party/pkg/api/enum"
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
 	"github.com/anytimesoon/eurovision-party/pkg/service/dao"
+
 	"github.com/google/uuid"
 	"github.com/timshannon/bolthold"
 	"log"

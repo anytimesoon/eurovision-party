@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"github.com/anytimesoon/eurovision-party/pkg/api"
+
 	"github.com/anytimesoon/eurovision-party/pkg/api/dto"
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
 	"log"
