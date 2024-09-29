@@ -1,7 +1,7 @@
-package router
+package api
 
 import (
-	"github.com/anytimesoon/eurovision-party/pkg/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/api/dto"
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
 	"github.com/anytimesoon/eurovision-party/pkg/service"
 	"github.com/gorilla/mux"
@@ -25,7 +25,7 @@ func (vh VoteHandler) UpdateVote(resp http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	voteSingle, err = dto.Decode[dto.VoteSingle](body)
+	voteSingle, err = dto.Deserialize[dto.VoteSingle](body)
 	if err != nil {
 		return
 	}
@@ -37,9 +37,9 @@ func (vh VoteHandler) UpdateVote(resp http.ResponseWriter, req *http.Request) {
 	}
 
 	if appErr != nil {
-		writeResponse(resp, req, appErr.Code, *vote, appErr.Message)
+		WriteResponse(resp, req, appErr.Code, *vote, appErr.Message)
 	} else {
-		writeResponse(resp, req, http.StatusOK, *vote, "")
+		WriteResponse(resp, req, http.StatusOK, *vote, "")
 	}
 }
 
@@ -50,9 +50,9 @@ func (vh VoteHandler) GetVoteByUserAndCountry(resp http.ResponseWriter, req *htt
 	vote, err := vh.Service.GetVoteByUserAndCountry(userId, params["slug"])
 
 	if err != nil {
-		writeResponse(resp, req, err.Code, *vote, err.Message)
+		WriteResponse(resp, req, err.Code, *vote, err.Message)
 	} else {
-		writeResponse(resp, req, http.StatusOK, *vote, "")
+		WriteResponse(resp, req, http.StatusOK, *vote, "")
 	}
 }
 
@@ -60,9 +60,9 @@ func (vh VoteHandler) GetResults(resp http.ResponseWriter, req *http.Request) {
 	results, err := vh.Service.GetResults()
 
 	if err != nil {
-		writeResponse(resp, req, err.Code, *results, err.Message)
+		WriteResponse(resp, req, err.Code, *results, err.Message)
 	} else {
-		writeResponse(resp, req, http.StatusOK, *results, "")
+		WriteResponse(resp, req, http.StatusOK, *results, "")
 	}
 }
 
@@ -71,8 +71,8 @@ func (vh VoteHandler) GetResultsByUser(resp http.ResponseWriter, req *http.Reque
 	results, err := vh.Service.GetResultsByUser(params["userId"])
 
 	if err != nil {
-		writeResponse(resp, req, err.Code, *results, err.Message)
+		WriteResponse(resp, req, err.Code, *results, err.Message)
 	} else {
-		writeResponse(resp, req, http.StatusOK, *results, "")
+		WriteResponse(resp, req, http.StatusOK, *results, "")
 	}
 }

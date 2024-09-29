@@ -2,9 +2,8 @@ package main
 
 import (
 	"github.com/anytimesoon/eurovision-party/conf"
-	"github.com/anytimesoon/eurovision-party/pkg/domain"
-	"github.com/anytimesoon/eurovision-party/pkg/enum"
-	"github.com/anytimesoon/eurovision-party/pkg/router"
+	"github.com/anytimesoon/eurovision-party/pkg/api/enum"
+	"github.com/anytimesoon/eurovision-party/pkg/service/dao"
 	"github.com/timshannon/bolthold"
 	"log"
 	"path/filepath"
@@ -36,7 +35,7 @@ func main() {
 	log.Println("Database migrations complete ✅")
 
 	log.Println("Starting server 🖥")
-	router.StartServer(store)
+	StartServer(store)
 
 	log.Println("Application closed")
 }
@@ -51,7 +50,7 @@ func addCountries(store *bolthold.Store) {
 }
 
 func addUsers(store *bolthold.Store) {
-	admins := make([]domain.User, 0)
+	admins := make([]dao.User, 0)
 	err := store.Find(
 		&admins,
 		bolthold.
@@ -68,7 +67,7 @@ func addUsers(store *bolthold.Store) {
 			log.Printf("%s alread exists in user table", initAdminUser.Name)
 		}
 
-		adminAuth := domain.Auth{
+		adminAuth := dao.Auth{
 			UserId:       initAdminUser.UUID,
 			AuthTokenExp: time.Now().Add(time.Hour * 24 * 100),
 			AuthLvl:      enum.ADMIN,
@@ -82,7 +81,7 @@ func addUsers(store *bolthold.Store) {
 
 		log.Printf("%s%s/login/%s/%s", conf.App.HttpProto, conf.App.Domain, adminAuth.AuthToken, initAdminUser.UUID)
 	}
-	bots := make([]domain.User, 0)
+	bots := make([]dao.User, 0)
 	err = store.Find(
 		&bots,
 		bolthold.

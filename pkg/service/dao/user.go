@@ -1,9 +1,8 @@
-package domain
+package dao
 
 import (
-	"github.com/anytimesoon/eurovision-party/pkg/dto"
-	"github.com/anytimesoon/eurovision-party/pkg/enum"
-	"github.com/anytimesoon/eurovision-party/pkg/errs"
+	dto2 "github.com/anytimesoon/eurovision-party/pkg/api/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/api/enum"
 	"time"
 
 	"github.com/google/uuid"
@@ -26,19 +25,8 @@ type (
 	}
 )
 
-type UserRepository interface {
-	CreateUser(dto.NewUser) (*NewUser, *errs.AppError)
-	FindAllUsers() ([]User, *errs.AppError)
-	FindOneUser(string) (*User, *errs.AppError)
-	DeleteUser(string) *errs.AppError
-	FindRegisteredUsers() (*[]NewUser, *errs.AppError)
-	UpdateUser(dto.User) (*User, *dto.Comment, *errs.AppError)
-	UpdateUserImage(uuid.UUID) (*User, *dto.Comment, *errs.AppError)
-	VerifySlug(*dto.NewUser) error
-}
-
-func (user *User) ToDto() dto.User {
-	return dto.User{
+func (user *User) ToDto() dto2.User {
+	return dto2.User{
 		Name:    user.Name,
 		Slug:    user.Slug,
 		UUID:    user.UUID,
@@ -47,7 +35,7 @@ func (user *User) ToDto() dto.User {
 	}
 }
 
-func (user *User) FromDTO(userDTO dto.User) *User {
+func (user *User) FromDTO(userDTO dto2.User) *User {
 	return &User{
 		UUID:    userDTO.UUID,
 		AuthLvl: userDTO.AuthLvl,
@@ -79,8 +67,8 @@ func (nu *NewUser) GenerateAuth() Auth {
 	nu.Token = a.AuthToken
 	return a
 }
-func (nu *NewUser) ToDTO() *dto.NewUser {
-	return &dto.NewUser{
+func (nu *NewUser) ToDTO() *dto2.NewUser {
+	return &dto2.NewUser{
 		Name: nu.Name,
 		Slug: nu.Slug,
 		UUID: nu.UUID,
@@ -89,7 +77,7 @@ func (nu *NewUser) ToDTO() *dto.NewUser {
 	}
 }
 
-func (nu *NewUser) FromDTO(nuDTO dto.NewUser) {
+func (nu *NewUser) FromDTO(nuDTO dto2.NewUser) {
 	nu.Name = nuDTO.Name
 	nu.Slug = nuDTO.Slug
 	nu.UUID = uuid.New()

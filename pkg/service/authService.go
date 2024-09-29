@@ -8,8 +8,8 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/anytimesoon/eurovision-party/pkg/domain"
-	"github.com/anytimesoon/eurovision-party/pkg/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/api/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/data"
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
 	"io"
 	"log"
@@ -17,13 +17,13 @@ import (
 )
 
 type AuthService interface {
-	Login([]byte) (*dto.Auth, *dto.User, *errs.AppError)
+	Login(dto.Auth) (*dto.Auth, *dto.User, *errs.AppError)
 	Authorize(string) (*dto.Auth, *errs.AppError)
 	AuthorizeChat(string, string) *errs.AppError
 }
 
 type DefaultAuthService struct {
-	repo domain.AuthRepositoryDB
+	repo data.AuthRepositoryDB
 }
 
 var secretKey []byte
@@ -37,19 +37,12 @@ func init() {
 	}
 }
 
-func NewAuthService(repo domain.AuthRepositoryDB) DefaultAuthService {
+func NewAuthService(repo data.AuthRepositoryDB) DefaultAuthService {
 	return DefaultAuthService{repo}
 }
 
-func (das DefaultAuthService) Login(body []byte) (*dto.Auth, *dto.User, *errs.AppError) {
-	var req dto.Auth
-	err := json.Unmarshal(body, &req)
-	if err != nil {
-		log.Println("FAILED to unmarshal json!", err)
-		return nil, nil, errs.NewUnexpectedError(errs.Common.BadlyFormedObject)
-	}
-
-	auth, user, appErr := das.repo.Login(&req)
+func (das DefaultAuthService) Login(authDTO dto.Auth) (*dto.Auth, *dto.User, *errs.AppError) {
+	auth, user, appErr := das.repo.Login(&authDTO)
 	if appErr != nil {
 		return nil, nil, appErr
 	}
@@ -66,7 +59,7 @@ func (das DefaultAuthService) Login(body []byte) (*dto.Auth, *dto.User, *errs.Ap
 		return nil, nil, errs.NewUnexpectedError(errs.Common.Login)
 	}
 
-	returnableAuth := auth.ToModifiedDTO(e)
+	returnableAuth := auth.ToReturnableDTO(e)
 	userDTO := user.ToDto()
 
 	return &returnableAuth, &userDTO, nil

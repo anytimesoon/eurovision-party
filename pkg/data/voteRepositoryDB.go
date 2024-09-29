@@ -1,15 +1,24 @@
-package domain
+package data
 
 import (
 	"fmt"
-	"github.com/anytimesoon/eurovision-party/pkg/dto"
-	"github.com/anytimesoon/eurovision-party/pkg/enum"
+	"github.com/anytimesoon/eurovision-party/pkg/api/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/api/enum"
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
+	"github.com/anytimesoon/eurovision-party/pkg/service/dao"
 	"github.com/timshannon/bolthold"
 	"log"
 
 	"github.com/google/uuid"
 )
+
+type VoteRepository interface {
+	CreateVote(dto.Vote) (*dao.Vote, *errs.AppError)
+	UpdateVote(dto.VoteSingle) (*dao.Vote, *errs.AppError)
+	GetVoteByUserAndCountry(uuid.UUID, string) (*dao.Vote, *errs.AppError)
+	GetResults() (*[]dao.Result, *errs.AppError)
+	GetResultsByUser(userId uuid.UUID) (*[]dao.Result, *errs.AppError)
+}
 
 type VoteRepositoryDb struct {
 	store *bolthold.Store
@@ -19,8 +28,8 @@ func NewVoteRepositoryDb(store *bolthold.Store) VoteRepositoryDb {
 	return VoteRepositoryDb{store}
 }
 
-func (db VoteRepositoryDb) CreateVote(voteDTO dto.Vote) (*Vote, *errs.AppError) {
-	var vote Vote
+func (db VoteRepositoryDb) CreateVote(voteDTO dto.Vote) (*dao.Vote, *errs.AppError) {
+	var vote dao.Vote
 
 	vote = vote.FromDTO(voteDTO)
 	err := db.store.Insert(
@@ -38,8 +47,8 @@ func voteKey(userId uuid.UUID, countrySlug string) string {
 	return fmt.Sprintf("%s_%s", userId.String(), countrySlug)
 }
 
-func (db VoteRepositoryDb) UpdateVote(voteDTO dto.VoteSingle) (*Vote, *errs.AppError) {
-	var vote Vote
+func (db VoteRepositoryDb) UpdateVote(voteDTO dto.VoteSingle) (*dao.Vote, *errs.AppError) {
+	var vote dao.Vote
 
 	err := db.store.Get(
 		voteKey(voteDTO.UserId, voteDTO.CountrySlug),
@@ -70,8 +79,8 @@ func (db VoteRepositoryDb) UpdateVote(voteDTO dto.VoteSingle) (*Vote, *errs.AppE
 	return &vote, nil
 }
 
-func (db VoteRepositoryDb) GetVoteByUserAndCountry(userId uuid.UUID, countrySlug string) (*Vote, *errs.AppError) {
-	var vote Vote
+func (db VoteRepositoryDb) GetVoteByUserAndCountry(userId uuid.UUID, countrySlug string) (*dao.Vote, *errs.AppError) {
+	var vote dao.Vote
 
 	err := db.store.Get(voteKey(userId, countrySlug), &vote)
 	if err != nil && err.Error() == "No data found for this key" {
@@ -89,9 +98,9 @@ func (db VoteRepositoryDb) GetVoteByUserAndCountry(userId uuid.UUID, countrySlug
 	return &vote, nil
 }
 
-func (db VoteRepositoryDb) GetResults() (*[]Result, *errs.AppError) {
-	votes := make([]Vote, 0)
-	resultsMap := make(map[string]*Result)
+func (db VoteRepositoryDb) GetResults() (*[]dao.Result, *errs.AppError) {
+	votes := make([]dao.Vote, 0)
+	resultsMap := make(map[string]*dao.Result)
 
 	err := db.store.Find(&votes, &bolthold.Query{})
 	if err != nil {
@@ -111,7 +120,7 @@ func (db VoteRepositoryDb) GetResults() (*[]Result, *errs.AppError) {
 			resultsMap[vote.CountrySlug].Total += int(vote.Costume) + int(vote.Song) + int(vote.Performance) + int(vote.Props)
 		}
 	}
-	results := make([]Result, 0, len(resultsMap))
+	results := make([]dao.Result, 0, len(resultsMap))
 	for _, res := range resultsMap {
 		results = append(results, *res)
 	}
@@ -119,9 +128,9 @@ func (db VoteRepositoryDb) GetResults() (*[]Result, *errs.AppError) {
 	return &results, nil
 }
 
-func (db VoteRepositoryDb) GetResultsByUser(userId uuid.UUID) (*[]Result, *errs.AppError) {
-	votes := make([]Vote, 0)
-	results := make([]Result, 0)
+func (db VoteRepositoryDb) GetResultsByUser(userId uuid.UUID) (*[]dao.Result, *errs.AppError) {
+	votes := make([]dao.Vote, 0)
+	results := make([]dao.Result, 0)
 
 	err := db.store.Find(&votes, bolthold.Where("UserId").Eq(userId).Index("UserId"))
 	if err != nil {

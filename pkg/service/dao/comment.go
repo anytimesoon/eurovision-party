@@ -1,8 +1,7 @@
-package domain
+package dao
 
 import (
-	"github.com/anytimesoon/eurovision-party/pkg/dto"
-	"github.com/anytimesoon/eurovision-party/pkg/errs"
+	"github.com/anytimesoon/eurovision-party/pkg/api/dto"
 	"time"
 
 	"github.com/google/uuid"
@@ -15,13 +14,6 @@ type Comment struct {
 	FileName  string
 	CreatedAt time.Time
 	ReplyTo   *Comment
-}
-
-type CommentRepository interface {
-	FindAllComments() ([]Comment, *errs.AppError)
-	CreateComment(dto.Comment) (*Comment, *errs.AppError)
-	DeleteComment(string) *errs.AppError
-	FindCommentsAfter(string) ([]Comment, *errs.AppError)
 }
 
 func (comment *Comment) ToDto() dto.Comment {

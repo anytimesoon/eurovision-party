@@ -1,10 +1,10 @@
-package domain
+package dao
 
 import (
 	"crypto/rand"
 	"encoding/hex"
-	"github.com/anytimesoon/eurovision-party/pkg/dto"
-	"github.com/anytimesoon/eurovision-party/pkg/enum"
+	"github.com/anytimesoon/eurovision-party/pkg/api/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/api/enum"
 	"time"
 
 	"github.com/google/uuid"
@@ -60,9 +60,9 @@ func (a *Auth) ToDTO() dto.Auth {
 	}
 }
 
-// ToModifiedDTO takes in a new token, which is an encrypted version of an auth struct.
+// ToReturnableDTO takes in a new token, which is an encrypted version of an auth struct.
 // A modified Auth is what we will send to the client
-func (a *Auth) ToModifiedDTO(token string) dto.Auth {
+func (a *Auth) ToReturnableDTO(token string) dto.Auth {
 	return dto.Auth{
 		Token:      token,
 		Expiration: a.SessionTokenExp,

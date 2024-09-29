@@ -1,10 +1,10 @@
-package router
+package api
 
 import (
 	"errors"
 	"github.com/anytimesoon/eurovision-party/assets"
 	"github.com/anytimesoon/eurovision-party/conf"
-	"github.com/anytimesoon/eurovision-party/pkg/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/api/dto"
 	"github.com/anytimesoon/eurovision-party/pkg/service"
 	"github.com/gorilla/mux"
 	"log"
@@ -41,9 +41,9 @@ func (ah AssetHandler) CreateChatImage(w http.ResponseWriter, r *http.Request) {
 	appErr := ah.Service.PersistImage(fileHeaders, filepath.Join(conf.App.Assets, "chat"))
 
 	if appErr != nil {
-		writeResponse(w, r, appErr.Code, dto.Comment{}, appErr.Message)
+		WriteResponse(w, r, appErr.Code, dto.Comment{}, appErr.Message)
 	} else {
-		writeResponse(w, r, http.StatusOK, dto.Comment{}, "")
+		WriteResponse(w, r, http.StatusOK, dto.Comment{}, "")
 	}
 }
 
@@ -85,18 +85,12 @@ func (ah AssetHandler) GetAvatar(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, fileName)
 }
 
-func assetHandler() http.Handler {
+func DefaultAssetHandler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		r.URL.Path = "img/" + r.URL.Path
 		fs.ServeHTTP(w, r)
 	})
 }
-
-//
-//func GetCameraIcon(w http.ResponseWriter, r *http.Request) {
-//	r.URL.Path = "img/camera.png"
-//	fs.ServeHTTP(w, r)
-//}
 
 func serveDefaultAvatar(w http.ResponseWriter, r *http.Request) {
 	r.URL.Path = "img/newuser.png"

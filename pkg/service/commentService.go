@@ -2,15 +2,15 @@ package service
 
 import (
 	"encoding/json"
-	"github.com/anytimesoon/eurovision-party/pkg/domain"
-	"github.com/anytimesoon/eurovision-party/pkg/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/api/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/data"
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
+	"github.com/anytimesoon/eurovision-party/pkg/service/dao"
 	"github.com/google/uuid"
 	"log"
 	"time"
 )
 
-//go:generate mockgen -source=commentService.go -destination=../../mocks/service/mockCommentService.go -package=service eurovision/pkg/service
 type CommentService interface {
 	FindAllComments() ([]dto.Comment, *errs.AppError)
 	CreateComment([]byte) (*dto.Comment, *errs.AppError)
@@ -19,10 +19,10 @@ type CommentService interface {
 }
 
 type DefaultCommentService struct {
-	repo domain.CommentRepository
+	repo data.CommentRepository
 }
 
-func NewCommentService(repo domain.CommentRepository) DefaultCommentService {
+func NewCommentService(repo data.CommentRepository) DefaultCommentService {
 	return DefaultCommentService{repo}
 }
 
@@ -43,7 +43,7 @@ func (service DefaultCommentService) FindAllComments() ([]dto.Comment, *errs.App
 
 func (service DefaultCommentService) FindCommentsAfter(commentIdJSON json.RawMessage) ([]byte, *errs.AppError) {
 	var commentId string
-	var comments []domain.Comment
+	var comments []dao.Comment
 	var appErr *errs.AppError
 	commentsDTO := make([]dto.Comment, 0)
 

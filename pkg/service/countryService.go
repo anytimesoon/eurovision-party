@@ -2,9 +2,10 @@ package service
 
 import (
 	"encoding/json"
-	"github.com/anytimesoon/eurovision-party/pkg/domain"
-	"github.com/anytimesoon/eurovision-party/pkg/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/api/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/data"
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
+	"github.com/anytimesoon/eurovision-party/pkg/service/dao"
 	"log"
 )
 
@@ -16,10 +17,10 @@ type CountryService interface {
 }
 
 type DefaultCountryService struct {
-	repo domain.CountryRepository
+	repo data.CountryRepository
 }
 
-func NewCountryService(repo domain.CountryRepository) DefaultCountryService {
+func NewCountryService(repo data.CountryRepository) DefaultCountryService {
 	return DefaultCountryService{repo}
 }
 
@@ -69,7 +70,7 @@ func (service DefaultCountryService) Participating() (*[]dto.Country, *errs.AppE
 	return countriesToDto(*countryData), nil
 }
 
-func countriesToDto(countryData []domain.Country) *[]dto.Country {
+func countriesToDto(countryData []dao.Country) *[]dto.Country {
 	countriesDTO := make([]dto.Country, 0)
 	for _, country := range countryData {
 		countriesDTO = append(countriesDTO, country.ToDto())
