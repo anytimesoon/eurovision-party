@@ -1,4 +1,4 @@
-package dao
+package domain
 
 import (
 	"github.com/anytimesoon/eurovision-party/pkg/api/dto"

@@ -1,4 +1,4 @@
-package api
+package router
 
 import (
 	"github.com/anytimesoon/eurovision-party/pkg/api/dto"
