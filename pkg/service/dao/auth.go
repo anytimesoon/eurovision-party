@@ -5,9 +5,8 @@ import (
 	"encoding/hex"
 	"github.com/anytimesoon/eurovision-party/pkg/api/dto"
 	"github.com/anytimesoon/eurovision-party/pkg/api/enum"
-	"time"
-
 	"github.com/google/uuid"
+	"time"
 )
 
 type Auth struct {
