@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/anytimesoon/eurovision-party/conf"
-	dto2 "github.com/anytimesoon/eurovision-party/pkg/api/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/api/dto"
 	"github.com/anytimesoon/eurovision-party/pkg/api/enum"
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
 	"github.com/anytimesoon/eurovision-party/pkg/service/dao"
@@ -16,14 +16,14 @@ import (
 )
 
 type UserRepository interface {
-	CreateUser(dto2.NewUser) (*dao.NewUser, *errs.AppError)
+	CreateUser(dto.NewUser) (*dao.NewUser, *errs.AppError)
 	FindAllUsers() ([]dao.User, *errs.AppError)
 	FindOneUser(string) (*dao.User, *errs.AppError)
 	DeleteUser(string) *errs.AppError
 	FindRegisteredUsers() (*[]dao.NewUser, *errs.AppError)
-	UpdateUser(dto2.User) (*dao.User, *dto2.Comment, *errs.AppError)
-	UpdateUserImage(uuid.UUID) (*dao.User, *dto2.Comment, *errs.AppError)
-	VerifySlug(*dto2.NewUser) error
+	UpdateUser(dto.User) (*dao.User, *dto.Comment, *errs.AppError)
+	UpdateUserImage(uuid.UUID) (*dao.User, *dto.Comment, *errs.AppError)
+	VerifySlug(*dto.NewUser) error
 }
 
 type UserRepositoryDb struct {
@@ -34,7 +34,7 @@ func NewUserRepositoryDb(store *bolthold.Store) UserRepositoryDb {
 	return UserRepositoryDb{store}
 }
 
-func (db UserRepositoryDb) CreateUser(userDTO dto2.NewUser) (*dao.NewUser, *errs.AppError) {
+func (db UserRepositoryDb) CreateUser(userDTO dto.NewUser) (*dao.NewUser, *errs.AppError) {
 	var newUser dao.NewUser
 
 	err := db.VerifySlug(&userDTO)
@@ -61,7 +61,7 @@ func (db UserRepositoryDb) CreateUser(userDTO dto2.NewUser) (*dao.NewUser, *errs
 	return &newUser, nil
 }
 
-func (db UserRepositoryDb) VerifySlug(userDTO *dto2.NewUser) error {
+func (db UserRepositoryDb) VerifySlug(userDTO *dto.NewUser) error {
 	// Verify the name is unique or add a number to the end
 	counter := 0
 	for {
@@ -97,7 +97,7 @@ func (db UserRepositoryDb) FindAllUsers() ([]dao.User, *errs.AppError) {
 	return users, nil
 }
 
-func (db UserRepositoryDb) UpdateUser(userDTO dto2.User) (*dao.User, *dto2.Comment, *errs.AppError) {
+func (db UserRepositoryDb) UpdateUser(userDTO dto.User) (*dao.User, *dto.Comment, *errs.AppError) {
 	var user dao.User
 
 	err := db.store.Get(userDTO.UUID.String(), &user)
@@ -129,7 +129,7 @@ func (db UserRepositoryDb) UpdateUser(userDTO dto2.User) (*dao.User, *dto2.Comme
 	return &user, &botCommentDTO, nil
 }
 
-func (db UserRepositoryDb) UpdateUserImage(id uuid.UUID) (*dao.User, *dto2.Comment, *errs.AppError) {
+func (db UserRepositoryDb) UpdateUserImage(id uuid.UUID) (*dao.User, *dto.Comment, *errs.AppError) {
 	var user dao.User
 
 	err := db.store.Get(id.String(), &user)
@@ -146,7 +146,7 @@ func (db UserRepositoryDb) UpdateUserImage(id uuid.UUID) (*dao.User, *dto2.Comme
 		return nil, nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "image")
 	}
 
-	var botComment = dto2.Comment{
+	var botComment = dto.Comment{
 		UUID:      uuid.New(),
 		UserId:    conf.App.BotId,
 		Text:      fmt.Sprintf("🤖 %s changed their picture", user.Name),

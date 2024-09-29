@@ -5,11 +5,11 @@ import (
 	"log"
 )
 
-type Decodable interface {
+type Deserializable interface {
 	Country | User | Vote | VoteSingle
 }
 
-func Decode[T Decodable](body []byte) (*T, error) {
+func Deserialize[T Deserializable](body []byte) (*T, error) {
 	var model T
 	log.Printf("%s", body)
 	err := json.Unmarshal(body, &model)

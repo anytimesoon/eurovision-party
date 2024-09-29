@@ -2,7 +2,7 @@ package api
 
 import (
 	"github.com/anytimesoon/eurovision-party/conf"
-	dto2 "github.com/anytimesoon/eurovision-party/pkg/api/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/api/dto"
 	"github.com/anytimesoon/eurovision-party/pkg/api/enum"
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
 	"github.com/anytimesoon/eurovision-party/pkg/service"
@@ -22,8 +22,8 @@ type UserHandler struct {
 
 func (uh UserHandler) Register(resp http.ResponseWriter, req *http.Request) {
 	var appErr *errs.AppError
-	var auth *dto2.NewUser
-	if req.Context().Value("auth").(dto2.Auth).AuthLvl == enum.ADMIN {
+	var auth *dto.NewUser
+	if req.Context().Value("auth").(dto.Auth).AuthLvl == enum.ADMIN {
 		body, err := io.ReadAll(req.Body)
 		if err != nil {
 			panic(err)
@@ -50,7 +50,7 @@ func (uh UserHandler) FindAllUsers(resp http.ResponseWriter, req *http.Request) 
 }
 
 func (uh UserHandler) UpdateUser(resp http.ResponseWriter, req *http.Request) {
-	var user *dto2.User
+	var user *dto.User
 	var appErr *errs.AppError
 
 	body, err := io.ReadAll(req.Body)
@@ -59,13 +59,13 @@ func (uh UserHandler) UpdateUser(resp http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	user, err = dto2.Decode[dto2.User](body)
+	user, err = dto.Deserialize[dto.User](body)
 	if err != nil {
 		return
 	}
 
-	if req.Context().Value("auth").(dto2.Auth).AuthLvl == enum.ADMIN ||
-		req.Context().Value("auth").(dto2.Auth).UserId == user.UUID {
+	if req.Context().Value("auth").(dto.Auth).AuthLvl == enum.ADMIN ||
+		req.Context().Value("auth").(dto.Auth).UserId == user.UUID {
 
 		user, appErr = uh.Service.UpdateUser(*user)
 	} else {
@@ -80,7 +80,7 @@ func (uh UserHandler) UpdateUser(resp http.ResponseWriter, req *http.Request) {
 }
 
 func (uh UserHandler) UpdateImage(resp http.ResponseWriter, req *http.Request) {
-	var user *dto2.User
+	var user *dto.User
 	var appErr *errs.AppError
 
 	log.Println("Starting image save")
@@ -103,7 +103,7 @@ func (uh UserHandler) UpdateImage(resp http.ResponseWriter, req *http.Request) {
 		log.Println("Failed to parse user id", err)
 	}
 
-	if req.Context().Value("auth").(dto2.Auth).UserId == id {
+	if req.Context().Value("auth").(dto.Auth).UserId == id {
 
 		fileHeaders := req.MultipartForm.File["file"]
 		appErr = uh.AssetService.PersistImage(fileHeaders, filepath.Join(conf.App.Assets, "avatars"))
@@ -135,16 +135,16 @@ func (uh UserHandler) FindOneUser(resp http.ResponseWriter, req *http.Request) {
 
 func (uh UserHandler) RemoveUser(resp http.ResponseWriter, req *http.Request) {
 	var err *errs.AppError
-	if req.Context().Value("auth").(dto2.Auth).AuthLvl == enum.ADMIN {
+	if req.Context().Value("auth").(dto.Auth).AuthLvl == enum.ADMIN {
 		params := mux.Vars(req)
 		err = uh.Service.DeleteUser(params["slug"])
 	} else {
 		err = errs.NewUnauthorizedError(errs.Common.Unauthorized)
 	}
 	if err != nil {
-		WriteResponse(resp, req, err.Code, &dto2.User{}, err.Message)
+		WriteResponse(resp, req, err.Code, &dto.User{}, err.Message)
 	} else {
-		WriteResponse(resp, req, http.StatusOK, &dto2.User{}, "")
+		WriteResponse(resp, req, http.StatusOK, &dto.User{}, "")
 	}
 }
 

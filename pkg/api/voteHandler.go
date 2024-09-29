@@ -1,7 +1,7 @@
 package api
 
 import (
-	dto2 "github.com/anytimesoon/eurovision-party/pkg/api/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/api/dto"
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
 	"github.com/anytimesoon/eurovision-party/pkg/service"
 	"github.com/gorilla/mux"
@@ -16,8 +16,8 @@ type VoteHandler struct {
 
 func (vh VoteHandler) UpdateVote(resp http.ResponseWriter, req *http.Request) {
 	var appErr *errs.AppError
-	var voteSingle *dto2.VoteSingle
-	var vote *dto2.Vote
+	var voteSingle *dto.VoteSingle
+	var vote *dto.Vote
 
 	body, err := io.ReadAll(req.Body)
 	if err != nil {
@@ -25,12 +25,12 @@ func (vh VoteHandler) UpdateVote(resp http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	voteSingle, err = dto2.Decode[dto2.VoteSingle](body)
+	voteSingle, err = dto.Deserialize[dto.VoteSingle](body)
 	if err != nil {
 		return
 	}
 
-	if req.Context().Value("auth").(dto2.Auth).UserId == voteSingle.UserId {
+	if req.Context().Value("auth").(dto.Auth).UserId == voteSingle.UserId {
 		vote, appErr = vh.Service.UpdateVote(*voteSingle)
 	} else {
 		appErr = errs.NewUnauthorizedError(errs.Common.Unauthorized)
@@ -45,7 +45,7 @@ func (vh VoteHandler) UpdateVote(resp http.ResponseWriter, req *http.Request) {
 
 func (vh VoteHandler) GetVoteByUserAndCountry(resp http.ResponseWriter, req *http.Request) {
 	params := mux.Vars(req)
-	userId := req.Context().Value("auth").(dto2.Auth).UserId
+	userId := req.Context().Value("auth").(dto.Auth).UserId
 
 	vote, err := vh.Service.GetVoteByUserAndCountry(userId, params["slug"])
 

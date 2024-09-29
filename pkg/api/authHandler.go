@@ -1,8 +1,10 @@
 package api
 
 import (
+	"encoding/json"
 	"github.com/anytimesoon/eurovision-party/conf"
 	"github.com/anytimesoon/eurovision-party/pkg/api/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/errs"
 	"github.com/anytimesoon/eurovision-party/pkg/service"
 	"io"
 	"log"
@@ -20,7 +22,16 @@ func (ah AuthHandler) Login(resp http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	auth, user, appErr := ah.Service.Login(body)
+	var authDTO dto.Auth
+	err = json.Unmarshal(body, &authDTO)
+	if err != nil {
+		log.Println("FAILED to unmarshal json!", err)
+		appErr := errs.NewUnexpectedError(errs.Common.BadlyFormedObject)
+		WriteResponse(resp, req, appErr.Code, dto.SessionAuth{}, appErr.Message)
+		return
+	}
+
+	auth, user, appErr := ah.Service.Login(authDTO)
 
 	if appErr != nil {
 		WriteResponse(resp, req, appErr.Code, dto.SessionAuth{}, appErr.Message)

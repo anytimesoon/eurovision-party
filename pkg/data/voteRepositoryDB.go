@@ -2,7 +2,7 @@ package data
 
 import (
 	"fmt"
-	dto2 "github.com/anytimesoon/eurovision-party/pkg/api/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/api/dto"
 	"github.com/anytimesoon/eurovision-party/pkg/api/enum"
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
 	"github.com/anytimesoon/eurovision-party/pkg/service/dao"
@@ -13,8 +13,8 @@ import (
 )
 
 type VoteRepository interface {
-	CreateVote(dto2.Vote) (*dao.Vote, *errs.AppError)
-	UpdateVote(dto2.VoteSingle) (*dao.Vote, *errs.AppError)
+	CreateVote(dto.Vote) (*dao.Vote, *errs.AppError)
+	UpdateVote(dto.VoteSingle) (*dao.Vote, *errs.AppError)
 	GetVoteByUserAndCountry(uuid.UUID, string) (*dao.Vote, *errs.AppError)
 	GetResults() (*[]dao.Result, *errs.AppError)
 	GetResultsByUser(userId uuid.UUID) (*[]dao.Result, *errs.AppError)
@@ -28,7 +28,7 @@ func NewVoteRepositoryDb(store *bolthold.Store) VoteRepositoryDb {
 	return VoteRepositoryDb{store}
 }
 
-func (db VoteRepositoryDb) CreateVote(voteDTO dto2.Vote) (*dao.Vote, *errs.AppError) {
+func (db VoteRepositoryDb) CreateVote(voteDTO dto.Vote) (*dao.Vote, *errs.AppError) {
 	var vote dao.Vote
 
 	vote = vote.FromDTO(voteDTO)
@@ -47,7 +47,7 @@ func voteKey(userId uuid.UUID, countrySlug string) string {
 	return fmt.Sprintf("%s_%s", userId.String(), countrySlug)
 }
 
-func (db VoteRepositoryDb) UpdateVote(voteDTO dto2.VoteSingle) (*dao.Vote, *errs.AppError) {
+func (db VoteRepositoryDb) UpdateVote(voteDTO dto.VoteSingle) (*dao.Vote, *errs.AppError) {
 	var vote dao.Vote
 
 	err := db.store.Get(
@@ -86,7 +86,7 @@ func (db VoteRepositoryDb) GetVoteByUserAndCountry(userId uuid.UUID, countrySlug
 	if err != nil && err.Error() == "No data found for this key" {
 		log.Println("Found 0 votes from country and user. Creating a new vote")
 
-		return db.CreateVote(dto2.Vote{
+		return db.CreateVote(dto.Vote{
 			UserId:      userId,
 			CountrySlug: countrySlug,
 		})
