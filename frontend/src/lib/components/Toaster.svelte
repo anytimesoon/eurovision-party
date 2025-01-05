@@ -17,7 +17,7 @@
 </script>
 
 {#if shouldDisplay}
-<div transition:fade={{ delay: 250, duration: 300 }} class="fixed inset-0 overflow-y-auto h-full w-full z-50" on:mouseup={closeToaster}>
+<div transition:fade|global={{ delay: 250, duration: 300 }} class="fixed inset-0 overflow-y-auto h-full w-full z-50" on:mouseup={closeToaster}>
     <div class="top-20">
         <div class="bg-warning rounded py-3 px-2 mt-2 shadow-lg shadow-gray-800 w-[75%] mx-auto">
             <p class="text-center">

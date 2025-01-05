@@ -24,7 +24,7 @@ export const load =  ( async ({ params, fetch, cookies }) => {
     }
 
     if (login.error != "") {
-        throw redirect(303, "/login")
+        redirect(303, "/login");
     }
 
     return {

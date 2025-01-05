@@ -19,7 +19,7 @@
 </script>
 
 {#if shouldDisplay}
-    <div transition:scale={{ duration: 500, opacity: 0.5, easing: quintInOut }} class="bg-canvas-primary p-2 mb-2 rounded text-typography-main text-xs relative">
+    <div transition:scale|global={{ duration: 500, opacity: 0.5, easing: quintInOut }} class="bg-canvas-primary p-2 mb-2 rounded text-typography-main text-xs relative">
         <button class="bg-transparent absolute top-1 right-1"  on:click={close}>
             <CloseCircleOutline />
         </button>

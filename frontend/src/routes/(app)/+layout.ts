@@ -11,7 +11,7 @@ export const load:LayoutServerLoad =  ( async ({ fetch }) => {
     const countries: ResponseModel<CountryModel[]> = await countryRes.json()
 
     if (countries.error != "") {
-        throw redirect(303, "/login")
+        redirect(303, "/login");
     }
 
     const countryModels = countries.body.map((country):CountryModel => {

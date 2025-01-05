@@ -26,7 +26,7 @@
 
 {#if shouldDisplay}
     <!-- Overlay -->
-    <div transition:fade={{ duration: 300, easing: cubicInOut }} class="fixed inset-0 z-10 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full" on:mouseup={closeModalCheck}>
+    <div transition:fade|global={{ duration: 300, easing: cubicInOut }} class="fixed inset-0 z-10 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full" on:mouseup={closeModalCheck}>
 
         <!-- Modal window -->
         <div class="relative top-20 {optionalPadding} border border-secondary max-w-screen-sm mx-auto shadow-lg rounded-md bg-canvas-secondary">
