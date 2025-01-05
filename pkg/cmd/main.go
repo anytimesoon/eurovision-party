@@ -19,7 +19,7 @@ func main() {
 	log.Println("Starting application")
 	store, err := bolthold.Open(filepath.Join(conf.App.DbPath, "data.db"), 0600, nil)
 	if err != nil {
-		log.Fatal("Failed to open KV database")
+		log.Fatal("Failed to open KV database: ", err)
 	}
 
 	defer func(store *bolthold.Store) {
