@@ -34,18 +34,18 @@ func (uh UserHandler) Register(resp http.ResponseWriter, req *http.Request) {
 	}
 
 	if appErr != nil {
-		WriteResponse(resp, req, appErr.Code, auth, appErr.Message)
+		WriteResponse(resp, appErr.Code, auth, appErr.Message)
 	} else {
-		WriteResponse(resp, req, http.StatusOK, auth, "")
+		WriteResponse(resp, http.StatusOK, auth, "")
 	}
 }
 
 func (uh UserHandler) FindAllUsers(resp http.ResponseWriter, req *http.Request) {
 	users, err := uh.Service.GetAllUsers()
 	if err != nil {
-		WriteResponse(resp, req, err.Code, users, err.Message)
+		WriteResponse(resp, err.Code, users, err.Message)
 	} else {
-		WriteResponse(resp, req, http.StatusOK, users, "")
+		WriteResponse(resp, http.StatusOK, users, "")
 	}
 }
 
@@ -73,9 +73,9 @@ func (uh UserHandler) UpdateUser(resp http.ResponseWriter, req *http.Request) {
 	}
 
 	if appErr != nil {
-		WriteResponse(resp, req, appErr.Code, user, appErr.Message)
+		WriteResponse(resp, appErr.Code, user, appErr.Message)
 	} else {
-		WriteResponse(resp, req, http.StatusOK, user, "")
+		WriteResponse(resp, http.StatusOK, user, "")
 	}
 }
 
@@ -108,7 +108,7 @@ func (uh UserHandler) UpdateImage(resp http.ResponseWriter, req *http.Request) {
 		fileHeaders := req.MultipartForm.File["file"]
 		appErr = uh.AssetService.PersistImage(fileHeaders, filepath.Join(conf.App.Assets, "avatars"))
 		if appErr != nil {
-			WriteResponse(resp, req, appErr.Code, user, appErr.Message)
+			WriteResponse(resp, appErr.Code, user, appErr.Message)
 		}
 
 		user, appErr = uh.Service.UpdateUserImage(id)
@@ -117,9 +117,9 @@ func (uh UserHandler) UpdateImage(resp http.ResponseWriter, req *http.Request) {
 	}
 
 	if appErr != nil {
-		WriteResponse(resp, req, appErr.Code, user, appErr.Message)
+		WriteResponse(resp, appErr.Code, user, appErr.Message)
 	} else {
-		WriteResponse(resp, req, http.StatusOK, user, "")
+		WriteResponse(resp, http.StatusOK, user, "")
 	}
 }
 
@@ -127,9 +127,9 @@ func (uh UserHandler) FindOneUser(resp http.ResponseWriter, req *http.Request) {
 	params := mux.Vars(req)
 	user, err := uh.Service.SingleUser(params["slug"])
 	if err != nil {
-		WriteResponse(resp, req, err.Code, user, err.Message)
+		WriteResponse(resp, err.Code, user, err.Message)
 	} else {
-		WriteResponse(resp, req, http.StatusOK, user, "")
+		WriteResponse(resp, http.StatusOK, user, "")
 	}
 }
 
@@ -142,17 +142,17 @@ func (uh UserHandler) RemoveUser(resp http.ResponseWriter, req *http.Request) {
 		err = errs.NewUnauthorizedError(errs.Common.Unauthorized)
 	}
 	if err != nil {
-		WriteResponse(resp, req, err.Code, &dto.User{}, err.Message)
+		WriteResponse(resp, err.Code, &dto.User{}, err.Message)
 	} else {
-		WriteResponse(resp, req, http.StatusOK, &dto.User{}, "")
+		WriteResponse(resp, http.StatusOK, &dto.User{}, "")
 	}
 }
 
 func (uh UserHandler) FindRegisteredUsers(resp http.ResponseWriter, req *http.Request) {
 	users, err := uh.Service.GetRegisteredUsers()
 	if err != nil {
-		WriteResponse(resp, req, err.Code, users, err.Message)
+		WriteResponse(resp, err.Code, users, err.Message)
 	} else {
-		WriteResponse(resp, req, http.StatusOK, users, "")
+		WriteResponse(resp, http.StatusOK, users, "")
 	}
 }

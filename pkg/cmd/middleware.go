@@ -35,17 +35,17 @@ func Logging(next http.Handler) http.Handler {
 
 func Authenticate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		session, err := r.Cookie("session")
-		if err != nil {
-			log.Println("No session cookie was found. Trying authorization header.")
-			api.WriteResponse(w, r, http.StatusUnauthorized, &dto.User{}, errs.Common.Unauthorized)
+		session := r.Header.Get("Authorization")
+		if session == "" {
+			log.Println("No session was found")
+			api.WriteResponse(w, http.StatusUnauthorized, &dto.User{}, errs.Common.Unauthorized)
 			return
 		}
 
-		auth, appErr := authService.Authorize(session.Value)
+		auth, appErr := authService.Authorize(session)
 		if appErr != nil {
 			log.Printf("%s method %s was requested by %q and rejected because token was rejected. %s", r.RequestURI, r.Method, r.RemoteAddr, appErr)
-			api.WriteResponse(w, r, http.StatusUnauthorized, &dto.User{}, errs.Common.Unauthorized)
+			api.WriteResponse(w, http.StatusUnauthorized, &dto.User{}, errs.Common.Unauthorized)
 			return
 		}
 

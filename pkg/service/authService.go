@@ -19,7 +19,6 @@ import (
 type AuthService interface {
 	Login(dto.Auth) (*dto.Auth, *dto.User, *errs.AppError)
 	Authorize(string) (*dto.Auth, *errs.AppError)
-	AuthorizeChat(string, string) *errs.AppError
 }
 
 type DefaultAuthService struct {
@@ -82,15 +81,6 @@ func (das DefaultAuthService) Authorize(token string) (*dto.Auth, *errs.AppError
 	}
 
 	return authDTO, nil
-}
-
-func (das DefaultAuthService) AuthorizeChat(token string, userId string) *errs.AppError {
-	appErr := das.repo.AuthorizeChat(token, userId)
-	if appErr != nil {
-		return appErr
-	}
-
-	return nil
 }
 
 func encrypt(auth string) (string, error) {

@@ -3,7 +3,6 @@ package api
 import (
 	"github.com/anytimesoon/eurovision-party/conf"
 	"github.com/anytimesoon/eurovision-party/pkg/service"
-	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"log"
@@ -28,24 +27,24 @@ var upgrader = websocket.Upgrader{
 
 func (crh ChatRoomHandler) Connect(resp http.ResponseWriter, req *http.Request) {
 	params := mux.Vars(req)
-	log.Printf("Connecting user %s to chat", params["u"])
-	appErr := crh.AuthService.AuthorizeChat(params["t"], params["u"])
+
+	token, appErr := crh.AuthService.Authorize(params["token"])
 	if appErr != nil {
 		log.Println(appErr)
 		return
 	}
 
-	// not processing the error because if we get here, we know the uuid is valid
-	userId, _ := uuid.Parse(params["u"])
+	log.Printf("Connecting user %s to chat", token.UserId)
+
 	conn, err := upgrader.Upgrade(resp, req, nil)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	client := &service.ChatClient{Room: crh.RoomService, UserId: userId, Conn: conn, Send: make(chan []byte, 256), ComServ: crh.CommentService}
+	client := &service.ChatClient{Room: crh.RoomService, UserId: token.UserId, Conn: conn, Send: make(chan []byte, 256), ComServ: crh.CommentService}
 	client.Room.Register <- client
 
-	log.Printf("user %s has connected to the chatroom", userId)
+	log.Printf("user %s has connected to the chatroom", token.UserId)
 	go client.Pub()
 	go client.Sub()
 }
