@@ -1,20 +1,17 @@
-import type {CountryModel} from "$lib/models/classes/country.model";
-import {countrySvelteEP, voteSvelteEP} from "$lib/models/enums/endpoints.enum";
+import {CountryModel} from "$lib/models/classes/country.model";
 import {VoteModel} from "$lib/models/classes/vote.model";
-import type {ResponseModel} from "$lib/models/classes/response.model";
+import {countryEP, voteEP} from "$lib/models/enums/endpoints.enum";
+import {get} from "$lib/utils/genericFetch";
 
-export async function load({fetch, params}) {
-    const countryRes = await fetch(countrySvelteEP.FIND_ONE + params.c);
+export async function load({params}) {
+    const country: CountryModel = await get(countryEP.FIND_ONE + params.c)
+        .then(result => CountryModel.deserialize(result));
 
-    const country:ResponseModel<CountryModel> = await countryRes.json()
-
-    const voteRes = await fetch(voteSvelteEP.BY_COUNTRY_AND_USER + params.c)
-
-    const res:ResponseModel<VoteModel> = await voteRes.json()
-    const vote = new VoteModel().deserialize(res.body)
+    const vote: VoteModel = await get(voteEP.BY_COUNTRY_AND_USER + params.c)
+        .then(result => VoteModel.deserialize(result))
 
     return {
-        country: country.body,
+        country: country,
         vote: vote
     }
 }

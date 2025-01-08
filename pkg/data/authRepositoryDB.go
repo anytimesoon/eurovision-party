@@ -12,7 +12,6 @@ import (
 type AuthRepository interface {
 	Login(*dto.Auth) (*dao.Auth, *dao.User, *errs.AppError)
 	Authorize(*dto.Auth) (*dao.Auth, *errs.AppError)
-	AuthorizeChat(string, string) *errs.AppError
 }
 
 type AuthRepositoryDB struct {
@@ -91,24 +90,4 @@ func (db AuthRepositoryDB) Authorize(authDTO *dto.Auth) (*dao.Auth, *errs.AppErr
 	}
 
 	return &auth, nil
-}
-
-func (db AuthRepositoryDB) AuthorizeChat(token string, userId string) *errs.AppError {
-	var auth dao.Auth
-	var user dao.User
-
-	err := db.store.Get(token, &auth)
-	if err != nil {
-		log.Println("Unable to find auth for chat", err)
-		return errs.NewUnauthorizedError(errs.Common.Login)
-	}
-
-	//err = db.store.FindOne(&user, bolthold.Where(bolthold.Key).Eq(userId))
-	err = db.store.Get(userId, &user)
-	if err != nil {
-		log.Println("Unable to find user for chat", err)
-		return errs.NewUnauthorizedError(errs.Common.Login)
-	}
-
-	return nil
 }

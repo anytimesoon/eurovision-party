@@ -41,9 +41,9 @@ func (ah AssetHandler) CreateChatImage(w http.ResponseWriter, r *http.Request) {
 	appErr := ah.Service.PersistImage(fileHeaders, filepath.Join(conf.App.Assets, "chat"))
 
 	if appErr != nil {
-		WriteResponse(w, r, appErr.Code, dto.Comment{}, appErr.Message)
+		WriteResponse(w, appErr.Code, dto.Comment{}, appErr.Message)
 	} else {
-		WriteResponse(w, r, http.StatusOK, dto.Comment{}, "")
+		WriteResponse(w, http.StatusOK, dto.Comment{}, "")
 	}
 }
 

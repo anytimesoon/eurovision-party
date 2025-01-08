@@ -11,4 +11,9 @@ export class ResultPageStateModel {
         this.userId = userId
         this.category = category
     }
+
+    reset() {
+        this.userId = ""
+        this.category = voteCats.TOTAL
+    }
 }

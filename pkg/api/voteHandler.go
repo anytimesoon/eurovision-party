@@ -17,7 +17,7 @@ type VoteHandler struct {
 func (vh VoteHandler) UpdateVote(resp http.ResponseWriter, req *http.Request) {
 	var appErr *errs.AppError
 	var voteSingle *dto.VoteSingle
-	var vote *dto.Vote
+	vote := &dto.Vote{}
 
 	body, err := io.ReadAll(req.Body)
 	if err != nil {
@@ -37,9 +37,9 @@ func (vh VoteHandler) UpdateVote(resp http.ResponseWriter, req *http.Request) {
 	}
 
 	if appErr != nil {
-		WriteResponse(resp, req, appErr.Code, *vote, appErr.Message)
+		WriteResponse(resp, appErr.Code, *vote, appErr.Message)
 	} else {
-		WriteResponse(resp, req, http.StatusOK, *vote, "")
+		WriteResponse(resp, http.StatusOK, *vote, "")
 	}
 }
 
@@ -50,9 +50,9 @@ func (vh VoteHandler) GetVoteByUserAndCountry(resp http.ResponseWriter, req *htt
 	vote, err := vh.Service.GetVoteByUserAndCountry(userId, params["slug"])
 
 	if err != nil {
-		WriteResponse(resp, req, err.Code, *vote, err.Message)
+		WriteResponse(resp, err.Code, *vote, err.Message)
 	} else {
-		WriteResponse(resp, req, http.StatusOK, *vote, "")
+		WriteResponse(resp, http.StatusOK, *vote, "")
 	}
 }
 
@@ -60,9 +60,9 @@ func (vh VoteHandler) GetResults(resp http.ResponseWriter, req *http.Request) {
 	results, err := vh.Service.GetResults()
 
 	if err != nil {
-		WriteResponse(resp, req, err.Code, *results, err.Message)
+		WriteResponse(resp, err.Code, *results, err.Message)
 	} else {
-		WriteResponse(resp, req, http.StatusOK, *results, "")
+		WriteResponse(resp, http.StatusOK, *results, "")
 	}
 }
 
@@ -71,8 +71,8 @@ func (vh VoteHandler) GetResultsByUser(resp http.ResponseWriter, req *http.Reque
 	results, err := vh.Service.GetResultsByUser(params["userId"])
 
 	if err != nil {
-		WriteResponse(resp, req, err.Code, *results, err.Message)
+		WriteResponse(resp, err.Code, *results, err.Message)
 	} else {
-		WriteResponse(resp, req, http.StatusOK, *results, "")
+		WriteResponse(resp, http.StatusOK, *results, "")
 	}
 }

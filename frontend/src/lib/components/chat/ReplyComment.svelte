@@ -4,9 +4,11 @@
     import {userStore} from "$lib/stores/user.store";
     import CloseCircleOutline from "svelte-material-icons/CloseCircleOutline.svelte";
     import { scale } from 'svelte/transition';
-    import {staticSvelteEP} from "$lib/models/enums/endpoints.enum";
+    import {staticEP} from "$lib/models/enums/endpoints.enum";
+    import ImageLoader from "$lib/components/images/ImageLoader.svelte";
 
     let shouldDisplay = false
+    let fileName = ""
 
     function close() {
         shouldDisplay = false
@@ -14,12 +16,14 @@
     }
 
     $: if($replyComment) {
-        shouldDisplay = $replyComment.text !== undefined;
+        shouldDisplay = $replyComment.text !== "" || $replyComment.fileName !== ""
+        fileName = $replyComment.fileName
     }
+
 </script>
 
 {#if shouldDisplay}
-    <div transition:scale={{ duration: 500, opacity: 0.5, easing: quintInOut }} class="bg-canvas-primary p-2 mb-2 rounded text-typography-main text-xs relative">
+    <div transition:scale|global={{ duration: 500, opacity: 0.5, easing: quintInOut }} class="bg-canvas-primary p-2 mb-2 rounded text-typography-main text-xs relative">
         <button class="bg-transparent absolute top-1 right-1"  on:click={close}>
             <CloseCircleOutline />
         </button>
@@ -32,7 +36,7 @@
         <div class="flex">
             {#if $replyComment.fileName !== ""}
                 <div class="mr-3 max-h-[20px] rounded overflow-hidden">
-                    <img src={staticSvelteEP.CHAT_IMG + $replyComment.fileName} alt="" class="h-[20px]"/>
+                    <ImageLoader src={staticEP.CHAT_IMG + fileName} alt="comment image" customClasses="h-[20px]"/>
                 </div>
             {/if}
             <div class="flex-1">

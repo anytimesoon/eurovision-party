@@ -11,7 +11,9 @@
     import Spinner from "$lib/components/Spinner.svelte";
     import ImagePreviewGallery from "$lib/components/chat/ImagePreviewGallery.svelte";
     import {errorStore} from "$lib/stores/error.store";
-    import {staticGoEP} from "$lib/models/enums/endpoints.enum";
+    import {staticEP} from "$lib/models/enums/endpoints.enum";
+    import {sessionStore} from "$lib/stores/session.store";
+    import {v4 as uuid} from 'uuid';
 
     let textArea:HTMLTextAreaElement
     let message:string = ""
@@ -36,13 +38,14 @@
                 new CommentModel(
                     trimmedMessage,
                     $currentUser.id,
+                    uuid(),
                     $replyComment.createdAt != null ? $replyComment : null,
                     null,
                     true,
                     fileName
                 )
         )
-        console.log(comment)
+
         commentQueue.addComment(comment)
         resetTextArea()
     }
@@ -70,7 +73,7 @@
         imageFile = imageFiles[0]
         controller = new AbortController()
         if (!authorizedExtensions.includes(imageFile.type)) {
-            console.log(imageFile.type)
+
             $errorStore = "Unsupported file type"
             cancelUpload()
             return
@@ -84,12 +87,11 @@
                 if(theFile.type.includes("image")) {
                     previewImage = e.target.result
                 } else {
-                    previewImage = staticGoEP.IMG + "video.png"
+                    previewImage = staticEP.IMG + "video.png"
                 }
             };
         })(imageFile);
         // Read in the image file as a data URL.
-        console.log(imageFile)
         reader.readAsDataURL(imageFile)
 
         fileName = Date.now() + "-" + $currentUser.id + imageFile.type.replace(/(image\/|video\/)/, ".")
@@ -110,7 +112,14 @@
 
         let fd = new FormData()
         fd.append('file', uploadableImage, fileName)
-        const resp = await fetch("?/uploadChatImg", {method: "POST", body: fd, signal: signal})
+        const resp = await fetch(staticEP.CREATE_CHAT_IMG, {
+            method: "POST",
+            body: fd,
+            signal: signal,
+            headers: {
+                "Authorization": $sessionStore
+            }
+        })
         if (!resp.ok) {
             $errorStore = "Oops... something went wrong. Please try another file"
             cancelUpload()

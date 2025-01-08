@@ -1,26 +1,40 @@
 <script lang="ts">
     import Spinner from "$lib/components/Spinner.svelte";
     import {botId, currentUser} from "$lib/stores/user.store";
+    import {sessionStore} from "$lib/stores/session.store";
     import type { PageData } from './$types';
-    import {browser} from "$app/environment";
-    import {authLvl} from "$lib/models/enums/authLvl.enum";
     import {goto} from "$app/navigation";
-    import {loginURI} from "$lib/stores/loginURI.store";
+    import {onMount} from "svelte";
+    import {authEP} from "$lib/models/enums/endpoints.enum";
+    import {LoginModel} from "$lib/models/classes/login.model";
+    import type {ResponseModel} from "$lib/models/classes/response.model";
+    import type {SessionModel} from "$lib/models/classes/session.model";
+    import {redirect} from "@sveltejs/kit";
+    import {UserModel} from "$lib/models/classes/user.model";
 
     export let data: PageData;
 
-    $: if(data) {
-        if (browser) {
-            $currentUser = data.currentUser
-            $loginURI = data.loginToken + "/" + data.currentUser.id
-            $botId = data.botId
-            if ($currentUser.authLvl === authLvl.ADMIN && !data.hasLoggedIn) {
-                goto("/admin/countries")
-            } else {
-                goto("/")
-            }
+    onMount(async () => {
+        const res = await fetch(authEP.LOGIN, {
+            method: "POST",
+            body: JSON.stringify(new LoginModel(data.loginToken, data.userId))
+        })
+
+        const login: ResponseModel<SessionModel> = await res.json()
+        if (login.error != "") {
+            redirect(401, "/login")
         }
-    }
+
+        $currentUser = UserModel.deserialize(login.body.user)
+        $botId = login.body.botId
+        $sessionStore = login.body.token
+
+        if ($currentUser.isAdmin()) {
+            await goto("/admin/countries")
+        } else {
+            await goto("/")
+        }
+    })
 </script>
 
 <div class="h-screen flex flex-col justify-center">

@@ -22,9 +22,9 @@ func (ch *CountryHandler) FindAllCountries(resp http.ResponseWriter, req *http.R
 	countries, err = ch.Service.GetAllCountries()
 
 	if err != nil {
-		WriteResponse(resp, req, err.Code, *countries, err.Message)
+		WriteResponse(resp, err.Code, *countries, err.Message)
 	} else {
-		WriteResponse(resp, req, http.StatusOK, *countries, "")
+		WriteResponse(resp, http.StatusOK, *countries, "")
 	}
 }
 
@@ -34,9 +34,9 @@ func (ch *CountryHandler) FindOneCountry(resp http.ResponseWriter, req *http.Req
 	country, err := ch.Service.SingleCountry(params["slug"])
 
 	if err != nil {
-		WriteResponse(resp, req, err.Code, *country, err.Message)
+		WriteResponse(resp, err.Code, *country, err.Message)
 	} else {
-		WriteResponse(resp, req, http.StatusOK, *country, "")
+		WriteResponse(resp, http.StatusOK, *country, "")
 	}
 }
 
@@ -44,15 +44,15 @@ func (ch *CountryHandler) Participating(resp http.ResponseWriter, req *http.Requ
 	countries, err := ch.Service.Participating()
 
 	if err != nil {
-		WriteResponse(resp, req, err.Code, *countries, err.Message)
+		WriteResponse(resp, err.Code, *countries, err.Message)
 	} else {
-		WriteResponse(resp, req, http.StatusOK, *countries, "")
+		WriteResponse(resp, http.StatusOK, *countries, "")
 	}
 }
 
 func (ch *CountryHandler) UpdateCountry(resp http.ResponseWriter, req *http.Request) {
 	var appErr *errs.AppError
-	var country *dto.Country
+	country := &dto.Country{}
 	if req.Context().Value("auth").(dto.Auth).AuthLvl == enum.ADMIN {
 		body, err := io.ReadAll(req.Body)
 		if err != nil {
@@ -65,8 +65,8 @@ func (ch *CountryHandler) UpdateCountry(resp http.ResponseWriter, req *http.Requ
 	}
 
 	if appErr != nil {
-		WriteResponse(resp, req, appErr.Code, *country, appErr.Message)
+		WriteResponse(resp, appErr.Code, *country, appErr.Message)
 	} else {
-		WriteResponse(resp, req, http.StatusOK, *country, "")
+		WriteResponse(resp, http.StatusOK, *country, "")
 	}
 }

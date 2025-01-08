@@ -56,7 +56,20 @@ func (service DefaultVoteService) GetResults() (*[]dto.Result, *errs.AppError) {
 	resultsDTO := make([]dto.Result, 0)
 	for _, result := range *results {
 		resultDTO := result.ToDto()
-		resultsDTO = append(resultsDTO, resultDTO)
+
+		inserted := false
+		for i := range resultsDTO {
+			if resultDTO.Total > resultsDTO[i].Total {
+				resultsDTO = append(resultsDTO[:i+1], resultsDTO[i:]...)
+				resultsDTO[i] = resultDTO
+				inserted = true
+				break
+			}
+		}
+
+		if !inserted {
+			resultsDTO = append(resultsDTO, resultDTO)
+		}
 	}
 
 	return &resultsDTO, nil

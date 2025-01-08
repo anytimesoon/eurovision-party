@@ -1,16 +1,17 @@
 import type { IComment } from '../interfaces/icomment.interface'
-import type {IDeserializable} from "$lib/models/interfaces/ideserializable.interface";
-import {v4 as uuid} from 'uuid';
 
-export class CommentModel implements IComment, IDeserializable<string> {
-    constructor(text?: string,
-				userId?: string,
-				replyToComment?: CommentModel,
-				createdAt?: Date,
-				isCompact = false,
-				fileName = "") {
-		this.id = uuid()
-        this.text = text
+export class CommentModel implements IComment {
+	constructor(
+		text: string,
+		userId: string,
+		id?: string,
+		replyToComment?: CommentModel,
+		createdAt?: Date,
+		isCompact: boolean = false,
+		fileName: string = ""
+	) {
+		this.id = id
+		this.text = text
 		this.userId = userId
 		this.createdAt = createdAt
 		if (replyToComment && replyToComment.id != undefined) {
@@ -18,10 +19,10 @@ export class CommentModel implements IComment, IDeserializable<string> {
 		}
 		this.isCompact = isCompact
 		this.fileName = fileName
-    }
+	}
 
 
-    public id!:          		string;
+    public id:          		string;
 	public userId!:      		string;
 	public text!:        		string;
 	public createdAt!:   		Date;
@@ -29,16 +30,42 @@ export class CommentModel implements IComment, IDeserializable<string> {
 	public replyToComment: 		CommentModel;
 	public fileName:			string;
 
+	isEmpty(): boolean {
+		console.log(this.text === ""
+			&& this.userId === ""
+			&& this.id === null
+			&& this.replyToComment === undefined
+			&& this.isCompact === false
+			&& this.fileName === "")
+		return this.text === ""
+			&& this.userId === ""
+			&& this.id === null
+			&& this.replyToComment === undefined
+			&& this.isCompact === false
+			&& this.fileName === ""
+	}
 
-	deserialize(input: string): this {
-		const obj = JSON.parse(input, function reviver(key, value) {
-			if (typeof value === "string" && key === "createdAt") {
-				return new Date(value);
-			}
+	static deserialize(input: IComment): CommentModel {
+		return new CommentModel(
+			input.text,
+			input.userId,
+			input.id,
+			input.replyToComment,
+			new Date(input.createdAt),
+			input.isCompact,
+			input.fileName
+		)
+	}
 
-			return value;
-		});
-		Object.assign(this, obj);
-		return this;
+	static empty(): CommentModel {
+		return new CommentModel(
+			"",
+			"empty",
+			null,
+			undefined,
+			new Date(),
+			false,
+			""
+		)
 	}
 }

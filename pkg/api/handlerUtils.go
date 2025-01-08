@@ -6,10 +6,9 @@ import (
 	"net/http"
 )
 
-func WriteResponse[T dto.ApiResponseBody](resp http.ResponseWriter, req *http.Request, code int, data T, error string) {
+func WriteResponse[T dto.ApiResponseBody](resp http.ResponseWriter, code int, data T, error string) {
 	payload := dto.NewApiPayload(data, error)
 
-	//log.Printf("Sending %#v to %s", payload, req.RemoteAddr)
 	resp.WriteHeader(code)
 	err := json.NewEncoder(resp).Encode(payload)
 	if err != nil {

@@ -61,7 +61,7 @@ func StartServer(store *bolthold.Store) {
 	}
 	go chatRoomHandler.RoomService.Run()
 	chatRouter := router.PathPrefix("/chat").Subrouter()
-	chatRouter.HandleFunc("/connect/{t}/{u}", chatRoomHandler.Connect)
+	chatRouter.HandleFunc("/connect/{token}", chatRoomHandler.Connect)
 
 	// Country
 	countryRepositoryDb := data.NewCountryRepositoryDb(store)

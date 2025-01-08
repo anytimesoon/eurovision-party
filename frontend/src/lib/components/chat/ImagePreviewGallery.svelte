@@ -9,7 +9,7 @@
 </script>
 
 {#if fileName !== ``}
-    <div transition:scale={{ duration: 500, opacity: 0.5, easing: quintInOut }} class="flex">
+    <div transition:scale|global={{ duration: 500, opacity: 0.5, easing: quintInOut }} class="flex">
         <div class="h-[60px] overflow-hidden rounded mb-2">
             <img src={previewImage} alt="preview" class="h-[60px]"/>
         </div>
