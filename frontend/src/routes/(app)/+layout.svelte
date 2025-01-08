@@ -21,8 +21,7 @@
 
         const users = await get(userEP.ALL)
         for (const [key, value] of Object.entries(users)) {
-            const user = UserModel.deserialize(value)
-            $userStore[key] = user
+            $userStore[key] = UserModel.deserialize(value)
         }
     })
 

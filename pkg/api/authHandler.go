@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"github.com/anytimesoon/eurovision-party/conf"
 	"github.com/anytimesoon/eurovision-party/pkg/api/dto"
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
 	"github.com/anytimesoon/eurovision-party/pkg/service"
@@ -36,23 +35,6 @@ func (ah AuthHandler) Login(resp http.ResponseWriter, req *http.Request) {
 	if appErr != nil {
 		WriteResponse(resp, appErr.Code, dto.SessionAuth{}, appErr.Message)
 	} else {
-		cookie := http.Cookie{
-			Name:     "session",
-			Value:    auth.Token,
-			Path:     "/",
-			MaxAge:   60 * 60 * 24 * 10,
-			Secure:   false,
-			HttpOnly: true,
-			SameSite: http.SameSiteStrictMode,
-			Domain:   conf.App.Domain,
-		}
-
-		log.Printf("%+v", cookie)
-
-		http.SetCookie(resp, &cookie)
-
-		session := auth.ToSession(*user, cookie)
-
-		WriteResponse(resp, http.StatusOK, session, "")
+		WriteResponse(resp, http.StatusOK, auth.ToSession(*user), "")
 	}
 }

@@ -1,7 +1,5 @@
 import {writable} from "svelte/store";
 import {ResultPageStateModel} from "$lib/models/classes/resultPageState.model";
-import type {ChatMessageModel} from "$lib/models/classes/chatMessage.model";
-import type {CommentModel} from "$lib/models/classes/comment.model";
 import {voteCats} from "$lib/models/enums/categories.enum";
 
 export const resultPageState = newResultPageState()

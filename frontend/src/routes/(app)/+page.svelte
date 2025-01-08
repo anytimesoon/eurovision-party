@@ -11,7 +11,6 @@
     import CommentQueue from "$lib/components/chat/CommentQueue.svelte";
     import ConnectionSpinner from "$lib/components/chat/ConnectionSpinner.svelte";
     import ChatInputForm from "$lib/components/forms/ChatInputForm.svelte";
-    import Filter from "svelte-material-icons/Filter.svelte";
 
     let openModal:VoidFunction
     let closeModal:VoidFunction

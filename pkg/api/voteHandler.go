@@ -17,7 +17,7 @@ type VoteHandler struct {
 func (vh VoteHandler) UpdateVote(resp http.ResponseWriter, req *http.Request) {
 	var appErr *errs.AppError
 	var voteSingle *dto.VoteSingle
-	var vote *dto.Vote
+	vote := &dto.Vote{}
 
 	body, err := io.ReadAll(req.Body)
 	if err != nil {
