@@ -1,26 +1,20 @@
 <script lang="ts">
-    import { enhance } from '$app/forms';
-    import {authEP} from "$lib/models/enums/endpoints.enum";
-    import type {PageData, ActionData} from "./$types";
+    import {authEP, userEP} from "$lib/models/enums/endpoints.enum";
     import AdminNav from "$lib/components/AdminNav.svelte";
-    import type {NewUserModel} from "$lib/models/classes/user.model";
+    import {NewUserModel} from "$lib/models/classes/newUser.model";
     import ContentCopy from "svelte-material-icons/ContentCopy.svelte";
-    import ContentSave from "svelte-material-icons/ContentSave.svelte";
-    import FormButton from "$lib/components/forms/FormButton.svelte";
-    import {formButtonState} from "$lib/models/enums/formButtonState.enum";
+    import {onMount} from "svelte";
+    import {get} from "$lib/utils/genericFetch";
+    import FriendForm from "$lib/components/forms/FriendForm.svelte";
+    import {newUserStore} from "$lib/stores/newUser.store";
+    import type {INewUser} from "$lib/models/interfaces/inewUser.interface";
 
-    export let data:PageData
-    export let form:ActionData
-
-    let users = data.users
-    let formState = formButtonState.ENABLED
-
-
-    const updateUsers = (form) => {
-        if(form != null) {
-            users = [...users, form.user]
-        }
-    }
+    onMount(async () => {
+        $newUserStore = await get(userEP.REGISTERED)
+            .then((res: Array<INewUser>) =>
+                res.map((user: INewUser) => NewUserModel.deserialize(user))
+            )
+    })
 
     const copyLink = (user:NewUserModel, e:Event) => {
         navigator.clipboard.writeText(authEP.SVELTE_LOGIN + user.token + "/" + user.id)
@@ -32,7 +26,6 @@
         }, 1000);
     }
 
-    $: updateUsers(form)
 </script>
 
 <div class="h-full flex flex-col">
@@ -41,28 +34,12 @@
 
     <h2 class="text-center">Invite your friends</h2>
     <div class="p-3">
-
-        <form method="POST" action="?/register" use:enhance={() => {
-        formState = formButtonState.SENDING
-
-        return async ({ update }) => {
-            await update()
-            formState = formButtonState.ENABLED
-        };
-    }}>
-            <div class="w-fit mx-auto flex justify-center">
-                <input class="mr-3" id="new-user-name" type="text" name="name" placeholder="Name"/>
-                <FormButton state={formState}>
-                    <ContentSave size="1.4em" /> Save
-                </FormButton>
-            </div>
-
-        </form>
+        <FriendForm />
     </div>
 
     <div class="flex-1 overflow-auto">
         <div class="rounded max-h-1">
-            {#each users as user}
+            {#each $newUserStore as user}
                 <div class="p-3">
                     <div class="p-3 border-2 border-secondary rounded text-center">
                         <h3>{user.name}</h3>

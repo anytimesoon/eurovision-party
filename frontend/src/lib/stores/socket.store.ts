@@ -6,15 +6,18 @@ import {commentStore} from "$lib/stores/comment.store";
 import type {UpdateMessageModel} from "$lib/models/classes/updateMessage.model";
 import {botId, userStore} from "$lib/stores/user.store";
 import {commentQueue} from "$lib/stores/commentQueue.store";
-import {loginURI} from "$lib/stores/loginURI.store";
 import {socketStateStore} from "$lib/stores/socketState.store";
 import {socketRetryCount} from "$lib/stores/socketRetryCount.store";
 import {ChatMessageModel} from "$lib/models/classes/chatMessage.model";
 import {errorStore} from "$lib/stores/error.store";
 import type {UserModel} from "$lib/models/classes/user.model";
+import type {IComment} from "$lib/models/interfaces/icomment.interface";
+import {v4 as uuid} from 'uuid';
+import {sessionStore} from "$lib/stores/session.store";
 
-let loginEP:string
-loginURI.subscribe(val => loginEP = val)
+
+let session:string
+sessionStore.subscribe(val => session = val)
 
 let botUserId:string
 botId.subscribe(val => botUserId = val)
@@ -22,15 +25,12 @@ botId.subscribe(val => botUserId = val)
 let commentLog: Array<CommentModel>
 commentStore.subscribe(val => commentLog = val)
 
-let retryCount:number
-socketRetryCount.subscribe(val => retryCount = val)
-
 export const socketStore = socket()
 let timeoutDuration = 1000 // in milis
 
 
 function socket() {
-    let ws = connectToSocket()
+    let ws: WebSocket = connectToSocket()
     const {subscribe, update, set} = writable(ws)
     return {
         subscribe,
@@ -40,7 +40,7 @@ function socket() {
 }
 
 function connectToSocket(){
-    let socket = new WebSocket(chatEP + loginEP)
+    let socket = new WebSocket(chatEP + session)
 
     socket.onopen = function () {
         console.log("You're connected. Welcome to the party!!!🎉")
@@ -122,7 +122,8 @@ function connectToSocket(){
     return socket
 }
 
-function addNewComment(comment:CommentModel){
+function addNewComment(commentObject:IComment){
+    const comment = CommentModel.deserialize(commentObject)
     comment.createdAt = new Date(comment.createdAt)
     let latestComment = commentLog[commentLog.length - 1]
 
@@ -132,6 +133,7 @@ function addNewComment(comment:CommentModel){
             const botComment = new CommentModel(
                 `${comment.createdAt.getDate()}/${comment.createdAt.getMonth() + 1}/${comment.createdAt.getFullYear()}`,
                 botUserId,
+                uuid(),
                 null,
                 date
             )

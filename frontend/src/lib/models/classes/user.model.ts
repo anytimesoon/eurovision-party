@@ -1,8 +1,7 @@
 import type { IUser } from '../interfaces/iuser.interface';
-import type { IDeserializable } from '../interfaces/ideserializable.interface';
 import {authLvl} from "$lib/models/enums/authLvl.enum";
 
-export class UserModel implements IDeserializable<IUser>, IUser {
+export class UserModel implements IUser {
 
     public id!:      string;
 	public name!:    string;
@@ -10,24 +9,29 @@ export class UserModel implements IDeserializable<IUser>, IUser {
 	public icon!:    string;
 	public authLvl!: number;
 
+	constructor(id: string, name: string, slug: string, icon: string, authLvl: number) {
+		this.id = id;
+		this.name = name;
+		this.slug = slug;
+		this.icon = icon;
+		this.authLvl = authLvl;
+	}
+
 	isAdmin():boolean {
 		return this.authLvl === authLvl.ADMIN
 	}
 
-	deserialize(input: IUser): this {
-		Object.assign(this, input);
-		return this;
+	static deserialize(input: any): UserModel {
+		return new UserModel(
+			input.id,
+			input.name,
+			input.slug,
+			input.icon,
+			input.authLvl
+		)
 	}
-}
 
-export class NewUserModel {
-	public id!:      string;
-	public name!:    string;
-	public slug!:    string;
-	public token!:   string;
-
-
-	constructor(name: string) {
-		this.name = name;
+	static empty(): UserModel {
+		return new UserModel('', '', '', 'default', 0);
 	}
 }

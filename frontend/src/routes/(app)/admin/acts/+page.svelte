@@ -1,25 +1,7 @@
 <script lang="ts">
-    import {countryStore, participatingCountryStore} from "$lib/stores/country.store";
+    import {participatingCountryStore} from "$lib/stores/country.store";
     import CountryActForm from "$lib/components/forms/CountryActForm.svelte";
-    import type {ActionData} from "./$types";
-    import type {CountryModel} from "$lib/models/classes/country.model";
     import AdminNav from "$lib/components/AdminNav.svelte";
-
-    export let form:ActionData
-
-    const updateCountry = (form:ActionData) => {
-        if (form != null) {
-            $countryStore = $countryStore.map((country:CountryModel) => {
-                if (country.slug === form.country.slug) {
-                    return form.country
-                }
-
-                return country
-            })
-        }
-    }
-
-    $: updateCountry(form)
 </script>
 
 <div class="h-full flex flex-col">

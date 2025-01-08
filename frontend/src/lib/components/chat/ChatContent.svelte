@@ -6,8 +6,8 @@
     import {userStore} from "$lib/stores/user.store";
     import CloseCircleOutline from "svelte-material-icons/CloseCircleOutline.svelte";
     import ImageLoader from "$lib/components/images/ImageLoader.svelte";
-    import {staticSvelteEP} from "$lib/models/enums/endpoints.enum.js";
-    import {emojiRegex, urlRegex} from "$lib/models/utils";
+    import {staticEP} from "$lib/models/enums/endpoints.enum.js";
+    import {emojiRegex, urlRegex} from "$lib/utils/regex";
     import VideoLoader from "$lib/components/images/VideoLoader.svelte";
 
     export let comment:CommentModel
@@ -49,7 +49,7 @@
                     <p class="text-xs">{$userStore[comment.replyToComment.userId].name}</p>
                     {#if comment.replyToComment.fileName !== ""}
                         <div class="h-[40px] rounded overflow-hidden">
-                            <img src={staticSvelteEP.CHAT_IMG+comment.replyToComment.fileName} alt="" class="h-[40px]"/>
+                            <img src={staticEP.CHAT_IMG+comment.replyToComment.fileName} alt="" class="h-[40px]"/>
                         </div>
                     {/if}
                     <span class="text-typography-chat-you pt-1 block">
@@ -67,16 +67,16 @@
 <!--                            <source src={staticSvelteEP.CHAT_IMG + comment.fileName} type="video/mp4" />-->
 <!--                        </video>-->
 <!--                    </div>-->
-                    <VideoLoader src={staticSvelteEP.CHAT_IMG + comment.fileName} alt="" customClasses=""/>
+                    <VideoLoader src={staticEP.CHAT_IMG + comment.fileName} alt="" customClasses=""/>
                 {:else if comment.fileName.includes("webm")}
 <!--                    <div class="bg-canvas-secondary">-->
 <!--                        <video autoplay loop muted playsinline>-->
 <!--                            <source src={staticSvelteEP.CHAT_IMG + comment.fileName} type="video/webm" />-->
 <!--                        </video>-->
 <!--                    </div>-->
-                    <VideoLoader src={staticSvelteEP.CHAT_IMG + comment.fileName} alt="" customClasses=""/>
+                    <VideoLoader src={staticEP.CHAT_IMG + comment.fileName} alt="" customClasses=""/>
                 {:else}
-                    <ImageLoader src={staticSvelteEP.CHAT_IMG + comment.fileName} alt="comment image" customClasses=""/>
+                    <ImageLoader src={staticEP.CHAT_IMG + comment.fileName} alt="comment image" customClasses=""/>
                 {/if}
             </div>
         {/if}

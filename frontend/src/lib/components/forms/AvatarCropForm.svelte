@@ -5,14 +5,16 @@
     import ImagePic from "svelte-material-icons/Image.svelte";
     import ContentSave from "svelte-material-icons/ContentSave.svelte";
     import {currentUser} from "$lib/stores/user.store";
-    import {staticSvelteEP} from "$lib/models/enums/endpoints.enum";
+    import {staticEP, userEP} from "$lib/models/enums/endpoints.enum";
     import {formButtonState} from "$lib/models/enums/formButtonState.enum";
-    import FormButton from "$lib/components/forms/FormButton.svelte";
+    import FormButton from "$lib/components/buttons/FormButton.svelte";
     import {errorStore} from "$lib/stores/error.store";
+    import ImageLoader from "$lib/components/images/ImageLoader.svelte";
+    import {sessionStore} from "$lib/stores/session.store";
 
     const authorizedExtensions = ['image/jpg', 'image/jpeg', 'image/png']
     let cropArea:ImageCropArea = new ImageCropArea()
-    let img:string = staticSvelteEP.AVATAR_IMG + $currentUser.icon
+    let img:string = staticEP.AVATAR_IMG + $currentUser.icon
     let formState = formButtonState.DISABLED
     let imageFiles:FileList
     let imageFile:File
@@ -60,7 +62,16 @@
         fd.append('file', croppedAndResized, fileName)
         fd.append('id', $currentUser.id)
 
-        const resp = await fetch("?/updateImg", {method: "POST", body: fd, signal: signal})
+        const resp = await fetch(userEP.UPDATE_IMAGE,
+            {
+                method: "PUT",
+                body: fd,
+                signal: signal,
+                headers: {
+                    "Authorization": $sessionStore
+                }
+            }
+        )
         if (!resp.ok) {
             $errorStore = "Oops... something went wrong. Please try another file"
             cancelUpload()
@@ -201,7 +212,7 @@
     <div class="h-60 w-60 relative mx-auto">
         {#if formState === formButtonState.DISABLED}
             <div class="p-3 overflow-hidden">
-                <img src={staticSvelteEP.AVATAR_IMG + $currentUser.icon} alt="Avatar"/>
+                <ImageLoader customClasses="w-full" src={staticEP.AVATAR_IMG + $currentUser.icon} alt={$currentUser.name + "'s avatar"}/>
             </div>
         {:else}
             <Cropper

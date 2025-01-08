@@ -1,7 +1,6 @@
 import type { ICountry } from '../interfaces/icountry.interface';
-import type { IDeserializable } from '../interfaces/ideserializable.interface';
 
-export class CountryModel implements IDeserializable<ICountry>, ICountry {
+export class CountryModel implements ICountry {
 
 	public name!:          string;
     public slug!:          string;
@@ -24,8 +23,14 @@ export class CountryModel implements IDeserializable<ICountry>, ICountry {
 		this.participating = participating
 	}
 
-	deserialize(input: ICountry): this {
-		Object.assign(this, input);
-		return this;
+	static deserialize(input: ICountry): ICountry {
+		return new CountryModel(
+			input.name,
+			input.slug,
+			input.bandName,
+			input.songName,
+			input.flag,
+			input.participating
+		);
 	}
 }

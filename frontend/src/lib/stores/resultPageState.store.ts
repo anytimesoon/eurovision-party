@@ -1,16 +1,36 @@
 import {writable} from "svelte/store";
-import {browser} from "$app/environment";
 import {ResultPageStateModel} from "$lib/models/classes/resultPageState.model";
+import type {ChatMessageModel} from "$lib/models/classes/chatMessage.model";
+import type {CommentModel} from "$lib/models/classes/comment.model";
+import {voteCats} from "$lib/models/enums/categories.enum";
 
-let defaultState: ResultPageStateModel = new ResultPageStateModel()
+export const resultPageState = newResultPageState()
 
-export const resultPageState = writable<ResultPageStateModel>(
-    browser && JSON.parse(
-        localStorage.getItem("resultPageState") ||
-        JSON.stringify(defaultState)
-    )
-)
+let currentState: ResultPageStateModel
+resultPageState.subscribe(val => currentState = val)
 
-resultPageState.subscribe((val) => {
-    browser && localStorage.setItem("resultPageState", JSON.stringify(val))
-})
+function newResultPageState() {
+    const {subscribe, update, set} = writable(new ResultPageStateModel())
+
+    return {
+        subscribe,
+        update,
+        set,
+        reset: () => reset(),
+        isDefault: (): boolean => isDefault(),
+        hasUserSelected: (): boolean => hasUserSelected()
+    }
+}
+
+function reset() {
+    currentState.reset()
+    resultPageState.set(currentState)
+}
+
+function isDefault(): boolean {
+    return currentState.userId === "" && currentState.category === voteCats.TOTAL
+}
+
+function hasUserSelected(): boolean {
+    return currentState.userId !== ""
+}

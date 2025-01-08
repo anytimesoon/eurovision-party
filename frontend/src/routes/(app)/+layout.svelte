@@ -1,20 +1,30 @@
 <script lang="ts">
   import {countryStore, participatingCountryStore} from "$lib/stores/country.store";
-  import type {LayoutData} from "./$types";
   import MenuButton from "$lib/components/buttons/MenuButton.svelte";
   import {onMount} from "svelte";
   import {userStore} from "$lib/stores/user.store";
   import {errorStore} from "$lib/stores/error.store";
   import Toaster from "$lib/components/Toaster.svelte";
-
-
-  export let data:LayoutData
+  import {CountryModel} from "$lib/models/classes/country.model";
+  import {countryEP, userEP} from "$lib/models/enums/endpoints.enum";
+  import {UserModel} from "$lib/models/classes/user.model";
+  import {get} from "$lib/utils/genericFetch";
 
   let menu:HTMLElement
 
-  onMount(() => {
-    menu = document.getElementById("menu")
-  })
+    onMount(async () => {
+        menu = document.getElementById("menu")
+        const countries = await get(countryEP.ALL) as Array<CountryModel>
+        $countryStore = countries.map((country):CountryModel => {
+            return CountryModel.deserialize(country)
+        })
+
+        const users = await get(userEP.ALL)
+        for (const [key, value] of Object.entries(users)) {
+            const user = UserModel.deserialize(value)
+            $userStore[key] = user
+        }
+    })
 
   const closeMenu = () => {
     const menu = document.getElementById("menu")
@@ -23,18 +33,12 @@
   }
 
   const handleWindowClick = (e:Event) => {
-    if(menu.classList.contains("right-0") && !e.target.classList.contains("voteNav") && e.target !== menu){
-      closeMenu()
+    const target = e.target as HTMLElement
+    if(menu.classList.contains("right-0") && !target.classList.contains("voteNav") && target !== menu){
+        closeMenu()
     }
   };
 
-  $: if (data.countries) {
-      $countryStore = data.countries
-  }
-
-  $: if (data.users) {
-      $userStore = data.users
-  }
 </script>
 <svelte:window on:click={handleWindowClick} />
 

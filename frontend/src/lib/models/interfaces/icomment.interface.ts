@@ -5,4 +5,7 @@ export interface IComment {
 	createdAt:  	Date;
 	isCompact:		boolean;
 	replyToComment: IComment;
+	fileName: string;
+
+	isEmpty(): boolean;
 }

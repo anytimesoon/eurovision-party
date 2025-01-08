@@ -7,7 +7,7 @@ export const userStore = writable<Map<string, UserModel>>(new Map<string, UserMo
 export const currentUser = writable<UserModel>(
     browser && JSON.parse(
         localStorage.getItem("currentUser") ||
-        JSON.stringify(new UserModel())
+        JSON.stringify(UserModel.empty())
     )
 )
 

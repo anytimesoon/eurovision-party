@@ -31,5 +31,11 @@
                 <source src={src} type="video/webm" />
             </video>
         </div>
+    {:else}
+        <div class="bg-canvas-secondary">
+            <video autoplay loop muted playsinline bind:this={thisImage} class="{imageOpacity} {customClasses} transition-opacity ease-out duration-1000" >
+                <source src={src} type="video/*" />
+            </video>
+        </div>
     {/if}
 </div>

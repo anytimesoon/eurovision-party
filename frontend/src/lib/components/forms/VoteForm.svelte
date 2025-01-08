@@ -1,23 +1,40 @@
 <script lang="ts">
-    import type {VoteModel} from "$lib/models/classes/vote.model";
+    import {VoteModel} from "$lib/models/classes/vote.model";
     import {onMount} from "svelte";
     import {currentUser} from "$lib/stores/user.store";
     import {voteOptions} from "$lib/models/classes/voteOptions.model";
     import Spinner from "$lib/components/Spinner.svelte";
-    import { enhance } from '$app/forms';
     import {formButtonState} from "$lib/models/enums/formButtonState.enum";
+    import {VoteSingleModel} from "$lib/models/classes/voteSingle.model";
+    import {voteEP} from "$lib/models/enums/endpoints.enum";
+    import {put} from "$lib/utils/genericFetch";
 
     export let vote:VoteModel
     export let catName:string
     export let countrySlug:string
+    export let updateVote: (vote: VoteModel) => void
     const localOptions = voteOptions.slice()
     let isFetching:boolean = false
     let cat:string
     let score:number
     let icon:string
-    let tempScore:number
     let formState = formButtonState.ENABLED
-    let form:HTMLFormElement
+
+    const submit = async (newValue: number) => {
+        formState = formButtonState.SENDING
+
+        const newVote = await put<VoteModel, VoteSingleModel>(
+            voteEP.UPDATE,
+            new VoteSingleModel(
+                $currentUser.id,
+                countrySlug,
+                cat,
+                newValue,
+            )
+        ).then(res => VoteModel.deserialize(res))
+        updateVote(newVote)
+        formState = formButtonState.ENABLED
+    }
 
     onMount(() => {
         switch (catName) {
@@ -76,17 +93,7 @@
         {/if}/10
     </p>
 
-    <form method="POST" action="?/vote" bind:this={form} use:enhance={() => {
-        formState = formButtonState.SENDING
-
-        return async ({ update }) => {
-            await update()
-            formState = formButtonState.ENABLED
-        };
-    }} >
-        <input name="countrySlug" type="hidden" value={countrySlug}>
-        <input name="cat" type="hidden" value={cat}>
-        <input name="userId" type="hidden" value={$currentUser.id}>
+    <form>
         <div class="flex flex-row-reverse items-center mx-auto justify-between w-full">
             {#each localOptions as { key, label }}
                 <input id="{cat}-star-{label}"
@@ -96,8 +103,8 @@
                        value={key}
                        name="score"
                        on:click={() => {
-                           tempScore = key
-                           form.requestSubmit()}}/>
+                           submit(key)
+                       }}/>
                 <label
                         class="text-2xl
                                {shouldRotate}

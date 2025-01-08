@@ -1,6 +1,6 @@
 <script lang="ts">
     import type {CommentModel} from "$lib/models/classes/comment.model";
-    import {staticSvelteEP} from "$lib/models/enums/endpoints.enum";
+    import {staticEP} from "$lib/models/enums/endpoints.enum";
     import {authLvl} from "$lib/models/enums/authLvl.enum";
     import type {UserModel} from "$lib/models/classes/user.model";
     import ChatContent from "$lib/components/chat/ChatContent.svelte";
@@ -64,15 +64,17 @@
          on:mouseleave={() => shouldShowReplyMenu = false}
          bind:this={bubble}
          id="{comment.id}"
-         class="flex w-full max-w-[22rem] relative {currentUserBubbleContainer} {compactBubble} transition-all">
+         class="flex w-full max-w-[22rem] relative {currentUserBubbleContainer} {compactBubble} transition-all"
+         role=button
+         tabindex="0">
 
         <div class="flex-shrink">
             {#if !isCurrentUser}
                 <div class="w-10 h-10 mr-1 rounded-full overflow-hidden">
                     {#if !comment.isCompact}
-                        <div on:mouseup={() => openAvatarModal(user)}>
+                        <div on:mouseup={() => openAvatarModal(user)} role="button" tabindex="0">
                             <ImageLoader customClasses="cursor-pointer {currentUserImage}"
-                                         src={staticSvelteEP.AVATAR_IMG + user.icon} alt={user.name + "'s avatar"}/>
+                                         src={staticEP.AVATAR_IMG + user.icon} alt={user.name + "'s avatar"}/>
                         </div>
                     {/if}
                 </div>
@@ -101,6 +103,9 @@
         </div>
     </div>
 {:else}
-<!-- If this happens, it probably because your botId isn't set in the env vars -->
-<!-- If it keeps happening after it's set, try logging in again -->
+<!--    <p>-->
+<!--        If you're seeing this, it probably because your botId isn't set in the env vars.-->
+<!--        If it keeps happening after it's set, try logging in again<br>-->
+<!--        the user you are looking for is {user}<br><br>-->
+<!--    </p>-->
 {/if}
