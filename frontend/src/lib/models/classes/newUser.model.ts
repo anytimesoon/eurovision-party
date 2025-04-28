@@ -12,8 +12,11 @@ export class NewUserModel implements INewUser{
     }
 
     static deserialize(input: INewUser): NewUserModel {
-        return new NewUserModel(
-            input.name
-        )
+        return {
+            id: input.id,
+            name: input.name,
+            slug: input.slug,
+            token: input.token
+        } as NewUserModel
     }
 }
