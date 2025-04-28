@@ -49,7 +49,11 @@
                     <p class="text-xs">{$userStore[comment.replyToComment.userId].name}</p>
                     {#if comment.replyToComment.fileName !== ""}
                         <div class="h-[40px] rounded overflow-hidden">
-                            <img src={staticEP.CHAT_IMG+comment.replyToComment.fileName} alt="" class="h-[40px]"/>
+                            {#if SUPPORTED_VIDEO_TYPES.includes(comment.fileName)}
+                                <VideoLoader src={staticEP.CHAT_IMG+comment.replyToComment.fileName} customClasses=""/>
+                            {:else}
+                                <ImageLoader src={staticEP.CHAT_IMG+comment.replyToComment.fileName} alt="comment image" customClasses="h-[40px]"/>
+                            {/if}
                         </div>
                     {/if}
                     <span class="text-typography-chat-you pt-1 block">
