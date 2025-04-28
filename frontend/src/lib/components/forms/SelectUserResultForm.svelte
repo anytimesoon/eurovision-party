@@ -3,6 +3,11 @@
     import {authLvl} from "$lib/models/enums/authLvl.enum.js";
     import {userStore} from "$lib/stores/user.store";
     import {voteCats} from "$lib/models/enums/categories.enum";
+    import {results} from "$lib/stores/results.store";
+    import {get} from "$lib/utils/genericFetch";
+    import {voteEP} from "$lib/models/enums/endpoints.enum";
+    import {ResultModel} from "$lib/models/classes/result.model";
+    import type {IResultModel} from "$lib/models/interfaces/iresultmodel.interface";
 
     export let showTitle = false
     let userArray = [...new Map(Object.entries($userStore))]
@@ -13,7 +18,12 @@
     }
 
     const submit = async () => {
-        $results = await get(voteGoEP.RESULTS + $resultPageState.userId)
+        const res = await get(voteEP.RESULTS + $resultPageState.userId)
+        let deserializedResults: IResultModel[] = []
+        for (let i = 0; i < res.length; i++) {
+            deserializedResults.push(ResultModel.deserialize(res[i]))
+        }
+        $results = deserializedResults
     }
 </script>
 
