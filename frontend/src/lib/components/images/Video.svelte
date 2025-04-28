@@ -2,7 +2,6 @@
     import { onMount } from 'svelte'
 
     export let src:string
-    export let alt:string
     export let customClasses:string
     let loaded = false
     let thisImage:HTMLVideoElement
