@@ -13,8 +13,7 @@ var v = viper.New()
 
 type AppConf struct {
 	DbPath      string `mapstructure:"DB_PATH"`
-	ServPort    string `mapstructure:"BACKEND_PORT"`
-	ServHost    string `mapstructure:"BACKEND_HOSTNAME"`
+	ServHost    string `mapstructure:"BACKEND_HOST"`
 	HttpProto   string `mapstructure:"HTTP_PROTOCOL"`
 	Domain      string `mapstructure:"DOMAIN_NAME"`
 	BotId       uuid.UUID
@@ -38,6 +37,11 @@ func LoadConfig() {
 
 	v.AutomaticEnv()
 
+	v.SetDefault("DB_PATH", "storage/")
+	v.SetDefault("BACKEND_HOST", "localhost:8080")
+	v.SetDefault("HTTP_PROTOCOL", "http://")
+	v.SetDefault("CHAT_BOT_NAME", "Eurobot")
+
 	err := v.ReadInConfig()
 	if err != nil {
 		panic(fmt.Errorf("fatal error config file: %w", err))
@@ -47,6 +51,8 @@ func LoadConfig() {
 	if err != nil {
 		panic(fmt.Errorf("fatal error unmarshalling config: %w", err))
 	}
+
+	log.Println("Domain name is:", App.Domain)
 
 	if App.BotIdString != "" {
 		App.BotId, err = uuid.Parse(App.BotIdString)

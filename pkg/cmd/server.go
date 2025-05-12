@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/anytimesoon/eurovision-party/conf"
 	"github.com/anytimesoon/eurovision-party/pkg/api"
 	"github.com/anytimesoon/eurovision-party/pkg/data"
@@ -99,7 +98,7 @@ func StartServer(store *bolthold.Store) {
 	credentials := handlers.AllowCredentials()
 
 	server := &http.Server{
-		Addr:    fmt.Sprintf("%s:%s", conf.App.ServHost, conf.App.ServPort),
+		Addr:    conf.App.ServHost,
 		Handler: handlers.CORS(headersOk, originsOk, methodsOk, credentials)(router),
 		// Good practice to set timeouts to avoid Slow loris attacks.
 		WriteTimeout: time.Second * 15,
@@ -107,6 +106,6 @@ func StartServer(store *bolthold.Store) {
 		IdleTimeout:  time.Second * 60,
 	}
 
-	log.Printf("Server listening on port %s", conf.App.ServPort)
+	log.Printf("Server listening on %s", conf.App.ServHost)
 	log.Fatal(server.ListenAndServe())
 }
