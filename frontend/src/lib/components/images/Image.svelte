@@ -28,12 +28,12 @@
     }
 
     $: imageOpacity = loaded ? "opacity-100" : "opacity-0"
-    $: pulse = loaded ? "" : "animate-pulse"
+    $: pulse = loaded ? "" : "bg-canvas-secondary animate-pulse"
     $: if (src) {
         refresh()
     }
 </script>
 
-<div class="bg-canvas-secondary {pulse} h-full w-full">
+<div class="{pulse} h-full w-full">
     <img src={imageBlobUrl} {alt} class="{imageOpacity} {customClasses} transition-opacity ease-out duration-1000" bind:this={thisImage} />
 </div>

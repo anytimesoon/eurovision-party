@@ -11,6 +11,7 @@
     import CommentQueue from "$lib/components/chat/CommentQueue.svelte";
     import ConnectionSpinner from "$lib/components/chat/ConnectionSpinner.svelte";
     import ChatInputForm from "$lib/components/forms/ChatInputForm.svelte";
+    import ImageLoader from "$lib/components/images/ImageLoader.svelte";
 
     let openModal:VoidFunction
     let closeModal:VoidFunction
@@ -27,7 +28,7 @@
 
 <Modal bind:openModal={openModal} bind:closeModal={closeModal} isEasilyClosable={true}>
     {#if userWithActiveAvatar && userWithActiveAvatar.icon !== undefined}
-        <img class="mx-auto" src={staticEP.AVATAR_IMG + userWithActiveAvatar.icon} alt={userWithActiveAvatar.name + "'s avatar"}/>
+        <ImageLoader src={staticEP.AVATAR_IMG + userWithActiveAvatar.icon} alt={userWithActiveAvatar.name + "'s avatar"} customClasses="mx-auto"/>
     {/if}
 </Modal>
 

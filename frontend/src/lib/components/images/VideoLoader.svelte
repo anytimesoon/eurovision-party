@@ -4,7 +4,6 @@
     import Video from "$lib/components/images/Video.svelte";
 
     export let src:string
-    export let alt:string
     export let customClasses:string
     let intersecting = false
 
@@ -12,6 +11,6 @@
 
 <IntersectionObserver once={true} bind:intersecting={intersecting}>
     {#if intersecting}
-        <Video {alt} {src} {customClasses}/>
+        <Video {src} {customClasses}/>
     {/if}
 </IntersectionObserver>

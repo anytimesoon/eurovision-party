@@ -12,8 +12,8 @@
 
     export let comment:CommentModel
     export let isCurrentUser:boolean
-    let thisVid:HTMLVideoElement
     let commentElement:HTMLParagraphElement = document.createElement("p")
+    const SUPPORTED_VIDEO_TYPES = ['mp4', 'webm']
 
     $: if(comment) {
         const linkifiedText = comment.text.replace(urlRegex, function(url:string) {
@@ -49,7 +49,11 @@
                     <p class="text-xs">{$userStore[comment.replyToComment.userId].name}</p>
                     {#if comment.replyToComment.fileName !== ""}
                         <div class="h-[40px] rounded overflow-hidden">
-                            <img src={staticEP.CHAT_IMG+comment.replyToComment.fileName} alt="" class="h-[40px]"/>
+                            {#if SUPPORTED_VIDEO_TYPES.includes(comment.fileName)}
+                                <VideoLoader src={staticEP.CHAT_IMG+comment.replyToComment.fileName} customClasses=""/>
+                            {:else}
+                                <ImageLoader src={staticEP.CHAT_IMG+comment.replyToComment.fileName} alt="comment image" customClasses="h-[40px]"/>
+                            {/if}
                         </div>
                     {/if}
                     <span class="text-typography-chat-you pt-1 block">
@@ -61,20 +65,8 @@
 
         {#if comment.fileName !== ""}
             <div class="mr-3 mb-1 rounded overflow-hidden max-w-[400px]">
-                {#if comment.fileName.includes("mp4")}
-<!--                    <div class="bg-canvas-secondary">-->
-<!--                        <video autoplay loop muted playsinline>-->
-<!--                            <source src={staticSvelteEP.CHAT_IMG + comment.fileName} type="video/mp4" />-->
-<!--                        </video>-->
-<!--                    </div>-->
-                    <VideoLoader src={staticEP.CHAT_IMG + comment.fileName} alt="" customClasses=""/>
-                {:else if comment.fileName.includes("webm")}
-<!--                    <div class="bg-canvas-secondary">-->
-<!--                        <video autoplay loop muted playsinline>-->
-<!--                            <source src={staticSvelteEP.CHAT_IMG + comment.fileName} type="video/webm" />-->
-<!--                        </video>-->
-<!--                    </div>-->
-                    <VideoLoader src={staticEP.CHAT_IMG + comment.fileName} alt="" customClasses=""/>
+                {#if SUPPORTED_VIDEO_TYPES.includes(comment.fileName)}
+                    <VideoLoader src={staticEP.CHAT_IMG + comment.fileName} customClasses=""/>
                 {:else}
                     <ImageLoader src={staticEP.CHAT_IMG + comment.fileName} alt="comment image" customClasses=""/>
                 {/if}

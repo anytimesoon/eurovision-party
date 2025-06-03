@@ -1,6 +1,6 @@
 import type {ResponseModel} from "$lib/models/classes/response.model";
-import {redirect} from "@sveltejs/kit";
 import {sessionStore} from "$lib/stores/session.store";
+import {goto} from "$app/navigation";
 
 let session:string
 sessionStore.subscribe(val => session = val)
@@ -53,10 +53,10 @@ function handleError(status: number, error: string) {
     switch (status) {
         case 401:
         case 403:
-            redirect(status, "/login")
+            goto("/login")
             break;
         default:
             console.error(error)
-            redirect(status, "/error")
+            goto("/error")
     }
 }

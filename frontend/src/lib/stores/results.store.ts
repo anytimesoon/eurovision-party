@@ -8,14 +8,14 @@ import type { IResultModel } from "$lib/models/interfaces/iresultmodel.interface
 
 export const results = newResultsStore()
 
-let currentResults: ResultModel[]
+let currentResults: IResultModel[]
 results.subscribe(val => currentResults = val)
 
 let currentStatus: ResultPageStateModel
 resultPageState.subscribe(val => currentStatus = val)
 
 function newResultsStore() {
-    const {subscribe, update, set} = writable(new Array<ResultModel>())
+    const {subscribe, update, set} = writable(new Array<IResultModel>())
 
     return {
         subscribe,

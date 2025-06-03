@@ -2,7 +2,6 @@
     import { onMount } from 'svelte'
 
     export let src:string
-    export let alt:string
     export let customClasses:string
     let loaded = false
     let thisImage:HTMLVideoElement
@@ -15,10 +14,10 @@
     })
 
     $: imageOpacity = loaded ? "opacity-100" : "opacity-0"
-    $: pulse = loaded ? "" : "animate-pulse"
+    $: pulse = loaded ? "" : "bg-canvas-secondary animate-pulse"
 </script>
 
-<div class="bg-canvas-secondary {pulse}">
+<div class="{pulse}">
     {#if src.includes("mp4")}
         <div class="bg-canvas-secondary">
             <video autoplay loop muted playsinline bind:this={thisImage} class="{imageOpacity} {customClasses} transition-opacity ease-out duration-1000" >
