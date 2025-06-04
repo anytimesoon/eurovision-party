@@ -17,6 +17,9 @@ import (
 )
 
 type UserRepository interface {
+	GetUser(string) (*dao.User, error)
+
+	// CreateUser OLD
 	CreateUser(dto.NewUser) (*dao.NewUser, *errs.AppError)
 	FindAllUsers() ([]dao.User, *errs.AppError)
 	FindOneUser(string) (*dao.User, *errs.AppError)
@@ -33,6 +36,16 @@ type UserRepositoryDb struct {
 
 func NewUserRepositoryDb(store *bolthold.Store) UserRepositoryDb {
 	return UserRepositoryDb{store}
+}
+
+func (db UserRepositoryDb) GetUser(userId string) (*dao.User, error) {
+	var user dao.User
+	err := db.store.Get(userId, &user)
+	if err != nil {
+		log.Printf("Error when fetching user: %s", err)
+		return nil, err
+	}
+	return &user, nil
 }
 
 func (db UserRepositoryDb) CreateUser(userDTO dto.NewUser) (*dao.NewUser, *errs.AppError) {
@@ -184,7 +197,7 @@ func (db UserRepositoryDb) DeleteUser(slug string) *errs.AppError {
 		return errs.NewNotFoundError(errs.Common.NotFound + "user")
 	}
 
-	err = db.store.Delete(user.UUID, user)
+	err = db.store.Delete(user.UUID.String(), user)
 	if err != nil {
 		log.Println("Error when deleting user", err)
 		return errs.NewUnexpectedError(errs.Common.NotDeleted + "user")

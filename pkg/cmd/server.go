@@ -20,9 +20,16 @@ func StartServer(store *bolthold.Store) {
 	router := mux.NewRouter().StrictSlash(true)
 	router.Use(Logging)
 
+	// Repos
+	authRepository := data.NewAuthRepositoryDB(store)
+	sessionRepository := data.NewSessionRepositoryDb(store)
+	userRepositoryDb := data.NewUserRepositoryDb(store)
+	commentRepositoryDb := data.NewCommentRepositoryDb(store)
+	countryRepositoryDb := data.NewCountryRepositoryDb(store)
+	voteRepositoryDb := data.NewVoteRepositoryDb(store)
+
 	// Authentication
-	authRepositoryMem := data.NewAuthRepositoryDB(store)
-	authService = service.NewAuthService(authRepositoryMem)
+	authService = service.NewAuthService(authRepository, sessionRepository, userRepositoryDb)
 	authHandler := api.AuthHandler{Service: authService}
 	router.HandleFunc("/api/login", authHandler.Login).Methods(http.MethodPost) // sets auth token.
 
@@ -51,7 +58,6 @@ func StartServer(store *bolthold.Store) {
 	apiRouter.Use(JsHeaders)
 
 	// Chatroom
-	commentRepositoryDb := data.NewCommentRepositoryDb(store)
 	commentService := service.NewCommentService(commentRepositoryDb)
 	chatRoomHandler := api.ChatRoomHandler{
 		RoomService:    service.NewRoom(commentService),
@@ -63,7 +69,6 @@ func StartServer(store *bolthold.Store) {
 	chatRouter.HandleFunc("/connect/{token}", chatRoomHandler.Connect)
 
 	// Country
-	countryRepositoryDb := data.NewCountryRepositoryDb(store)
 	countryHandler := api.CountryHandler{Service: service.NewCountryService(countryRepositoryDb)}
 	countryRouter := apiRouter.PathPrefix("/country").Subrouter()
 	countryRouter.HandleFunc("/", countryHandler.FindAllCountries).Methods(http.MethodGet) // admin only
@@ -72,7 +77,6 @@ func StartServer(store *bolthold.Store) {
 	countryRouter.HandleFunc("/{slug}", countryHandler.FindOneCountry).Methods(http.MethodGet)
 
 	// User
-	userRepositoryDb := data.NewUserRepositoryDb(store)
 	userHandler := api.UserHandler{Service: service.NewUserService(userRepositoryDb, chatRoomHandler.RoomService.BroadcastUpdate), AssetService: service.NewAssetService()}
 	userRouter := apiRouter.PathPrefix("/user").Subrouter()
 	userRouter.HandleFunc("/", userHandler.FindAllUsers).Methods(http.MethodGet)
@@ -84,7 +88,6 @@ func StartServer(store *bolthold.Store) {
 	userRouter.HandleFunc("/{slug}", userHandler.RemoveUser).Methods(http.MethodDelete) // admin only
 
 	// Vote
-	voteRepositoryDb := data.NewVoteRepositoryDb(store)
 	voteHandler := api.VoteHandler{Service: service.NewVoteService(voteRepositoryDb)}
 	voteRouter := apiRouter.PathPrefix("/vote").Subrouter()
 	voteRouter.HandleFunc("/", voteHandler.UpdateVote).Methods(http.MethodPut) // current user only
