@@ -2,9 +2,6 @@ package data
 
 import (
 	"fmt"
-	"github.com/anytimesoon/eurovision-party/pkg/api/dto"
-	"github.com/anytimesoon/eurovision-party/pkg/api/enum"
-	"github.com/anytimesoon/eurovision-party/pkg/errs"
 	"github.com/anytimesoon/eurovision-party/pkg/service/dao"
 	"github.com/timshannon/bolthold"
 	"log"
@@ -13,11 +10,11 @@ import (
 )
 
 type VoteRepository interface {
-	CreateVote(dto.Vote) (*dao.Vote, *errs.AppError)
-	UpdateVote(dto.VoteSingle) (*dao.Vote, *errs.AppError)
-	GetVoteByUserAndCountry(uuid.UUID, string) (*dao.Vote, *errs.AppError)
-	GetResults() (*[]dao.Result, *errs.AppError)
-	GetResultsByUser(userId uuid.UUID) (*[]dao.Result, *errs.AppError)
+	CreateVotes(uuid.UUID) error
+	UpdateVote(dao.Vote) (*dao.Vote, error)
+	GetVoteByUserAndCountry(uuid.UUID, string) (*dao.Vote, error)
+	GetResults() (*[]dao.Result, error)
+	GetResultsByUser(userId uuid.UUID) (*[]dao.Result, error)
 }
 
 type VoteRepositoryDb struct {
@@ -28,84 +25,72 @@ func NewVoteRepositoryDb(store *bolthold.Store) VoteRepositoryDb {
 	return VoteRepositoryDb{store}
 }
 
-func (db VoteRepositoryDb) CreateVote(voteDTO dto.Vote) (*dao.Vote, *errs.AppError) {
-	var vote dao.Vote
-
-	vote = vote.FromDTO(voteDTO)
-	err := db.store.Insert(
-		voteKey(vote.UserId, vote.CountrySlug),
-		vote,
-	)
+func (db VoteRepositoryDb) CreateVotes(userId uuid.UUID) error {
+	countries := make([]dao.Country, 0)
+	err := db.store.Find(countries, &bolthold.Query{})
 	if err != nil {
-		log.Printf("Error when creating new vote for user %s. %s", voteDTO.UserId.String(), err)
-		return nil, errs.NewUnexpectedError(errs.Common.NotCreated + "your vote")
+		log.Println("Error while querying country table during vote creation.", err)
+		return err
 	}
-	return &vote, nil
+
+	for _, country := range countries {
+		err = db.store.Upsert(
+			voteKey(userId, country.Slug),
+			dao.Vote{
+				UserId:      userId,
+				CountrySlug: country.Slug,
+				Costume:     0,
+				Song:        0,
+				Performance: 0,
+				Props:       0,
+			},
+		)
+		if err != nil {
+			log.Println("Error while inserting vote into vote table during vote creation.", err)
+			return err
+		}
+	}
+
+	return nil
 }
 
 func voteKey(userId uuid.UUID, countrySlug string) string {
 	return fmt.Sprintf("%s_%s", userId.String(), countrySlug)
 }
 
-func (db VoteRepositoryDb) UpdateVote(voteDTO dto.VoteSingle) (*dao.Vote, *errs.AppError) {
-	var vote dao.Vote
-
-	err := db.store.Get(
-		voteKey(voteDTO.UserId, voteDTO.CountrySlug),
-		&vote)
-	if err != nil {
-		log.Printf("Error while fetching vote for user %s before update. %s", voteDTO.UserId.String(), err)
-		return nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "your vote")
-	}
-
-	switch voteDTO.Cat {
-	case enum.Song:
-		vote.Song = voteDTO.Score
-	case enum.Costume:
-		vote.Costume = voteDTO.Score
-	case enum.Performance:
-		vote.Performance = voteDTO.Score
-	case enum.Props:
-		vote.Props = voteDTO.Score
-	}
-
-	vote.Total = int(vote.Costume) + int(vote.Song) + int(vote.Performance) + int(vote.Props)
-
-	err = db.store.Update(
+func (db VoteRepositoryDb) UpdateVote(vote dao.Vote) (*dao.Vote, error) {
+	err := db.store.Update(
 		voteKey(vote.UserId, vote.CountrySlug),
 		vote,
 	)
-
-	return &vote, nil
-}
-
-func (db VoteRepositoryDb) GetVoteByUserAndCountry(userId uuid.UUID, countrySlug string) (*dao.Vote, *errs.AppError) {
-	var vote dao.Vote
-
-	err := db.store.Get(voteKey(userId, countrySlug), &vote)
-	if err != nil && err.Error() == "No data found for this key" {
-		log.Println("Found 0 votes from country and user. Creating a new vote")
-
-		return db.CreateVote(dto.Vote{
-			UserId:      userId,
-			CountrySlug: countrySlug,
-		})
-	} else if err != nil {
-		log.Printf("Failed to find vote for country %s and user %s. %s", countrySlug, userId.String(), err)
-		return nil, errs.NewUnexpectedError(errs.Common.NotFound + "your votes")
+	if err != nil {
+		log.Printf("Error when updating vote for user %s. %s", vote.UserId.String(), err)
+		return nil, err
 	}
 
 	return &vote, nil
 }
 
-func (db VoteRepositoryDb) GetResults() (*[]dao.Result, *errs.AppError) {
+func (db VoteRepositoryDb) GetVoteByUserAndCountry(userId uuid.UUID, countrySlug string) (*dao.Vote, error) {
+	var vote dao.Vote
+
+	err := db.store.Get(voteKey(userId, countrySlug), &vote)
+	if err != nil {
+		log.Printf("Error when getting vote for user %s. %s", userId.String(), err)
+		return nil, err
+	}
+
+	return &vote, nil
+}
+
+func (db VoteRepositoryDb) GetResults() (*[]dao.Result, error) {
 	votes := make([]dao.Vote, 0)
 	resultsMap := make(map[string]*dao.Result)
 
 	err := db.store.Find(&votes, &bolthold.Query{})
 	if err != nil {
 		log.Println("Error while querying vote table", err)
-		return nil, errs.NewUnexpectedError(errs.Common.DBFail)
+		return nil, err
 	}
 
 	for _, vote := range votes {
@@ -128,14 +113,14 @@ func (db VoteRepositoryDb) GetResults() (*[]dao.Result, *errs.AppError) {
 	return &results, nil
 }
 
-func (db VoteRepositoryDb) GetResultsByUser(userId uuid.UUID) (*[]dao.Result, *errs.AppError) {
+func (db VoteRepositoryDb) GetResultsByUser(userId uuid.UUID) (*[]dao.Result, error) {
 	votes := make([]dao.Vote, 0)
 	results := make([]dao.Result, 0)
 
 	err := db.store.Find(&votes, bolthold.Where("UserId").Eq(userId).Index("UserId"))
 	if err != nil {
 		log.Println("Error while querying vote table", err)
-		return nil, errs.NewUnexpectedError(errs.Common.DBFail)
+		return nil, err
 	}
 
 	for _, vote := range votes {

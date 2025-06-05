@@ -107,26 +107,24 @@ func TestAuthHandler_Login(t *testing.T) {
 				panic(err)
 			}
 			if count > 0 && !tt.expected.hasSession {
-				err := testDB.DeleteMatching(&dao.Session{}, &bolthold.Query{})
-				if err != nil {
-					fmt.Println(err)
-					fmt.Println("Failed to delete sessions from test db!")
-				}
-				afterCount, _ := testDB.Count(&dao.Session{}, &bolthold.Query{})
-				fmt.Printf("Deleted sessions from test db! %d left", afterCount)
+				removeAllSessions()
 				t.Errorf("Login has sessions = %v, want %v", count, 0)
 			}
 			if count != 1 && tt.expected.hasSession {
-				err := testDB.DeleteMatching(&dao.Session{}, &bolthold.Query{})
-				if err != nil {
-					fmt.Println(err)
-					fmt.Println("Failed to delete sessions from test db!")
-				}
-				afterCount, _ := testDB.Count(&dao.Session{}, &bolthold.Query{})
-				fmt.Printf("Deleted sessions from test db! %d left", afterCount)
+				removeAllSessions()
 				t.Errorf("Login has sessions = %v, want %v", count, 1)
 			}
-
+			removeAllSessions()
 		})
 	}
+}
+
+func removeAllSessions() {
+	err := testDB.DeleteMatching(&dao.Session{}, &bolthold.Query{})
+	if err != nil {
+		fmt.Println(err)
+		fmt.Println("Failed to delete sessions from test db!")
+	}
+	afterCount, _ := testDB.Count(&dao.Session{}, &bolthold.Query{})
+	fmt.Printf("Deleted sessions from test db! %d left", afterCount)
 }
