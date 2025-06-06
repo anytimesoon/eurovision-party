@@ -451,6 +451,25 @@ func TestVoteHandler_UpdateVote(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "failed update if users do not match",
+			fields: fields{
+				Service: newMockVoteService(),
+			},
+			args: args{
+				resp: httptest.NewRecorder(),
+				req: httptest.NewRequest(http.MethodPost, "/api/vote/", strings.NewReader(fmt.Sprintf(`{
+					"userId": "%s",
+					"countrySlug": "%s",
+					"cat": "props",
+					"score": 10
+                }`, regularUserId.String(), countryNames[0]))),
+			},
+			expected: expected{
+				statusCode: http.StatusUnauthorized,
+				vote:       dao.Vote{},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -467,6 +486,22 @@ func TestVoteHandler_UpdateVote(t *testing.T) {
 			vh.UpdateVote(tt.args.resp, tt.args.req)
 
 			var result dao.Vote
+			response := tt.args.resp.(*httptest.ResponseRecorder).Result()
+			defer func(Body io.ReadCloser) {
+				err := Body.Close()
+				if err != nil {
+					panic(err)
+				}
+			}(response.Body)
+
+			if response.StatusCode != tt.expected.statusCode {
+				t.Errorf("Login return status code = %v, want %v", response.StatusCode, http.StatusOK)
+			}
+			if response.StatusCode != http.StatusOK {
+				// the vote was not updated, no need to check the result
+				return
+			}
+
 			err := testDB.Get(fmt.Sprintf("%s_%s", adminUserId.String(), countryNames[0]), &result)
 			if err != nil {
 				panic(err)
