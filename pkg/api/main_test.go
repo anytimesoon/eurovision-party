@@ -163,14 +163,19 @@ func shutdown() {
 	}
 }
 
-func newMockAuthService() service.AuthService {
+func newTestAuthService() service.AuthService {
 	authRepository := data.NewAuthRepositoryDB(testDB)
 	sessionRepository := data.NewSessionRepositoryDb(testDB)
 	userRepositoryDb := data.NewUserRepositoryDb(testDB)
 	return service.NewAuthService(authRepository, sessionRepository, userRepositoryDb)
 }
 
-func newMockVoteService() service.VoteService {
+func newTestVoteService() service.VoteService {
 	voteRepository := data.NewVoteRepositoryDb(testDB)
 	return service.NewVoteService(voteRepository)
+}
+
+func newTestCountryService() service.CountryService {
+	countryRepository := data.NewCountryRepositoryDb(testDB)
+	return service.NewCountryService(countryRepository)
 }

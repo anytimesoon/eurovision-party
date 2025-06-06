@@ -35,7 +35,7 @@ func TestAuthHandler_Login(t *testing.T) {
 		{
 			name: "successful login",
 			fields: fields{
-				Service: newMockAuthService(),
+				Service: newTestAuthService(),
 			},
 			args: args{
 				resp: httptest.NewRecorder(),
@@ -52,7 +52,7 @@ func TestAuthHandler_Login(t *testing.T) {
 		{
 			name: "failed login - no user",
 			fields: fields{
-				Service: newMockAuthService(),
+				Service: newTestAuthService(),
 			},
 			args: args{
 				resp: httptest.NewRecorder(),
@@ -69,7 +69,7 @@ func TestAuthHandler_Login(t *testing.T) {
 		{
 			name: "failed login - no token",
 			fields: fields{
-				Service: newMockAuthService(),
+				Service: newTestAuthService(),
 			},
 			args: args{
 				resp: httptest.NewRecorder(),

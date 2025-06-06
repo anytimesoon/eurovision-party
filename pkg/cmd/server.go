@@ -71,10 +71,10 @@ func StartServer(store *bolthold.Store) {
 	// Country
 	countryHandler := api.CountryHandler{Service: service.NewCountryService(countryRepositoryDb)}
 	countryRouter := apiRouter.PathPrefix("/country").Subrouter()
-	countryRouter.HandleFunc("/", countryHandler.FindAllCountries).Methods(http.MethodGet) // admin only
-	countryRouter.HandleFunc("/", countryHandler.UpdateCountry).Methods(http.MethodPut)    // admin only
-	countryRouter.HandleFunc("/participating", countryHandler.Participating).Methods(http.MethodGet)
-	countryRouter.HandleFunc("/{slug}", countryHandler.FindOneCountry).Methods(http.MethodGet)
+	countryRouter.HandleFunc("/", countryHandler.GetAllCountries).Methods(http.MethodGet) // admin only
+	countryRouter.HandleFunc("/", countryHandler.UpdateCountry).Methods(http.MethodPut)   // admin only
+	countryRouter.HandleFunc("/participating", countryHandler.GetParticipatingCountries).Methods(http.MethodGet)
+	countryRouter.HandleFunc("/{slug}", countryHandler.GetOneCountry).Methods(http.MethodGet)
 
 	// User
 	userHandler := api.UserHandler{Service: service.NewUserService(userRepositoryDb, chatRoomHandler.RoomService.BroadcastUpdate), AssetService: service.NewAssetService()}

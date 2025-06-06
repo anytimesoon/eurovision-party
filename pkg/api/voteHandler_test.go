@@ -36,7 +36,7 @@ func TestVoteHandler_GetResults(t *testing.T) {
 		{
 			name: "successful get results for all users",
 			fields: fields{
-				Service: newMockVoteService(),
+				Service: newTestVoteService(),
 			},
 			args: args{
 				resp: httptest.NewRecorder(),
@@ -139,7 +139,7 @@ func TestVoteHandler_GetResultsByUser(t *testing.T) {
 		{
 			name: "successful get results for one user",
 			fields: fields{
-				Service: newMockVoteService(),
+				Service: newTestVoteService(),
 			},
 			args: args{
 				resp: httptest.NewRecorder(),
@@ -243,7 +243,7 @@ func TestVoteHandler_GetVoteByUserAndCountry(t *testing.T) {
 		{
 			name: "successful get votes for one user and one country",
 			fields: fields{
-				Service: newMockVoteService(),
+				Service: newTestVoteService(),
 			},
 			args: args{
 				resp: httptest.NewRecorder(),
@@ -346,11 +346,11 @@ func TestVoteHandler_UpdateVote(t *testing.T) {
 		{
 			name: "successful update song for one user and one country",
 			fields: fields{
-				Service: newMockVoteService(),
+				Service: newTestVoteService(),
 			},
 			args: args{
 				resp: httptest.NewRecorder(),
-				req: httptest.NewRequest(http.MethodPost, "/api/vote/", strings.NewReader(fmt.Sprintf(`{
+				req: httptest.NewRequest(http.MethodPut, "/api/vote/", strings.NewReader(fmt.Sprintf(`{
 					"userId": "%s",
 					"countrySlug": "%s",
 					"cat": "song",
@@ -373,7 +373,7 @@ func TestVoteHandler_UpdateVote(t *testing.T) {
 		{
 			name: "successful update costume for one user and one country",
 			fields: fields{
-				Service: newMockVoteService(),
+				Service: newTestVoteService(),
 			},
 			args: args{
 				resp: httptest.NewRecorder(),
@@ -400,7 +400,7 @@ func TestVoteHandler_UpdateVote(t *testing.T) {
 		{
 			name: "successful update perf for one user and one country",
 			fields: fields{
-				Service: newMockVoteService(),
+				Service: newTestVoteService(),
 			},
 			args: args{
 				resp: httptest.NewRecorder(),
@@ -427,7 +427,7 @@ func TestVoteHandler_UpdateVote(t *testing.T) {
 		{
 			name: "successful update prop for one user and one country",
 			fields: fields{
-				Service: newMockVoteService(),
+				Service: newTestVoteService(),
 			},
 			args: args{
 				resp: httptest.NewRecorder(),
@@ -454,7 +454,7 @@ func TestVoteHandler_UpdateVote(t *testing.T) {
 		{
 			name: "failed update if users do not match",
 			fields: fields{
-				Service: newMockVoteService(),
+				Service: newTestVoteService(),
 			},
 			args: args{
 				resp: httptest.NewRecorder(),
@@ -485,7 +485,6 @@ func TestVoteHandler_UpdateVote(t *testing.T) {
 
 			vh.UpdateVote(tt.args.resp, tt.args.req)
 
-			var result dao.Vote
 			response := tt.args.resp.(*httptest.ResponseRecorder).Result()
 			defer func(Body io.ReadCloser) {
 				err := Body.Close()
@@ -502,6 +501,7 @@ func TestVoteHandler_UpdateVote(t *testing.T) {
 				return
 			}
 
+			var result dao.Vote
 			err := testDB.Get(fmt.Sprintf("%s_%s", adminUserId.String(), countryNames[0]), &result)
 			if err != nil {
 				panic(err)

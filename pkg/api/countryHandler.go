@@ -16,7 +16,7 @@ type CountryHandler struct {
 	Service service.CountryService
 }
 
-func (ch *CountryHandler) FindAllCountries(resp http.ResponseWriter, req *http.Request) {
+func (ch *CountryHandler) GetAllCountries(resp http.ResponseWriter, req *http.Request) {
 	var err *errs.AppError
 	var countries *[]dto.Country
 	countries, err = ch.Service.GetAllCountries()
@@ -28,10 +28,10 @@ func (ch *CountryHandler) FindAllCountries(resp http.ResponseWriter, req *http.R
 	}
 }
 
-func (ch *CountryHandler) FindOneCountry(resp http.ResponseWriter, req *http.Request) {
+func (ch *CountryHandler) GetOneCountry(resp http.ResponseWriter, req *http.Request) {
 	params := mux.Vars(req)
 
-	country, err := ch.Service.SingleCountry(params["slug"])
+	country, err := ch.Service.GetOneCountry(params["slug"])
 
 	if err != nil {
 		WriteResponse(resp, err.Code, *country, err.Message)
@@ -40,8 +40,8 @@ func (ch *CountryHandler) FindOneCountry(resp http.ResponseWriter, req *http.Req
 	}
 }
 
-func (ch *CountryHandler) Participating(resp http.ResponseWriter, req *http.Request) {
-	countries, err := ch.Service.Participating()
+func (ch *CountryHandler) GetParticipatingCountries(resp http.ResponseWriter, req *http.Request) {
+	countries, err := ch.Service.GetParticipatingCountries()
 
 	if err != nil {
 		WriteResponse(resp, err.Code, *countries, err.Message)
