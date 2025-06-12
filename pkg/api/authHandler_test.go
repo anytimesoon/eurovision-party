@@ -2,8 +2,8 @@ package api
 
 import (
 	"fmt"
+	"github.com/anytimesoon/eurovision-party/pkg/data/dao"
 	"github.com/anytimesoon/eurovision-party/pkg/service"
-	"github.com/anytimesoon/eurovision-party/pkg/service/dao"
 	"github.com/timshannon/bolthold"
 	"io"
 	"net/http"

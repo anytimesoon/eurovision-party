@@ -1,7 +1,7 @@
 package dao
 
 import (
-	"github.com/anytimesoon/eurovision-party/pkg/api/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/service/dto"
 	"time"
 
 	"github.com/google/uuid"
@@ -16,7 +16,7 @@ type Comment struct {
 	ReplyTo   *Comment
 }
 
-func (comment *Comment) ToDto() dto.Comment {
+func (comment Comment) ToDto() dto.Comment {
 	var replyTo *dto.Comment
 	if comment.ReplyTo != nil {
 		rtc := comment.ReplyTo
@@ -39,7 +39,7 @@ func (comment *Comment) ToDto() dto.Comment {
 	}
 }
 
-func (comment *Comment) FromDTO(dto dto.Comment) {
+func (comment Comment) FromDTO(dto dto.Comment) Comment {
 	var replyTo *Comment
 	if dto.ReplyTo != nil {
 		rtc := dto.ReplyTo
@@ -59,4 +59,6 @@ func (comment *Comment) FromDTO(dto dto.Comment) {
 	comment.FileName = dto.FileName
 	comment.ReplyTo = replyTo
 	comment.CreatedAt = time.Now()
+
+	return comment
 }

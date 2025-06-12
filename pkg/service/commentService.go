@@ -2,10 +2,10 @@ package service
 
 import (
 	"encoding/json"
-	"github.com/anytimesoon/eurovision-party/pkg/api/dto"
 	"github.com/anytimesoon/eurovision-party/pkg/data"
+	"github.com/anytimesoon/eurovision-party/pkg/data/dao"
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
-	"github.com/anytimesoon/eurovision-party/pkg/service/dao"
+	"github.com/anytimesoon/eurovision-party/pkg/service/dto"
 	"github.com/google/uuid"
 	"log"
 	"time"
@@ -26,12 +26,12 @@ func NewCommentService(repo data.CommentRepository) DefaultCommentService {
 	return DefaultCommentService{repo}
 }
 
-func (service DefaultCommentService) FindAllComments() ([]dto.Comment, *errs.AppError) {
+func (cs DefaultCommentService) FindAllComments() ([]dto.Comment, *errs.AppError) {
 	commentsDTO := make([]dto.Comment, 0)
 
-	commentData, err := service.repo.FindAllComments()
+	commentData, err := cs.repo.GetAllComments()
 	if err != nil {
-		return nil, err
+		return nil, errs.NewUnexpectedError(errs.Common.DBFail)
 	}
 
 	for _, comment := range commentData {
@@ -41,10 +41,9 @@ func (service DefaultCommentService) FindAllComments() ([]dto.Comment, *errs.App
 	return commentsDTO, nil
 }
 
-func (service DefaultCommentService) FindCommentsAfter(commentIdJSON json.RawMessage) ([]byte, *errs.AppError) {
+func (cs DefaultCommentService) FindCommentsAfter(commentIdJSON json.RawMessage) ([]byte, *errs.AppError) {
 	var commentId string
 	var comments []dao.Comment
-	var appErr *errs.AppError
 	commentsDTO := make([]dto.Comment, 0)
 
 	err := json.Unmarshal(commentIdJSON, &commentId)
@@ -54,13 +53,13 @@ func (service DefaultCommentService) FindCommentsAfter(commentIdJSON json.RawMes
 	}
 
 	if commentId == "" {
-		comments, appErr = service.repo.FindAllComments()
+		comments, err = cs.repo.GetAllComments()
 	} else {
-		comments, appErr = service.repo.FindCommentsAfter(commentId)
+		comments, err = cs.repo.GetCommentsAfter(commentId)
 	}
 
-	if appErr != nil {
-		return nil, appErr
+	if err != nil {
+		return nil, errs.NewUnexpectedError(errs.Common.DBFail)
 	}
 
 	for _, comment := range comments {
@@ -76,7 +75,7 @@ func (service DefaultCommentService) FindCommentsAfter(commentIdJSON json.RawMes
 	return commentsJSON, nil
 }
 
-func (service DefaultCommentService) CreateComment(body []byte) (*dto.Comment, *errs.AppError) {
+func (cs DefaultCommentService) CreateComment(body []byte) (*dto.Comment, *errs.AppError) {
 	commentDTO := dto.Comment{}
 	err := json.Unmarshal(body, &commentDTO)
 	if err != nil {
@@ -95,9 +94,9 @@ func (service DefaultCommentService) CreateComment(body []byte) (*dto.Comment, *
 	}
 	commentDTO.CreatedAt = time.Now()
 
-	comment, appErr := service.repo.CreateComment(commentDTO)
-	if appErr != nil {
-		return nil, appErr
+	comment, err := cs.repo.CreateComment(dao.Comment{}.FromDTO(commentDTO))
+	if err != nil {
+		return nil, errs.NewUnexpectedError(errs.Common.NotCreated + "your comment")
 	}
 
 	commentDTO = comment.ToDto()
@@ -105,10 +104,10 @@ func (service DefaultCommentService) CreateComment(body []byte) (*dto.Comment, *
 	return &commentDTO, nil
 }
 
-func (service DefaultCommentService) DeleteComment(uuid string) *errs.AppError {
-	err := service.repo.DeleteComment(uuid)
+func (cs DefaultCommentService) DeleteComment(uuid string) *errs.AppError {
+	err := cs.repo.DeleteComment(uuid)
 	if err != nil {
-		return err
+		return errs.NewUnexpectedError(errs.Common.NotDeleted + "your comment")
 	}
 
 	return nil

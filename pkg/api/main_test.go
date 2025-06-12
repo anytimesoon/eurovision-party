@@ -2,10 +2,10 @@ package api
 
 import (
 	"fmt"
-	"github.com/anytimesoon/eurovision-party/pkg/api/dto"
 	"github.com/anytimesoon/eurovision-party/pkg/data"
+	"github.com/anytimesoon/eurovision-party/pkg/data/dao"
 	"github.com/anytimesoon/eurovision-party/pkg/service"
-	"github.com/anytimesoon/eurovision-party/pkg/service/dao"
+	"github.com/anytimesoon/eurovision-party/pkg/service/dto"
 	"github.com/google/uuid"
 	"github.com/timshannon/bolthold"
 	"os"

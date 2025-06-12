@@ -2,10 +2,10 @@ package service
 
 import (
 	"encoding/json"
-	"github.com/anytimesoon/eurovision-party/pkg/api/dto"
 	"github.com/anytimesoon/eurovision-party/pkg/data"
+	"github.com/anytimesoon/eurovision-party/pkg/data/dao"
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
-	"github.com/anytimesoon/eurovision-party/pkg/service/dao"
+	"github.com/anytimesoon/eurovision-party/pkg/service/dto"
 	"log"
 )
 

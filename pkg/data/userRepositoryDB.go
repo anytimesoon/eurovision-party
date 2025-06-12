@@ -4,11 +4,10 @@ import (
 	"errors"
 	"fmt"
 	"github.com/anytimesoon/eurovision-party/conf"
-	"github.com/anytimesoon/eurovision-party/pkg/api/dto"
 	"github.com/anytimesoon/eurovision-party/pkg/api/enum"
+	"github.com/anytimesoon/eurovision-party/pkg/data/dao"
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
-	"github.com/anytimesoon/eurovision-party/pkg/service/dao"
-
+	"github.com/anytimesoon/eurovision-party/pkg/service/dto"
 	"github.com/google/uuid"
 	"github.com/timshannon/bolthold"
 	"log"
