@@ -8,34 +8,25 @@ import (
 	"github.com/google/uuid"
 )
 
-type (
-	User struct {
-		UUID    uuid.UUID
-		AuthLvl enum.AuthLvl `boltholdIndex:"AuthLvl"`
-		Name    string
-		Slug    string `boltholdUnique:"UniqueSlug"`
-		Icon    string
-	}
-	NewUser struct {
-		UUID    uuid.UUID
-		AuthLvl enum.AuthLvl
-		Name    string
-		Slug    string
-		Token   string
-	}
-)
+type User struct {
+	UUID    uuid.UUID
+	AuthLvl enum.AuthLvl `boltholdIndex:"AuthLvl"`
+	Name    string
+	Slug    string `boltholdUnique:"UniqueSlug"`
+	Icon    string
+}
 
-func (user *User) ToDto() dto.User {
+func (u User) ToDto() dto.User {
 	return dto.User{
-		Name:    user.Name,
-		Slug:    user.Slug,
-		UUID:    user.UUID,
-		Icon:    user.Icon,
-		AuthLvl: user.AuthLvl,
+		Name:    u.Name,
+		Slug:    u.Slug,
+		UUID:    u.UUID,
+		Icon:    u.Icon,
+		AuthLvl: u.AuthLvl,
 	}
 }
 
-func (user *User) FromDTO(userDTO dto.User) *User {
+func (u User) FromDTO(userDTO dto.User) *User {
 	return &User{
 		UUID:    userDTO.UUID,
 		AuthLvl: userDTO.AuthLvl,
@@ -45,51 +36,33 @@ func (user *User) FromDTO(userDTO dto.User) *User {
 	}
 }
 
-func (user *User) ToNewUser() *NewUser {
-	return &NewUser{
-		UUID:    user.UUID,
-		AuthLvl: user.AuthLvl,
-		Name:    user.Name,
-		Slug:    user.Slug,
-		Token:   "",
+func (u User) ToNewUserDTO(auth Auth) *dto.NewUser {
+	return &dto.NewUser{
+		UUID:    u.UUID,
+		AuthLvl: u.AuthLvl,
+		Name:    u.Name,
+		Slug:    u.Slug,
+		Token:   auth.AuthToken,
 	}
 }
 
-func (nu *NewUser) GenerateAuth() Auth {
+func (u User) FromNewUserDTO(newUser dto.NewUser) *User {
+	return &User{
+		UUID:    uuid.New(),
+		AuthLvl: newUser.AuthLvl,
+		Name:    newUser.Name,
+		Slug:    newUser.Slug,
+		Icon:    "default",
+	}
+}
+
+func (u User) GenerateAuth() Auth {
 	a := Auth{
-		AuthToken:    nu.Token,
-		UserId:       nu.UUID,
+		UserId:       u.UUID,
 		AuthTokenExp: time.Now().Add(7 * 24 * time.Hour),
-		AuthLvl:      nu.AuthLvl,
-		Slug:         nu.Slug,
+		AuthLvl:      u.AuthLvl,
+		Slug:         u.Slug,
 	}
 	a.GenerateSecureToken(40)
-	nu.Token = a.AuthToken
 	return a
-}
-func (nu *NewUser) ToDTO() *dto.NewUser {
-	return &dto.NewUser{
-		Name: nu.Name,
-		Slug: nu.Slug,
-		UUID: nu.UUID,
-
-		Token: nu.Token,
-	}
-}
-
-func (nu *NewUser) FromDTO(nuDTO dto.NewUser) {
-	nu.Name = nuDTO.Name
-	nu.Slug = nuDTO.Slug
-	nu.UUID = uuid.New()
-	nu.Token = nuDTO.Token
-}
-
-func (nu *NewUser) ToUser() *User {
-	return &User{
-		UUID:    nu.UUID,
-		Name:    nu.Name,
-		Slug:    nu.Slug,
-		Icon:    "default",
-		AuthLvl: nu.AuthLvl,
-	}
 }

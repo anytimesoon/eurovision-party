@@ -25,7 +25,7 @@ var (
 		AuthLvl: 1,
 	}
 	adminAuthMock = dto.Auth{
-		Token:      "token",
+		Token:      "adminToken",
 		Expiration: time.Now().Add(time.Hour * 24 * 365),
 		UserId:     adminUserId,
 		AuthLvl:    1,
@@ -40,12 +40,14 @@ var (
 		AuthLvl: 0,
 	}
 	regularAuthMock = dto.Auth{
-		Token:      "token",
+		Token:      "regularToken",
 		Expiration: time.Now().Add(time.Hour * 24 * 365),
 		UserId:     regularUserId,
 		AuthLvl:    0,
 	}
 	countryNames = []string{"Austria", "Belgium", "Bulgaria", "Croatia", "Cyprus"}
+
+	testBroadcastChan = make(chan dto.SocketMessage)
 )
 
 func TestMain(m *testing.M) {
@@ -69,6 +71,26 @@ func setup() *bolthold.Store {
 	fmt.Printf("Admin user created %v", user)
 
 	return db
+}
+
+func generateNewUsers() []*dto.NewUser {
+	newAdmin := &dto.NewUser{
+		Name:    adminUserMock.Name,
+		Slug:    adminUserMock.Slug,
+		UUID:    adminUserMock.UUID,
+		AuthLvl: adminUserMock.AuthLvl,
+		Token:   adminAuthMock.Token,
+	}
+
+	newRegular := &dto.NewUser{
+		Name:    regularUserMock.Name,
+		Slug:    regularUserMock.Slug,
+		UUID:    regularUserMock.UUID,
+		AuthLvl: regularUserMock.AuthLvl,
+		Token:   regularAuthMock.Token,
+	}
+
+	return []*dto.NewUser{newAdmin, newRegular}
 }
 
 func generateUsers(db *bolthold.Store) {
@@ -178,4 +200,16 @@ func newTestVoteService() service.VoteService {
 func newTestCountryService() service.CountryService {
 	countryRepository := data.NewCountryRepositoryDb(testDB)
 	return service.NewCountryService(countryRepository)
+}
+
+func newTestUserService() service.UserService {
+	userRepository := data.NewUserRepositoryDb(testDB)
+	authRepository := data.NewAuthRepositoryDB(testDB)
+	commentRepository := data.NewCommentRepositoryDb(testDB)
+	return service.NewUserService(
+		userRepository,
+		testBroadcastChan,
+		authRepository,
+		commentRepository,
+	)
 }

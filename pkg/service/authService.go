@@ -62,7 +62,7 @@ func (das DefaultAuthService) Login(authDTO dto.Auth) (*dto.Auth, *dto.User, *er
 		return nil, nil, errs.NewUnauthorizedError(errs.Common.Login)
 	}
 
-	user, err := das.userRepo.GetUser(authDTO.UserId.String())
+	user, err := das.userRepo.GetOneUserById(authDTO.UserId)
 	if err != nil {
 		log.Printf("Unable to find user %s when logging in. %s", authDTO.UserId, err)
 		return nil, nil, appErr
@@ -103,7 +103,7 @@ func (das DefaultAuthService) Authorize(token string) (*dto.Auth, *errs.AppError
 		return nil, errs.NewUnauthorizedError(errs.Common.Login)
 	}
 
-	_, err = das.userRepo.GetUser(authDTO.UserId.String())
+	_, err = das.userRepo.GetOneUserById(authDTO.UserId)
 	if err != nil {
 		log.Printf("Unable to find user %s during auth. %s", authDTO.UserId, err)
 		return nil, errs.NewUnauthorizedError(errs.Common.Login)

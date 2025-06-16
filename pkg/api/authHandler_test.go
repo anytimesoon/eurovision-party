@@ -40,7 +40,7 @@ func TestAuthHandler_Login(t *testing.T) {
 			args: args{
 				resp: httptest.NewRecorder(),
 				req: httptest.NewRequest(http.MethodPost, "/api/login", strings.NewReader(fmt.Sprintf(`{
-                    "token": "token",
+                    "token": "adminToken",
                     "userId": "%s"
                 }`, adminUserId.String()))),
 			},
@@ -57,7 +57,7 @@ func TestAuthHandler_Login(t *testing.T) {
 			args: args{
 				resp: httptest.NewRecorder(),
 				req: httptest.NewRequest(http.MethodPost, "/api/login", strings.NewReader(fmt.Sprintf(`{
-                    "token": "token",
+                    "token": "badToken",
                     "userId": ""
                 }`))),
 			},
