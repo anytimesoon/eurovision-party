@@ -27,7 +27,7 @@ func NewVoteRepositoryDb(store *bolthold.Store) VoteRepositoryDb {
 
 func (db VoteRepositoryDb) CreateVotes(userId uuid.UUID) error {
 	countries := make([]dao.Country, 0)
-	err := db.store.Find(countries, &bolthold.Query{})
+	err := db.store.Find(&countries, &bolthold.Query{})
 	if err != nil {
 		log.Println("Error while querying country table during vote creation.", err)
 		return err
