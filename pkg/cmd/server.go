@@ -29,7 +29,7 @@ func StartServer(store *bolthold.Store) {
 	voteRepository := data.NewVoteRepositoryDb(store)
 
 	// Authentication
-	authService = service.NewAuthService(authRepository, sessionRepository, userRepository)
+	authService = service.NewAuthService(authRepository, sessionRepository, userRepository, conf.App.Secret)
 	authHandler := api.AuthHandler{Service: authService}
 	router.HandleFunc("/api/login", authHandler.Login).Methods(http.MethodPost) // sets auth token.
 

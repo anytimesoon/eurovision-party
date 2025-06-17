@@ -1,6 +1,8 @@
 package conf
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/spf13/viper"
@@ -20,6 +22,7 @@ type AppConf struct {
 	BotIdString string `mapstructure:"BOT_ID"`
 	BotName     string `mapstructure:"CHAT_BOT_NAME"`
 	Assets      string `mapstructure:"ASSET_DIR"`
+	Secret      string `mapstructure:"SECRET"`
 }
 
 func (a *AppConf) SetBotId(id uuid.UUID) {
@@ -45,6 +48,19 @@ func LoadConfig() {
 	err := v.ReadInConfig()
 	if err != nil {
 		panic(fmt.Errorf("fatal error config file: %w", err))
+	}
+
+	if v.GetString("SECRET") == "" {
+		bytes := make([]byte, 32)
+		if _, err := rand.Read(bytes); err != nil {
+			panic(err)
+		}
+		hexString := hex.EncodeToString(bytes)
+		v.Set("SECRET", hexString)
+		err := v.WriteConfig()
+		if err != nil {
+			log.Fatal("Failed to write bot id to config.", err)
+		}
 	}
 
 	err = v.Unmarshal(&App)

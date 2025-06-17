@@ -29,16 +29,13 @@ type DefaultAuthService struct {
 
 var secretKey []byte
 
-func init() {
+func NewAuthService(authRepo data.AuthRepositoryDB, sessionRepo data.SessionRepositoryDB, userRepo data.UserRepositoryDb, secretKeyString string) DefaultAuthService {
 	var err error
-	// TODO: create random string
-	secretKey, err = hex.DecodeString("13d6b4dff8f84a10851021ec8608f814570d562c92fe6b5ec4c9f595bcb3234b")
+
+	secretKey, err = hex.DecodeString(secretKeyString)
 	if err != nil {
 		log.Fatal(err)
 	}
-}
-
-func NewAuthService(authRepo data.AuthRepositoryDB, sessionRepo data.SessionRepositoryDB, userRepo data.UserRepositoryDb) DefaultAuthService {
 	return DefaultAuthService{authRepo, sessionRepo, userRepo}
 }
 

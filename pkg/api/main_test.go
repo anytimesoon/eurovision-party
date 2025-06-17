@@ -189,7 +189,7 @@ func newTestAuthService() service.AuthService {
 	authRepository := data.NewAuthRepositoryDB(testDB)
 	sessionRepository := data.NewSessionRepositoryDb(testDB)
 	userRepositoryDb := data.NewUserRepositoryDb(testDB)
-	return service.NewAuthService(authRepository, sessionRepository, userRepositoryDb)
+	return service.NewAuthService(authRepository, sessionRepository, userRepositoryDb, "5087c3b0928acd41f1907689a6f7bded8c42d03220934a7ad59e19c233a6bb7c")
 }
 
 func newTestVoteService() service.VoteService {
