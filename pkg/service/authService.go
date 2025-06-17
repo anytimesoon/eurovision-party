@@ -88,7 +88,7 @@ func (das DefaultAuthService) Authorize(token string) (*dto.Auth, *errs.AppError
 	if appErr != nil {
 		return nil, appErr
 	}
-	log.Printf("Session %+v", authDTO)
+
 	if authDTO.Expiration.Before(time.Now()) {
 		log.Printf("Session has expired for user %s", authDTO.UserId)
 		return nil, errs.NewUnauthorizedError(errs.Common.Login)
