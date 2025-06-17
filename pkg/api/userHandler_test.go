@@ -5,10 +5,12 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/anytimesoon/eurovision-party/pkg/api/enum"
+	"github.com/anytimesoon/eurovision-party/pkg/data/dao"
 	"github.com/anytimesoon/eurovision-party/pkg/service"
 	"github.com/anytimesoon/eurovision-party/pkg/service/dto"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
+	"github.com/timshannon/bolthold"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -416,6 +418,29 @@ func TestUserHandler_Register(t *testing.T) {
 					userDto.Body.Slug != tt.expected.user.Slug {
 					t.Errorf("Registered user doesn't match:\ngot:  %+v\nwant: %+v",
 						userDto.Body, tt.expected.user)
+				}
+
+				countryCount, err := testDB.Count(dao.Country{}, &bolthold.Query{})
+				if err != nil {
+					panic(err)
+				}
+
+				var votes []dao.Vote
+				err = testDB.Find(&votes, &bolthold.Query{})
+				if err != nil {
+					panic(err)
+				}
+
+				voteCount := 0
+				for _, vote := range votes {
+					if vote.UserId == userDto.Body.UUID {
+						voteCount++
+					}
+				}
+
+				if countryCount != voteCount {
+					t.Errorf("Vote count doesn't match:\ngot:  %v\nwant: %v",
+						voteCount, countryCount)
 				}
 			}
 		})

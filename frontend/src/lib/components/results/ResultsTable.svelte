@@ -18,19 +18,11 @@
     let hasUserSelected = false
 
     function sort() {
-        sortByDescending = !sortByDescending
-
-        // Modifier to sorting function for ascending or descending
-        let sortModifier = (sortByDescending) ? -1 : 1;
-
-        $results.sort((a, b) =>
-            (a.getScore($resultPageState.category) - b.getScore($resultPageState.category)) * sortModifier
-        );
-
+        results.sort($resultPageState.category, !sortByDescending)
     }
 
     $: if ($resultPageState.category) {
-        sortByDescending = false
+        sortByDescending = true
         sort()
     }
 
@@ -70,7 +62,7 @@
                         {/if}
                     </div>
                 </th>
-                <th on:click={() => sort()} class="capitalize">
+                <th on:click={() => sort()} class="capitalize cursor-pointer">
                     <div class="flex justify-center">
                         {$resultPageState.category} <Sort size="1.4em" class="pl-1.5"/>
                     </div>

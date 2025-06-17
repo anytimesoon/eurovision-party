@@ -82,7 +82,8 @@ func StartServer(store *bolthold.Store) {
 			userRepository,
 			chatRoomHandler.RoomService.BroadcastUpdate,
 			authRepository,
-			commentRepository),
+			commentRepository,
+			voteRepository),
 		AssetService: service.NewAssetService(),
 	}
 	userRouter := apiRouter.PathPrefix("/user").Subrouter()

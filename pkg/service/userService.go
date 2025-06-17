@@ -28,6 +28,7 @@ type DefaultUserService struct {
 	authRepo    data.AuthRepository
 	broadcast   chan dto.SocketMessage
 	commentRepo data.CommentRepository
+	voteRepo    data.VoteRepository
 }
 
 func NewUserService(
@@ -35,8 +36,15 @@ func NewUserService(
 	broadcast chan dto.SocketMessage,
 	authRepo data.AuthRepositoryDB,
 	commentRepo data.CommentRepository,
+	voteRepo data.VoteRepository,
 ) DefaultUserService {
-	return DefaultUserService{userRepo, authRepo, broadcast, commentRepo}
+	return DefaultUserService{
+		userRepo,
+		authRepo,
+		broadcast,
+		commentRepo,
+		voteRepo,
+	}
 }
 
 func (us DefaultUserService) GetAllUsers() (map[uuid.UUID]dto.User, *errs.AppError) {
@@ -147,11 +155,17 @@ func (us DefaultUserService) Register(newUserDTO dto.NewUser) (*dto.NewUser, *er
 		return nil, errs.NewUnexpectedError(errs.Common.NotCreated + "user")
 	}
 
+	err = us.voteRepo.CreateVotes(newUser.UUID)
+	if err != nil {
+		return nil, errs.NewUnexpectedError(errs.Common.NotCreated + "user")
+	}
+
 	createdUserDTO := newUser.ToNewUserDTO(auth)
 	go us.broadcastNewUser(createdUserDTO)
 
 	return createdUserDTO, nil
 }
+
 func (us DefaultUserService) broadcastNewUser(newUser *dto.NewUser) {
 	msg := dto.NewSocketMessage(
 		enum.NEW_USER,

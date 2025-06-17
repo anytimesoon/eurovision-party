@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/anytimesoon/eurovision-party/conf"
 	"github.com/anytimesoon/eurovision-party/pkg/api/enum"
 	"github.com/anytimesoon/eurovision-party/pkg/data/dao"
@@ -62,7 +63,7 @@ func addUsers(store *bolthold.Store) {
 		log.Println("Error when finding admins:", err)
 	}
 	if len(admins) == 0 {
-		err := store.Insert(initAdminUser.UUID.String(), initAdminUser)
+		err = store.Insert(initAdminUser.UUID.String(), initAdminUser)
 		if err != nil {
 			log.Printf("%s alread exists in user table", initAdminUser.Name)
 		}
@@ -77,6 +78,23 @@ func addUsers(store *bolthold.Store) {
 		err = store.Insert(adminAuth.AuthToken, adminAuth)
 		if err != nil {
 			log.Fatal("Error when inserting admin auth token:", err)
+		}
+
+		for _, country := range initCountriesWithParticipating {
+			err = store.Upsert(
+				fmt.Sprintf("%s_%s", initAdminUser.UUID, country.Slug),
+				dao.Vote{
+					UserId:      initAdminUser.UUID,
+					CountrySlug: country.Slug,
+					Costume:     0,
+					Song:        0,
+					Performance: 0,
+					Props:       0,
+				},
+			)
+			if err != nil {
+				log.Fatalf("Error while inserting vote into vote table during vote creation. %s", err)
+			}
 		}
 
 		log.Printf("%s%s/login/%s/%s", conf.App.HttpProto, conf.App.Domain, adminAuth.AuthToken, initAdminUser.UUID)

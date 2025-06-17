@@ -206,10 +206,12 @@ func newTestUserService() service.UserService {
 	userRepository := data.NewUserRepositoryDb(testDB)
 	authRepository := data.NewAuthRepositoryDB(testDB)
 	commentRepository := data.NewCommentRepositoryDb(testDB)
+	voteRepository := data.NewVoteRepositoryDb(testDB)
 	return service.NewUserService(
 		userRepository,
 		testBroadcastChan,
 		authRepository,
 		commentRepository,
+		voteRepository,
 	)
 }
