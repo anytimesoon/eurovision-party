@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"github.com/anytimesoon/eurovision-party/conf"
 	"github.com/anytimesoon/eurovision-party/pkg/api/enum"
 	"github.com/anytimesoon/eurovision-party/pkg/data"
 	"github.com/anytimesoon/eurovision-party/pkg/data/dao"
@@ -162,7 +163,7 @@ func (us DefaultUserService) broadcastNewUser(newUser *dto.NewUser) {
 func (us DefaultUserService) broadcastUserUpdate(user dto.User, comment string) {
 	botMessage := dto.Comment{
 		UUID:      uuid.New(),
-		UserId:    user.UUID,
+		UserId:    conf.App.BotId,
 		Text:      comment,
 		CreatedAt: time.Now(),
 	}
