@@ -1,7 +1,7 @@
 package dao
 
 import (
-	"github.com/anytimesoon/eurovision-party/pkg/api/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/service/dto"
 )
 
 type Country struct {

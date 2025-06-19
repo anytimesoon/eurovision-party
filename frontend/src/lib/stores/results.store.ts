@@ -8,14 +8,14 @@ import type { IResultModel } from "$lib/models/interfaces/iresultmodel.interface
 
 export const results = newResultsStore()
 
-let currentResults: IResultModel[]
+let currentResults: ResultModel[]
 results.subscribe(val => currentResults = val)
 
 let currentStatus: ResultPageStateModel
 resultPageState.subscribe(val => currentStatus = val)
 
 function newResultsStore() {
-    const {subscribe, update, set} = writable(new Array<IResultModel>())
+    const {subscribe, update, set} = writable(new Array<ResultModel>())
 
     return {
         subscribe,
@@ -23,7 +23,19 @@ function newResultsStore() {
         set,
         refresh: async () => refresh(),
         noScores: (): boolean => noScores(),
+        sort: (category: string, sortByDescending: boolean) => sortResults(category, sortByDescending),
     }
+}
+
+function sortResults(category: string, sortByDescending: boolean) {
+    results.update(results => {
+        const sortModifier = sortByDescending ? -1 : 1
+        return results.sort((a, b) => {
+            if (sortByDescending) {
+                return b.getScore(category) - a.getScore(category) * sortModifier
+            }
+        })
+    })
 }
 
 async function refresh() {

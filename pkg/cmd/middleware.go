@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 	"github.com/anytimesoon/eurovision-party/pkg/api"
+	"github.com/anytimesoon/eurovision-party/pkg/service/dto"
 
-	"github.com/anytimesoon/eurovision-party/pkg/api/dto"
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
 	"log"
 	"net/http"
@@ -44,7 +44,7 @@ func Authenticate(next http.Handler) http.Handler {
 
 		auth, appErr := authService.Authorize(session)
 		if appErr != nil {
-			log.Printf("%s method %s was requested by %q and rejected because token was rejected. %s", r.RequestURI, r.Method, r.RemoteAddr, appErr)
+			log.Printf("%s method %s was requested by %q and rejected because token was rejected. %s", r.RequestURI, r.Method, r.RemoteAddr, appErr.Message)
 			api.WriteResponse(w, http.StatusUnauthorized, &dto.User{}, errs.Common.Unauthorized)
 			return
 		}

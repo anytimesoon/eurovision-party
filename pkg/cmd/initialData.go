@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/anytimesoon/eurovision-party/pkg/api/enum"
-	"github.com/anytimesoon/eurovision-party/pkg/service/dao"
+	"github.com/anytimesoon/eurovision-party/pkg/data/dao"
 	"github.com/google/uuid"
 )
 

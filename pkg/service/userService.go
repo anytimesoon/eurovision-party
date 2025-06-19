@@ -1,40 +1,58 @@
 package service
 
 import (
-	"encoding/json"
-	"github.com/anytimesoon/eurovision-party/pkg/api/dto"
+	"fmt"
+	"github.com/anytimesoon/eurovision-party/conf"
 	"github.com/anytimesoon/eurovision-party/pkg/api/enum"
 	"github.com/anytimesoon/eurovision-party/pkg/data"
+	"github.com/anytimesoon/eurovision-party/pkg/data/dao"
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
+	"github.com/anytimesoon/eurovision-party/pkg/service/dto"
 	"github.com/google/uuid"
 	"log"
+	"time"
 )
 
 type UserService interface {
 	GetAllUsers() (map[uuid.UUID]dto.User, *errs.AppError)
 	UpdateUser(dto.User) (*dto.User, *errs.AppError)
-	SingleUser(string) (*dto.User, *errs.AppError)
+	GetOneUser(string) (*dto.User, *errs.AppError)
 	DeleteUser(string) *errs.AppError
 	GetRegisteredUsers() ([]*dto.NewUser, *errs.AppError)
 	UpdateUserImage(uuid.UUID) (*dto.User, *errs.AppError)
-	Register([]byte) (*dto.NewUser, *errs.AppError)
+	Register(dto.NewUser) (*dto.NewUser, *errs.AppError)
 }
 
 type DefaultUserService struct {
-	repo      data.UserRepository
-	broadcast chan dto.SocketMessage
+	userRepo    data.UserRepository
+	authRepo    data.AuthRepository
+	broadcast   chan dto.SocketMessage
+	commentRepo data.CommentRepository
+	voteRepo    data.VoteRepository
 }
 
-func NewUserService(repo data.UserRepository, broadcast chan dto.SocketMessage) DefaultUserService {
-	return DefaultUserService{repo, broadcast}
+func NewUserService(
+	userRepo data.UserRepository,
+	broadcast chan dto.SocketMessage,
+	authRepo data.AuthRepositoryDB,
+	commentRepo data.CommentRepository,
+	voteRepo data.VoteRepository,
+) DefaultUserService {
+	return DefaultUserService{
+		userRepo,
+		authRepo,
+		broadcast,
+		commentRepo,
+		voteRepo,
+	}
 }
 
-func (service DefaultUserService) GetAllUsers() (map[uuid.UUID]dto.User, *errs.AppError) {
+func (us DefaultUserService) GetAllUsers() (map[uuid.UUID]dto.User, *errs.AppError) {
 	usersDTO := make(map[uuid.UUID]dto.User)
 
-	users, err := service.repo.FindAllUsers()
+	users, err := us.userRepo.GetAllUsers()
 	if err != nil {
-		return usersDTO, err
+		return usersDTO, errs.NewUnexpectedError(errs.Common.DBFail)
 	}
 
 	for _, user := range users {
@@ -44,42 +62,46 @@ func (service DefaultUserService) GetAllUsers() (map[uuid.UUID]dto.User, *errs.A
 	return usersDTO, nil
 }
 
-func (service DefaultUserService) UpdateUser(userDTO dto.User) (*dto.User, *errs.AppError) {
+func (us DefaultUserService) UpdateUser(userDTO dto.User) (*dto.User, *errs.AppError) {
 	appErr := userDTO.Validate()
 	if appErr != nil {
 		return nil, appErr
 	}
 
-	user, botMessage, appErr := service.repo.UpdateUser(userDTO)
-	if appErr != nil {
-		return nil, appErr
+	user, err := us.userRepo.GetOneUserById(userDTO.UUID)
+	if err != nil {
+		return nil, errs.NewUnexpectedError(errs.Common.DBFail)
 	}
 
-	newUserDTO := user.ToDto()
+	updatedUser, err := us.userRepo.UpdateUser(*dao.User{}.FromDTO(userDTO))
+	if err != nil {
+		return nil, errs.NewUnexpectedError(errs.Common.DBFail)
+	}
 
-	go service.broadcastUserUpdate(newUserDTO, botMessage)
+	newUserDTO := updatedUser.ToDto()
+
+	go us.broadcastUserUpdate(newUserDTO, fmt.Sprintf("🤖 %s changed their name to %s", user.Name, updatedUser.Name))
 
 	return &newUserDTO, nil
 }
 
-func (service DefaultUserService) UpdateUserImage(id uuid.UUID) (*dto.User, *errs.AppError) {
-
-	user, botMessage, appErr := service.repo.UpdateUserImage(id)
-	if appErr != nil {
-		return nil, appErr
+func (us DefaultUserService) UpdateUserImage(id uuid.UUID) (*dto.User, *errs.AppError) {
+	user, err := us.userRepo.UpdateUserImage(id)
+	if err != nil {
+		return nil, errs.NewUnexpectedError(errs.Common.DBFail)
 	}
 
 	userDTO := user.ToDto()
 
-	go service.broadcastUserUpdate(userDTO, botMessage)
+	go us.broadcastUserUpdate(userDTO, fmt.Sprintf("🤖 %s changed their picture", user.Name))
 
 	return &userDTO, nil
 }
 
-func (service DefaultUserService) SingleUser(slug string) (*dto.User, *errs.AppError) {
-	user, err := service.repo.FindOneUser(slug)
+func (us DefaultUserService) GetOneUser(slug string) (*dto.User, *errs.AppError) {
+	user, err := us.userRepo.GetOneUserBySlug(slug)
 	if err != nil {
-		return nil, err
+		return nil, errs.NewUnexpectedError(errs.Common.DBFail)
 	}
 
 	userDTO := user.ToDto()
@@ -87,67 +109,91 @@ func (service DefaultUserService) SingleUser(slug string) (*dto.User, *errs.AppE
 	return &userDTO, nil
 }
 
-func (service DefaultUserService) DeleteUser(slug string) *errs.AppError {
-	err := service.repo.DeleteUser(slug)
+func (us DefaultUserService) DeleteUser(slug string) *errs.AppError {
+	err := us.userRepo.DeleteUser(slug)
 	if err != nil {
-		return err
+		return errs.NewUnexpectedError(errs.Common.DBFail)
 	}
 
 	return nil
 }
 
-func (service DefaultUserService) GetRegisteredUsers() ([]*dto.NewUser, *errs.AppError) {
+func (us DefaultUserService) GetRegisteredUsers() ([]*dto.NewUser, *errs.AppError) {
 	usersDTO := make([]*dto.NewUser, 0)
 
-	users, err := service.repo.FindRegisteredUsers()
+	users, err := us.userRepo.GetRegisteredUsers()
 	if err != nil {
-		return usersDTO, err
+		return usersDTO, errs.NewUnexpectedError(errs.Common.DBFail)
 	}
 
 	for _, user := range *users {
-		usersDTO = append(usersDTO, user.ToDTO())
+		auth, err := us.authRepo.GetAuthFromUserId(user.UUID)
+		if err != nil {
+			log.Println("Failed to get auth from user id.", err)
+			continue
+		}
+
+		newUser := user.ToNewUserDTO(*auth)
+
+		usersDTO = append(usersDTO, newUser)
 	}
 
 	return usersDTO, nil
 }
 
-func (service DefaultUserService) Register(body []byte) (*dto.NewUser, *errs.AppError) {
-	var newUserDTO dto.NewUser
-	err := json.Unmarshal(body, &newUserDTO)
-	if err != nil {
-		log.Println("FAILED to unmarshal json!", err)
-		return nil, errs.NewUnexpectedError(errs.Common.BadlyFormedObject)
-	}
-
+func (us DefaultUserService) Register(newUserDTO dto.NewUser) (*dto.NewUser, *errs.AppError) {
 	newUserDTO.Slugify()
 
-	// create new user
-	newUser, appErr := service.repo.CreateUser(newUserDTO)
-	if appErr != nil {
-		log.Println("Failed to create user", appErr)
-		return nil, errs.NewUnexpectedError(errs.Common.DBFail)
+	newUser, err := us.userRepo.CreateUser(*dao.User{}.FromNewUserDTO(newUserDTO))
+	if err != nil {
+		return nil, errs.NewUnexpectedError(errs.Common.NotCreated + "user")
 	}
 
-	createdUserDTO := newUser.ToDTO()
-	go service.broadcastNewUser(createdUserDTO)
+	auth := newUser.GenerateAuth()
+	_, err = us.authRepo.CreateAuth(auth)
+	if err != nil {
+		return nil, errs.NewUnexpectedError(errs.Common.NotCreated + "user")
+	}
+
+	err = us.voteRepo.CreateVotes(newUser.UUID)
+	if err != nil {
+		return nil, errs.NewUnexpectedError(errs.Common.NotCreated + "user")
+	}
+
+	createdUserDTO := newUser.ToNewUserDTO(auth)
+	go us.broadcastNewUser(createdUserDTO)
 
 	return createdUserDTO, nil
 }
-func (service DefaultUserService) broadcastNewUser(newUser *dto.NewUser) {
+
+func (us DefaultUserService) broadcastNewUser(newUser *dto.NewUser) {
 	msg := dto.NewSocketMessage(
 		enum.NEW_USER,
 		newUser)
 
-	service.broadcast <- msg
+	us.broadcast <- msg
 }
 
-func (service DefaultUserService) broadcastUserUpdate(user dto.User, comment *dto.Comment) {
+func (us DefaultUserService) broadcastUserUpdate(user dto.User, comment string) {
+	botMessage := dto.Comment{
+		UUID:      uuid.New(),
+		UserId:    conf.App.BotId,
+		Text:      comment,
+		CreatedAt: time.Now(),
+	}
+
+	_, err := us.commentRepo.CreateComment(dao.Comment{}.FromDTO(botMessage))
+	if err != nil {
+		log.Println("Unable to create comment", err)
+		return
+	}
+
 	msg := dto.NewSocketMessage(
 		enum.UPDATE_USER,
 		dto.UpdateMessage{
 			UpdatedUser: user,
-			Comment:     *comment,
+			Comment:     botMessage,
 		})
 
-	service.broadcast <- msg
+	us.broadcast <- msg
 }

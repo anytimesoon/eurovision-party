@@ -8,9 +8,9 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/anytimesoon/eurovision-party/pkg/api/dto"
 	"github.com/anytimesoon/eurovision-party/pkg/data"
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
+	"github.com/anytimesoon/eurovision-party/pkg/service/dto"
 	"io"
 	"log"
 	"time"
@@ -22,27 +22,46 @@ type AuthService interface {
 }
 
 type DefaultAuthService struct {
-	repo data.AuthRepositoryDB
+	authRepo    data.AuthRepository
+	sessionRepo data.SessionRepository
+	userRepo    data.UserRepository
 }
 
 var secretKey []byte
 
-func init() {
+func NewAuthService(authRepo data.AuthRepositoryDB, sessionRepo data.SessionRepositoryDB, userRepo data.UserRepositoryDb, secretKeyString string) DefaultAuthService {
 	var err error
-	// TODO: create random string
-	secretKey, err = hex.DecodeString("13d6b4dff8f84a10851021ec8608f814570d562c92fe6b5ec4c9f595bcb3234b")
+
+	secretKey, err = hex.DecodeString(secretKeyString)
 	if err != nil {
 		log.Fatal(err)
 	}
-}
-
-func NewAuthService(repo data.AuthRepositoryDB) DefaultAuthService {
-	return DefaultAuthService{repo}
+	return DefaultAuthService{authRepo, sessionRepo, userRepo}
 }
 
 func (das DefaultAuthService) Login(authDTO dto.Auth) (*dto.Auth, *dto.User, *errs.AppError) {
-	auth, user, appErr := das.repo.Login(&authDTO)
+	auth, appErr := das.authRepo.GetAuth(authDTO.Token)
 	if appErr != nil {
+		return nil, nil, appErr
+	}
+
+	auth.GenerateSecureSessionToken(20)
+	auth.SessionTokenExp = time.Now().Add(7 * 24 * time.Hour)
+	err := das.authRepo.UpdateAuth(auth)
+	if err != nil {
+		log.Printf("Unable to find auth for user %s. %s", authDTO.UserId, err)
+		return nil, nil, errs.NewUnauthorizedError(errs.Common.Login)
+	}
+
+	err = das.sessionRepo.UpdateSession(auth.AuthToken, auth.SessionToken, authDTO.UserId)
+	if err != nil {
+		log.Printf("Unable to generate new session token for user %s. %s", authDTO.UserId, err)
+		return nil, nil, errs.NewUnauthorizedError(errs.Common.Login)
+	}
+
+	user, err := das.userRepo.GetOneUserById(authDTO.UserId)
+	if err != nil {
+		log.Printf("Unable to find user %s when logging in. %s", authDTO.UserId, err)
 		return nil, nil, appErr
 	}
 
@@ -69,15 +88,22 @@ func (das DefaultAuthService) Authorize(token string) (*dto.Auth, *errs.AppError
 	if appErr != nil {
 		return nil, appErr
 	}
-	log.Printf("Session %+v", authDTO)
+
 	if authDTO.Expiration.Before(time.Now()) {
-		log.Printf("Session has expired")
+		log.Printf("Session has expired for user %s", authDTO.UserId)
 		return nil, errs.NewUnauthorizedError(errs.Common.Login)
 	}
 
-	_, appErr = das.repo.Authorize(authDTO)
-	if appErr != nil {
-		return nil, appErr
+	_, err := das.sessionRepo.GetSession(authDTO.Token)
+	if err != nil {
+		log.Println("Unable to find session", err)
+		return nil, errs.NewUnauthorizedError(errs.Common.Login)
+	}
+
+	_, err = das.userRepo.GetOneUserById(authDTO.UserId)
+	if err != nil {
+		log.Printf("Unable to find user %s during auth. %s", authDTO.UserId, err)
+		return nil, errs.NewUnauthorizedError(errs.Common.Login)
 	}
 
 	return authDTO, nil

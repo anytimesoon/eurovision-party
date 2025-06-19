@@ -41,7 +41,7 @@ export class ResultModel implements IResultModel {
         }
     }
 
-    static deserialize(input: IResultModel):IResultModel {
+    static deserialize(input: IResultModel):ResultModel {
         return new ResultModel(
             input.countrySlug,
             input.costume,

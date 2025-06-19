@@ -7,11 +7,10 @@
     import {get} from "$lib/utils/genericFetch";
     import {voteEP} from "$lib/models/enums/endpoints.enum";
     import {ResultModel} from "$lib/models/classes/result.model";
-    import type {IResultModel} from "$lib/models/interfaces/iresultmodel.interface";
 
     export let showTitle = false
     let userArray = [...new Map(Object.entries($userStore))]
-    let currentCat
+    let currentCat: string
 
     const changeCat = () => {
         $resultPageState.category = currentCat
@@ -19,7 +18,7 @@
 
     const submit = async () => {
         const res = await get(voteEP.RESULTS + $resultPageState.userId)
-        let deserializedResults: IResultModel[] = []
+        let deserializedResults: ResultModel[] = []
         for (let i = 0; i < res.length; i++) {
             deserializedResults.push(ResultModel.deserialize(res[i]))
         }

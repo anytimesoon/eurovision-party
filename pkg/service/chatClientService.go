@@ -3,8 +3,8 @@ package service
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/anytimesoon/eurovision-party/pkg/api/dto"
 	"github.com/anytimesoon/eurovision-party/pkg/api/enum"
+	"github.com/anytimesoon/eurovision-party/pkg/service/dto"
 	"log"
 	"time"
 
@@ -82,9 +82,7 @@ func (c *ChatClient) Pub() {
 			commentJSON, appErr := c.ComServ.CreateComment(filteredMessage.Body)
 			if appErr != nil {
 				log.Println("Failed to create comment. Sending error to client.", appErr.Message)
-				message := dto.NewSocketErrorMessage("")
-				errorJSON, _ := json.Marshal(message)
-				c.Send <- errorJSON
+				handleCommentError(c, "Couldn't create message. Please try again later.")
 				continue
 			}
 			log.Println("New message received from", c.UserId.String())
@@ -93,9 +91,7 @@ func (c *ChatClient) Pub() {
 			commentsJSON, appErr := c.ComServ.FindCommentsAfter(filteredMessage.Body)
 			if appErr != nil {
 				log.Println("Failed to fetch comments. Sending error to client.", appErr.Message)
-				message := dto.NewSocketErrorMessage("Couldn't find past messages!")
-				errorJSON, _ := json.Marshal(message)
-				c.Send <- errorJSON
+				handleCommentError(c, "Couldn't find past messages!")
 				continue
 			}
 			log.Println("Sending latest messages to", c.UserId.String())
@@ -113,6 +109,12 @@ func (c *ChatClient) Pub() {
 			log.Printf("Message category not recognised")
 		}
 	}
+}
+
+func handleCommentError(c *ChatClient, errMessage string) {
+	message := dto.NewSocketErrorMessage(errMessage)
+	errorJSON, _ := json.Marshal(message)
+	c.Send <- errorJSON
 }
 
 func (c *ChatClient) Sub() {

@@ -2,9 +2,9 @@ package api
 
 import (
 	"encoding/json"
-	"github.com/anytimesoon/eurovision-party/pkg/api/dto"
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
 	"github.com/anytimesoon/eurovision-party/pkg/service"
+	"github.com/anytimesoon/eurovision-party/pkg/service/dto"
 	"io"
 	"log"
 	"net/http"

@@ -1,11 +1,12 @@
 package api
 
 import (
+	"encoding/json"
 	"github.com/anytimesoon/eurovision-party/conf"
-	"github.com/anytimesoon/eurovision-party/pkg/api/dto"
 	"github.com/anytimesoon/eurovision-party/pkg/api/enum"
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
 	"github.com/anytimesoon/eurovision-party/pkg/service"
+	"github.com/anytimesoon/eurovision-party/pkg/service/dto"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"io"
@@ -16,32 +17,39 @@ import (
 )
 
 type UserHandler struct {
-	Service      service.UserService
+	UserService  service.UserService
 	AssetService service.AssetService
 }
 
 func (uh UserHandler) Register(resp http.ResponseWriter, req *http.Request) {
 	var appErr *errs.AppError
-	var auth *dto.NewUser
+	var newUser *dto.NewUser
 	if req.Context().Value("auth").(dto.Auth).AuthLvl == enum.ADMIN {
 		body, err := io.ReadAll(req.Body)
 		if err != nil {
 			panic(err)
 		}
-		auth, appErr = uh.Service.Register(body)
+		err = json.Unmarshal(body, &newUser)
+		if err != nil {
+			log.Println("FAILED to parse new user.", err)
+			WriteResponse(resp, http.StatusBadRequest, newUser,
+				"Failed to parse request body. Please check the format of the request.")
+			return
+		}
+		newUser, appErr = uh.UserService.Register(*newUser)
 	} else {
 		appErr = errs.NewUnauthorizedError(errs.Common.Unauthorized)
 	}
 
 	if appErr != nil {
-		WriteResponse(resp, appErr.Code, auth, appErr.Message)
+		WriteResponse(resp, appErr.Code, newUser, appErr.Message)
 	} else {
-		WriteResponse(resp, http.StatusOK, auth, "")
+		WriteResponse(resp, http.StatusOK, newUser, "")
 	}
 }
 
-func (uh UserHandler) FindAllUsers(resp http.ResponseWriter, req *http.Request) {
-	users, err := uh.Service.GetAllUsers()
+func (uh UserHandler) GetAllUsers(resp http.ResponseWriter, req *http.Request) {
+	users, err := uh.UserService.GetAllUsers()
 	if err != nil {
 		WriteResponse(resp, err.Code, users, err.Message)
 	} else {
@@ -67,7 +75,7 @@ func (uh UserHandler) UpdateUser(resp http.ResponseWriter, req *http.Request) {
 	if req.Context().Value("auth").(dto.Auth).AuthLvl == enum.ADMIN ||
 		req.Context().Value("auth").(dto.Auth).UserId == user.UUID {
 
-		user, appErr = uh.Service.UpdateUser(*user)
+		user, appErr = uh.UserService.UpdateUser(*user)
 	} else {
 		appErr = errs.NewUnauthorizedError(errs.Common.Unauthorized)
 	}
@@ -111,7 +119,7 @@ func (uh UserHandler) UpdateImage(resp http.ResponseWriter, req *http.Request) {
 			WriteResponse(resp, appErr.Code, user, appErr.Message)
 		}
 
-		user, appErr = uh.Service.UpdateUserImage(id)
+		user, appErr = uh.UserService.UpdateUserImage(id)
 	} else {
 		appErr = errs.NewUnauthorizedError(errs.Common.Unauthorized)
 	}
@@ -123,9 +131,9 @@ func (uh UserHandler) UpdateImage(resp http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func (uh UserHandler) FindOneUser(resp http.ResponseWriter, req *http.Request) {
+func (uh UserHandler) GetOneUser(resp http.ResponseWriter, req *http.Request) {
 	params := mux.Vars(req)
-	user, err := uh.Service.SingleUser(params["slug"])
+	user, err := uh.UserService.GetOneUser(params["slug"])
 	if err != nil {
 		WriteResponse(resp, err.Code, user, err.Message)
 	} else {
@@ -133,11 +141,11 @@ func (uh UserHandler) FindOneUser(resp http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func (uh UserHandler) RemoveUser(resp http.ResponseWriter, req *http.Request) {
+func (uh UserHandler) DeleteUser(resp http.ResponseWriter, req *http.Request) {
 	var err *errs.AppError
 	if req.Context().Value("auth").(dto.Auth).AuthLvl == enum.ADMIN {
 		params := mux.Vars(req)
-		err = uh.Service.DeleteUser(params["slug"])
+		err = uh.UserService.DeleteUser(params["slug"])
 	} else {
 		err = errs.NewUnauthorizedError(errs.Common.Unauthorized)
 	}
@@ -148,8 +156,8 @@ func (uh UserHandler) RemoveUser(resp http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func (uh UserHandler) FindRegisteredUsers(resp http.ResponseWriter, req *http.Request) {
-	users, err := uh.Service.GetRegisteredUsers()
+func (uh UserHandler) GetRegisteredUsers(resp http.ResponseWriter, req *http.Request) {
+	users, err := uh.UserService.GetRegisteredUsers()
 	if err != nil {
 		WriteResponse(resp, err.Code, users, err.Message)
 	} else {

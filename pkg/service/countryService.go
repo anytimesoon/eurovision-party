@@ -2,18 +2,18 @@ package service
 
 import (
 	"encoding/json"
-	"github.com/anytimesoon/eurovision-party/pkg/api/dto"
 	"github.com/anytimesoon/eurovision-party/pkg/data"
+	"github.com/anytimesoon/eurovision-party/pkg/data/dao"
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
-	"github.com/anytimesoon/eurovision-party/pkg/service/dao"
+	"github.com/anytimesoon/eurovision-party/pkg/service/dto"
 	"log"
 )
 
 type CountryService interface {
 	GetAllCountries() (*[]dto.Country, *errs.AppError)
 	UpdateCountry([]byte) (*dto.Country, *errs.AppError)
-	SingleCountry(string) (*dto.Country, *errs.AppError)
-	Participating() (*[]dto.Country, *errs.AppError)
+	GetOneCountry(string) (*dto.Country, *errs.AppError)
+	GetParticipatingCountries() (*[]dto.Country, *errs.AppError)
 }
 
 type DefaultCountryService struct {
@@ -25,18 +25,18 @@ func NewCountryService(repo data.CountryRepository) DefaultCountryService {
 }
 
 func (service DefaultCountryService) GetAllCountries() (*[]dto.Country, *errs.AppError) {
-	countryData, err := service.repo.FindAllCountries()
+	countryData, err := service.repo.GetAllCountries()
 	if err != nil {
-		return nil, err
+		return nil, errs.NewUnexpectedError(errs.Common.DBFail)
 	}
 
 	return countriesToDto(*countryData), nil
 }
 
-func (service DefaultCountryService) SingleCountry(slug string) (*dto.Country, *errs.AppError) {
-	country, err := service.repo.FindOneCountry(slug)
+func (service DefaultCountryService) GetOneCountry(slug string) (*dto.Country, *errs.AppError) {
+	country, err := service.repo.GetOneCountry(slug)
 	if err != nil {
-		return nil, err
+		return nil, errs.NewUnexpectedError(errs.Common.NotFound + "country")
 	}
 
 	countryDTO := country.ToDto()
@@ -52,19 +52,19 @@ func (service DefaultCountryService) UpdateCountry(body []byte) (*dto.Country, *
 		return nil, errs.NewUnexpectedError("Unable to read request")
 	}
 
-	country, appErr := service.repo.UpdateCountry(countryDTO)
-	if appErr != nil {
-		return nil, appErr
+	country, err := service.repo.UpdateCountry(dao.Country{}.FromDTO(countryDTO))
+	if err != nil {
+		return nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "country")
 	}
 
 	countryDTO = country.ToDto()
 	return &countryDTO, nil
 }
 
-func (service DefaultCountryService) Participating() (*[]dto.Country, *errs.AppError) {
-	countryData, err := service.repo.FindParticipating()
+func (service DefaultCountryService) GetParticipatingCountries() (*[]dto.Country, *errs.AppError) {
+	countryData, err := service.repo.GetParticipatingCountries()
 	if err != nil {
-		return nil, err
+		return nil, errs.NewUnexpectedError(errs.Common.NotFound + "country")
 	}
 
 	return countriesToDto(*countryData), nil

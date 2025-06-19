@@ -20,9 +20,16 @@ func StartServer(store *bolthold.Store) {
 	router := mux.NewRouter().StrictSlash(true)
 	router.Use(Logging)
 
+	// Repos
+	authRepository := data.NewAuthRepositoryDB(store)
+	sessionRepository := data.NewSessionRepositoryDb(store)
+	userRepository := data.NewUserRepositoryDb(store)
+	commentRepository := data.NewCommentRepositoryDb(store)
+	countryRepository := data.NewCountryRepositoryDb(store)
+	voteRepository := data.NewVoteRepositoryDb(store)
+
 	// Authentication
-	authRepositoryMem := data.NewAuthRepositoryDB(store)
-	authService = service.NewAuthService(authRepositoryMem)
+	authService = service.NewAuthService(authRepository, sessionRepository, userRepository, conf.App.Secret)
 	authHandler := api.AuthHandler{Service: authService}
 	router.HandleFunc("/api/login", authHandler.Login).Methods(http.MethodPost) // sets auth token.
 
@@ -51,8 +58,7 @@ func StartServer(store *bolthold.Store) {
 	apiRouter.Use(JsHeaders)
 
 	// Chatroom
-	commentRepositoryDb := data.NewCommentRepositoryDb(store)
-	commentService := service.NewCommentService(commentRepositoryDb)
+	commentService := service.NewCommentService(commentRepository)
 	chatRoomHandler := api.ChatRoomHandler{
 		RoomService:    service.NewRoom(commentService),
 		CommentService: commentService,
@@ -63,29 +69,34 @@ func StartServer(store *bolthold.Store) {
 	chatRouter.HandleFunc("/connect/{token}", chatRoomHandler.Connect)
 
 	// Country
-	countryRepositoryDb := data.NewCountryRepositoryDb(store)
-	countryHandler := api.CountryHandler{Service: service.NewCountryService(countryRepositoryDb)}
+	countryHandler := api.CountryHandler{Service: service.NewCountryService(countryRepository)}
 	countryRouter := apiRouter.PathPrefix("/country").Subrouter()
-	countryRouter.HandleFunc("/", countryHandler.FindAllCountries).Methods(http.MethodGet) // admin only
-	countryRouter.HandleFunc("/", countryHandler.UpdateCountry).Methods(http.MethodPut)    // admin only
-	countryRouter.HandleFunc("/participating", countryHandler.Participating).Methods(http.MethodGet)
-	countryRouter.HandleFunc("/{slug}", countryHandler.FindOneCountry).Methods(http.MethodGet)
+	countryRouter.HandleFunc("/", countryHandler.GetAllCountries).Methods(http.MethodGet) // admin only
+	countryRouter.HandleFunc("/", countryHandler.UpdateCountry).Methods(http.MethodPut)   // admin only
+	countryRouter.HandleFunc("/participating", countryHandler.GetParticipatingCountries).Methods(http.MethodGet)
+	countryRouter.HandleFunc("/{slug}", countryHandler.GetOneCountry).Methods(http.MethodGet)
 
 	// User
-	userRepositoryDb := data.NewUserRepositoryDb(store)
-	userHandler := api.UserHandler{Service: service.NewUserService(userRepositoryDb, chatRoomHandler.RoomService.BroadcastUpdate), AssetService: service.NewAssetService()}
+	userHandler := api.UserHandler{
+		UserService: service.NewUserService(
+			userRepository,
+			chatRoomHandler.RoomService.BroadcastUpdate,
+			authRepository,
+			commentRepository,
+			voteRepository),
+		AssetService: service.NewAssetService(),
+	}
 	userRouter := apiRouter.PathPrefix("/user").Subrouter()
-	userRouter.HandleFunc("/", userHandler.FindAllUsers).Methods(http.MethodGet)
+	userRouter.HandleFunc("/", userHandler.GetAllUsers).Methods(http.MethodGet)
 	userRouter.HandleFunc("/", userHandler.UpdateUser).Methods(http.MethodPut)        // admin or current user
 	userRouter.HandleFunc("/image", userHandler.UpdateImage).Methods(http.MethodPut)  // current user only
 	userRouter.HandleFunc("/register", userHandler.Register).Methods(http.MethodPost) // admin only
-	userRouter.HandleFunc("/registered", userHandler.FindRegisteredUsers).Methods(http.MethodGet)
-	userRouter.HandleFunc("/{slug}", userHandler.FindOneUser).Methods(http.MethodGet)
-	userRouter.HandleFunc("/{slug}", userHandler.RemoveUser).Methods(http.MethodDelete) // admin only
+	userRouter.HandleFunc("/registered", userHandler.GetRegisteredUsers).Methods(http.MethodGet)
+	userRouter.HandleFunc("/{slug}", userHandler.GetOneUser).Methods(http.MethodGet)
+	userRouter.HandleFunc("/{slug}", userHandler.DeleteUser).Methods(http.MethodDelete) // admin only
 
 	// Vote
-	voteRepositoryDb := data.NewVoteRepositoryDb(store)
-	voteHandler := api.VoteHandler{Service: service.NewVoteService(voteRepositoryDb)}
+	voteHandler := api.VoteHandler{Service: service.NewVoteService(voteRepository)}
 	voteRouter := apiRouter.PathPrefix("/vote").Subrouter()
 	voteRouter.HandleFunc("/", voteHandler.UpdateVote).Methods(http.MethodPut) // current user only
 	voteRouter.HandleFunc("/results", voteHandler.GetResults).Methods(http.MethodGet)
