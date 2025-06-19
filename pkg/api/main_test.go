@@ -215,3 +215,24 @@ func newTestUserService() service.UserService {
 		voteRepository,
 	)
 }
+
+func newTestCommentService() service.CommentService {
+	commentRepository := data.NewCommentRepositoryDb(testDB)
+	return service.NewCommentService(commentRepository)
+}
+
+func newTestChatRoomService() *service.Room {
+	return service.NewRoom(newTestCommentService())
+}
+
+func getAdminSession() string {
+	authService := newTestAuthService()
+	auth, _, _ := authService.Login(adminAuthMock)
+	return auth.Token
+}
+
+func getRegularSession() string {
+	authService := newTestAuthService()
+	auth, _, _ := authService.Login(regularAuthMock)
+	return auth.Token
+}
