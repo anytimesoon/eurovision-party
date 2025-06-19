@@ -18,7 +18,8 @@
     let hasUserSelected = false
 
     function sort() {
-        results.sort($resultPageState.category, !sortByDescending)
+        sortByDescending = !sortByDescending
+        results.sort($resultPageState.category, sortByDescending)
     }
 
     $: if ($resultPageState.category) {
