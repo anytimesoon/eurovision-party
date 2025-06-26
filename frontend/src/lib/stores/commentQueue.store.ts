@@ -16,15 +16,14 @@ commentQueue.subscribe( val => {
 let socketState:boolean
 socketStateStore.subscribe(val => socketState = val)
 
-let socket:WebSocket
-socketStore.subscribe(val => socket = val)
+let socket:WebSocket | undefined
 
 function newCommentQueue() {
     const {subscribe, update} = writable(
-        browser && JSON.parse(
+        (browser && JSON.parse(
             localStorage.getItem("commentQueue") ||
             JSON.stringify(new Array<ChatMessageModel<CommentModel>>())
-        )
+        )) || new Array<ChatMessageModel<CommentModel>>()
     )
 
     return {
@@ -68,8 +67,17 @@ function addCommentHandler(chatMessage:ChatMessageModel<CommentModel>) {
     }
 }
 
+// Effectively private. Do not call from outside the queue
 function send(message: ChatMessageModel<CommentModel>) {
+    if(socket === undefined) {
+        connectToSocket()
+    }
+
     if(socket !== undefined) {
         socket.send(JSON.stringify(message))
     }
+}
+
+function connectToSocket() {
+    socketStore.subscribe(val => socket = val)
 }

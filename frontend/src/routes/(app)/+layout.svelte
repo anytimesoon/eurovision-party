@@ -6,9 +6,10 @@
   import {errorStore} from "$lib/stores/error.store";
   import Toaster from "$lib/components/Toaster.svelte";
   import {CountryModel} from "$lib/models/classes/country.model";
-  import {countryEP, userEP} from "$lib/models/enums/endpoints.enum";
+  import {chatEP, countryEP, userEP} from "$lib/models/enums/endpoints.enum";
   import {UserModel} from "$lib/models/classes/user.model";
   import {get} from "$lib/utils/genericFetch";
+  import {socketStore} from "$lib/stores/socket.store";
 
   let menu:HTMLElement
 
@@ -23,6 +24,8 @@
         for (const [key, value] of Object.entries(users)) {
             $userStore[key] = UserModel.deserialize(value)
         }
+
+        socketStore.connect(chatEP)
     })
 
   const closeMenu = () => {
