@@ -5,8 +5,6 @@
     import {NewUserModel} from "$lib/models/classes/newUser.model";
     import {authEP} from "$lib/models/enums/endpoints.enum";
     import {post} from "$lib/utils/genericFetch";
-    import {UserModel} from "$lib/models/classes/user.model";
-    import {userStore} from "$lib/stores/user.store";
     import {newUserStore} from "$lib/stores/newUser.store";
 
     let form: HTMLFormElement
@@ -17,10 +15,9 @@
         const fd = new FormData(form)
         const newUser = new NewUserModel(fd.get("name") as string)
 
-        const createdUser: UserModel = await post<UserModel, NewUserModel>(authEP.REGISTER, newUser)
-            .then(res => UserModel.deserialize(res))
-        $userStore[createdUser.id] = createdUser
-        $newUserStore = [...$newUserStore, newUser]
+        const createdUser: NewUserModel = await post<NewUserModel, NewUserModel>(authEP.REGISTER, newUser)
+            .then(res => NewUserModel.deserialize(res))
+        $newUserStore = [...$newUserStore, createdUser]
 
         form.reset()
 

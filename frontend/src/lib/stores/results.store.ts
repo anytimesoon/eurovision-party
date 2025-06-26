@@ -31,9 +31,7 @@ function sortResults(category: string, sortByDescending: boolean) {
     results.update(results => {
         const sortModifier = sortByDescending ? -1 : 1
         return results.sort((a, b) => {
-            if (sortByDescending) {
-                return b.getScore(category) - a.getScore(category) * sortModifier
-            }
+            return (b.getScore(category) - a.getScore(category)) * sortModifier
         })
     })
 }

@@ -1,5 +1,4 @@
 import {writable} from "svelte/store";
-import {chatEP} from "$lib/models/enums/endpoints.enum";
 import {chatMsgCat} from "$lib/models/enums/chatMsgCat";
 import {CommentModel} from "$lib/models/classes/comment.model";
 import {commentStore} from "$lib/stores/comment.store";
@@ -28,19 +27,28 @@ commentStore.subscribe(val => commentLog = val)
 export const socketStore = socket()
 let timeoutDuration = 1000 // in milis
 
+let cachedUrl: string
 
 function socket() {
-    let ws: WebSocket = connectToSocket()
+    let ws: WebSocket | null = null
     const {subscribe, update, set} = writable(ws)
     return {
         subscribe,
         update,
-        set
+        set,
+        send: (message: string) => ws.send(message),
+        connect: (url: string)=> {
+            if (!ws) {
+                cachedUrl = url
+                ws = connectToSocket(cachedUrl)
+                set(ws)
+            }
+        }
     }
 }
 
-function connectToSocket(){
-    let socket = new WebSocket(chatEP + session)
+function connectToSocket(url: string){
+    let socket = new WebSocket(url + session)
 
     socket.onopen = function () {
         console.log("You're connected. Welcome to the party!!!🎉")
@@ -64,7 +72,7 @@ function connectToSocket(){
         console.log("Connection stopped. Attempting to reconnect")
         socketRetryCount.increment()
         socketStateStore.isReady(false)
-        setTimeout(() => socketStore.set(connectToSocket()), timeoutDuration)
+        setTimeout(() => socketStore.set(connectToSocket(cachedUrl)), timeoutDuration)
     }
 
     socket.onmessage = function (event) {
@@ -88,12 +96,13 @@ function connectToSocket(){
                         break
                     case chatMsgCat.UPDATE_USER:
                         let updateMessage:UpdateMessageModel = chatMessage.body
-                        // user needs to be updated before message gets published
+                        // a user needs to be updated before a message gets published
                         userStore.update(users => {
-                            if (users[updateMessage.updatedUser.id].icon === updateMessage.updatedUser.icon) {
+                            const user = users.get(updateMessage.updatedUser.id)
+                            if (user.icon === updateMessage.updatedUser.icon) {
                                 updateMessage.updatedUser.icon += `?${Date.now()}`
                             }
-                            users[updateMessage.updatedUser.id] = updateMessage.updatedUser
+                            users.set(user.id, updateMessage.updatedUser)
                             return users
                         })
                         addNewComment(updateMessage.comment)
