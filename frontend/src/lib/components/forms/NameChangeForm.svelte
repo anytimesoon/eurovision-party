@@ -7,12 +7,17 @@
     import {UserModel} from "$lib/models/classes/user.model";
     import {userEP} from "$lib/models/enums/endpoints.enum";
 
-    export let formToggle: VoidFunction
+    interface Props {
+        formToggle: VoidFunction;
+    }
 
-    let formState = formButtonState.ENABLED
-    let form: HTMLFormElement
+    let { formToggle }: Props = $props();
 
-    const submit = async () => {
+    let formState = $state(formButtonState.ENABLED)
+    let form: HTMLFormElement = $state()
+
+    const submit = async (e: Event) => {
+        e.preventDefault()
         formState = formButtonState.SENDING;
 
         const formData = new FormData(form);
@@ -26,19 +31,18 @@
 
         const updatedUser = await put<UserModel, UserModel>(userEP.UPDATE, newUser)
             .then(res => UserModel.deserialize(res))
+
         $currentUser = updatedUser
-        $userStore[updatedUser.id] = updatedUser
+        $userStore.set(updatedUser.id, updatedUser)
 
-        form.reset()
         formToggle()
-
         formState = formButtonState.ENABLED
     }
 </script>
-<form on:submit|preventDefault={submit} bind:this={form}>
+<form onsubmit={e => submit(e)} bind:this={form}>
     <div class="w-fit mx-auto flex justify-center">
         <input class="mr-3" type="text" name="name" bind:value={$currentUser.name} placeholder="Change your name"/>
-        <FormButton state={formState}>
+        <FormButton buttonState={formState}>
             <ContentSave size="1.4em" />
         </FormButton>
     </div>

@@ -1,8 +1,17 @@
 <script lang="ts">
-    export let size:string = "l"
-    export let thickness:string = "l"
-    export let color:string = "primary"
-    export let isBlock:boolean = true
+    interface Props {
+        size?: string;
+        thickness?: string;
+        color?: string;
+        isBlock?: boolean;
+    }
+
+    let {
+        size = "l",
+        thickness = "l",
+        color = "primary",
+        isBlock = true
+    }: Props = $props();
 
     const sizeVariants = {
         s: 'w-3 h-3',
@@ -27,7 +36,7 @@
     let bThicknessClass = thicknessVariants[thickness] || thicknessVariants['l']
     let bColorClass = colorVariants[color] || colorVariants['primary']
 
-    $: blockOrInline = isBlock ? "flex h-full w-full items-center justify-center" : "inline-block"
+    let blockOrInline = $derived(isBlock ? "flex h-full w-full items-center justify-center" : "inline-block")
 </script>
 
 <div class="{blockOrInline}">

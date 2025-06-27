@@ -7,10 +7,11 @@
     import {post} from "$lib/utils/genericFetch";
     import {newUserStore} from "$lib/stores/newUser.store";
 
-    let form: HTMLFormElement
-    let formState = formButtonState.ENABLED
+    let form: HTMLFormElement = $state()
+    let formState = $state(formButtonState.ENABLED)
 
-    const submit = async () => {
+    const submit = async (e: Event) => {
+        e.preventDefault()
         formState = formButtonState.SENDING
         const fd = new FormData(form)
         const newUser = new NewUserModel(fd.get("name") as string)
@@ -25,10 +26,10 @@
     }
 </script>
 
-<form bind:this={form} on:submit|preventDefault={submit}>
+<form bind:this={form} onsubmit={e => submit(e)}>
     <div class="w-fit mx-auto flex justify-center">
         <input class="mr-3" id="new-user-name" type="text" name="name" placeholder="Name"/>
-        <FormButton state={formState}>
+        <FormButton buttonState={formState}>
             <ContentSave size="1.4em" /> Save
         </FormButton>
     </div>

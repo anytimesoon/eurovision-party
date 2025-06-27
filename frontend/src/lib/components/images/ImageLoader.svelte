@@ -3,10 +3,14 @@
     import IntersectionObserver from "$lib/components/images/IntersectionObserver.svelte";
     import Image from "$lib/components/images/Image.svelte";
 
-    export let src:string
-    export let alt:string
-    export let customClasses:string
-    let intersecting = false
+    interface Props {
+        src: string;
+        alt: string;
+        customClasses: string;
+    }
+
+    let { src, alt, customClasses }: Props = $props();
+    let intersecting = $state(false)
 
 </script>
 

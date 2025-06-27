@@ -6,8 +6,12 @@
     import {put} from "$lib/utils/genericFetch";
     import {countryStore} from "$lib/stores/country.store";
 
-    let formState = formButtonState.ENABLED
-    export let country:CountryModel
+    let formState = $state(formButtonState.ENABLED)
+    interface Props {
+        country: CountryModel;
+    }
+
+    let { country = $bindable() }: Props = $props();
 
     const submit = async (country: CountryModel) => {
         formState = formButtonState.SENDING
@@ -17,7 +21,7 @@
         formState = formButtonState.ENABLED
     }
 
-    $: borderColour = country.participating ? "border-primary" : "border-grey-400"
+    let borderColour = $derived(country.participating ? "border-primary" : "border-grey-400")
 </script>
 
 <li class="my-1.5 border-2 {borderColour} bg-canvas-secondary text-center w-full">
@@ -29,7 +33,7 @@
         <input name="bandName" type="hidden" bind:value={country.bandName}>
 
         <label for="check-{country.slug}" class="cursor-pointer">
-            <input type="checkbox" id="check-{country.slug}" name="participating" class="hidden" bind:checked={country.participating} on:change={() => submit(country)}>
+            <input type="checkbox" id="check-{country.slug}" name="participating" class="hidden" bind:checked={country.participating} onchange={() => submit(country)}>
             <span>
                 {#if formState === formButtonState.SENDING}
                     <Spinner size={"s"} thickness={"s"} isBlock={false}/>

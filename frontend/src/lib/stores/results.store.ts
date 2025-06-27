@@ -22,16 +22,16 @@ function newResultsStore() {
         update,
         set,
         refresh: async () => refresh(),
-        noScores: (): boolean => noScores(),
-        sort: (category: string, sortByDescending: boolean) => sortResults(category, sortByDescending),
+        hasScores: (): boolean => hasScores(),
+        sortResults: () => sortResults(),
     }
 }
 
-function sortResults(category: string, sortByDescending: boolean) {
+function sortResults() {
     results.update(results => {
-        const sortModifier = sortByDescending ? -1 : 1
+        const sortModifier = currentStatus.sortByDescending ? -1 : 1
         return results.sort((a, b) => {
-            return (b.getScore(category) - a.getScore(category)) * sortModifier
+            return (b.getScore(currentStatus.category) - a.getScore(currentStatus.category)) * sortModifier
         })
     })
 }
@@ -46,7 +46,7 @@ async function refresh() {
     }
 }
 
-function noScores():boolean {
+function hasScores():boolean {
     const filtered = currentResults.filter((res) => res.total > 0)
-    return filtered.length === 0
+    return filtered.length > 0
 }

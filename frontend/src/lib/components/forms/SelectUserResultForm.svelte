@@ -8,9 +8,13 @@
     import {voteEP} from "$lib/models/enums/endpoints.enum";
     import {ResultModel} from "$lib/models/classes/result.model";
 
-    export let showTitle = false
-    let userArray = [...new Map(Object.entries($userStore))]
-    let currentCat: string
+    interface Props {
+        showTitle?: boolean;
+    }
+
+    let { showTitle = false }: Props = $props();
+    let userArray = $userStore.entries()
+    let currentCat: string = $state()
 
     const changeCat = () => {
         $resultPageState.category = currentCat
@@ -40,7 +44,7 @@
                 <select class="w-full text-center py-2"
                         name="id"
                         bind:value={$resultPageState.userId}
-                        on:change={() => submit()}>
+                        onchange={() => submit()}>
                     <option value="">Everyone</option>
                     {#each userArray as userInfo}
                         {#if userInfo[1].authLvl !== authLvl.BOT}
@@ -62,7 +66,7 @@
             <select class="w-full text-center py-2 capitalize"
                     name="id"
                     bind:value={currentCat}
-                    on:change={changeCat}>
+                    onchange={changeCat}>
                 <option selected={$resultPageState.category === voteCats.TOTAL}
                         value={voteCats.TOTAL}>
                     Total

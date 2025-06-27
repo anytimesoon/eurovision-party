@@ -13,10 +13,10 @@
     import ChatInputForm from "$lib/components/forms/ChatInputForm.svelte";
     import ImageLoader from "$lib/components/images/ImageLoader.svelte";
 
-    let openModal:VoidFunction
-    let closeModal:VoidFunction
-    let userWithActiveAvatar:UserModel = UserModel.empty()
-    let showCommentHistory = false
+    let openModal:VoidFunction = $state()
+    let closeModal:VoidFunction = $state()
+    let userWithActiveAvatar:UserModel = $state(UserModel.empty())
+    let showCommentHistory = $state(false)
 
     const openAvatarModal = (user:UserModel) => {
         userWithActiveAvatar = user
@@ -42,14 +42,14 @@
             {@const reverseIndex = $recentComments.length - 1 - index}
             {@const comment = $recentComments[reverseIndex]}
             <ChatBubble comment={comment}
-                        user={$userStore[comment.userId]}
+                        user={$userStore.get(comment.userId)}
                         isCurrentUser={($currentUser.id === comment.userId)}
                         openAvatarModal={openAvatarModal}/>
         {/each}
 
         {#if $olderComments.length > 0 && !showCommentHistory}
             <div class="p-3 mx-auto">
-                <button on:click={() => showCommentHistory = true} class="drop-shadow-lg">
+                <button onclick={() => showCommentHistory = true} class="drop-shadow-lg">
                     <span class="flex">
                         <Reload size="1.2em" class="pt-1 pr-0.5"/> Load older comments <CursorDefaultClick size="1.2em" class="pt-1 pl-0.5"/>
                     </span>
@@ -60,7 +60,7 @@
                 {@const reverseIndex = $olderComments.length - 1 - index}
                 {@const comment = $olderComments[reverseIndex]}
                 <ChatBubble comment={comment}
-                            user={$userStore[comment.userId]}
+                            user={$userStore.get(comment.userId)}
                             isCurrentUser={($currentUser.id === comment.userId)}
                             openAvatarModal={openAvatarModal}/>
             {/each}

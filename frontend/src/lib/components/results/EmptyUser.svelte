@@ -8,7 +8,7 @@
 <div class="text-center">
     <h1 class="font-sans">🤷</h1>
     <p>
-        Looks like {$userStore[$resultPageState.userId].name} hasn't voted yet.
+        Looks like {$userStore.get($resultPageState.userId).name} hasn't voted yet.
     </p>
     <SelectUserResultForm />
     <ResetUserResultForm />

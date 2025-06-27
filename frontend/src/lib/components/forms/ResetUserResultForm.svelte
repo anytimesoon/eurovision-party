@@ -5,13 +5,13 @@
 
     const resetFilters = async () => {
         resultPageState.reset()
-        results.refresh()
+        await results.refresh()
     }
 </script>
 
 
 
-<button class="bg-canvas-primary border-2 border-primary pl-2" on:click={resetFilters}>
+<button class="bg-canvas-primary border-2 border-primary pl-2" onclick={resetFilters}>
     <span class="flex text-sm"><Refresh size="1.3em" class="pt-0.5"/> Reset</span>
 </button>
 

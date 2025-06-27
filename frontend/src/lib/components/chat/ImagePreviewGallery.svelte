@@ -3,9 +3,13 @@
     import { scale } from 'svelte/transition';
     import CloseCircleOutline from "svelte-material-icons/CloseCircleOutline.svelte";
 
-    export let previewImage:string
-    export let fileName = ""
-    export let cancelUpload:VoidFunction
+    interface Props {
+        previewImage: string;
+        fileName?: string;
+        cancelUpload: VoidFunction;
+    }
+
+    let { previewImage, fileName = "", cancelUpload }: Props = $props();
 </script>
 
 {#if fileName !== ``}
@@ -14,7 +18,7 @@
             <img src={previewImage} alt="preview" class="h-[60px]"/>
         </div>
         <div class="pl-3">
-            <button on:click={cancelUpload}>
+            <button onclick={cancelUpload}>
                 <CloseCircleOutline />
             </button>
         </div>

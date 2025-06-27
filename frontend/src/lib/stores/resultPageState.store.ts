@@ -26,7 +26,7 @@ function reset() {
 }
 
 function isDefault(): boolean {
-    return currentState.userId === "" && currentState.category === voteCats.TOTAL
+    return currentState.userId === "" && currentState.category === voteCats.TOTAL && !currentState.sortByDescending
 }
 
 function hasUserSelected(): boolean {

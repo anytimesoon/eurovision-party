@@ -8,24 +8,26 @@
     import ImageLoader from "$lib/components/images/ImageLoader.svelte";
     import NameChangeForm from "$lib/components/forms/NameChangeForm.svelte";
 
-    // export let form:ActionData
-    let hideNameForm = true
-    let openModal:VoidFunction
-    let closeModal:VoidFunction
-    let theme = localStorage.getItem("theme")
+    let hideNameForm = $state(true)
+    let openModal:VoidFunction = $state()
+    let closeModal:VoidFunction = $state()
+    let theme = $state(localStorage.getItem("theme"))
 
     function formToggle() {
         hideNameForm = !hideNameForm
     }
 
-    $: if(theme) {
-        localStorage.setItem("theme", theme)
-        document.querySelector("html")?.setAttribute("data-theme", theme)
-    }
+    $effect(() => {
+        if(theme) {
+            localStorage.setItem("theme", theme)
+            document.querySelector("html")?.setAttribute("data-theme", theme)
+        }
+    });
+
 
 </script>
 
-{#if $currentUser.isAdmin() }
+{#if $currentUser.isAdmin()}
     <AdminNav page="settings"/>
 {/if}
 
@@ -37,9 +39,9 @@
     <h2 class="text-center">Personal Settings</h2>
     <div class="py-3">
         <div class="max-w-max mx-auto">
-        {#if hideNameForm }
+        {#if hideNameForm}
             <span class="inline-block text-2xl">{$currentUser.name}
-                <button on:click={formToggle} class="py-2 px-2">
+                <button onclick={formToggle} class="py-2 px-2">
                     <FileEditOutline size="0.75em"/>
                 </button>
             </span>
@@ -51,7 +53,7 @@
 
     <div class="w-[10rem] h-[10rem] mx-auto relative rounded overflow-hidden">
         <ImageLoader customClasses="w-full" src={staticEP.AVATAR_IMG + $currentUser.icon} alt={$currentUser.name + "'s avatar"}/>
-        <button class="absolute top-2 right-2 cursor-pointer py-2 px-2 rounded" on:click={openModal}>
+        <button class="absolute top-2 right-2 cursor-pointer py-2 px-2 rounded" onclick={openModal}>
             <FileEditOutline/>
         </button>
     </div>

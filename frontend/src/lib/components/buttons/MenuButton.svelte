@@ -1,10 +1,14 @@
 <script lang="ts">
     import {onMount} from "svelte";
 
-    export let navName:string = ""
-    export let dest:string = ""
-    export let menu:HTMLElement
-    let element:HTMLElement
+    interface Props {
+        navName?: string;
+        dest?: string;
+        menu: HTMLElement;
+    }
+
+    let { navName = "", dest = "", menu }: Props = $props();
+    let element:HTMLElement = $state()
 
     onMount(() => {
         if(navName === "Vote"){
@@ -15,7 +19,7 @@
         }
     })
 
-    $: icon = ():string => {
+    let icon = $derived(():string => {
         switch (navName){
             case "Chat":
                 return "🗨"
@@ -28,7 +32,7 @@
             default:
                 return ""
         }
-    }
+    })
 </script>
 
 <a href={dest} class="block">

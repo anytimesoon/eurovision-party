@@ -7,11 +7,16 @@
     import {countryStore} from "$lib/stores/country.store";
     import {put} from "$lib/utils/genericFetch";
 
-    let formState = formButtonState.ENABLED
-    export let country:CountryModel
-    let form:HTMLFormElement
+    let formState = $state(formButtonState.ENABLED)
+    interface Props {
+        country: CountryModel;
+    }
 
-    const submit = async () => {
+    let { country = $bindable() }: Props = $props();
+    let form:HTMLFormElement = $state()
+
+    const submit = async (e: Event) => {
+        e.preventDefault()
         formState = formButtonState.SENDING
         const fd = new FormData(form)
         const newCountry = new CountryModel(
@@ -32,12 +37,12 @@
 
 </script>
 
-<form bind:this={form} on:submit|preventDefault={submit}>
+<form bind:this={form} onsubmit={e => submit(e)}>
     <input class="mb-3" id="{country.slug}-song" name="songName" type="text" bind:value={country.songName} placeholder="Song Title">
 
     <input class="mb-3" id="{country.slug}-act" name="bandName" type="text" bind:value={country.bandName} placeholder="Act Name">
 
-    <FormButton state={formState}>
+    <FormButton buttonState={formState}>
         <ContentSave size="1.4em" /> Save
     </FormButton>
 </form>

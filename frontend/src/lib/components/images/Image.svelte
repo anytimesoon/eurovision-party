@@ -2,12 +2,16 @@
     import { onMount } from 'svelte'
     import {sessionStore} from "$lib/stores/session.store";
 
-    export let src:string
-    export let alt:string
-    export let customClasses:string
-    let loaded = false
-    let thisImage:HTMLImageElement
-    let imageBlobUrl:string = ""
+    interface Props {
+        src: string;
+        alt: string;
+        customClasses: string;
+    }
+
+    let { src, alt, customClasses }: Props = $props();
+    let loaded = $state(false)
+    let thisImage:HTMLImageElement = $state()
+    let imageBlobUrl:string = $state("")
 
     onMount(async () => {
         thisImage.onload = () => {
@@ -27,11 +31,13 @@
         imageBlobUrl = URL.createObjectURL(blob);
     }
 
-    $: imageOpacity = loaded ? "opacity-100" : "opacity-0"
-    $: pulse = loaded ? "" : "bg-canvas-secondary animate-pulse"
-    $: if (src) {
-        refresh()
-    }
+    let imageOpacity = $derived(loaded ? "opacity-100" : "opacity-0")
+    let pulse = $derived(loaded ? "" : "bg-canvas-secondary animate-pulse")
+    $effect(() => {
+        if (src) {
+            refresh()
+        }
+    });
 </script>
 
 <div class="{pulse} h-full w-full">

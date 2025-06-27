@@ -10,12 +10,21 @@
     import ImageLoader from "$lib/components/images/ImageLoader.svelte";
     import {replyComment} from "$lib/stores/replyComment.store";
 
-    export let comment:CommentModel
-    export let user:UserModel
-    export let isCurrentUser:boolean
-    export let openAvatarModal:Function = () => {}
-    let shouldShowReplyMenu:boolean = false
-    let bubble:HTMLDivElement
+    interface Props {
+        comment: CommentModel;
+        user: UserModel;
+        isCurrentUser: boolean;
+        openAvatarModal?: Function;
+    }
+
+    let {
+        comment,
+        user,
+        isCurrentUser,
+        openAvatarModal = () => {}
+    }: Props = $props();
+    let shouldShowReplyMenu:boolean = $state(false)
+    let bubble:HTMLDivElement = $state()
 
     function swipedHandler() {
         bubble.style.right = "0px"
@@ -41,13 +50,13 @@
         replyComment.set(comment)
     }
 
-    $: userNameStyle = isCurrentUser ? "text-right" : ""
-    $: currentUserBubbleContainer = isCurrentUser ? "ml-auto justify-end" : ""
-    $: currentUserImage = isCurrentUser ? "order-last ml-2" : "mr-2"
-    $: currentUserBubble = isCurrentUser ? "bg-chat-bubble-me" : "bg-chat-bubble-you"
-    $: roundedCorners = isCurrentUser ? "rounded-l-md rounded-r-sm" : "rounded-r-md rounded-l-sm"
-    $: compactBubble = comment.isCompact ? "mt-[0.1rem]" : "mt-3"
-    $: menuPadding = (shouldShowReplyMenu && comment.isCompact) ? "pt-5" : ""
+    let userNameStyle = $derived(isCurrentUser ? "text-right" : "")
+    let currentUserBubbleContainer = $derived(isCurrentUser ? "ml-auto justify-end" : "")
+    let currentUserImage = $derived(isCurrentUser ? "order-last ml-2" : "mr-2")
+    let currentUserBubble = $derived(isCurrentUser ? "bg-chat-bubble-me" : "bg-chat-bubble-you")
+    let roundedCorners = $derived(isCurrentUser ? "rounded-l-md rounded-r-sm" : "rounded-r-md rounded-l-sm")
+    let compactBubble = $derived(comment.isCompact ? "mt-[0.1rem]" : "mt-3")
+    let menuPadding = $derived((shouldShowReplyMenu && comment.isCompact) ? "pt-5" : "")
 </script>
 
 {#if user && user.authLvl === authLvl.BOT}
@@ -57,11 +66,11 @@
 {:else if user}
 
     <div use:swipeable
-         on:swiping={swipingHandler}
-         on:swipedright={swipedRightHandler}
-         on:swiped={swipedHandler}
-         on:mouseenter={() =>{shouldShowReplyMenu = true}}
-         on:mouseleave={() => shouldShowReplyMenu = false}
+         onswiping={swipingHandler}
+         onswipedright={swipedRightHandler}
+         onswiped={swipedHandler}
+         onmouseenter={() =>{shouldShowReplyMenu = true}}
+         onmouseleave={() => shouldShowReplyMenu = false}
          bind:this={bubble}
          id="{comment.id}"
          class="flex w-full max-w-[22rem] relative {currentUserBubbleContainer} {compactBubble} transition-all"
@@ -72,7 +81,7 @@
             {#if !isCurrentUser}
                 <div class="w-10 h-10 mr-1 rounded-full overflow-hidden">
                     {#if !comment.isCompact}
-                        <div on:mouseup={() => openAvatarModal(user)} role="button" tabindex="0">
+                        <div onmouseup={() => openAvatarModal(user)} role="button" tabindex="0">
                             <ImageLoader customClasses="cursor-pointer {currentUserImage}"
                                          src={staticEP.AVATAR_IMG + user.icon} alt={user.name + "'s avatar"}/>
                         </div>

@@ -7,7 +7,7 @@
 <div class="pt-3">
     {#each $commentQueue as chatMessage}
             <ChatBubble comment={chatMessage.body}
-                        user={$userStore[chatMessage.body.userId]}
+                        user={$userStore.get(chatMessage.body.userId)}
                         isCurrentUser={true}/>
     {/each}
 </div>
