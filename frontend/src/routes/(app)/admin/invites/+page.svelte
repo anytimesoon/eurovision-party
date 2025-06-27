@@ -45,7 +45,7 @@
                         <h3>{user.name}</h3>
                         <p>Send the magic link to {user.name} so they can log in</p>
                         <div class="flex justify-center space-x-2 p-3">
-                            <button on:click={(e) => copyLink(user, e)}>
+                            <button onclick={(e) => copyLink(user, e)}>
                                 <span class="flex"><ContentCopy size="1.4em"/> Copy</span>
                             </button>
                         </div>

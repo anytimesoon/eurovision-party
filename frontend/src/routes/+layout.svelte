@@ -1,5 +1,10 @@
 <script lang="ts">
     import "../app.css";
+    interface Props {
+        children?: import('svelte').Snippet;
+    }
+
+    let { children }: Props = $props();
 
     let theme:string
 
@@ -20,4 +25,4 @@
     <link rel="preload" as="font" href="/font/edo.ttf" />
 </svelte:head>
 
-<slot />
+{@render children?.()}

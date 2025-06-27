@@ -12,7 +12,11 @@
     import {redirect} from "@sveltejs/kit";
     import {UserModel} from "$lib/models/classes/user.model";
 
-    export let data: PageData;
+    interface Props {
+        data: PageData;
+    }
+
+    let { data }: Props = $props();
 
     onMount(async () => {
         const res = await fetch(authEP.LOGIN, {

@@ -3,9 +3,13 @@
     import IntersectionObserver from "$lib/components/images/IntersectionObserver.svelte";
     import Video from "$lib/components/images/Video.svelte";
 
-    export let src:string
-    export let customClasses:string
-    let intersecting = false
+    interface Props {
+        src: string;
+        customClasses: string;
+    }
+
+    let { src, customClasses }: Props = $props();
+    let intersecting = $state(false)
 
 </script>
 

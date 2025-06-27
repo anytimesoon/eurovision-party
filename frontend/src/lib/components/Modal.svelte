@@ -3,30 +3,39 @@
     import { fade } from 'svelte/transition';
     import {cubicInOut} from "svelte/easing";
 
-    // this flag makes it so the modal will close if the user clicks anywhere on the screen
-    export let isEasilyClosable:boolean = false
-    let shouldDisplay = false
+    
+    interface Props {
+        // this flag makes it so the modal will close if the user clicks anywhere on the screen
+        isEasilyClosable?: boolean;
+        children?: import('svelte').Snippet;
+        openModal?: () => void;
+        closeModal?: () => void;
+    }
 
-    export const openModal = () => {
+    let { isEasilyClosable = false, children, openModal = $bindable(), closeModal = $bindable() }: Props = $props();
+    let shouldDisplay = $state(false)
+
+    openModal = () => {
         shouldDisplay = true
+
     }
 
-    export const closeModal = () => {
+    closeModal = () => {
         shouldDisplay = false
-    }
 
+    }
     const closeModalCheck = () => {
         if (isEasilyClosable) {
             closeModal()
         }
-    }
 
-    $: optionalPadding = isEasilyClosable ? "" : "p-3"
+    }
+    let optionalPadding = $derived(isEasilyClosable ? "" : "p-3")
 </script>
 
 {#if shouldDisplay}
     <!-- Overlay -->
-    <div transition:fade|global={{ duration: 300, easing: cubicInOut }} class="fixed inset-0 z-10 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full" on:mouseup={closeModalCheck} role="button" tabindex="0">
+    <div transition:fade|global={{ duration: 300, easing: cubicInOut }} class="fixed inset-0 z-10 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full" onmouseup={closeModalCheck} role="button" tabindex="0">
 
         <!-- Modal window -->
         <div class="relative top-20 {optionalPadding} border border-secondary max-w-screen-sm mx-auto shadow-lg rounded-md bg-canvas-secondary">
@@ -36,14 +45,14 @@
                 {#if !isEasilyClosable}
                     <!-- Close button -->
                     <div class="absolute top-2 right-3">
-                        <button class="bg-transparent" on:click={closeModal}>
+                        <button class="bg-transparent" onclick={closeModal}>
                             <CloseCircleOutline size="1.5em"/>
                         </button>
                     </div>
                 {/if}
 
                 <!-- Content -->
-                <slot />
+                {@render children?.()}
 
             </div>
         </div>

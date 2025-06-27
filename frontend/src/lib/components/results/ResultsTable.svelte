@@ -10,31 +10,27 @@
     import EmptyTotal from "$lib/components/results/EmptyTotal.svelte";
     import EmptyUser from "$lib/components/results/EmptyUser.svelte";
 
-    let sortByDescending = true
-    let openModal:VoidFunction
-    let closeModal:VoidFunction
-    let hasScores = false
-    let isDefaultState = true
-    let hasUserSelected = false
+    let openModal:VoidFunction = $state()
+    let closeModal:VoidFunction = $state()
+    let isDefaultState:boolean = $state(resultPageState.isDefault())
+    let hasScores:boolean = $state(results.hasScores())
+    let hasUserSelected:boolean = $state(resultPageState.hasUserSelected())
+
+    $effect(() => {
+        if ($results) {
+            hasScores = results.hasScores()
+        }
+        if ($resultPageState) {
+            isDefaultState = resultPageState.isDefault()
+            hasUserSelected = resultPageState.hasUserSelected()
+        }
+    })
 
     function sort() {
-        sortByDescending = !sortByDescending
-        results.sort($resultPageState.category, sortByDescending)
+        $resultPageState.sortByDescending = !$resultPageState.sortByDescending
+        results.sortResults()
     }
 
-    $: if ($resultPageState.category) {
-        sortByDescending = true
-        sort()
-    }
-
-    $: if ($results) {
-        hasScores = results.noScores()
-    }
-
-    $: if ($resultPageState) {
-        isDefaultState = resultPageState.isDefault()
-        hasUserSelected = resultPageState.hasUserSelected()
-    }
 </script>
 
 <Modal bind:openModal={openModal} bind:closeModal={closeModal}>
@@ -42,9 +38,9 @@
 </Modal>
 
 
-{#if hasScores && isDefaultState}
+{#if !hasScores && isDefaultState}
     <EmptyTotal />
-{:else if hasScores && hasUserSelected }
+{:else if !hasScores && hasUserSelected}
     <EmptyUser />
 {:else}
 
@@ -53,7 +49,7 @@
             <tr>
                 <th>
                     <div class="flex align-end">
-                        <button class="cursor-pointer py-2 px-2 rounded" on:click={openModal}>
+                        <button class="cursor-pointer py-2 px-2 rounded" onclick={openModal}>
                             <span class="flex"><Filter size="1.2em" class="pt-0.5 pl-0.5"/> Filter</span>
                         </button>
                         {#if !isDefaultState}
@@ -63,7 +59,7 @@
                         {/if}
                     </div>
                 </th>
-                <th on:click={() => sort()} class="capitalize cursor-pointer">
+                <th onclick={() => sort()} class="capitalize cursor-pointer">
                     <div class="flex justify-center">
                         {$resultPageState.category} <Sort size="1.4em" class="pl-1.5"/>
                     </div>

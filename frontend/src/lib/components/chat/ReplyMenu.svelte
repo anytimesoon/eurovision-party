@@ -1,10 +1,14 @@
 <script lang="ts">
     import Reply from "svelte-material-icons/Reply.svelte";
 
-    export let replyButtonHandler:Function
+    interface Props {
+        replyButtonHandler: Function;
+    }
+
+    let { replyButtonHandler }: Props = $props();
 </script>
 
-<div on:mouseup={replyButtonHandler} class="absolute
+<div onmouseup={replyButtonHandler} class="absolute
                                             -top-4
                                             right-2
                                             bg-primary

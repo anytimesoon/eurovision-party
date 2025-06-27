@@ -1,20 +1,19 @@
 <script lang="ts">
     import type {VoteModel} from "$lib/models/classes/vote.model";
-    import type {CountryModel} from "$lib/models/classes/country.model";
     import type {PageData} from './$types';
     import VoteForm from "$lib/components/forms/VoteForm.svelte";
 
-    export let data:PageData
-    let country:CountryModel = data.country
-    let vote:VoteModel = data.vote
+    interface Props {
+        data: PageData;
+    }
+
+    let { data }: Props = $props();
+    let country = $derived(data.country)
+    let vote = $derived(data.vote)
 
     const updateVote = (newVote: VoteModel) => {
         vote = newVote
     }
-
-
-    $: country = data.country
-    $: vote = data.vote
 </script>
 
 <div class="h-full overflow-auto p-3">

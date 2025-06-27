@@ -10,8 +10,13 @@
   import {UserModel} from "$lib/models/classes/user.model";
   import {get} from "$lib/utils/genericFetch";
   import {socketStore} from "$lib/stores/socket.store";
+  interface Props {
+    children?: import('svelte').Snippet;
+  }
 
-  let menu:HTMLElement
+  let { children }: Props = $props();
+
+  let menu:HTMLElement = $state()
 
     onMount(async () => {
         menu = document.getElementById("menu")
@@ -22,7 +27,7 @@
 
         const users = await get(userEP.ALL)
         for (const [key, value] of Object.entries(users)) {
-            $userStore[key] = UserModel.deserialize(value)
+            $userStore.set(key, UserModel.deserialize(value))
         }
 
         socketStore.connect(chatEP)
@@ -42,7 +47,7 @@
   };
 
 </script>
-<svelte:window on:click={handleWindowClick} />
+<svelte:window onclick={handleWindowClick} />
 
 {#if $errorStore !== ""}
     <Toaster />
@@ -50,7 +55,7 @@
 
 <main class="h-screen max-w-screen-sm mx-auto px-3 relative flex flex-col">
     <div id="content" class="flex-1 pb-4 overflow-hidden">
-        <slot />
+        {@render children?.()}
     </div>
 
     <nav class="flex w-full items-center justify-between pb-1">
@@ -68,7 +73,7 @@
       <ul class="list-none">
         {#each $participatingCountryStore as country}
           <li class="py-2">
-              <a href="/country/{country.slug}" on:click={closeMenu} class="text-[1.25rem] block">
+              <a href="/country/{country.slug}" onclick={closeMenu} class="text-[1.25rem] block">
                   {country.flag} {country.name}
               </a>
           </li>

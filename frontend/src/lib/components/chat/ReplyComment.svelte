@@ -7,30 +7,32 @@
     import {staticEP} from "$lib/models/enums/endpoints.enum";
     import ImageLoader from "$lib/components/images/ImageLoader.svelte";
 
-    let shouldDisplay = false
-    let fileName = ""
+    let shouldDisplay = $state(false)
+    let fileName = $state("")
 
     function close() {
         shouldDisplay = false
         replyComment.close()
     }
 
-    $: if($replyComment) {
-        shouldDisplay = $replyComment.text !== "" || $replyComment.fileName !== ""
-        fileName = $replyComment.fileName
-    }
+    $effect(() => {
+        if($replyComment) {
+            shouldDisplay = $replyComment.text !== "" || $replyComment.fileName !== ""
+            fileName = $replyComment.fileName
+        }
+    });
 
 </script>
 
 {#if shouldDisplay}
     <div transition:scale|global={{ duration: 500, opacity: 0.5, easing: quintInOut }} class="bg-canvas-primary p-2 mb-2 rounded text-typography-main text-xs relative">
-        <button class="bg-transparent absolute top-1 right-1"  on:click={close}>
+        <button class="bg-transparent absolute top-1 right-1"  onclick={close}>
             <CloseCircleOutline />
         </button>
 
-        {#if $replyComment.userId !== undefined}
+        {#if $replyComment.userId !== undefined && $userStore.get($replyComment.userId) !== undefined}
             <div class="pb-2">
-                {$userStore[$replyComment.userId].name}
+                {$userStore.get($replyComment.userId).name}
             </div>
         {/if}
         <div class="flex">

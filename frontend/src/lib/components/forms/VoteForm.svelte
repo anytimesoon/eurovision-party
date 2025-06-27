@@ -9,16 +9,25 @@
     import {voteEP} from "$lib/models/enums/endpoints.enum";
     import {put} from "$lib/utils/genericFetch";
 
-    export let vote:VoteModel
-    export let catName:string
-    export let countrySlug:string
-    export let updateVote: (vote: VoteModel) => void
+    interface Props {
+        vote: VoteModel;
+        catName: string;
+        countrySlug: string;
+        updateVote: (vote: VoteModel) => void;
+    }
+
+    let {
+        vote,
+        catName,
+        countrySlug,
+        updateVote
+    }: Props = $props();
     const localOptions = voteOptions.slice()
     let isFetching:boolean = false
-    let cat:string
-    let score:number
-    let icon:string
-    let formState = formButtonState.ENABLED
+    let cat:string = $state()
+    let score:number = $state()
+    let icon:string = $state()
+    let formState = $state(formButtonState.ENABLED)
 
     const submit = async (newValue: number) => {
         formState = formButtonState.SENDING
@@ -61,24 +70,26 @@
         }
     })
 
-    $: if(vote) {
-        switch (catName) {
-            case "Song":
-                score = vote.song
-                break
-            case "Performance":
-                score = vote.performance
-                break
-            case "Costumes":
-                score = vote.costume
-                break
-            case "Staging and Props":
-                score = vote.props
-                break
+    $effect(() => {
+        if(vote) {
+            switch (catName) {
+                case "Song":
+                    score = vote.song
+                    break
+                case "Performance":
+                    score = vote.performance
+                    break
+                case "Costumes":
+                    score = vote.costume
+                    break
+                case "Staging and Props":
+                    score = vote.props
+                    break
+            }
         }
-    }
+    });
 
-    $: shouldRotate = formState == formButtonState.SENDING ? "animate-spin" : ""
+    let shouldRotate = $derived(formState == formButtonState.SENDING ? "animate-spin" : "")
 </script>
 
 <div class="py-5">
@@ -102,7 +113,7 @@
                        bind:group={score}
                        value={key}
                        name="score"
-                       on:click={() => {
+                       onclick={() => {
                            submit(key)
                        }}/>
                 <label

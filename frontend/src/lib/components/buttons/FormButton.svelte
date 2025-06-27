@@ -1,12 +1,14 @@
+<!-- @migration-task Error while migrating Svelte code: can't migrate `let isDisabled:boolean = true` to `$state` because there's a variable named state.
+     Rename the variable and try again or migrate by hand. -->
 <script lang="ts">
     import {formButtonState} from "$lib/models/enums/formButtonState.enum";
     import Spinner from "$lib/components/Spinner.svelte";
 
-    export let state:number
+    export let buttonState:number
     let isDisabled:boolean = true
 
-    $: if (state){
-        switch (state) {
+    $: if (buttonState){
+        switch (buttonState) {
             case formButtonState.ENABLED:
                 isDisabled = false
                 break
@@ -20,7 +22,7 @@
 
 
 <button type="submit" disabled={isDisabled} class="{disabledClass} flex" >
-    {#if state === formButtonState.SENDING}
+    {#if buttonState === formButtonState.SENDING}
         <Spinner size={"sm"} thickness={"s"} />
     {:else}
         <slot/>

@@ -13,15 +13,19 @@
     import {sessionStore} from "$lib/stores/session.store";
 
     const authorizedExtensions = ['image/jpg', 'image/jpeg', 'image/png']
-    let cropArea:ImageCropArea = new ImageCropArea()
-    let img:string = staticEP.AVATAR_IMG + $currentUser.icon
-    let formState = formButtonState.DISABLED
-    let imageFiles:FileList
-    let imageFile:File
-    let aspect = 1
+    let cropArea:ImageCropArea = $state(new ImageCropArea())
+    let img:string = $state(staticEP.AVATAR_IMG + $currentUser.icon)
+    let formState = $state(formButtonState.DISABLED)
+    let imageFiles:FileList = $state()
+    let imageFile:File = $state()
+    let aspect = $state(1)
     let controller:AbortController
     let fileName = ""
-    export let closer:VoidFunction
+    interface Props {
+        closer: VoidFunction;
+    }
+
+    let { closer }: Props = $props();
 
     let updateCrop = (e:CustomEvent) => {
         let pix:CropArea = e.detail.pixels
@@ -32,23 +36,26 @@
     }
 
 
-    $: if(imageFiles) {
-        imageFile = imageFiles[0]
+    $effect(() => {
+        if(imageFiles) {
+            imageFile = imageFiles[0]
 
-        if (authorizedExtensions.includes(imageFile.type)) {
-            formState = formButtonState.ENABLED
+            if (authorizedExtensions.includes(imageFile.type)) {
+                formState = formButtonState.ENABLED
 
-            let reader = new FileReader()
-            reader.onload = e => {
-                img = e.target.result as string
+                let reader = new FileReader()
+                reader.onload = e => {
+                    img = e.target.result as string
+                }
+                reader.readAsDataURL(imageFile)
+            } else {
+                $errorStore = "Only jpeg and png files are allowed"
             }
-            reader.readAsDataURL(imageFile)
-        } else {
-            $errorStore = "Only jpeg and png files are allowed"
         }
-    }
+    });
 
-    const send = async () => {
+    const send = async (e: Event) => {
+        e.preventDefault()
         formState = formButtonState.SENDING
 
         const cropped = await cropImage(imageFile, cropArea)
@@ -208,7 +215,7 @@
     }
 </script>
 
-<form on:submit|preventDefault={send}>
+<form onsubmit={e => send(e)}>
     <div class="h-60 w-60 relative mx-auto">
         {#if formState === formButtonState.DISABLED}
             <div class="p-3 overflow-hidden">
@@ -231,7 +238,7 @@
                 <span class="flex"><ImagePic size="1.4em"/> Browse</span>
                 <input id="avatar" name="img" class="hidden" type="file" accept={authorizedExtensions.join(',')} bind:files={imageFiles}>
             </label>
-            <FormButton state={formState}>
+            <FormButton buttonState={formState}>
                 <ContentSave size="1.4em" /> Save
             </FormButton>
         </div>

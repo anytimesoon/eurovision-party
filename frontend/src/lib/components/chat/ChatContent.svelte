@@ -10,35 +10,42 @@
     import {emojiRegex, urlRegex} from "$lib/utils/regex";
     import VideoLoader from "$lib/components/images/VideoLoader.svelte";
 
-    export let comment:CommentModel
-    export let isCurrentUser:boolean
-    let commentElement:HTMLParagraphElement = document.createElement("p")
-    const SUPPORTED_VIDEO_TYPES = ['mp4', 'webm']
-
-    $: if(comment) {
-        const linkifiedText = comment.text.replace(urlRegex, function(url:string) {
-            return '<a href="' + url + '" target="_blank" rel="noopener noreferrer">' + url + '</a>'
-        })
-
-        const emojiCount = linkifiedText.match(emojiRegex) ? linkifiedText.match(emojiRegex).length : 0
-        const noEmojis = linkifiedText.replace(emojiRegex, "").length
-
-        const processedText = linkifiedText.replace(emojiRegex, function(emoji:string) {
-            if(emojiCount <= 3 && noEmojis === 0) {
-                return '<span class="text-[3em] -tracking-[0.35em]">' + emoji + '</span>'
-            }
-            return '<span class="text-lg -tracking-[0.25em]">' + emoji + '</span>'
-        })
-        const parser = new DOMParser
-        const htmlDoc = parser.parseFromString(processedText, "text/html")
-        commentElement.innerHTML = htmlDoc.body.innerHTML
+    interface Props {
+        comment: CommentModel;
+        isCurrentUser: boolean;
     }
 
-    function removeMessage() {
+    let { comment, isCurrentUser }: Props = $props();
+    let commentElement:HTMLParagraphElement = $state(document.createElement("p"))
+    const SUPPORTED_VIDEO_TYPES = ['mp4', 'webm']
+
+    $effect(() => {
+        if(comment) {
+            const linkifiedText = comment.text.replace(urlRegex, function(url:string) {
+                return '<a href="' + url + '" target="_blank" rel="noopener noreferrer">' + url + '</a>'
+            })
+
+            const emojiCount = linkifiedText.match(emojiRegex) ? linkifiedText.match(emojiRegex).length : 0
+            const noEmojis = linkifiedText.replace(emojiRegex, "").length
+
+            const processedText = linkifiedText.replace(emojiRegex, function(emoji:string) {
+                if(emojiCount <= 3 && noEmojis === 0) {
+                    return '<span class="text-[3em] -tracking-[0.35em]">' + emoji + '</span>'
+                }
+                return '<span class="text-lg -tracking-[0.25em]">' + emoji + '</span>'
+            })
+            const parser = new DOMParser
+            const htmlDoc = parser.parseFromString(processedText, "text/html")
+            commentElement.innerHTML = htmlDoc.body.innerHTML
+        }
+    });
+
+    function removeMessage(e: Event) {
+        e.preventDefault()
         commentQueue.removeMessage(comment.id)
     }
 
-    $: contentTextStyle = isCurrentUser ? "text-typography-chat-me" : "text-typography-chat-you"
+    let contentTextStyle = $derived(isCurrentUser ? "text-typography-chat-me" : "text-typography-chat-you")
 </script>
 
 <div class="flex">
@@ -46,7 +53,7 @@
         {#if comment.replyToComment}
             <a href="#{comment.replyToComment.id}">
                 <div class="text-sm bg-canvas-primary rounded px-3 py-1 mb-1">
-                    <p class="text-xs">{$userStore[comment.replyToComment.userId].name}</p>
+                    <p class="text-xs">{$userStore.get(comment.replyToComment.userId).name}</p>
                     {#if comment.replyToComment.fileName !== ""}
                         <div class="h-[40px] rounded overflow-hidden">
                             {#if SUPPORTED_VIDEO_TYPES.includes(comment.fileName)}
@@ -94,11 +101,11 @@
             </span>
 
             {#if $socketRetryCount > 2}
-                <span class="block p-0 m-0 -mt-2.5 text-warning cursor-pointer"
-                      on:mouseup={removeMessage}
-                      on:tap={removeMessage}>
-                    <CloseCircleOutline />
-                </span>
+                <button onclick={e => removeMessage(e)}>
+                    <span class="block p-0 m-0 -mt-2.5 text-warning cursor-pointer">
+                        <CloseCircleOutline />
+                    </span>
+                </button>
             {/if}
         {/if}
 

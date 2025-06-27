@@ -1,10 +1,14 @@
 <script lang="ts">
     import { onMount } from 'svelte'
 
-    export let src:string
-    export let customClasses:string
-    let loaded = false
-    let thisImage:HTMLVideoElement
+    interface Props {
+        src: string;
+        customClasses: string;
+    }
+
+    let { src, customClasses }: Props = $props();
+    let loaded = $state(false)
+    let thisImage:HTMLVideoElement = $state()
 
     onMount(() => {
         thisImage.onloadeddata = () => {
@@ -13,8 +17,8 @@
         }
     })
 
-    $: imageOpacity = loaded ? "opacity-100" : "opacity-0"
-    $: pulse = loaded ? "" : "bg-canvas-secondary animate-pulse"
+    let imageOpacity = $derived(loaded ? "opacity-100" : "opacity-0")
+    let pulse = $derived(loaded ? "" : "bg-canvas-secondary animate-pulse")
 </script>
 
 <div class="{pulse}">

@@ -15,14 +15,14 @@
     import {sessionStore} from "$lib/stores/session.store";
     import {v4 as uuid} from 'uuid';
 
-    let textArea:HTMLTextAreaElement
-    let message:string = ""
-    let previewImage:string|ArrayBuffer
+    let textArea:HTMLTextAreaElement = $state()
+    let message:string = $state("")
+    let previewImage:string|ArrayBuffer = $state()
     const authorizedExtensions = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'video/mp4', 'video/webm']
-    let imageFiles:FileList
+    let imageFiles:FileList = $state()
     let imageFile:File
-    let fileName:string = ""
-    let isDisabled = false
+    let fileName:string = $state("")
+    let isDisabled = $state(false)
     let controller:AbortController
 
     function sendMsg() {
@@ -45,9 +45,8 @@
                     fileName
                 )
         )
-
-        commentQueue.addComment(comment)
         resetTextArea()
+        commentQueue.addComment(comment)
     }
 
     function resetTextArea() {
@@ -185,11 +184,13 @@
         isDisabled = false
     }
 
-    $: if($replyComment) {
-        if($replyComment.text !== undefined && textArea !== undefined) {
-            textArea.focus()
+    $effect(() => {
+        if($replyComment) {
+            if($replyComment.text !== undefined && textArea !== undefined) {
+                textArea.focus()
+            }
         }
-    }
+    });
 </script>
 
 <div>
@@ -198,7 +199,7 @@
 
             <label for="upload"
                    class="cursor-pointer text-typography-main"
-                   on:change={uploadImage}>
+                   onchange={uploadImage}>
 
                 <span class="rounded-full bg-primary p-3 block">
                     <span class="flex">
@@ -239,11 +240,11 @@
                       name="msg"
                       bind:this={textArea}
                       bind:value={message}
-                      on:keyup={e => sendOrResize(e)}></textarea>
+                      onkeyup={e => sendOrResize(e)}></textarea>
         </div>
 
         <div class="flex flex-col-reverse">
-            <button on:click={sendMsg} class="rounded-full py-3 {isDisabled}" disabled={isDisabled}>
+            <button onclick={sendMsg} class="rounded-full py-3 {isDisabled}" disabled={isDisabled}>
                 {#if isDisabled}
                     <Spinner size="sm" thickness="s" color="grey"/>
                 {:else}
