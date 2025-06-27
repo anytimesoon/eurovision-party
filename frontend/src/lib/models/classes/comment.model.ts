@@ -60,7 +60,7 @@ export class CommentModel implements IComment {
 	static empty(): CommentModel {
 		return new CommentModel(
 			"",
-			"empty",
+			"",
 			null,
 			undefined,
 			new Date(),

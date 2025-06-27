@@ -30,7 +30,7 @@
             <CloseCircleOutline />
         </button>
 
-        {#if $replyComment.userId !== undefined}
+        {#if $replyComment.userId !== undefined && $userStore.get($replyComment.userId) !== undefined}
             <div class="pb-2">
                 {$userStore.get($replyComment.userId).name}
             </div>

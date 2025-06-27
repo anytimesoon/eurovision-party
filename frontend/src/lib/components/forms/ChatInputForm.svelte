@@ -45,9 +45,8 @@
                     fileName
                 )
         )
-
-        commentQueue.addComment(comment)
         resetTextArea()
+        commentQueue.addComment(comment)
     }
 
     function resetTextArea() {
