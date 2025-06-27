@@ -30,7 +30,6 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"@react2svelte/swipeable": "^0.1.4",
 		"dotenv": "^16.3.1",
 		"svelte-easy-crop": "^2.0.1",
 		"svelte-material-icons": "^3.0.5",

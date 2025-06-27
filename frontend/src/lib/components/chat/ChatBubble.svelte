@@ -4,8 +4,6 @@
     import {authLvl} from "$lib/models/enums/authLvl.enum";
     import type {UserModel} from "$lib/models/classes/user.model";
     import ChatContent from "$lib/components/chat/ChatContent.svelte";
-    import {swipeable} from '@react2svelte/swipeable';
-    import type { SwipeEventData } from '@react2svelte/swipeable';
     import ReplyMenu from "$lib/components/chat/ReplyMenu.svelte";
     import ImageLoader from "$lib/components/images/ImageLoader.svelte";
     import {replyComment} from "$lib/stores/replyComment.store";
@@ -25,25 +23,50 @@
     }: Props = $props();
     let shouldShowReplyMenu:boolean = $state(false)
     let bubble:HTMLDivElement = $state()
+    let touchStartX: number = $state(0)
+    let touchStartY: number = $state(0)
+    let isSwiping: boolean = $state(false)
 
-    function swipedHandler() {
+    const handleTouchStart = (e:TouchEvent) => {
+        touchStartX = e.touches[0].clientX
+        touchStartY = e.touches[0].clientY
+        isSwiping = true
+    }
+
+    const handleTouchMove = (e:TouchEvent) => {
+        if (!isSwiping) return
+
+        const touchCurrentX = e.touches[0].clientX
+        const touchCurrentY = e.touches[0].clientY
+        const deltaX = touchStartX - touchCurrentX
+        const deltaY = touchStartY - touchCurrentY
+
+        // Only handle horizontal swipes
+        if (deltaY > 30) {
+            handleTouchEnd()
+            return
+        }
+
+        if (deltaX < 0 && Math.abs(deltaX) < 100) { // Swiping right
+            bubble.parentElement.classList.add("overflow-y-hidden")
+            bubble.parentElement.classList.remove("overflow-y-auto")
+            bubble.style.right = deltaX + "px"
+        }
+
+    }
+
+    const handleTouchEnd = () => {
+        if (!isSwiping) return
+
+        const deltaX = parseInt(bubble.style.right) || 0
+        if (deltaX <= -50) {
+            replyComment.set(comment)
+        }
+
         bubble.style.right = "0px"
         bubble.parentElement.classList.remove("overflow-y-hidden")
         bubble.parentElement.classList.add("overflow-y-auto")
-    }
-
-    function swipedRightHandler() {
-        replyComment.set(comment)
-    }
-
-    function swipingHandler(e:CustomEvent<SwipeEventData>) {
-        if (e.detail.dir == "Right") {
-            if (e.detail.deltaX < 100) {
-                bubble.parentElement.classList.add("overflow-y-hidden")
-                bubble.parentElement.classList.remove("overflow-y-auto")
-                bubble.style.right = (e.detail.deltaX * -1) + "px"
-            }
-        }
+        isSwiping = false
     }
 
     const replyButtonHandler = () => {
@@ -65,10 +88,11 @@
     </div>
 {:else if user}
 
-    <div use:swipeable
-         onswiping={swipingHandler}
-         onswipedright={swipedRightHandler}
-         onswiped={swipedHandler}
+    <div
+         ontouchstart={handleTouchStart}
+         ontouchmove={handleTouchMove}
+         ontouchend={handleTouchEnd}
+         ontouchcancel={handleTouchEnd}
          onmouseenter={() =>{shouldShowReplyMenu = true}}
          onmouseleave={() => shouldShowReplyMenu = false}
          bind:this={bubble}
