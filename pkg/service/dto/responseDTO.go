@@ -3,7 +3,7 @@ package dto
 import "github.com/google/uuid"
 
 type ApiResponseBody interface {
-	Comment | Country | *User | Vote | *NewUser | []*NewUser | SessionAuth |
+	Comment | Country | *User | Vote | *NewUser | []*NewUser | *Session |
 		[]Comment | []Country | []User | []Vote | map[uuid.UUID]User | []Result
 }
 
