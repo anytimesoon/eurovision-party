@@ -2,7 +2,7 @@
     import {currentUser} from "$lib/stores/user.store";
     import {staticEP} from "$lib/models/enums/endpoints.enum";
     import FileEditOutline from "svelte-material-icons/FileEditOutline.svelte";
-    import AdminNav from "$lib/components/AdminNav.svelte";
+    import SettingsNav from "$lib/components/SettingsNav.svelte";
     import Modal from "$lib/components/Modal.svelte";
     import AvatarCropForm from "$lib/components/forms/AvatarCropForm.svelte";
     import ImageLoader from "$lib/components/images/ImageLoader.svelte";
@@ -27,9 +27,7 @@
 
 </script>
 
-{#if $currentUser.isAdmin()}
-    <AdminNav page="settings"/>
-{/if}
+<SettingsNav page="settings"/>
 
 <Modal bind:openModal={openModal} bind:closeModal={closeModal}>
     <AvatarCropForm closer={closeModal}/>

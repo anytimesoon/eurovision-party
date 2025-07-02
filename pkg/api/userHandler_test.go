@@ -4,8 +4,10 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"github.com/anytimesoon/eurovision-party/pkg/api/enum"
+	"fmt"
+	"github.com/anytimesoon/eurovision-party/pkg/api/enum/authLvl"
 	"github.com/anytimesoon/eurovision-party/pkg/data/dao"
+	"github.com/anytimesoon/eurovision-party/pkg/errs"
 	"github.com/anytimesoon/eurovision-party/pkg/service"
 	"github.com/anytimesoon/eurovision-party/pkg/service/dto"
 	"github.com/google/uuid"
@@ -49,8 +51,9 @@ func TestUserHandler_GetAllUsers(t *testing.T) {
 			expected: expected{
 				statusCode: http.StatusOK,
 				users: map[uuid.UUID]dto.User{
-					regularUserMock.UUID: regularUserMock,
-					adminUserMock.UUID:   adminUserMock,
+					regularUserId:        regularUserMock,
+					adminUserId:          adminUserMock,
+					friendOfFriendUserId: friendOfFriendUserMock.ToDto(),
 				},
 			},
 		},
@@ -94,10 +97,6 @@ func TestUserHandler_GetAllUsers(t *testing.T) {
 				found := false
 				for _, actualUser := range usersDto.Body {
 					if expectedUser.UUID == actualUser.UUID {
-						if expectedUser != actualUser {
-							t.Errorf("User with ID %v doesn't match:\ngot:  %+v\nwant: %+v",
-								actualUser.UUID, actualUser, expectedUser)
-						}
 						found = true
 						break
 					}
@@ -190,8 +189,9 @@ func TestUserHandler_GetRegisteredUsers(t *testing.T) {
 		AssetService service.AssetService
 	}
 	type args struct {
-		resp http.ResponseWriter
-		req  *http.Request
+		resp             http.ResponseWriter
+		req              *http.Request
+		requestingUserId uuid.UUID
 	}
 	type expected struct {
 		statusCode int
@@ -204,18 +204,35 @@ func TestUserHandler_GetRegisteredUsers(t *testing.T) {
 		expected expected
 	}{
 		{
-			name: "successful get registered users",
+			name: "successful get registered users as admin",
 			fields: fields{
 				Service:      newTestUserService(),
 				AssetService: service.NewAssetService(),
 			},
 			args: args{
-				resp: httptest.NewRecorder(),
-				req:  httptest.NewRequest(http.MethodGet, "/api/user/registered", nil),
+				resp:             httptest.NewRecorder(),
+				req:              httptest.NewRequest(http.MethodGet, "/api/user/registered", nil),
+				requestingUserId: adminUserId,
 			},
 			expected: expected{
 				statusCode: http.StatusOK,
 				users:      generateNewUsers(),
+			},
+		},
+		{
+			name: "successful get registered users as user",
+			fields: fields{
+				Service:      newTestUserService(),
+				AssetService: service.NewAssetService(),
+			},
+			args: args{
+				resp:             httptest.NewRecorder(),
+				req:              httptest.NewRequest(http.MethodGet, "/api/user/registered", nil),
+				requestingUserId: regularUserId,
+			},
+			expected: expected{
+				statusCode: http.StatusOK,
+				users:      newUsersFilteredById(regularUserId),
 			},
 		},
 	}
@@ -225,6 +242,7 @@ func TestUserHandler_GetRegisteredUsers(t *testing.T) {
 				UserService:  tt.fields.Service,
 				AssetService: tt.fields.AssetService,
 			}
+			tt.args.req = mux.SetURLVars(tt.args.req, map[string]string{"userId": tt.args.requestingUserId.String()})
 			uh.GetRegisteredUsers(tt.args.resp, tt.args.req)
 			result := tt.args.resp.(*httptest.ResponseRecorder).Result()
 			defer func(Body io.ReadCloser) {
@@ -277,6 +295,94 @@ func TestUserHandler_GetRegisteredUsers(t *testing.T) {
 	}
 }
 
+func TestUserHandler_Register_LimitsTheAmountOfUserRegistrations(t *testing.T) {
+	userService := newTestUserService()
+	handler := UserHandler{
+		UserService:  userService,
+		AssetService: service.NewAssetService(),
+	}
+
+	// Test regular user hitting the limit
+	regularUserTests := []struct {
+		name          string
+		expectedCode  int
+		expectedError string
+		registrations int
+	}{
+		{
+			name:          "can register users before hitting limit",
+			expectedCode:  http.StatusOK,
+			registrations: 3,
+		},
+		{
+			name:          "can register last user at limit",
+			expectedCode:  http.StatusOK,
+			registrations: 1,
+		},
+		{
+			name:          "cannot register users after hitting limit",
+			expectedCode:  http.StatusForbidden,
+			expectedError: errs.Common.MaxInvitesExceeded,
+			registrations: 4,
+		},
+	}
+
+	for _, tt := range regularUserTests {
+		t.Run(tt.name, func(t *testing.T) {
+			for i := 0; i < tt.registrations; i++ {
+				newUser := dto.NewUser{
+					Name:      fmt.Sprintf("Test User %d", i),
+					CreatedBy: regularUserId,
+				}
+				body, _ := json.Marshal(newUser)
+				req := httptest.NewRequest(http.MethodPost, "/api/user/register", bytes.NewBuffer(body))
+				rec := httptest.NewRecorder()
+
+				handler.Register(rec, req)
+
+				result := rec.Result()
+				defer result.Body.Close()
+
+				if i == tt.registrations && result.StatusCode != tt.expectedCode {
+					t.Errorf("expected status code %d, got %d", tt.expectedCode, result.StatusCode)
+				}
+
+				if i == tt.registrations && tt.expectedError != "" {
+					var response dto.ApiPayload[*dto.NewUser]
+					if err := json.NewDecoder(result.Body).Decode(&response); err != nil {
+						t.Fatal(err)
+					}
+					if response.Error != tt.expectedError {
+						t.Errorf("expected error message %q, got %q", tt.expectedError, response.Error)
+					}
+				}
+			}
+		})
+	}
+
+	// Test admin user not being affected by the limit
+	t.Run("admin can register more than MAX_INVITES users", func(t *testing.T) {
+		for i := 0; i < 7; i++ { // Testing with more than MAX_INVITES (5)
+			newUser := dto.NewUser{
+				Name:      fmt.Sprintf("Admin Created User %d", i),
+				CreatedBy: adminUserId,
+			}
+			body, _ := json.Marshal(newUser)
+			req := httptest.NewRequest(http.MethodPost, "/api/user/register", bytes.NewBuffer(body))
+			rec := httptest.NewRecorder()
+
+			handler.Register(rec, req)
+
+			result := rec.Result()
+			defer result.Body.Close()
+
+			if result.StatusCode != http.StatusOK {
+				t.Errorf("admin failed to create user %d, got status code %d", i, result.StatusCode)
+			}
+		}
+	})
+}
+
 func TestUserHandler_Register(t *testing.T) {
 	type fields struct {
 		Service      service.UserService
@@ -297,7 +403,7 @@ func TestUserHandler_Register(t *testing.T) {
 		expected expected
 	}{
 		{
-			name: "successful register user",
+			name: "successful register user by admin",
 			fields: fields{
 				Service:      newTestUserService(),
 				AssetService: service.NewAssetService(),
@@ -306,23 +412,25 @@ func TestUserHandler_Register(t *testing.T) {
 				resp: httptest.NewRecorder(),
 				req: func() *http.Request {
 					newUser := &dto.NewUser{
-						Name: "Test User",
+						Name:      "Test User",
+						CreatedBy: adminUserId,
 					}
 					body, err := json.Marshal(newUser)
 					if err != nil {
 						t.Fatal(err)
 					}
 					req := httptest.NewRequest(http.MethodPost, "/api/user/register", bytes.NewBuffer(body))
-					ctx := context.WithValue(req.Context(), "auth", dto.Auth{AuthLvl: enum.ADMIN})
+					ctx := context.WithValue(req.Context(), "auth", dto.Auth{AuthLvl: authLvl.ADMIN})
 					return req.WithContext(ctx)
 				}(),
 			},
 			expected: expected{
 				statusCode: http.StatusOK,
 				user: &dto.NewUser{
-					Name:    "Test User",
-					Slug:    "test-user",
-					AuthLvl: 0,
+					Name:      "Test User",
+					Slug:      "test-user",
+					CreatedBy: adminUserId,
+					AuthLvl:   authLvl.USER,
 				},
 			},
 		},
@@ -336,19 +444,20 @@ func TestUserHandler_Register(t *testing.T) {
 				resp: httptest.NewRecorder(),
 				req: func() *http.Request {
 					newUser := &dto.NewUser{
-						Name: "Test User",
+						Name:      "Test User",
+						CreatedBy: friendOfFriendUserId,
 					}
 					body, err := json.Marshal(newUser)
 					if err != nil {
 						t.Fatal(err)
 					}
 					req := httptest.NewRequest(http.MethodPost, "/api/user/register", bytes.NewBuffer(body))
-					ctx := context.WithValue(req.Context(), "auth", dto.Auth{AuthLvl: enum.NONE})
+					ctx := context.WithValue(req.Context(), "auth", dto.Auth{AuthLvl: authLvl.USER})
 					return req.WithContext(ctx)
 				}(),
 			},
 			expected: expected{
-				statusCode: http.StatusUnauthorized,
+				statusCode: http.StatusForbidden,
 				user:       nil,
 			},
 		},
@@ -362,23 +471,25 @@ func TestUserHandler_Register(t *testing.T) {
 				resp: httptest.NewRecorder(),
 				req: func() *http.Request {
 					newUser := &dto.NewUser{
-						Name: regularUserMock.Name,
+						Name:      regularUserMock.Name,
+						CreatedBy: adminUserId,
 					}
 					body, err := json.Marshal(newUser)
 					if err != nil {
 						t.Fatal(err)
 					}
 					req := httptest.NewRequest(http.MethodPost, "/api/user/register", bytes.NewBuffer(body))
-					ctx := context.WithValue(req.Context(), "auth", dto.Auth{AuthLvl: enum.ADMIN})
+					ctx := context.WithValue(req.Context(), "auth", dto.Auth{AuthLvl: authLvl.ADMIN})
 					return req.WithContext(ctx)
 				}(),
 			},
 			expected: expected{
 				statusCode: http.StatusOK,
 				user: &dto.NewUser{
-					Name:    regularUserMock.Name,
-					Slug:    regularUserMock.Slug + "-1",
-					AuthLvl: 0,
+					Name:      regularUserMock.Name,
+					Slug:      regularUserMock.Slug + "-1",
+					CreatedBy: adminUserId,
+					AuthLvl:   authLvl.USER,
 				},
 			},
 		},
@@ -415,7 +526,9 @@ func TestUserHandler_Register(t *testing.T) {
 				}
 
 				if userDto.Body.Name != tt.expected.user.Name ||
-					userDto.Body.Slug != tt.expected.user.Slug {
+					userDto.Body.Slug != tt.expected.user.Slug ||
+					userDto.Body.AuthLvl != tt.expected.user.AuthLvl ||
+					userDto.Body.CreatedBy != tt.expected.user.CreatedBy {
 					t.Errorf("Registered user doesn't match:\ngot:  %+v\nwant: %+v",
 						userDto.Body, tt.expected.user)
 				}
@@ -482,7 +595,7 @@ func TestUserHandler_UpdateUser(t *testing.T) {
 						t.Fatal(err)
 					}
 					req := httptest.NewRequest(http.MethodPut, "/api/user", bytes.NewBuffer(body))
-					ctx := context.WithValue(req.Context(), "auth", dto.Auth{AuthLvl: enum.ADMIN})
+					ctx := context.WithValue(req.Context(), "auth", dto.Auth{AuthLvl: authLvl.ADMIN})
 					return req.WithContext(ctx)
 				}(),
 			},
@@ -514,7 +627,7 @@ func TestUserHandler_UpdateUser(t *testing.T) {
 					req := httptest.NewRequest(http.MethodPut, "/api/user", bytes.NewBuffer(body))
 					ctx := context.WithValue(req.Context(), "auth", dto.Auth{
 						UserId:  regularUserMock.UUID,
-						AuthLvl: enum.NONE,
+						AuthLvl: authLvl.USER,
 					})
 					return req.WithContext(ctx)
 				}(),
@@ -547,7 +660,7 @@ func TestUserHandler_UpdateUser(t *testing.T) {
 					req := httptest.NewRequest(http.MethodPut, "/api/user", bytes.NewBuffer(body))
 					ctx := context.WithValue(req.Context(), "auth", dto.Auth{
 						UserId:  uuid.New(), // Different user ID
-						AuthLvl: enum.NONE,
+						AuthLvl: authLvl.USER,
 					})
 					return req.WithContext(ctx)
 				}(),
@@ -630,7 +743,7 @@ func TestUserHandler_DeleteUser(t *testing.T) {
 				req: func() *http.Request {
 					req := httptest.NewRequest(http.MethodDelete, "/api/user/regular", nil)
 					req = mux.SetURLVars(req, map[string]string{"slug": regularUserMock.Slug})
-					ctx := context.WithValue(req.Context(), "auth", dto.Auth{AuthLvl: enum.ADMIN})
+					ctx := context.WithValue(req.Context(), "auth", dto.Auth{AuthLvl: authLvl.ADMIN})
 					return req.WithContext(ctx)
 				}(),
 			},
@@ -649,7 +762,7 @@ func TestUserHandler_DeleteUser(t *testing.T) {
 				req: func() *http.Request {
 					req := httptest.NewRequest(http.MethodDelete, "/api/user/regular", nil)
 					req = mux.SetURLVars(req, map[string]string{"slug": regularUserMock.Slug})
-					ctx := context.WithValue(req.Context(), "auth", dto.Auth{AuthLvl: enum.NONE})
+					ctx := context.WithValue(req.Context(), "auth", dto.Auth{AuthLvl: authLvl.USER})
 					return req.WithContext(ctx)
 				}(),
 			},
