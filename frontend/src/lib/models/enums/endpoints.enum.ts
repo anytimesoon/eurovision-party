@@ -31,7 +31,7 @@ export const userEP = {
     UPDATE_IMAGE: userGoURL + "image",
     FIND_ONE: userGoURL, //append with user slug
     REMOVE: userGoURL,
-    REGISTERED: userGoURL + "registered"
+    REGISTERED: userGoURL + "registered/"
 }
 
 export const voteEP = {

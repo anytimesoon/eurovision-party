@@ -23,6 +23,7 @@ type AppConf struct {
 	BotName     string `mapstructure:"CHAT_BOT_NAME"`
 	Assets      string `mapstructure:"ASSET_DIR"`
 	Secret      string `mapstructure:"SECRET"`
+	MaxInvites  uint8  `mapstructure:"MAX_INVITES"`
 }
 
 func (a *AppConf) SetBotId(id uuid.UUID) {
@@ -44,6 +45,7 @@ func LoadConfig() {
 	v.SetDefault("BACKEND_HOST", "localhost:8080")
 	v.SetDefault("HTTP_PROTOCOL", "http://")
 	v.SetDefault("CHAT_BOT_NAME", "Eurobot")
+	v.SetDefault("MAX_INVITES", 5)
 
 	err := v.ReadInConfig()
 	if err != nil {

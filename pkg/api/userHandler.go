@@ -3,7 +3,7 @@ package api
 import (
 	"encoding/json"
 	"github.com/anytimesoon/eurovision-party/conf"
-	"github.com/anytimesoon/eurovision-party/pkg/api/enum"
+	"github.com/anytimesoon/eurovision-party/pkg/api/enum/authLvl"
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
 	"github.com/anytimesoon/eurovision-party/pkg/service"
 	"github.com/anytimesoon/eurovision-party/pkg/service/dto"
@@ -24,22 +24,19 @@ type UserHandler struct {
 func (uh UserHandler) Register(resp http.ResponseWriter, req *http.Request) {
 	var appErr *errs.AppError
 	var newUser *dto.NewUser
-	if req.Context().Value("auth").(dto.Auth).AuthLvl == enum.ADMIN {
-		body, err := io.ReadAll(req.Body)
-		if err != nil {
-			panic(err)
-		}
-		err = json.Unmarshal(body, &newUser)
-		if err != nil {
-			log.Println("FAILED to parse new user.", err)
-			WriteResponse(resp, http.StatusBadRequest, newUser,
-				"Failed to parse request body. Please check the format of the request.")
-			return
-		}
-		newUser, appErr = uh.UserService.Register(*newUser)
-	} else {
-		appErr = errs.NewUnauthorizedError(errs.Common.Unauthorized)
+	body, err := io.ReadAll(req.Body)
+	if err != nil {
+		panic(err)
 	}
+	err = json.Unmarshal(body, &newUser)
+	if err != nil {
+		log.Println("FAILED to parse new user.", err)
+		WriteResponse(resp, http.StatusBadRequest, newUser,
+			"Failed to parse request body. Please check the format of the request.")
+		return
+	}
+
+	newUser, appErr = uh.UserService.Register(*newUser)
 
 	if appErr != nil {
 		WriteResponse(resp, appErr.Code, newUser, appErr.Message)
@@ -72,7 +69,7 @@ func (uh UserHandler) UpdateUser(resp http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if req.Context().Value("auth").(dto.Auth).AuthLvl == enum.ADMIN ||
+	if req.Context().Value("auth").(dto.Auth).AuthLvl == authLvl.ADMIN ||
 		req.Context().Value("auth").(dto.Auth).UserId == user.UUID {
 
 		user, appErr = uh.UserService.UpdateUser(*user)
@@ -143,7 +140,7 @@ func (uh UserHandler) GetOneUser(resp http.ResponseWriter, req *http.Request) {
 
 func (uh UserHandler) DeleteUser(resp http.ResponseWriter, req *http.Request) {
 	var err *errs.AppError
-	if req.Context().Value("auth").(dto.Auth).AuthLvl == enum.ADMIN {
+	if req.Context().Value("auth").(dto.Auth).AuthLvl == authLvl.ADMIN {
 		params := mux.Vars(req)
 		err = uh.UserService.DeleteUser(params["slug"])
 	} else {
@@ -157,7 +154,8 @@ func (uh UserHandler) DeleteUser(resp http.ResponseWriter, req *http.Request) {
 }
 
 func (uh UserHandler) GetRegisteredUsers(resp http.ResponseWriter, req *http.Request) {
-	users, err := uh.UserService.GetRegisteredUsers()
+	params := mux.Vars(req)
+	users, err := uh.UserService.GetRegisteredUsers(params["userId"])
 	if err != nil {
 		WriteResponse(resp, err.Code, users, err.Message)
 	} else {

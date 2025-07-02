@@ -88,10 +88,10 @@ func StartServer(store *bolthold.Store) {
 	}
 	userRouter := apiRouter.PathPrefix("/user").Subrouter()
 	userRouter.HandleFunc("/", userHandler.GetAllUsers).Methods(http.MethodGet)
-	userRouter.HandleFunc("/", userHandler.UpdateUser).Methods(http.MethodPut)        // admin or current user
-	userRouter.HandleFunc("/image", userHandler.UpdateImage).Methods(http.MethodPut)  // current user only
-	userRouter.HandleFunc("/register", userHandler.Register).Methods(http.MethodPost) // admin only
-	userRouter.HandleFunc("/registered", userHandler.GetRegisteredUsers).Methods(http.MethodGet)
+	userRouter.HandleFunc("/", userHandler.UpdateUser).Methods(http.MethodPut)       // admin or current user
+	userRouter.HandleFunc("/image", userHandler.UpdateImage).Methods(http.MethodPut) // current user only
+	userRouter.HandleFunc("/register", userHandler.Register).Methods(http.MethodPost)
+	userRouter.HandleFunc("/registered/{userId}", userHandler.GetRegisteredUsers).Methods(http.MethodGet)
 	userRouter.HandleFunc("/{slug}", userHandler.GetOneUser).Methods(http.MethodGet)
 	userRouter.HandleFunc("/{slug}", userHandler.DeleteUser).Methods(http.MethodDelete) // admin only
 

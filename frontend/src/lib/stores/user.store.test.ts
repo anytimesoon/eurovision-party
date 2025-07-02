@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { get } from 'svelte/store'
 import { userStore, currentUser, botId } from './user.store'
 import { UserModel } from '$lib/models/classes/user.model'
+import {authLvl} from "$lib/models/enums/authLvl.enum";
 
 vi.mock('$app/environment', () => ({
     browser: true
@@ -17,7 +18,10 @@ describe('User Store', () => {
         'Test User',
         'test-user',
         'test-icon',
-        0
+        authLvl.USER,
+        [],
+        'other-user',
+        true
     )
     beforeEach(() => {
         localStorage.clear()

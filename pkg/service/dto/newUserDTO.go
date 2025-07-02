@@ -1,7 +1,7 @@
 package dto
 
 import (
-	"github.com/anytimesoon/eurovision-party/pkg/api/enum"
+	"github.com/anytimesoon/eurovision-party/pkg/api/enum/authLvl"
 	"github.com/google/uuid"
 	"log"
 	"regexp"
@@ -9,11 +9,12 @@ import (
 )
 
 type NewUser struct {
-	Name    string       `json:"name"`
-	Slug    string       `json:"slug"`
-	UUID    uuid.UUID    `json:"id"`
-	AuthLvl enum.AuthLvl `json:"authLvl"`
-	Token   string       `json:"token"`
+	Name      string          `json:"name"`
+	Slug      string          `json:"slug"`
+	UUID      uuid.UUID       `json:"id"`
+	AuthLvl   authLvl.AuthLvl `json:"authLvl"`
+	Token     string          `json:"token"`
+	CreatedBy uuid.UUID       `json:"createdBy"`
 }
 
 func (nu *NewUser) Slugify() {

@@ -2,7 +2,7 @@ package dto
 
 import (
 	"github.com/anytimesoon/eurovision-party/conf"
-	"github.com/anytimesoon/eurovision-party/pkg/api/enum"
+	"github.com/anytimesoon/eurovision-party/pkg/api/enum/authLvl"
 	"time"
 
 	"github.com/google/uuid"
@@ -15,7 +15,7 @@ type Auth struct {
 	Token      string //session token
 	Expiration time.Time
 	UserId     uuid.UUID
-	AuthLvl    enum.AuthLvl
+	AuthLvl    authLvl.AuthLvl
 }
 
 func (a Auth) ToSession(user User) SessionAuth {

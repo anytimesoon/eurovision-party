@@ -1,6 +1,7 @@
 import type {ResponseModel} from "$lib/models/classes/response.model";
 import {sessionStore} from "$lib/stores/session.store";
 import {goto} from "$app/navigation";
+import {errorStore} from "$lib/stores/error.store";
 
 let session:string
 sessionStore.subscribe(val => session = val)
@@ -50,10 +51,13 @@ async function postOrPut<T, K>(method: string, url: string, body: K): Promise<T>
 }
 
 function handleError(status: number, error: string) {
+    errorStore.set(error)
     switch (status) {
         case 401:
-        case 403:
             goto("/login")
+            break;
+        case 403:
+            goto("/settings")
             break;
         default:
             console.error(error)

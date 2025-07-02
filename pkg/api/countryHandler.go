@@ -1,7 +1,7 @@
 package api
 
 import (
-	"github.com/anytimesoon/eurovision-party/pkg/api/enum"
+	"github.com/anytimesoon/eurovision-party/pkg/api/enum/authLvl"
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
 	"github.com/anytimesoon/eurovision-party/pkg/service"
 	"github.com/anytimesoon/eurovision-party/pkg/service/dto"
@@ -53,7 +53,7 @@ func (ch *CountryHandler) GetParticipatingCountries(resp http.ResponseWriter, re
 func (ch *CountryHandler) UpdateCountry(resp http.ResponseWriter, req *http.Request) {
 	var appErr *errs.AppError
 	country := &dto.Country{}
-	if req.Context().Value("auth").(dto.Auth).AuthLvl == enum.ADMIN {
+	if req.Context().Value("auth").(dto.Auth).AuthLvl == authLvl.ADMIN {
 		body, err := io.ReadAll(req.Body)
 		if err != nil {
 			panic(err)

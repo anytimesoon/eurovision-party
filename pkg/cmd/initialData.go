@@ -1,24 +1,29 @@
 package main
 
 import (
-	"github.com/anytimesoon/eurovision-party/pkg/api/enum"
+	"github.com/anytimesoon/eurovision-party/pkg/api/enum/authLvl"
 	"github.com/anytimesoon/eurovision-party/pkg/data/dao"
 	"github.com/google/uuid"
 )
 
+var initAdminUserId = uuid.New()
+var initBotUserid = uuid.New()
 var initAdminUser = dao.User{
-	UUID:    uuid.New(),
-	Name:    "Euro Host",
-	Slug:    "admin",
-	AuthLvl: enum.ADMIN,
-	Icon:    "default",
+	UUID:      initAdminUserId,
+	Name:      "Euro Host",
+	Slug:      "admin",
+	AuthLvl:   authLvl.ADMIN,
+	Icon:      "default",
+	CanInvite: true,
+	CreatedBy: initBotUserid,
+	Invites:   make([]uuid.UUID, 0),
 }
 
 var initBotUser = dao.User{
-	UUID:    uuid.New(),
+	UUID:    initBotUserid,
 	Name:    "EuroBot",
 	Slug:    "bot",
-	AuthLvl: enum.BOT,
+	AuthLvl: authLvl.BOT,
 	Icon:    "default",
 }
 

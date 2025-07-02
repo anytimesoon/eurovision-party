@@ -115,7 +115,10 @@ describe.sequential('Socket Store', () => {
                 'Test User',
                 'test-user',
                 'test-icon',
-                authLvl.USER
+                authLvl.USER,
+                [],
+                'other-user',
+                true
             )],
         ]))
 

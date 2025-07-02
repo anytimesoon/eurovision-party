@@ -26,7 +26,10 @@
             formData.get("name") as string,
             $currentUser.slug,
             $currentUser.icon,
-            $currentUser.authLvl
+            $currentUser.authLvl,
+            $currentUser.invites,
+            $currentUser.createdBy,
+            $currentUser.canInvite
         )
 
         const updatedUser = await put<UserModel, UserModel>(userEP.UPDATE, newUser)

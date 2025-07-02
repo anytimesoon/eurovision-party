@@ -1,11 +1,11 @@
 <script lang="ts">
     import {participatingCountryStore} from "$lib/stores/country.store";
     import CountryActForm from "$lib/components/forms/CountryActForm.svelte";
-    import AdminNav from "$lib/components/AdminNav.svelte";
+    import SettingsNav from "$lib/components/SettingsNav.svelte";
 </script>
 
 <div class="h-full flex flex-col">
-    <AdminNav page="acts" />
+    <SettingsNav page="acts" />
 
     <h2 class="text-center">Acts</h2>
 
