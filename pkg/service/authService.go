@@ -17,7 +17,7 @@ import (
 )
 
 type AuthService interface {
-	Login(dto.Auth) (*dto.Auth, *dto.User, *errs.AppError)
+	Login(dto.Auth) (*dto.Session, *errs.AppError)
 	Authorize(string) (*dto.Auth, *errs.AppError)
 }
 
@@ -39,10 +39,10 @@ func NewAuthService(authRepo data.AuthRepositoryDB, sessionRepo data.SessionRepo
 	return DefaultAuthService{authRepo, sessionRepo, userRepo}
 }
 
-func (das DefaultAuthService) Login(authDTO dto.Auth) (*dto.Auth, *dto.User, *errs.AppError) {
+func (das DefaultAuthService) Login(authDTO dto.Auth) (*dto.Session, *errs.AppError) {
 	auth, appErr := das.authRepo.GetAuth(authDTO.Token)
 	if appErr != nil {
-		return nil, nil, appErr
+		return nil, appErr
 	}
 
 	auth.GenerateSecureSessionToken(20)
@@ -50,37 +50,36 @@ func (das DefaultAuthService) Login(authDTO dto.Auth) (*dto.Auth, *dto.User, *er
 	err := das.authRepo.UpdateAuth(auth)
 	if err != nil {
 		log.Printf("Unable to find auth for user %s. %s", authDTO.UserId, err)
-		return nil, nil, errs.NewUnauthorizedError(errs.Common.Login)
+		return nil, errs.NewUnauthorizedError(errs.Common.Login)
 	}
 
 	err = das.sessionRepo.UpdateSession(auth.AuthToken, auth.SessionToken, authDTO.UserId)
 	if err != nil {
 		log.Printf("Unable to generate new session token for user %s. %s", authDTO.UserId, err)
-		return nil, nil, errs.NewUnauthorizedError(errs.Common.Login)
+		return nil, errs.NewUnauthorizedError(errs.Common.Login)
 	}
 
 	user, err := das.userRepo.GetOneUserById(authDTO.UserId)
 	if err != nil {
 		log.Printf("Unable to find user %s when logging in. %s", authDTO.UserId, err)
-		return nil, nil, appErr
+		return nil, appErr
 	}
 
 	authJson, err := json.Marshal(auth.ToDTO())
 	if err != nil {
 		log.Printf("Failed to marshall auth %+v %s", auth, err)
-		return nil, nil, errs.NewUnexpectedError(errs.Common.Login)
+		return nil, errs.NewUnexpectedError(errs.Common.Login)
 	}
 
 	e, err := encrypt(string(authJson))
 	if err != nil {
 		log.Printf("Couldn't encrypt the creds for %+v", auth)
-		return nil, nil, errs.NewUnexpectedError(errs.Common.Login)
+		return nil, errs.NewUnexpectedError(errs.Common.Login)
 	}
 
-	returnableAuth := auth.ToReturnableDTO(e)
-	userDTO := user.ToDto()
+	session := auth.ToSession(e, user)
 
-	return &returnableAuth, &userDTO, nil
+	return session, nil
 }
 
 func (das DefaultAuthService) Authorize(token string) (*dto.Auth, *errs.AppError) {

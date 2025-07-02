@@ -26,15 +26,15 @@ func (ah AuthHandler) Login(resp http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		log.Println("FAILED to unmarshal json!", err)
 		appErr := errs.NewUnexpectedError(errs.Common.BadlyFormedObject)
-		WriteResponse(resp, appErr.Code, dto.SessionAuth{}, appErr.Message)
+		WriteResponse(resp, appErr.Code, &dto.Session{}, appErr.Message)
 		return
 	}
 
-	auth, user, appErr := ah.Service.Login(authDTO)
+	session, appErr := ah.Service.Login(authDTO)
 
 	if appErr != nil {
-		WriteResponse(resp, appErr.Code, dto.SessionAuth{}, appErr.Message)
+		WriteResponse(resp, appErr.Code, &dto.Session{}, appErr.Message)
 	} else {
-		WriteResponse(resp, http.StatusOK, auth.ToSession(*user), "")
+		WriteResponse(resp, http.StatusOK, session, "")
 	}
 }

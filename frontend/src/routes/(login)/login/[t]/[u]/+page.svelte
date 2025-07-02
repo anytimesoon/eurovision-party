@@ -7,10 +7,9 @@
     import {onMount} from "svelte";
     import {authEP} from "$lib/models/enums/endpoints.enum";
     import {LoginModel} from "$lib/models/classes/login.model";
-    import type {ResponseModel} from "$lib/models/classes/response.model";
     import type {SessionModel} from "$lib/models/classes/session.model";
-    import {redirect} from "@sveltejs/kit";
     import {UserModel} from "$lib/models/classes/user.model";
+    import {post} from "$lib/utils/genericFetch";
 
     interface Props {
         data: PageData;
@@ -19,19 +18,11 @@
     let { data }: Props = $props();
 
     onMount(async () => {
-        const res = await fetch(authEP.LOGIN, {
-            method: "POST",
-            body: JSON.stringify(new LoginModel(data.loginToken, data.userId))
-        })
+        const result = await post<SessionModel, LoginModel>(authEP.LOGIN, new LoginModel(data.loginToken, data.userId))
 
-        const login: ResponseModel<SessionModel> = await res.json()
-        if (login.error != "") {
-            redirect(401, "/login")
-        }
-
-        $currentUser = UserModel.deserialize(login.body.user)
-        $botId = login.body.botId
-        $sessionStore = login.body.token
+        $currentUser = UserModel.deserialize(result.user)
+        $botId = result.botId
+        $sessionStore = result.token
 
         if ($currentUser.isAdmin()) {
             await goto("/admin/countries")

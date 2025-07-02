@@ -227,12 +227,12 @@ func newTestChatRoomService() *service.Room {
 
 func getAdminSession() string {
 	authService := newTestAuthService()
-	auth, _, _ := authService.Login(adminAuthMock)
-	return auth.Token
+	session, _ := authService.Login(adminAuthMock)
+	return session.SessionToken
 }
 
 func getRegularSession() string {
 	authService := newTestAuthService()
-	auth, _, _ := authService.Login(regularAuthMock)
-	return auth.Token
+	session, _ := authService.Login(adminAuthMock)
+	return session.SessionToken
 }

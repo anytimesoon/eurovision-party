@@ -9,18 +9,16 @@ import (
 )
 
 // Auth is used internally to verify a user, auth level, and expiration of session.
-// The token refers to a session token, not auth token.
 // It should never be returned to a user
 type Auth struct {
-	Token      string //session token
+	Token      string
 	Expiration time.Time
 	UserId     uuid.UUID
 	AuthLvl    enum.AuthLvl
 }
 
-func (a Auth) ToSession(user User) SessionAuth {
-	return SessionAuth{
-		Name:         "session",
+func (a Auth) ToSession(user User) Session {
+	return Session{
 		SessionToken: a.Token,
 		User:         user,
 		Bot:          conf.App.BotId,
