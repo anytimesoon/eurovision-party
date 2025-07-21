@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"github.com/anytimesoon/eurovision-party/pkg/api/enum/authLvl"
 	"github.com/anytimesoon/eurovision-party/pkg/data"
 	"github.com/anytimesoon/eurovision-party/pkg/data/dao"
 	"github.com/anytimesoon/eurovision-party/pkg/service"
@@ -18,34 +19,56 @@ var (
 
 	adminUserId   = uuid.New()
 	adminUserMock = dto.User{
-		UUID:    adminUserId,
-		Name:    "admin",
-		Slug:    "admin",
-		Icon:    "default",
-		AuthLvl: 1,
+		UUID:      adminUserId,
+		Name:      "admin",
+		Slug:      "admin",
+		Icon:      "default",
+		AuthLvl:   authLvl.ADMIN,
+		CreatedBy: adminUserId,
+		CanInvite: true,
 	}
 	adminAuthMock = dto.Auth{
 		Token:      "adminToken",
 		Expiration: time.Now().Add(time.Hour * 24 * 365),
 		UserId:     adminUserId,
-		AuthLvl:    1,
+		AuthLvl:    authLvl.ADMIN,
 	}
 
 	regularUserId   = uuid.New()
 	regularUserMock = dto.User{
-		UUID:    regularUserId,
-		Name:    "regular",
-		Slug:    "regular",
-		Icon:    "default",
-		AuthLvl: 0,
+		UUID:      regularUserId,
+		Name:      "regular",
+		Slug:      "regular",
+		Icon:      "default",
+		AuthLvl:   authLvl.USER,
+		CreatedBy: adminUserId,
+		CanInvite: true,
 	}
 	regularAuthMock = dto.Auth{
 		Token:      "regularToken",
 		Expiration: time.Now().Add(time.Hour * 24 * 365),
 		UserId:     regularUserId,
-		AuthLvl:    0,
+		AuthLvl:    authLvl.USER,
 	}
 	countryNames = []string{"Austria", "Belgium", "Bulgaria", "Croatia", "Cyprus"}
+
+	friendOfFriendUserId   = uuid.New()
+	friendOfFriendUserMock = dao.User{
+		UUID:      friendOfFriendUserId,
+		AuthLvl:   0,
+		Name:      "friend of friend",
+		Slug:      "friend-of-friend",
+		Icon:      "default",
+		Invites:   nil,
+		CreatedBy: regularUserId,
+		CanInvite: false,
+	}
+	freindOfFriendAuthMock = dto.Auth{
+		Token:      "fofToken",
+		Expiration: time.Now().Add(time.Hour * 24 * 365),
+		UserId:     friendOfFriendUserId,
+		AuthLvl:    authLvl.FRIEND_OF_FRIEND,
+	}
 
 	testBroadcastChan = make(chan dto.SocketMessage)
 )
@@ -75,26 +98,48 @@ func setup() *bolthold.Store {
 
 func generateNewUsers() []*dto.NewUser {
 	newAdmin := &dto.NewUser{
-		Name:    adminUserMock.Name,
-		Slug:    adminUserMock.Slug,
-		UUID:    adminUserMock.UUID,
-		AuthLvl: adminUserMock.AuthLvl,
-		Token:   adminAuthMock.Token,
+		Name:      adminUserMock.Name,
+		Slug:      adminUserMock.Slug,
+		UUID:      adminUserMock.UUID,
+		AuthLvl:   adminUserMock.AuthLvl,
+		Token:     adminAuthMock.Token,
+		CreatedBy: adminUserId,
 	}
 
 	newRegular := &dto.NewUser{
-		Name:    regularUserMock.Name,
-		Slug:    regularUserMock.Slug,
-		UUID:    regularUserMock.UUID,
-		AuthLvl: regularUserMock.AuthLvl,
-		Token:   regularAuthMock.Token,
+		Name:      regularUserMock.Name,
+		Slug:      regularUserMock.Slug,
+		UUID:      regularUserMock.UUID,
+		AuthLvl:   regularUserMock.AuthLvl,
+		Token:     regularAuthMock.Token,
+		CreatedBy: adminUserId,
 	}
 
-	return []*dto.NewUser{newAdmin, newRegular}
+	newFriendOfFriend := &dto.NewUser{
+		Name:      friendOfFriendUserMock.Name,
+		Slug:      friendOfFriendUserMock.Slug,
+		UUID:      friendOfFriendUserMock.UUID,
+		AuthLvl:   friendOfFriendUserMock.AuthLvl,
+		Token:     "",
+		CreatedBy: regularUserId,
+	}
+
+	return []*dto.NewUser{newAdmin, newRegular, newFriendOfFriend}
+}
+
+func newUsersFilteredById(id uuid.UUID) []*dto.NewUser {
+	filteredUsers := make([]*dto.NewUser, 0)
+	for _, user := range generateNewUsers() {
+		if user.CreatedBy == id {
+			filteredUsers = append(filteredUsers, user)
+		}
+	}
+	return filteredUsers
+
 }
 
 func generateUsers(db *bolthold.Store) {
-	err := db.Upsert(adminUserId.String(), adminUserMock)
+	err := db.Upsert(adminUserId.String(), dao.User{}.FromDTO(adminUserMock))
 	if err != nil {
 		panic(err)
 	}
@@ -104,12 +149,22 @@ func generateUsers(db *bolthold.Store) {
 		panic(err)
 	}
 
-	err = db.Upsert(regularUserId.String(), regularUserMock)
+	err = db.Upsert(regularUserId.String(), dao.User{}.FromDTO(regularUserMock))
 	if err != nil {
 		panic(err)
 	}
 
 	err = db.Upsert(regularAuthMock.Token, regularAuthMock)
+	if err != nil {
+		panic(err)
+	}
+
+	err = db.Upsert(friendOfFriendUserId.String(), friendOfFriendUserMock)
+	if err != nil {
+		panic(err)
+	}
+
+	err = db.Upsert(freindOfFriendAuthMock.Token, freindOfFriendAuthMock)
 	if err != nil {
 		panic(err)
 	}

@@ -4,7 +4,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"github.com/anytimesoon/eurovision-party/conf"
-	"github.com/anytimesoon/eurovision-party/pkg/api/enum"
+	"github.com/anytimesoon/eurovision-party/pkg/api/enum/authLvl"
 	"github.com/anytimesoon/eurovision-party/pkg/service/dto"
 	"github.com/google/uuid"
 	"time"
@@ -16,7 +16,7 @@ type Auth struct {
 	AuthTokenExp    time.Time
 	SessionToken    string
 	SessionTokenExp time.Time
-	AuthLvl         enum.AuthLvl
+	AuthLvl         authLvl.AuthLvl
 	LastUpdated     time.Time
 	Slug            string
 }

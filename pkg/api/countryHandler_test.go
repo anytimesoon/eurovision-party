@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/anytimesoon/eurovision-party/pkg/api/enum"
+	"github.com/anytimesoon/eurovision-party/pkg/api/enum/authLvl"
 	"github.com/anytimesoon/eurovision-party/pkg/data/dao"
 	"github.com/anytimesoon/eurovision-party/pkg/service"
 	"github.com/anytimesoon/eurovision-party/pkg/service/dto"
@@ -263,7 +263,7 @@ func TestCountryHandler_UpdateCountry(t *testing.T) {
 	type args struct {
 		resp    http.ResponseWriter
 		req     *http.Request
-		authLvl enum.AuthLvl
+		authLvl authLvl.AuthLvl
 	}
 	type expected struct {
 		statusCode int
@@ -291,7 +291,7 @@ func TestCountryHandler_UpdateCountry(t *testing.T) {
 					"flag": "",
 					"participating": true
                 }`, countryNames[0], countryNames[0]))),
-				authLvl: enum.ADMIN,
+				authLvl: authLvl.ADMIN,
 			},
 			expected: expected{
 				statusCode: http.StatusOK,
@@ -321,7 +321,7 @@ func TestCountryHandler_UpdateCountry(t *testing.T) {
 					"flag": "",
 					"participating": true
                 }`, countryNames[0], countryNames[0]))),
-				authLvl: enum.NONE,
+				authLvl: authLvl.USER,
 			},
 			expected: expected{
 				statusCode: http.StatusUnauthorized,
