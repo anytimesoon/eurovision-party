@@ -1,7 +1,7 @@
 package dto
 
 import (
-	"github.com/anytimesoon/eurovision-party/pkg/api/enum"
+	"github.com/anytimesoon/eurovision-party/pkg/api/enum/authLvl"
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
 	"github.com/google/uuid"
 	"image"
@@ -9,11 +9,14 @@ import (
 )
 
 type User struct {
-	UUID    uuid.UUID    `json:"id"`
-	Name    string       `json:"name"`
-	Slug    string       `json:"slug"`
-	Icon    string       `json:"icon"`
-	AuthLvl enum.AuthLvl `json:"authLvl"`
+	UUID      uuid.UUID       `json:"id"`
+	Name      string          `json:"name"`
+	Slug      string          `json:"slug"`
+	Icon      string          `json:"icon"`
+	AuthLvl   authLvl.AuthLvl `json:"authLvl"`
+	Invites   []uuid.UUID     `json:"invites"`
+	CreatedBy uuid.UUID       `json:"createdBy"`
+	CanInvite bool            `json:"canInvite"`
 }
 
 type UserAvatar struct {

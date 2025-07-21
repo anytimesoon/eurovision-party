@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/anytimesoon/eurovision-party/conf"
 	"github.com/anytimesoon/eurovision-party/pkg/api/enum/chatMsgType"
+	"github.com/anytimesoon/eurovision-party/pkg/api/enum/authLvl"
 	"github.com/anytimesoon/eurovision-party/pkg/data"
 	"github.com/anytimesoon/eurovision-party/pkg/data/dao"
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
@@ -18,7 +19,7 @@ type UserService interface {
 	UpdateUser(dto.User) (*dto.User, *errs.AppError)
 	GetOneUser(string) (*dto.User, *errs.AppError)
 	DeleteUser(string) *errs.AppError
-	GetRegisteredUsers() ([]*dto.NewUser, *errs.AppError)
+	GetRegisteredUsers(string) ([]*dto.NewUser, *errs.AppError)
 	UpdateUserImage(uuid.UUID) (*dto.User, *errs.AppError)
 	Register(dto.NewUser) (*dto.NewUser, *errs.AppError)
 }
@@ -118,10 +119,20 @@ func (us DefaultUserService) DeleteUser(slug string) *errs.AppError {
 	return nil
 }
 
-func (us DefaultUserService) GetRegisteredUsers() ([]*dto.NewUser, *errs.AppError) {
+func (us DefaultUserService) GetRegisteredUsers(userId string) ([]*dto.NewUser, *errs.AppError) {
 	usersDTO := make([]*dto.NewUser, 0)
 
-	users, err := us.userRepo.GetRegisteredUsers()
+	requestingUserId, err := uuid.Parse(userId)
+	if err != nil {
+		return usersDTO, errs.NewUnexpectedError("Could not parse user id.")
+	}
+
+	requestingUser, err := us.userRepo.GetOneUserById(requestingUserId)
+	if err != nil {
+		return usersDTO, errs.NewUnexpectedError(errs.Common.DBFail)
+	}
+
+	users, err := us.userRepo.GetRegisteredUsers(*requestingUser)
 	if err != nil {
 		return usersDTO, errs.NewUnexpectedError(errs.Common.DBFail)
 	}
@@ -142,9 +153,18 @@ func (us DefaultUserService) GetRegisteredUsers() ([]*dto.NewUser, *errs.AppErro
 }
 
 func (us DefaultUserService) Register(newUserDTO dto.NewUser) (*dto.NewUser, *errs.AppError) {
+	requestingUser, err := us.userRepo.GetOneUserById(newUserDTO.CreatedBy)
+	if err != nil {
+		return nil, errs.NewUnexpectedError(errs.Common.DBFail)
+	}
+
+	if !requestingUser.CanInvite {
+		return nil, errs.NewForbiddenError(errs.Common.MaxInvitesExceeded)
+	}
+
 	newUserDTO.Slugify()
 
-	newUser, err := us.userRepo.CreateUser(*dao.User{}.FromNewUserDTO(newUserDTO))
+	newUser, err := us.userRepo.CreateUser(*dao.User{}.FromNewUserDTO(newUserDTO, requestingUser))
 	if err != nil {
 		return nil, errs.NewUnexpectedError(errs.Common.NotCreated + "user")
 	}
@@ -162,6 +182,16 @@ func (us DefaultUserService) Register(newUserDTO dto.NewUser) (*dto.NewUser, *er
 
 	createdUserDTO := newUser.ToNewUserDTO(auth)
 	go us.broadcastNewUser(createdUserDTO)
+
+	requestingUser.Invites = append(requestingUser.Invites, newUser.UUID)
+	if requestingUser.AuthLvl != authLvl.ADMIN && uint8(len(requestingUser.Invites)) >= conf.App.MaxInvites {
+		requestingUser.CanInvite = false
+	}
+	_, err = us.userRepo.UpdateUser(*requestingUser)
+	if err != nil {
+		log.Println("Failed to update requesting user invites.", err)
+		return nil, errs.NewUnexpectedError(errs.Common.DBFail)
+	}
 
 	return createdUserDTO, nil
 }

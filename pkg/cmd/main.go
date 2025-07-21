@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/anytimesoon/eurovision-party/conf"
-	"github.com/anytimesoon/eurovision-party/pkg/api/enum"
+	"github.com/anytimesoon/eurovision-party/pkg/api/enum/authLvl"
 	"github.com/anytimesoon/eurovision-party/pkg/data/dao"
 	"github.com/timshannon/bolthold"
 	"log"
@@ -65,8 +65,7 @@ func addUsers(store *bolthold.Store) {
 		&admins,
 		bolthold.
 			Where("AuthLvl").
-			Eq(enum.ADMIN).
-			Index("AuthLvl"),
+			Eq(authLvl.ADMIN),
 	)
 	if err != nil {
 		log.Println("Error when finding admins:", err)
@@ -80,7 +79,7 @@ func addUsers(store *bolthold.Store) {
 		adminAuth := dao.Auth{
 			UserId:       initAdminUser.UUID,
 			AuthTokenExp: time.Now().Add(time.Hour * 24 * 100),
-			AuthLvl:      enum.ADMIN,
+			AuthLvl:      authLvl.ADMIN,
 			Slug:         initAdminUser.Slug,
 		}
 		adminAuth.GenerateSecureToken(40)
@@ -113,11 +112,10 @@ func addUsers(store *bolthold.Store) {
 		&bots,
 		bolthold.
 			Where("AuthLvl").
-			Eq(enum.BOT).
-			Index("AuthLvl"),
+			Eq(authLvl.BOT),
 	)
 	if err != nil {
-		log.Println("Error when finding admins:", err)
+		log.Println("Error when finding bot:", err)
 	}
 	if len(bots) == 0 {
 		err := store.Insert(initBotUser.UUID.String(), initBotUser)

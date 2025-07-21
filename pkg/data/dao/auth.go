@@ -3,7 +3,8 @@ package dao
 import (
 	"crypto/rand"
 	"encoding/hex"
-	"github.com/anytimesoon/eurovision-party/pkg/api/enum"
+	"github.com/anytimesoon/eurovision-party/conf"
+	"github.com/anytimesoon/eurovision-party/pkg/api/enum/authLvl"
 	"github.com/anytimesoon/eurovision-party/pkg/service/dto"
 	"github.com/google/uuid"
 	"time"
@@ -15,7 +16,7 @@ type Auth struct {
 	AuthTokenExp    time.Time
 	SessionToken    string
 	SessionTokenExp time.Time
-	AuthLvl         enum.AuthLvl
+	AuthLvl         authLvl.AuthLvl
 	LastUpdated     time.Time
 	Slug            string
 }
@@ -59,13 +60,10 @@ func (a *Auth) ToDTO() dto.Auth {
 	}
 }
 
-// ToReturnableDTO takes in a new token, which is an encrypted version of an auth struct.
-// A modified Auth is what we will send to the client
-func (a *Auth) ToReturnableDTO(token string) dto.Auth {
-	return dto.Auth{
-		Token:      token,
-		Expiration: a.SessionTokenExp,
-		UserId:     a.UserId,
-		AuthLvl:    a.AuthLvl,
+func (a *Auth) ToSession(token string, user *User) *dto.Session {
+	return &dto.Session{
+		SessionToken: token,
+		User:         user.ToDto(),
+		Bot:          conf.App.BotId,
 	}
 }

@@ -6,6 +6,7 @@
     import {authEP} from "$lib/models/enums/endpoints.enum";
     import {post} from "$lib/utils/genericFetch";
     import {newUserStore} from "$lib/stores/newUser.store";
+    import {currentUser} from "$lib/stores/user.store";
 
     let form: HTMLFormElement = $state()
     let formState = $state(formButtonState.ENABLED)
@@ -14,7 +15,7 @@
         e.preventDefault()
         formState = formButtonState.SENDING
         const fd = new FormData(form)
-        const newUser = new NewUserModel(fd.get("name") as string)
+        const newUser = new NewUserModel(fd.get("name") as string, $currentUser.id)
 
         const createdUser: NewUserModel = await post<NewUserModel, NewUserModel>(authEP.REGISTER, newUser)
             .then(res => NewUserModel.deserialize(res))

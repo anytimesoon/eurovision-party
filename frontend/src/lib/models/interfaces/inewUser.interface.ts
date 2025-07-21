@@ -1,6 +1,7 @@
 export interface INewUser {
-    id:      string;
-    name:    string;
-    slug:    string;
-    token:   string;
+    id:         string;
+    name:       string;
+    slug:       string;
+    token:      string;
+    createdBy:  string;
 }
