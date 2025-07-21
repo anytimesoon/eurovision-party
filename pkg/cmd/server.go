@@ -96,7 +96,7 @@ func StartServer(store *bolthold.Store) {
 	userRouter.HandleFunc("/{slug}", userHandler.DeleteUser).Methods(http.MethodDelete) // admin only
 
 	// Vote
-	voteHandler := api.VoteHandler{Service: service.NewVoteService(voteRepository)}
+	voteHandler := api.VoteHandler{Service: service.NewVoteService(voteRepository, chatRoomHandler.RoomService.BroadcastUpdate, commentRepository)}
 	voteRouter := apiRouter.PathPrefix("/vote").Subrouter()
 	voteRouter.HandleFunc("/", voteHandler.UpdateVote).Methods(http.MethodPut) // current user only
 	voteRouter.HandleFunc("/results", voteHandler.GetResults).Methods(http.MethodGet)

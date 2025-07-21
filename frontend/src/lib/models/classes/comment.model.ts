@@ -8,7 +8,8 @@ export class CommentModel implements IComment {
 		replyToComment?: CommentModel,
 		createdAt?: Date,
 		isCompact: boolean = false,
-		fileName: string = ""
+		fileName: string = "",
+		isVoteNotification: boolean = false
 	) {
 		this.id = id
 		this.text = text
@@ -19,6 +20,7 @@ export class CommentModel implements IComment {
 		}
 		this.isCompact = isCompact
 		this.fileName = fileName
+		this.isVoteNotification = isVoteNotification
 	}
 
 
@@ -29,6 +31,7 @@ export class CommentModel implements IComment {
 	public isCompact:	 		boolean;
 	public replyToComment: 		CommentModel;
 	public fileName:			string;
+	public isVoteNotification:	boolean;
 
 	isEmpty(): boolean {
 		console.log(this.text === ""
@@ -53,7 +56,8 @@ export class CommentModel implements IComment {
 			input.replyToComment,
 			new Date(input.createdAt),
 			input.isCompact,
-			input.fileName
+			input.fileName,
+			input.isVoteNotification
 		)
 	}
 
@@ -65,7 +69,8 @@ export class CommentModel implements IComment {
 			undefined,
 			new Date(),
 			false,
-			""
+			"",
+			false
 		)
 	}
 }

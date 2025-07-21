@@ -7,6 +7,7 @@
     import ReplyMenu from "$lib/components/chat/ReplyMenu.svelte";
     import ImageLoader from "$lib/components/images/ImageLoader.svelte";
     import {replyComment} from "$lib/stores/replyComment.store";
+    import VoteNotificationMessage from "$lib/components/chat/VoteNotificationMessage.svelte";
 
     interface Props {
         comment: CommentModel;
@@ -82,7 +83,9 @@
     let menuPadding = $derived((shouldShowReplyMenu && comment.isCompact) ? "pt-5" : "")
 </script>
 
-{#if user && user.authLvl === authLvl.BOT}
+{#if user && user.authLvl === authLvl.BOT && comment.isVoteNotification}
+    <VoteNotificationMessage />
+{:else if user && user.authLvl === authLvl.BOT}
     <div class="text-center mt-2 text-s p-3">
         <p class="text-sm">{comment.text}</p>
     </div>

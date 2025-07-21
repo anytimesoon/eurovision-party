@@ -47,6 +47,15 @@ func addCountries(store *bolthold.Store) {
 		if err != nil {
 			log.Printf("Skipping %s %s: already exists in country table", country.Flag, country.Name)
 		}
+
+		err = store.Insert(country.Slug, dao.VoteTracker{
+			Count:           0,
+			HasBeenNotified: false,
+			Country:         country,
+		})
+		if err != nil {
+			log.Println(err)
+		}
 	}
 }
 

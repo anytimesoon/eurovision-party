@@ -24,6 +24,7 @@ type AppConf struct {
 	Assets      string `mapstructure:"ASSET_DIR"`
 	Secret      string `mapstructure:"SECRET"`
 	MaxInvites  uint8  `mapstructure:"MAX_INVITES"`
+	VoteCountTrigger int    `mapstructure:"VOTE_COUNT_TRIGGER"`
 }
 
 func (a *AppConf) SetBotId(id uuid.UUID) {
@@ -46,6 +47,7 @@ func LoadConfig() {
 	v.SetDefault("HTTP_PROTOCOL", "http://")
 	v.SetDefault("CHAT_BOT_NAME", "Eurobot")
 	v.SetDefault("MAX_INVITES", 5)
+	v.SetDefault("VOTE_COUNT_TRIGGER", 5)
 
 	err := v.ReadInConfig()
 	if err != nil {

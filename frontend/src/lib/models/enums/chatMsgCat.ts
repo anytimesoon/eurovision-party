@@ -4,5 +4,6 @@ export const chatMsgCat = {
     UPDATE_USER: "updateUser",
     LATEST_COMMENT: "latestComment",
     NEW_USER: "newUser",
-    ERROR: "error"
+    ERROR: "error",
+    VOTE_NOTIFICATION: "voteNotification"
 }

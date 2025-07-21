@@ -2,6 +2,7 @@ package data
 
 import (
 	"fmt"
+	"github.com/anytimesoon/eurovision-party/conf"
 	"github.com/anytimesoon/eurovision-party/pkg/data/dao"
 	"github.com/timshannon/bolthold"
 	"log"
@@ -14,7 +15,8 @@ type VoteRepository interface {
 	UpdateVote(dao.Vote) (*dao.Vote, error)
 	GetVoteByUserAndCountry(uuid.UUID, string) (*dao.Vote, error)
 	GetResults() (*[]dao.Result, error)
-	GetResultsByUser(userId uuid.UUID) (*[]dao.Result, error)
+	GetResultsByUser(uuid.UUID) (*[]dao.Result, error)
+	GetTotalVotesForCountry(string) (*dao.VoteTracker, error)
 }
 
 type VoteRepositoryDb struct {
@@ -128,4 +130,26 @@ func (db VoteRepositoryDb) GetResultsByUser(userId uuid.UUID) (*[]dao.Result, er
 	}
 
 	return &results, nil
+}
+
+func (db VoteRepositoryDb) GetTotalVotesForCountry(countrySlug string) (*dao.VoteTracker, error) {
+	var voteCount dao.VoteTracker
+	err := db.store.Get(countrySlug, &voteCount)
+	if err != nil {
+		log.Println("Error while querying vote count table", err)
+		return nil, err
+	}
+
+	voteCount.Count++
+	if voteCount.Count >= conf.App.VoteCountTrigger {
+		voteCount.HasBeenNotified = true
+	}
+
+	err = db.store.Update(countrySlug, voteCount)
+	if err != nil {
+		log.Println("Error while updating vote count table", err)
+		return nil, err
+	}
+
+	return &voteCount, nil
 }
