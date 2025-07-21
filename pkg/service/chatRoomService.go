@@ -2,20 +2,19 @@ package service
 
 import (
 	"encoding/json"
-	"github.com/anytimesoon/eurovision-party/pkg/api/enum"
+	"github.com/anytimesoon/eurovision-party/pkg/api/enum/chatMsgType"
 	"github.com/anytimesoon/eurovision-party/pkg/service/dto"
 	"github.com/google/uuid"
 	"log"
 )
 
 type Room struct {
-	CommentService          CommentService
-	clients                 map[uuid.UUID]*ChatClient
-	broadcastChatMessage    chan *dto.Comment
-	BroadcastUpdate         chan dto.SocketMessage
-	Register                chan *ChatClient
-	unregister              chan *ChatClient
-	sendLatesMessagesToUser chan []byte
+	CommentService       CommentService
+	clients              map[uuid.UUID]*ChatClient
+	broadcastChatMessage chan *dto.Comment
+	BroadcastUpdate      chan dto.SocketMessage
+	Register             chan *ChatClient
+	unregister           chan *ChatClient
 }
 
 func NewRoom(commentService CommentService) *Room {
@@ -42,13 +41,18 @@ func (r *Room) Run() {
 			}
 		case commentJSON := <-r.broadcastChatMessage:
 			chatMessage := dto.NewSocketMessage(
-				enum.COMMENT,
+				chatMsgType.COMMENT,
 				commentJSON,
 			)
 			r.broadcast(chatMessage)
 		case updateMessage := <-r.BroadcastUpdate:
-			log.Println("Broadcasting user update")
-			r.broadcast(updateMessage)
+			if updateMessage.Category == chatMsgType.VOTE_NOTIFICATION {
+				log.Println("Broadcasting vote update")
+				r.broadcast(updateMessage)
+			} else {
+				log.Println("Broadcasting user update")
+				r.broadcast(updateMessage)
+			}
 		}
 	}
 }

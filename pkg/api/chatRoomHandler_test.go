@@ -3,7 +3,7 @@ package api
 import (
 	"encoding/json"
 	"github.com/anytimesoon/eurovision-party/conf"
-	"github.com/anytimesoon/eurovision-party/pkg/api/enum"
+	"github.com/anytimesoon/eurovision-party/pkg/api/enum/chatMsgType"
 	"github.com/anytimesoon/eurovision-party/pkg/data/dao"
 	"github.com/anytimesoon/eurovision-party/pkg/service"
 	"github.com/anytimesoon/eurovision-party/pkg/service/dto"
@@ -138,7 +138,7 @@ func TestChatRoomHandler_Connect(t *testing.T) {
 			}
 
 			mockMessage := dto.SocketMessage{
-				Category: enum.COMMENT,
+				Category: chatMsgType.COMMENT,
 				Body:     comm,
 			}
 
@@ -175,7 +175,7 @@ func TestChatRoomHandler_Connect(t *testing.T) {
 					t.Errorf("Comment file name does not match. Expected %s but got %s", mockComment.FileName, persistedComment.FileName)
 				}
 				if persistedComment.ReplyTo != nil {
-					t.Errorf("Comment reply to does not match. Expected %s but got %s", mockComment.ReplyTo, persistedComment.ReplyTo)
+					t.Errorf("Comment reply to does not match. Expected %+v but got %+v", mockComment.ReplyTo, persistedComment.ReplyTo)
 				}
 			}()
 

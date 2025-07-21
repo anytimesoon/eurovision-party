@@ -3,7 +3,7 @@ package service
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/anytimesoon/eurovision-party/pkg/api/enum"
+	"github.com/anytimesoon/eurovision-party/pkg/api/enum/chatMsgType"
 	"github.com/anytimesoon/eurovision-party/pkg/service/dto"
 	"log"
 	"time"
@@ -78,7 +78,7 @@ func (c *ChatClient) Pub() {
 		}
 
 		switch filteredMessage.Category {
-		case enum.COMMENT:
+		case chatMsgType.COMMENT:
 			commentJSON, appErr := c.ComServ.CreateComment(filteredMessage.Body)
 			if appErr != nil {
 				log.Println("Failed to create comment. Sending error to client.", appErr.Message)
@@ -87,7 +87,7 @@ func (c *ChatClient) Pub() {
 			}
 			log.Println("New message received from", c.UserId.String())
 			c.Room.broadcastChatMessage <- commentJSON
-		case enum.LATEST_COMMENT:
+		case chatMsgType.LATEST_COMMENT:
 			commentsJSON, appErr := c.ComServ.FindCommentsAfter(filteredMessage.Body)
 			if appErr != nil {
 				log.Println("Failed to fetch comments. Sending error to client.", appErr.Message)
@@ -96,7 +96,7 @@ func (c *ChatClient) Pub() {
 			}
 			log.Println("Sending latest messages to", c.UserId.String())
 			chatMessages := dto.SocketMessage{
-				Category: enum.COMMENT_ARRAY,
+				Category: chatMsgType.COMMENT_ARRAY,
 				Body:     commentsJSON,
 			}
 			chatMessagesJSON, err := json.Marshal(chatMessages)

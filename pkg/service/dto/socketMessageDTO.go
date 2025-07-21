@@ -2,12 +2,12 @@ package dto
 
 import (
 	"encoding/json"
-	"github.com/anytimesoon/eurovision-party/pkg/api/enum"
+	"github.com/anytimesoon/eurovision-party/pkg/api/enum/chatMsgType"
 )
 
 type SocketMessage struct {
-	Category enum.ChatMsgType `json:"category"`
-	Body     json.RawMessage  `json:"body"`
+	Category chatMsgType.ChatMsgType `json:"category"`
+	Body     json.RawMessage         `json:"body"`
 }
 
 type SocketError string
@@ -23,12 +23,12 @@ func NewSocketErrorMessage(message string) SocketMessage {
 	}
 	encodedString, _ := json.Marshal(message)
 	return SocketMessage{
-		Category: enum.ERROR,
+		Category: chatMsgType.ERROR,
 		Body:     encodedString,
 	}
 }
 
-func NewSocketMessage[T ChatResponseBody](category enum.ChatMsgType, payload T) SocketMessage {
+func NewSocketMessage[T ChatResponseBody](category chatMsgType.ChatMsgType, payload T) SocketMessage {
 	body, err := json.Marshal(payload)
 	if err != nil {
 		return NewSocketErrorMessage("")

@@ -47,7 +47,8 @@ var (
 	}
 	countryNames = []string{"Austria", "Belgium", "Bulgaria", "Croatia", "Cyprus"}
 
-	testBroadcastChan = make(chan dto.SocketMessage)
+	testUserBroadcastChan = make(chan dto.SocketMessage)
+	testVoteBroadcastChan = make(chan dto.SocketMessage)
 )
 
 func TestMain(m *testing.M) {
@@ -126,6 +127,11 @@ func generateCountries(db *bolthold.Store) {
 		if err != nil {
 			panic(err)
 		}
+
+		err = db.Upsert(country.Slug, dao.VoteTracker{})
+		if err != nil {
+			panic(err)
+		}
 	}
 }
 
@@ -194,7 +200,8 @@ func newTestAuthService() service.AuthService {
 
 func newTestVoteService() service.VoteService {
 	voteRepository := data.NewVoteRepositoryDb(testDB)
-	return service.NewVoteService(voteRepository)
+	commentRepository := data.NewCommentRepositoryDb(testDB)
+	return service.NewVoteService(voteRepository, testVoteBroadcastChan, commentRepository)
 }
 
 func newTestCountryService() service.CountryService {
@@ -209,7 +216,7 @@ func newTestUserService() service.UserService {
 	voteRepository := data.NewVoteRepositoryDb(testDB)
 	return service.NewUserService(
 		userRepository,
-		testBroadcastChan,
+		testUserBroadcastChan,
 		authRepository,
 		commentRepository,
 		voteRepository,

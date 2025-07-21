@@ -13,6 +13,9 @@ import type {UserModel} from "$lib/models/classes/user.model";
 import type {IComment} from "$lib/models/interfaces/icomment.interface";
 import {v4 as uuid} from 'uuid';
 import {sessionStore} from "$lib/stores/session.store";
+import type {VoteTracker} from "$lib/models/classes/voteNotification.model";
+import {currentlyVotingOn} from "$lib/stores/currentlyVotingOn.store";
+import {CountryModel} from "$lib/models/classes/country.model";
 
 
 let session:string
@@ -119,6 +122,11 @@ function connectToSocket(url: string){
                         console.log(error)
                         errorStore.set(error)
                         commentQueue.removeFirstMessage()
+                        break
+                    case chatMsgCat.VOTE_NOTIFICATION:
+                        const voteNotification: VoteTracker = chatMessage.body
+                        currentlyVotingOn.set(CountryModel.deserialize(voteNotification.country))
+                        addNewComment(CommentModel.deserialize(voteNotification.comment))
                         break
                     default:
                         errorStore.set("Oops... something just went very wrong. Please stay seated while the performances continue.")

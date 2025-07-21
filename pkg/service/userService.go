@@ -3,7 +3,7 @@ package service
 import (
 	"fmt"
 	"github.com/anytimesoon/eurovision-party/conf"
-	"github.com/anytimesoon/eurovision-party/pkg/api/enum"
+	"github.com/anytimesoon/eurovision-party/pkg/api/enum/chatMsgType"
 	"github.com/anytimesoon/eurovision-party/pkg/data"
 	"github.com/anytimesoon/eurovision-party/pkg/data/dao"
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
@@ -168,7 +168,7 @@ func (us DefaultUserService) Register(newUserDTO dto.NewUser) (*dto.NewUser, *er
 
 func (us DefaultUserService) broadcastNewUser(newUser *dto.NewUser) {
 	msg := dto.NewSocketMessage(
-		enum.NEW_USER,
+		chatMsgType.NEW_USER,
 		newUser)
 
 	us.broadcast <- msg
@@ -189,7 +189,7 @@ func (us DefaultUserService) broadcastUserUpdate(user dto.User, comment string) 
 	}
 
 	msg := dto.NewSocketMessage(
-		enum.UPDATE_USER,
+		chatMsgType.UPDATE_USER,
 		dto.UpdateMessage{
 			UpdatedUser: user,
 			Comment:     botMessage,

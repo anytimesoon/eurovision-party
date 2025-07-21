@@ -4,6 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/anytimesoon/eurovision-party/conf"
+	"github.com/anytimesoon/eurovision-party/pkg/api/enum"
+	"github.com/anytimesoon/eurovision-party/pkg/api/enum/chatMsgType"
 	"github.com/anytimesoon/eurovision-party/pkg/data/dao"
 	"github.com/anytimesoon/eurovision-party/pkg/service"
 	"github.com/anytimesoon/eurovision-party/pkg/service/dto"
@@ -13,6 +16,7 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestVoteHandler_GetResults(t *testing.T) {
@@ -541,6 +545,93 @@ func TestVoteHandler_UpdateVote(t *testing.T) {
 				})
 			if err != nil {
 				panic(err)
+			}
+		})
+	}
+}
+
+func TestDefaultVoteService_UpdateVote_Broadcasting(t *testing.T) {
+	vs := newTestVoteService()
+	categories := make([]enum.Categories, 4)
+	categories[0] = enum.Costume
+	categories[1] = enum.Song
+	categories[2] = enum.Performance
+	categories[3] = enum.Props
+	conf.App.VoteCountTrigger = 5
+
+	tests := []struct {
+		name          string
+		updateCount   int
+		expectMessage int
+		countrySlug   string
+	}{
+		{
+			name: "two vote updates - one broadcast message",
+
+			updateCount:   conf.App.VoteCountTrigger,
+			expectMessage: 1,
+			countrySlug:   countryNames[1],
+		},
+		{
+			name:          "three vote updates - one broadcast message",
+			updateCount:   conf.App.VoteCountTrigger + 1,
+			expectMessage: 1,
+			countrySlug:   countryNames[2],
+		},
+		{
+			name:          "single vote update - no broadcast",
+			updateCount:   conf.App.VoteCountTrigger - 2,
+			expectMessage: 0,
+			countrySlug:   countryNames[3],
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			for len(testVoteBroadcastChan) > 0 {
+				<-testVoteBroadcastChan
+			}
+
+			if len(testVoteBroadcastChan) != 0 {
+				t.Errorf("testVoteBroadcastChan should be empty, got %v", len(testVoteBroadcastChan))
+			}
+
+			for i := 1; i <= tt.updateCount; i++ {
+				voteUpdate := dto.VoteSingle{
+					UserId:      adminUserId,
+					CountrySlug: tt.countrySlug,
+					Cat:         categories[i%len(categories)],
+					Score:       5,
+				}
+
+				_, err := vs.UpdateVote(voteUpdate)
+				if err != nil {
+					panic(err)
+				}
+			}
+
+			messageReceivedCount := 0
+			select {
+			case msg := <-testVoteBroadcastChan:
+
+				if msg.Category == chatMsgType.VOTE_NOTIFICATION {
+					var notification dto.VoteTracker
+					err := json.Unmarshal(msg.Body, &notification)
+					if err != nil {
+						panic(err)
+					}
+
+					if notification.Country.Slug != tt.countrySlug {
+						fmt.Printf("Received broadcast message: %+v\n", notification)
+						messageReceivedCount++
+					}
+				}
+			case <-time.After(2000 * time.Millisecond):
+			}
+
+			if tt.expectMessage != messageReceivedCount {
+				t.Errorf("Expected %d broadcast message but got %d", tt.expectMessage, messageReceivedCount)
 			}
 		})
 	}

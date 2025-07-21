@@ -1,12 +1,18 @@
 package service
 
 import (
+	"encoding/json"
+	"fmt"
+	"github.com/anytimesoon/eurovision-party/conf"
 	"github.com/anytimesoon/eurovision-party/pkg/api/enum"
+	"github.com/anytimesoon/eurovision-party/pkg/api/enum/chatMsgType"
 	"github.com/anytimesoon/eurovision-party/pkg/data"
 	"github.com/anytimesoon/eurovision-party/pkg/data/dao"
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
 	"github.com/anytimesoon/eurovision-party/pkg/service/dto"
 	"github.com/google/uuid"
+	"log"
+	"time"
 )
 
 type VoteService interface {
@@ -17,11 +23,17 @@ type VoteService interface {
 }
 
 type DefaultVoteService struct {
-	repo data.VoteRepository
+	repo        data.VoteRepository
+	broadcast   chan dto.SocketMessage
+	commentRepo data.CommentRepository
 }
 
-func NewVoteService(repo data.VoteRepository) DefaultVoteService {
-	return DefaultVoteService{repo}
+func NewVoteService(repo data.VoteRepository, broadcast chan dto.SocketMessage, commentRepo data.CommentRepository) DefaultVoteService {
+	return DefaultVoteService{
+		repo,
+		broadcast,
+		commentRepo,
+	}
 }
 
 func (vs DefaultVoteService) UpdateVote(voteSingleDTO dto.VoteSingle) (*dto.Vote, *errs.AppError) {
@@ -51,6 +63,15 @@ func (vs DefaultVoteService) UpdateVote(voteSingleDTO dto.VoteSingle) (*dto.Vote
 	vote, err = vs.repo.UpdateVote(*vote)
 	if err != nil {
 		return nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "your vote")
+	}
+
+	voteTracker, err := vs.repo.GetTotalVotesForCountry(voteSingleDTO.CountrySlug)
+	if err != nil {
+		return nil, errs.NewUnexpectedError(errs.Common.DBFail)
+	}
+
+	if voteTracker.Count == conf.App.VoteCountTrigger && voteTracker.HasBeenNotified {
+		go vs.broadcastVoting(voteTracker.ToDto())
 	}
 
 	result := vote.ToDto()
@@ -111,4 +132,37 @@ func sortResults(results []dao.Result) *[]dto.Result {
 	}
 
 	return &sortedResultsDTO
+}
+
+func (vs DefaultVoteService) broadcastVoting(voteTracker dto.VoteTracker) {
+	comment := &dao.Comment{
+		UUID:      uuid.New(),
+		UserId:    conf.App.BotId,
+		Text:      fmt.Sprintf("People voted for %s %s", voteTracker.Country.Name, voteTracker.Country.Flag),
+		FileName:  "",
+		CreatedAt: time.Now(),
+		ReplyTo:   nil,
+	}
+
+	comment, err := vs.commentRepo.CreateComment(*comment)
+	if err != nil {
+		log.Println("Failed to create comment for vote tracker.", err)
+		return
+	}
+
+	commentDTO := comment.ToDto()
+	commentDTO.IsVoteNotification = true
+	voteTracker.Comment = commentDTO
+
+	voteTrackerJson, err := json.Marshal(voteTracker)
+	if err != nil {
+		log.Println("Failed to marshal vote tracker.", err)
+		return
+	}
+
+	log.Printf("Broadcasting vote tracker to all users for %s.", voteTracker.Country.Name)
+	vs.broadcast <- dto.SocketMessage{
+		Category: chatMsgType.VOTE_NOTIFICATION,
+		Body:     voteTrackerJson,
+	}
 }

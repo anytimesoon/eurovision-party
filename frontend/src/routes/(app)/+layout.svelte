@@ -10,6 +10,8 @@
   import {UserModel} from "$lib/models/classes/user.model";
   import {get} from "$lib/utils/genericFetch";
   import {socketStore} from "$lib/stores/socket.store";
+  import {currentlyVotingOn} from "$lib/stores/currentlyVotingOn.store";
+
   interface Props {
     children?: import('svelte').Snippet;
   }
@@ -70,10 +72,22 @@
 
   <aside id="menu" class="fixed top-0 -right-[75%] w-[75%] bg-canvas-secondary z-1 flex duration-500 h-screen overflow-auto">
     <div class="w-full flex flex-col p-5">
+    {#if $currentlyVotingOn.name !== ""}
+        <a href="/country/{$currentlyVotingOn.slug}" onclick={closeMenu} class="text-[1.25rem] block">
+
+            <div class="mb-5">
+                <h4>People are currently voting on:</h4>
+                    {$currentlyVotingOn.flag} {$currentlyVotingOn.name}
+            </div>
+
+        </a>
+
+    {/if}
+
       <ul class="list-none">
         {#each $participatingCountryStore as country}
-          <li class="py-2">
-              <a href="/country/{country.slug}" onclick={closeMenu} class="text-[1.25rem] block">
+          <li>
+              <a href="/country/{country.slug}" onclick={closeMenu} class="text-[1.25rem] block py-2">
                   {country.flag} {country.name}
               </a>
           </li>
