@@ -1,11 +1,11 @@
 <script lang="ts">
     import {notParticipatingCountryStore, participatingCountryStore} from "$lib/stores/country.store";
     import CountryParticipationForm from "$lib/components/forms/CountryParticipationForm.svelte";
-    import AdminNav from "$lib/components/AdminNav.svelte";
+    import SettingsNav from "$lib/components/SettingsNav.svelte";
 </script>
 
 <div class="h-full flex flex-col">
-    <AdminNav page="countries"/>
+    <SettingsNav page="countries"/>
 
     <h2 class="text-center">{$participatingCountryStore.length} countries selected</h2>
 

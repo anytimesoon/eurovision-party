@@ -2,12 +2,13 @@ package data
 
 import (
 	"errors"
-	"github.com/anytimesoon/eurovision-party/pkg/api/enum"
+	"github.com/anytimesoon/eurovision-party/pkg/api/enum/authLvl"
 	"github.com/anytimesoon/eurovision-party/pkg/data/dao"
 	"github.com/google/uuid"
 	"github.com/timshannon/bolthold"
 	"log"
 	"strconv"
+	"strings"
 )
 
 type UserRepository interface {
@@ -16,7 +17,7 @@ type UserRepository interface {
 	GetOneUserBySlug(string) (*dao.User, error)
 	GetOneUserById(uuid.UUID) (*dao.User, error)
 	DeleteUser(string) error
-	GetRegisteredUsers() (*[]dao.User, error)
+	GetRegisteredUsers(dao.User) (*[]dao.User, error)
 	UpdateUser(dao.User) (*dao.User, error)
 	UpdateUserImage(uuid.UUID) (*dao.User, error)
 }
@@ -51,40 +52,49 @@ func (db UserRepositoryDb) GetOneUserById(userId uuid.UUID) (*dao.User, error) {
 
 func (db UserRepositoryDb) CreateUser(user dao.User) (*dao.User, error) {
 
-	err := db.verifySlug(&user)
+	users := make([]dao.User, 0)
+	slugifiedUser, err := db.verifySlug(&user)
 	if err != nil {
 		log.Printf("Error when slufigying user %s with message %s", user.Name, err)
 		return nil, err
 	}
 
-	err = db.store.Insert(user.UUID.String(), user)
+	err = db.store.Find(&users, &bolthold.Query{})
+	matches := make([]dao.User, 0)
+	for _, user := range users {
+		if strings.Contains(user.Slug, "asdf") {
+			matches = append(matches, user)
+		}
+	}
+
+	err = db.store.Insert(user.UUID.String(), slugifiedUser)
 	if err != nil {
 		log.Printf("Error when creating new user %s, %s", user.Name, err)
 		return nil, err
 	}
 
-	return &user, nil
+	return slugifiedUser, nil
 }
 
-func (db UserRepositoryDb) verifySlug(newUser *dao.User) error {
+func (db UserRepositoryDb) verifySlug(newUser *dao.User) (*dao.User, error) {
 	// Verify the name is unique or add a number to the end
+	originalSlug := newUser.Slug
 	counter := 0
 	for {
 		var user dao.User
 		err := db.store.FindOne(&user, bolthold.Where("Slug").Eq(newUser.Slug))
 		if err != nil {
 			if errors.Is(err, bolthold.ErrNotFound) {
-				// no users with this slug found, so validation is complete
-				if counter > 0 {
-					newUser.Slug = newUser.Slug[:len(newUser.Slug)-counter] + "-" + strconv.Itoa(counter)
-				}
-				return nil
+				return newUser, nil
 			}
-			return err
+			return nil, err
 		}
 
 		counter++
-		newUser.Slug = newUser.Slug + "i"
+		newUser.Slug = originalSlug + "-" + strconv.Itoa(counter)
+		if counter > 100 {
+			return nil, errors.New("unable to generate unique slug after 100 attempts")
+		}
 	}
 }
 
@@ -144,10 +154,15 @@ func (db UserRepositoryDb) DeleteUser(slug string) error {
 	return nil
 }
 
-func (db UserRepositoryDb) GetRegisteredUsers() (*[]dao.User, error) {
+func (db UserRepositoryDb) GetRegisteredUsers(user dao.User) (*[]dao.User, error) {
 	users := make([]dao.User, 0)
+	var err error
 
-	err := db.store.Find(&users, bolthold.Where("AuthLvl").Ne(enum.BOT))
+	if user.AuthLvl == authLvl.ADMIN {
+		err = db.store.Find(&users, bolthold.Where("AuthLvl").Ne(authLvl.BOT))
+	} else {
+		err = db.store.Find(&users, bolthold.Where("CreatedBy").Eq(user.UUID))
+	}
 	if err != nil {
 		log.Println("Error while querying user table for registered users", err)
 		return nil, err

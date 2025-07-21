@@ -1,7 +1,7 @@
 package dao
 
 import (
-	"github.com/anytimesoon/eurovision-party/pkg/api/enum"
+	"github.com/anytimesoon/eurovision-party/pkg/api/enum/authLvl"
 	"github.com/anytimesoon/eurovision-party/pkg/service/dto"
 	"time"
 
@@ -9,50 +9,67 @@ import (
 )
 
 type User struct {
-	UUID    uuid.UUID
-	AuthLvl enum.AuthLvl `boltholdIndex:"AuthLvl"`
-	Name    string
-	Slug    string `boltholdUnique:"UniqueSlug"`
-	Icon    string
+	UUID      uuid.UUID
+	AuthLvl   authLvl.AuthLvl
+	Name      string
+	Slug      string `boltholdUnique:"UniqueSlug"`
+	Icon      string
+	Invites   []uuid.UUID
+	CreatedBy uuid.UUID `boltholdIndex:"CreatedBy"`
+	CanInvite bool
 }
 
 func (u User) ToDto() dto.User {
 	return dto.User{
-		Name:    u.Name,
-		Slug:    u.Slug,
-		UUID:    u.UUID,
-		Icon:    u.Icon,
-		AuthLvl: u.AuthLvl,
+		Name:      u.Name,
+		Slug:      u.Slug,
+		UUID:      u.UUID,
+		Icon:      u.Icon,
+		AuthLvl:   u.AuthLvl,
+		Invites:   u.Invites,
+		CreatedBy: u.CreatedBy,
+		CanInvite: u.CanInvite,
 	}
 }
 
 func (u User) FromDTO(userDTO dto.User) *User {
 	return &User{
-		UUID:    userDTO.UUID,
-		AuthLvl: userDTO.AuthLvl,
-		Name:    userDTO.Name,
-		Slug:    userDTO.Slug,
-		Icon:    userDTO.Icon,
+		UUID:      userDTO.UUID,
+		AuthLvl:   userDTO.AuthLvl,
+		Name:      userDTO.Name,
+		Slug:      userDTO.Slug,
+		Icon:      userDTO.Icon,
+		Invites:   userDTO.Invites,
+		CreatedBy: userDTO.CreatedBy,
+		CanInvite: userDTO.CanInvite,
 	}
 }
 
 func (u User) ToNewUserDTO(auth Auth) *dto.NewUser {
 	return &dto.NewUser{
-		UUID:    u.UUID,
-		AuthLvl: u.AuthLvl,
-		Name:    u.Name,
-		Slug:    u.Slug,
-		Token:   auth.AuthToken,
+		UUID:      u.UUID,
+		AuthLvl:   u.AuthLvl,
+		Name:      u.Name,
+		Slug:      u.Slug,
+		Token:     auth.AuthToken,
+		CreatedBy: u.CreatedBy,
 	}
 }
 
-func (u User) FromNewUserDTO(newUser dto.NewUser) *User {
+func (u User) FromNewUserDTO(newUser dto.NewUser, requestingUser *User) *User {
+	newAuthLvl := authLvl.USER
+	if requestingUser.AuthLvl == authLvl.USER {
+		newAuthLvl = authLvl.FRIEND_OF_FRIEND
+	}
 	return &User{
-		UUID:    uuid.New(),
-		AuthLvl: newUser.AuthLvl,
-		Name:    newUser.Name,
-		Slug:    newUser.Slug,
-		Icon:    "default",
+		UUID:      uuid.New(),
+		AuthLvl:   newAuthLvl,
+		Name:      newUser.Name,
+		Slug:      newUser.Slug,
+		Icon:      "default",
+		Invites:   make([]uuid.UUID, 0),
+		CreatedBy: requestingUser.UUID,
+		CanInvite: requestingUser.AuthLvl == authLvl.ADMIN,
 	}
 }
 

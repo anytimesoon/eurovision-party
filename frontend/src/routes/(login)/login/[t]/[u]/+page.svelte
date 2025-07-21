@@ -34,7 +34,7 @@
         $sessionStore = login.body.token
 
         if ($currentUser.isAdmin()) {
-            await goto("/admin/countries")
+            await goto("/settings/countries")
         } else {
             await goto("/")
         }
