@@ -5,18 +5,19 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/anytimesoon/eurovision-party/pkg/api/enum/authLvl"
+	"io"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+
 	"github.com/anytimesoon/eurovision-party/pkg/data/dao"
+	"github.com/anytimesoon/eurovision-party/pkg/enum/authLvl"
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
 	"github.com/anytimesoon/eurovision-party/pkg/service"
 	"github.com/anytimesoon/eurovision-party/pkg/service/dto"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/timshannon/bolthold"
-	"io"
-	"net/http"
-	"net/http/httptest"
-	"testing"
 )
 
 func TestUserHandler_GetAllUsers(t *testing.T) {

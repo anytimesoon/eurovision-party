@@ -16,6 +16,8 @@ import {sessionStore} from "$lib/stores/session.store";
 import type {VoteTracker} from "$lib/models/classes/voteNotification.model";
 import {currentlyVotingOn} from "$lib/stores/currentlyVotingOn.store";
 import {CountryModel} from "$lib/models/classes/country.model";
+import type {CommentReactionModel} from "$lib/models/classes/commentReaction.model";
+import {currentUser} from "$lib/stores/user.store";
 
 
 let session:string
@@ -25,7 +27,10 @@ let botUserId:string
 botId.subscribe(val => botUserId = val)
 
 let commentLog: Array<CommentModel>
-commentStore.subscribe(val => commentLog = val)
+commentStore.subscribe(val => commentLog = val.values().toArray())
+
+let thisUser: UserModel
+currentUser.subscribe(val => thisUser = val)
 
 export const socketStore = socket()
 let timeoutDuration = 1000 // in milis
@@ -128,6 +133,19 @@ function connectToSocket(url: string){
                         currentlyVotingOn.set(CountryModel.deserialize(voteNotification.country))
                         addNewComment(CommentModel.deserialize(voteNotification.comment))
                         break
+                    case chatMsgCat.UPDATE_COMMENT:
+                        const updateComment: CommentReactionModel = chatMessage.body
+                        if (updateComment.userId !== thisUser.id) {
+                            commentStore.update(val => {
+                                const comment = val.get(updateComment.commentId)
+                                if (comment) {
+                                    comment.addOrRemoveReaction(updateComment.userId, updateComment.reaction)
+                                    val.set(comment.id, comment)
+                                }
+                                return val
+                            })
+                        }
+                        break
                     default:
                         errorStore.set("Oops... something just went very wrong. Please stay seated while the performances continue.")
                 }
@@ -146,15 +164,17 @@ function addNewComment(commentObject:IComment){
 
     if (latestComment && latestComment.createdAt.getDay() != comment.createdAt.getDay() && latestComment.userId !== botUserId) {
         commentStore.update( comments => {
-            let date = new Date()
+            const date = new Date()
+            const commentId = uuid()
             const botComment = new CommentModel(
                 `${comment.createdAt.getDate()}/${comment.createdAt.getMonth() + 1}/${comment.createdAt.getFullYear()}`,
                 botUserId,
-                uuid(),
+                commentId,
                 null,
                 date
             )
-            return [...comments, botComment]
+            comments.set(commentId, botComment)
+            return comments
         })
     }
 
@@ -163,7 +183,8 @@ function addNewComment(commentObject:IComment){
             comment.isCompact = true
         }
 
-        return [...comments, comment]
+        comments.set(comment.id, comment)
+        return comments
     })
 }
 

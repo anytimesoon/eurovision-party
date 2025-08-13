@@ -6,7 +6,7 @@ import (
 )
 
 type Deserializable interface {
-	Country | User | Vote | VoteSingle
+	Country | User | Vote | VoteSingle | CommentReaction
 }
 
 func Deserialize[T Deserializable](body []byte) (*T, error) {

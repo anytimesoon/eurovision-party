@@ -4,18 +4,19 @@ export const domainName = env.PUBLIC_DOMAIN_NAME + "/"
 const apiBase = env.PUBLIC_GO_HOST + "/"
 const restricted = "restricted/"
 const goAPI = "api/"
-const countryGoURL = apiBase + restricted + goAPI + "country/"
-const userGoURL = apiBase + restricted + goAPI + "user/"
-const voteGoURL = apiBase + restricted  + goAPI + "vote/"
+const countryURL = apiBase + restricted + goAPI + "country/"
+const userURL = apiBase + restricted + goAPI + "user/"
+const voteURL = apiBase + restricted  + goAPI + "vote/"
+const commentURL = apiBase + restricted  + goAPI + "comment/"
 
 
 export const chatEP = env.PUBLIC_CHAT + "/chat/connect/";
 
 export const countryEP = {
-    ALL: countryGoURL,
-    UPDATE: countryGoURL,
-    FIND_ONE: countryGoURL,
-    PARTICIPATING: countryGoURL + "participating"
+    ALL: countryURL,
+    UPDATE: countryURL,
+    FIND_ONE: countryURL,
+    PARTICIPATING: countryURL + "participating"
 }
 
 export const staticEP = {
@@ -26,23 +27,27 @@ export const staticEP = {
 }
 
 export const userEP = {
-    ALL: userGoURL,
-    UPDATE: userGoURL,
-    UPDATE_IMAGE: userGoURL + "image",
-    FIND_ONE: userGoURL, //append with user slug
-    REMOVE: userGoURL,
-    REGISTERED: userGoURL + "registered/"
+    ALL: userURL,
+    UPDATE: userURL,
+    UPDATE_IMAGE: userURL + "image",
+    FIND_ONE: userURL, //append with user slug
+    REMOVE: userURL,
+    REGISTERED: userURL + "registered/"
 }
 
 export const voteEP = {
-    RESULTS: voteGoURL + "results/",
-    CREATE: voteGoURL,
-    UPDATE: voteGoURL,
-    BY_COUNTRY_AND_USER: voteGoURL + "countryanduser/" //append with country slug
+    RESULTS: voteURL + "results/",
+    CREATE: voteURL,
+    UPDATE: voteURL,
+    BY_COUNTRY_AND_USER: voteURL + "countryanduser/" //append with country slug
 }
 
 export const authEP = {
     LOGIN: apiBase + "api/login",
     SVELTE_LOGIN: domainName + "login/",
-    REGISTER: userGoURL + "register"
+    REGISTER: userURL + "register"
+}
+
+export const commentEP = {
+    REACTIONS: commentURL + "reactions",
 }

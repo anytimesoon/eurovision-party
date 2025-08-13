@@ -2,7 +2,8 @@ package dto
 
 import (
 	"encoding/json"
-	"github.com/anytimesoon/eurovision-party/pkg/api/enum/chatMsgType"
+
+	"github.com/anytimesoon/eurovision-party/pkg/enum/chatMsgType"
 )
 
 type SocketMessage struct {
@@ -13,7 +14,7 @@ type SocketMessage struct {
 type SocketError string
 
 type ChatResponseBody interface {
-	*Comment | []Comment | SocketError | UpdateMessage | *NewUser
+	*Comment | []Comment | SocketError | UpdateMessage | *NewUser | CommentReaction
 }
 
 // NewSocketErrorMessage can be passed an empty string to get the default message

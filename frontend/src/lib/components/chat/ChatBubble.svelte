@@ -7,7 +7,9 @@
     import ReplyMenu from "$lib/components/chat/ReplyMenu.svelte";
     import ImageLoader from "$lib/components/images/ImageLoader.svelte";
     import {replyComment} from "$lib/stores/replyComment.store";
+    import {emojiPickerState} from "$lib/stores/emojiPickerState.store";
     import VoteNotificationMessage from "$lib/components/chat/VoteNotificationMessage.svelte";
+    import ReactionBelt from "$lib/components/chat/ReactionBelt.svelte";
 
     interface Props {
         comment: CommentModel;
@@ -70,7 +72,9 @@
         isSwiping = false
     }
 
-    const replyButtonHandler = () => {
+    const replyButtonHandler = (e:MouseEvent) => {
+        e.stopPropagation()
+        e.preventDefault()
         replyComment.set(comment)
     }
 
@@ -91,13 +95,21 @@
     </div>
 {:else if user}
 
+    {#if comment.reactions.size > 0}
+        <ReactionBelt comment={comment} isCurrentUser={isCurrentUser}/>
+    {/if}
+
     <div
          ontouchstart={handleTouchStart}
          ontouchmove={handleTouchMove}
          ontouchend={handleTouchEnd}
          ontouchcancel={handleTouchEnd}
-         onmouseenter={() =>{shouldShowReplyMenu = true}}
+         onmouseenter={() => shouldShowReplyMenu = true }
          onmouseleave={() => shouldShowReplyMenu = false}
+         oncontextmenu={(e:MouseEvent) => {
+             e.preventDefault()
+             emojiPickerState.open(comment)
+         }}
          bind:this={bubble}
          id="{comment.id}"
          class="flex w-full max-w-[22rem] relative {currentUserBubbleContainer} {compactBubble} transition-all"
@@ -125,17 +137,12 @@
 
             <div class="px-3 py-2 {roundedCorners} {currentUserBubble} relative">
                 {#if shouldShowReplyMenu}
-                    <ReplyMenu replyButtonHandler={replyButtonHandler} />
+                    <ReplyMenu replyButtonHandler={replyButtonHandler} parentComment={comment}/>
                 {/if}
 
                 <ChatContent comment={comment}
                              isCurrentUser={isCurrentUser}/>
             </div>
-        </div>
-    </div>
-    <div class="absolute">
-        <div class="relative">
-
         </div>
     </div>
 {:else}

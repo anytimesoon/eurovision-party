@@ -1,8 +1,9 @@
 package dao
 
 import (
-	"github.com/anytimesoon/eurovision-party/pkg/service/dto"
 	"time"
+
+	"github.com/anytimesoon/eurovision-party/pkg/service/dto"
 
 	"github.com/google/uuid"
 )
@@ -14,6 +15,7 @@ type Comment struct {
 	FileName  string
 	CreatedAt time.Time
 	ReplyTo   *Comment
+	Reactions map[string][]uuid.UUID
 }
 
 func (comment Comment) ToDto() dto.Comment {
@@ -36,6 +38,7 @@ func (comment Comment) ToDto() dto.Comment {
 		FileName:  comment.FileName,
 		ReplyTo:   replyTo,
 		CreatedAt: comment.CreatedAt,
+		Reactions: comment.Reactions,
 	}
 }
 
@@ -59,6 +62,7 @@ func (comment Comment) FromDTO(dto dto.Comment) Comment {
 	comment.FileName = dto.FileName
 	comment.ReplyTo = replyTo
 	comment.CreatedAt = time.Now()
+	comment.Reactions = dto.Reactions
 
 	return comment
 }

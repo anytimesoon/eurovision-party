@@ -1,15 +1,16 @@
 package main
 
 import (
+	"log"
+	"net/http"
+	"time"
+
 	"github.com/anytimesoon/eurovision-party/conf"
 	"github.com/anytimesoon/eurovision-party/pkg/api"
 	"github.com/anytimesoon/eurovision-party/pkg/data"
 	"github.com/anytimesoon/eurovision-party/pkg/service"
 	"github.com/gorilla/handlers"
 	"github.com/timshannon/bolthold"
-	"log"
-	"net/http"
-	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -58,15 +59,21 @@ func StartServer(store *bolthold.Store) {
 	apiRouter.Use(JsHeaders)
 
 	// Chatroom
-	commentService := service.NewCommentService(commentRepository)
+	roomService := service.NewRoom()
+	commentService := service.NewCommentService(commentRepository, roomService.BroadcastUpdate)
 	chatRoomHandler := api.ChatRoomHandler{
-		RoomService:    service.NewRoom(commentService),
+		RoomService:    roomService,
 		CommentService: commentService,
 		AuthService:    authService,
 	}
 	go chatRoomHandler.RoomService.Run()
 	chatRouter := router.PathPrefix("/chat").Subrouter()
 	chatRouter.HandleFunc("/connect/{token}", chatRoomHandler.Connect)
+
+	// Comments
+	commentHandler := api.CommentHandler{Service: commentService}
+	commentRouter := apiRouter.PathPrefix("/comment").Subrouter()
+	commentRouter.HandleFunc("/reactions", commentHandler.React).Methods(http.MethodPost)
 
 	// Country
 	countryHandler := api.CountryHandler{Service: service.NewCountryService(countryRepository)}
@@ -80,7 +87,7 @@ func StartServer(store *bolthold.Store) {
 	userHandler := api.UserHandler{
 		UserService: service.NewUserService(
 			userRepository,
-			chatRoomHandler.RoomService.BroadcastUpdate,
+			roomService.BroadcastUpdate,
 			authRepository,
 			commentRepository,
 			voteRepository),
@@ -96,7 +103,7 @@ func StartServer(store *bolthold.Store) {
 	userRouter.HandleFunc("/{slug}", userHandler.DeleteUser).Methods(http.MethodDelete) // admin only
 
 	// Vote
-	voteHandler := api.VoteHandler{Service: service.NewVoteService(voteRepository, chatRoomHandler.RoomService.BroadcastUpdate, commentRepository)}
+	voteHandler := api.VoteHandler{Service: service.NewVoteService(voteRepository, roomService.BroadcastUpdate, commentRepository)}
 	voteRouter := apiRouter.PathPrefix("/vote").Subrouter()
 	voteRouter.HandleFunc("/", voteHandler.UpdateVote).Methods(http.MethodPut) // current user only
 	voteRouter.HandleFunc("/results", voteHandler.GetResults).Methods(http.MethodGet)

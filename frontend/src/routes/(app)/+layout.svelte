@@ -4,6 +4,7 @@
   import {onMount} from "svelte";
   import {userStore} from "$lib/stores/user.store";
   import {errorStore} from "$lib/stores/error.store";
+  import {emojiPickerState} from "$lib/stores/emojiPickerState.store";
   import Toaster from "$lib/components/Toaster.svelte";
   import {CountryModel} from "$lib/models/classes/country.model";
   import {chatEP, countryEP, userEP} from "$lib/models/enums/endpoints.enum";
@@ -11,6 +12,7 @@
   import {get} from "$lib/utils/genericFetch";
   import {socketStore} from "$lib/stores/socket.store";
   import {currentlyVotingOn} from "$lib/stores/currentlyVotingOn.store";
+  import {MagicClassEnun} from "$lib/models/enums/magicClass.enun";
 
   interface Props {
     children?: import('svelte').Snippet;
@@ -45,6 +47,10 @@
     const target = e.target as HTMLElement
     if(menu.classList.contains("right-0") && !target.classList.contains("voteNav") && target !== menu){
         closeMenu()
+    }
+
+    if ($emojiPickerState.isVisible && !target.classList.contains(MagicClassEnun.EMOJI)) {
+        emojiPickerState.close()
     }
   };
 

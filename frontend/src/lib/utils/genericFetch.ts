@@ -25,14 +25,18 @@ export async function get(url: string): Promise<any> {
 }
 
 export async function post<T, K>(url: string, body: K): Promise<T> {
-    return await postOrPut<T, K>("POST", url, body)
+    return await postOrPut<T, K>("POST", url, body) as Promise<T>
+}
+
+export async function postWithError<T, K>(url: string, body: K): Promise<ResponseModel<T>> {
+    return await postOrPut<T, K>("POST", url, body, true) as Promise<ResponseModel<T>>
 }
 
 export async function put<T, K>(url: string, body: K): Promise<T> {
-    return await postOrPut<T, K>("PUT", url, body)
+    return await postOrPut<T, K>("PUT", url, body) as Promise<T>
 }
 
-async function postOrPut<T, K>(method: string, url: string, body: K): Promise<T> {
+async function postOrPut<T, K>(method: string, url: string, body: K, withError: boolean = false): Promise<T | ResponseModel<T>> {
     const response = await fetch(url, {
         method: method,
         headers: {
@@ -46,7 +50,11 @@ async function postOrPut<T, K>(method: string, url: string, body: K): Promise<T>
     if (response.ok) {
         return json.body
     } else {
-        handleError(response.status, json.error)
+        if (withError) {
+            return json
+        } else {
+            handleError(response.status, json.error)
+        }
     }
 }
 

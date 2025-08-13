@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
-	"github.com/anytimesoon/eurovision-party/conf"
-	"github.com/anytimesoon/eurovision-party/pkg/api/enum/authLvl"
-	"github.com/anytimesoon/eurovision-party/pkg/data/dao"
-	"github.com/timshannon/bolthold"
 	"log"
 	"path/filepath"
 	"time"
+
+	"github.com/anytimesoon/eurovision-party/conf"
+	"github.com/anytimesoon/eurovision-party/pkg/data/dao"
+	"github.com/anytimesoon/eurovision-party/pkg/enum/authLvl"
+	"github.com/timshannon/bolthold"
 )
 
 func main() {

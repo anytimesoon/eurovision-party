@@ -2,13 +2,14 @@ package data
 
 import (
 	"errors"
-	"github.com/anytimesoon/eurovision-party/pkg/api/enum/authLvl"
-	"github.com/anytimesoon/eurovision-party/pkg/data/dao"
-	"github.com/google/uuid"
-	"github.com/timshannon/bolthold"
 	"log"
 	"strconv"
 	"strings"
+
+	"github.com/anytimesoon/eurovision-party/pkg/data/dao"
+	"github.com/anytimesoon/eurovision-party/pkg/enum/authLvl"
+	"github.com/google/uuid"
+	"github.com/timshannon/bolthold"
 )
 
 type UserRepository interface {

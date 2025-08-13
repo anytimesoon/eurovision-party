@@ -7,11 +7,11 @@
 <div class="relative">
     {#if $socketStateStore === false && $socketRetryCount > 3}
         <div class="mx-auto w-[50%] z-40 absolute top-5 left-0 right-0 bottom-0">
-            <div class="bg-gray-600 rounded p-3 shadow-lg shadow-gray-800">
+            <div class="bg-warning rounded p-3 shadow-lg shadow-gray-800">
                 <p class="text-center">
                     Connecting to the chat
                     <span class="pl-1">
-                    <Spinner size={'s'} thickness={'s'} color={'grey'} isBlock={false}/>
+                    <Spinner size={'s'} thickness={'s'} color={'typography'} isBlock={false}/>
                 </span>
                 </p>
             </div>

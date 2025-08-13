@@ -12,6 +12,7 @@
     import ConnectionSpinner from "$lib/components/chat/ConnectionSpinner.svelte";
     import ChatInputForm from "$lib/components/forms/ChatInputForm.svelte";
     import ImageLoader from "$lib/components/images/ImageLoader.svelte";
+    import EmojiPicker from "$lib/components/chat/EmojiPicker.svelte";
 
     let openModal:VoidFunction = $state()
     let closeModal:VoidFunction = $state()
@@ -68,6 +69,8 @@
     </div>
 
     <ChatInputForm />
+
+    <EmojiPicker />
 </div>
 
 

@@ -2,16 +2,17 @@ package api
 
 import (
 	"fmt"
-	"github.com/anytimesoon/eurovision-party/pkg/api/enum/authLvl"
+	"os"
+	"testing"
+	"time"
+
 	"github.com/anytimesoon/eurovision-party/pkg/data"
 	"github.com/anytimesoon/eurovision-party/pkg/data/dao"
+	"github.com/anytimesoon/eurovision-party/pkg/enum/authLvl"
 	"github.com/anytimesoon/eurovision-party/pkg/service"
 	"github.com/anytimesoon/eurovision-party/pkg/service/dto"
 	"github.com/google/uuid"
 	"github.com/timshannon/bolthold"
-	"os"
-	"testing"
-	"time"
 )
 
 var (
@@ -280,11 +281,11 @@ func newTestUserService() service.UserService {
 
 func newTestCommentService() service.CommentService {
 	commentRepository := data.NewCommentRepositoryDb(testDB)
-	return service.NewCommentService(commentRepository)
+	return service.NewCommentService(commentRepository, testUserBroadcastChan)
 }
 
 func newTestChatRoomService() *service.Room {
-	return service.NewRoom(newTestCommentService())
+	return service.NewRoom()
 }
 
 func getAdminSession() string {
