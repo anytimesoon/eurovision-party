@@ -3,11 +3,12 @@ package dao
 import (
 	"crypto/rand"
 	"encoding/hex"
+	"time"
+
 	"github.com/anytimesoon/eurovision-party/conf"
-	"github.com/anytimesoon/eurovision-party/pkg/api/enum/authLvl"
+	"github.com/anytimesoon/eurovision-party/pkg/enum/authLvl"
 	"github.com/anytimesoon/eurovision-party/pkg/service/dto"
 	"github.com/google/uuid"
-	"time"
 )
 
 type Auth struct {

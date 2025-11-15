@@ -1,4 +1,6 @@
-import type { IComment } from '../interfaces/icomment.interface'
+import type {IComment} from '../interfaces/icomment.interface'
+import {SvelteMap, SvelteSet} from "svelte/reactivity";
+import {ReactAction} from "$lib/models/enums/reactAction.enum";
 
 export class CommentModel implements IComment {
 	constructor(
@@ -9,7 +11,8 @@ export class CommentModel implements IComment {
 		createdAt?: Date,
 		isCompact: boolean = false,
 		fileName: string = "",
-		isVoteNotification: boolean = false
+		isVoteNotification: boolean = false,
+		reactions: SvelteMap<string, SvelteSet<string>> = new SvelteMap<string, SvelteSet<string>>()
 	) {
 		this.id = id
 		this.text = text
@@ -21,6 +24,7 @@ export class CommentModel implements IComment {
 		this.isCompact = isCompact
 		this.fileName = fileName
 		this.isVoteNotification = isVoteNotification
+		this.reactions = reactions
 	}
 
 
@@ -32,23 +36,25 @@ export class CommentModel implements IComment {
 	public replyToComment: 		CommentModel;
 	public fileName:			string;
 	public isVoteNotification:	boolean;
+	public reactions: 			SvelteMap<string, SvelteSet<string>>;
 
 	isEmpty(): boolean {
-		console.log(this.text === ""
-			&& this.userId === ""
-			&& this.id === null
-			&& this.replyToComment === undefined
-			&& this.isCompact === false
-			&& this.fileName === "")
 		return this.text === ""
 			&& this.userId === ""
 			&& this.id === null
 			&& this.replyToComment === undefined
 			&& this.isCompact === false
 			&& this.fileName === ""
+			&& this.reactions.size === 0
 	}
 
 	static deserialize(input: IComment): CommentModel {
+        const sMap = new SvelteMap<string, SvelteSet<string>>()
+		if (input.reactions) {
+			for (const [key, value] of Object.entries(input.reactions)) {
+				sMap.set(key, new SvelteSet(value))
+			}
+		}
 		return new CommentModel(
 			input.text,
 			input.userId,
@@ -57,7 +63,8 @@ export class CommentModel implements IComment {
 			new Date(input.createdAt),
 			input.isCompact,
 			input.fileName,
-			input.isVoteNotification
+			input.isVoteNotification,
+			sMap
 		)
 	}
 
@@ -70,7 +77,25 @@ export class CommentModel implements IComment {
 			new Date(),
 			false,
 			"",
-			false
+			false,
+			new SvelteMap<string, SvelteSet<string>>()
 		)
+	}
+
+	addOrRemoveReaction = (userId: string, reaction: string): ReactAction => {
+		if (this.reactions.get(reaction)?.has(userId)) {
+			console.log(this.reactions.get(reaction))
+            this.reactions.get(reaction).delete(userId)
+            if (this.reactions.get(reaction).size === 0) {
+				this.reactions.delete(reaction)
+			}
+            return ReactAction.DELETE
+		} else if (this.reactions.get(reaction)) {
+            this.reactions.get(reaction).add(userId)
+            return ReactAction.ADD
+		} else {
+            this.reactions.set(reaction, new SvelteSet([userId]))
+            return ReactAction.ADD
+        }
 	}
 }

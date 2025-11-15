@@ -71,7 +71,7 @@
         {/if}
 
         {#if comment.fileName !== ""}
-            <div class="mr-3 mb-1 rounded overflow-hidden max-w-[400px]">
+            <div class="mb-1 rounded overflow-hidden">
                 {#if SUPPORTED_VIDEO_TYPES.includes(comment.fileName)}
                     <VideoLoader src={staticEP.CHAT_IMG + comment.fileName} customClasses=""/>
                 {:else}
@@ -86,7 +86,7 @@
 
     <div class="flex flex-col-reverse flex-shrink">
         {#if comment.createdAt !== null}
-            <span class="text-[0.6rem] block {contentTextStyle} text-right">
+            <span class="text-[0.6rem] block {contentTextStyle} text-right break-normal">
                 {
                     comment.createdAt.getHours() + ":" +
                     (comment.createdAt.getMinutes() < 10 ?

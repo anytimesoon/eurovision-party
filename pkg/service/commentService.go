@@ -2,13 +2,15 @@ package service
 
 import (
 	"encoding/json"
+	"log"
+	"time"
+
 	"github.com/anytimesoon/eurovision-party/pkg/data"
 	"github.com/anytimesoon/eurovision-party/pkg/data/dao"
+	"github.com/anytimesoon/eurovision-party/pkg/enum/chatMsgType"
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
 	"github.com/anytimesoon/eurovision-party/pkg/service/dto"
 	"github.com/google/uuid"
-	"log"
-	"time"
 )
 
 type CommentService interface {
@@ -16,14 +18,16 @@ type CommentService interface {
 	CreateComment([]byte) (*dto.Comment, *errs.AppError)
 	DeleteComment(string) *errs.AppError
 	FindCommentsAfter(json.RawMessage) ([]byte, *errs.AppError)
+	UpdateReaction(dto.CommentReaction) (*dto.CommentReaction, *errs.AppError)
 }
 
 type DefaultCommentService struct {
-	repo data.CommentRepository
+	repo      data.CommentRepository
+	broadcast chan dto.SocketMessage
 }
 
-func NewCommentService(repo data.CommentRepository) DefaultCommentService {
-	return DefaultCommentService{repo}
+func NewCommentService(repo data.CommentRepository, broadcast chan dto.SocketMessage) DefaultCommentService {
+	return DefaultCommentService{repo, broadcast}
 }
 
 func (cs DefaultCommentService) FindAllComments() ([]dto.Comment, *errs.AppError) {
@@ -63,6 +67,9 @@ func (cs DefaultCommentService) FindCommentsAfter(commentIdJSON json.RawMessage)
 	}
 
 	for _, comment := range comments {
+		log.Printf("comment: %+v", comment)
+		commmentDTO := comment.ToDto()
+		log.Printf("commentDTO: %+v", commmentDTO)
 		commentsDTO = append(commentsDTO, comment.ToDto())
 	}
 
@@ -111,4 +118,20 @@ func (cs DefaultCommentService) DeleteComment(uuid string) *errs.AppError {
 	}
 
 	return nil
+}
+
+func (cs DefaultCommentService) UpdateReaction(reaction dto.CommentReaction) (*dto.CommentReaction, *errs.AppError) {
+	_, err := cs.repo.UpdateReaction(reaction.CommentId, reaction.UserId, reaction.Action, reaction.Reaction)
+	if err != nil {
+		return nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "your reaction")
+	}
+
+	go cs.broadcastUpdate(reaction)
+
+	return &reaction, nil
+}
+
+func (cs DefaultCommentService) broadcastUpdate(reaction dto.CommentReaction) {
+	socketMessage := dto.NewSocketMessage[dto.CommentReaction](chatMsgType.UPDATE_COMMENT, reaction)
+	cs.broadcast <- socketMessage
 }

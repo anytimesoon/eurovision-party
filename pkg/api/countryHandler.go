@@ -1,13 +1,14 @@
 package api
 
 import (
-	"github.com/anytimesoon/eurovision-party/pkg/api/enum/authLvl"
-	"github.com/anytimesoon/eurovision-party/pkg/errs"
-	"github.com/anytimesoon/eurovision-party/pkg/service"
-	"github.com/anytimesoon/eurovision-party/pkg/service/dto"
 	"io"
 	"log"
 	"net/http"
+
+	"github.com/anytimesoon/eurovision-party/pkg/enum/authLvl"
+	"github.com/anytimesoon/eurovision-party/pkg/errs"
+	"github.com/anytimesoon/eurovision-party/pkg/service"
+	"github.com/anytimesoon/eurovision-party/pkg/service/dto"
 
 	"github.com/gorilla/mux"
 )
@@ -56,7 +57,8 @@ func (ch *CountryHandler) UpdateCountry(resp http.ResponseWriter, req *http.Requ
 	if req.Context().Value("auth").(dto.Auth).AuthLvl == authLvl.ADMIN {
 		body, err := io.ReadAll(req.Body)
 		if err != nil {
-			panic(err)
+			log.Println("FAILED to read body of COUNTRY UPDATE.", err)
+			return
 		}
 		log.Println("Update request body:", string(body))
 		country, appErr = ch.Service.UpdateCountry(body)

@@ -3,10 +3,11 @@ package service
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/anytimesoon/eurovision-party/pkg/api/enum/chatMsgType"
-	"github.com/anytimesoon/eurovision-party/pkg/service/dto"
 	"log"
 	"time"
+
+	"github.com/anytimesoon/eurovision-party/pkg/enum/chatMsgType"
+	"github.com/anytimesoon/eurovision-party/pkg/service/dto"
 
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"

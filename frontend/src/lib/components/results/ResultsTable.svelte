@@ -9,12 +9,14 @@
     import Modal from "$lib/components/Modal.svelte";
     import EmptyTotal from "$lib/components/results/EmptyTotal.svelte";
     import EmptyUser from "$lib/components/results/EmptyUser.svelte";
+    import {flip} from "svelte/animate";
 
     let openModal:VoidFunction = $state()
     let closeModal:VoidFunction = $state()
     let isDefaultState:boolean = $state(resultPageState.isDefault())
     let hasScores:boolean = $state(results.hasScores())
     let hasUserSelected:boolean = $state(resultPageState.hasUserSelected())
+    let filteredResults = $derived($results.filter(result => (result !== null || result !== undefined) && result.total !== 0))
 
     $effect(() => {
         if ($results) {
@@ -24,6 +26,7 @@
             isDefaultState = resultPageState.isDefault()
             hasUserSelected = resultPageState.hasUserSelected()
         }
+        console.log(filteredResults)
     })
 
     function sort() {
@@ -68,18 +71,16 @@
             </tr>
         </thead>
         <tbody>
-        {#each $results as result}
-            {#if (result !== null || result === undefined) && result.total !== 0}
-                <tr>
-                    <td class="py-3 pl-3">
-                        {$countryStore.find(c => c.slug === result.countrySlug).flag}
-                        {$countryStore.find(c => c.slug === result.countrySlug).name}
-                    </td>
-                    <td class="text-center w-1/4">
-                        {result.getScore($resultPageState.category)}
-                    </td>
-                </tr>
-            {/if}
+        {#each filteredResults as result (result.countrySlug)}
+            <tr animate:flip={{duration: 500}}>
+                <td class="py-3 pl-3">
+                    {$countryStore.find(c => c.slug === result.countrySlug).flag}
+                    {$countryStore.find(c => c.slug === result.countrySlug).name}
+                </td>
+                <td class="text-center w-1/4">
+                    {result.getScore($resultPageState.category)}
+                </td>
+            </tr>
         {/each}
         </tbody>
     </table>

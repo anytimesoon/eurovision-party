@@ -1,20 +1,22 @@
 package dto
 
 import (
-	"github.com/anytimesoon/eurovision-party/pkg/errs"
 	"time"
+
+	"github.com/anytimesoon/eurovision-party/pkg/errs"
 
 	"github.com/google/uuid"
 )
 
 type Comment struct {
-	UUID               uuid.UUID `json:"id"`
-	UserId             uuid.UUID `json:"userId"`
-	Text               string    `json:"text"`
-	FileName           string    `json:"fileName"`
-	CreatedAt          time.Time `json:"createdAt"`
-	ReplyTo            *Comment  `json:"replyToComment,omitempty"`
-	IsVoteNotification bool      `json:"isVoteNotification"`
+	UUID               uuid.UUID              `json:"id"`
+	UserId             uuid.UUID              `json:"userId"`
+	Text               string                 `json:"text"`
+	FileName           string                 `json:"fileName"`
+	CreatedAt          time.Time              `json:"createdAt"`
+	ReplyTo            *Comment               `json:"replyToComment,omitempty"`
+	IsVoteNotification bool                   `json:"isVoteNotification"`
+	Reactions          map[string][]uuid.UUID `json:"reactions"`
 }
 
 func (c Comment) Validate() *errs.AppError {

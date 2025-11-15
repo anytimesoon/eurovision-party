@@ -2,14 +2,14 @@ package service
 
 import (
 	"encoding/json"
-	"github.com/anytimesoon/eurovision-party/pkg/api/enum/chatMsgType"
+	"log"
+
+	"github.com/anytimesoon/eurovision-party/pkg/enum/chatMsgType"
 	"github.com/anytimesoon/eurovision-party/pkg/service/dto"
 	"github.com/google/uuid"
-	"log"
 )
 
 type Room struct {
-	CommentService       CommentService
 	clients              map[uuid.UUID]*ChatClient
 	broadcastChatMessage chan *dto.Comment
 	BroadcastUpdate      chan dto.SocketMessage
@@ -17,9 +17,8 @@ type Room struct {
 	unregister           chan *ChatClient
 }
 
-func NewRoom(commentService CommentService) *Room {
+func NewRoom() *Room {
 	return &Room{
-		CommentService:       commentService,
 		broadcastChatMessage: make(chan *dto.Comment),
 		BroadcastUpdate:      make(chan dto.SocketMessage),
 		Register:             make(chan *ChatClient),

@@ -1,21 +1,44 @@
 <script lang="ts">
     import Reply from "svelte-material-icons/Reply.svelte";
+    import EmoticonHappyOutline from "svelte-material-icons/EmoticonHappyOutline.svelte";
+    import { emojiPickerState } from "$lib/stores/emojiPickerState.store";
+    import type {CommentModel} from "$lib/models/classes/comment.model";
+    import {MagicClassEnun} from "$lib/models/enums/magicClass.enun";
+    import {addClassList} from "$lib/utils/addClassList";
+    import {onMount} from "svelte";
 
     interface Props {
-        replyButtonHandler: Function;
+        replyButtonHandler: Function
+        parentComment: CommentModel
     }
 
-    let { replyButtonHandler }: Props = $props();
+    let { replyButtonHandler, parentComment }: Props = $props()
+    let emojiPickerButton: HTMLButtonElement;
+
+    onMount(() => {
+        addClassList(emojiPickerButton, MagicClassEnun.EMOJI)
+    })
+
+    const emojiButtonHandler = () => {
+        emojiPickerState.open(parentComment)
+    }
 </script>
 
-<div onmouseup={replyButtonHandler} class="absolute
-                                            -top-4
-                                            right-2
-                                            bg-primary
-                                            py-1 px-2
-                                            rounded
-                                            border
-                                            border-secondary-light
-                                            cursor-pointer">
-    <Reply />
+<div class="absolute
+    bg-primary
+    rounded
+    border
+    border-white
+    cursor-pointer
+    flex">
+
+    <button onclick={e => replyButtonHandler(e)} class="px-2" >
+        <Reply />
+    </button>
+
+    <div class="border"></div>
+
+    <button onclick={emojiButtonHandler} class="px-2 {MagicClassEnun.EMOJI}" bind:this={emojiPickerButton}>
+        <EmoticonHappyOutline/>
+    </button>
 </div>

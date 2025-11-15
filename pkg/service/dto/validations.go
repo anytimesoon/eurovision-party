@@ -2,9 +2,10 @@ package dto
 
 import (
 	"fmt"
-	"github.com/anytimesoon/eurovision-party/pkg/api/enum"
-	"github.com/anytimesoon/eurovision-party/pkg/errs"
 	"strings"
+
+	"github.com/anytimesoon/eurovision-party/pkg/enum"
+	"github.com/anytimesoon/eurovision-party/pkg/errs"
 )
 
 var topScore uint8 = 10

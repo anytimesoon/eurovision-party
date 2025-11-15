@@ -6,6 +6,7 @@ export default {
       colors: {
         'primary': 'var(--color-primary)',
         'secondary': 'var(--color-secondary)',
+        'secondary-light': 'var(--color-secondary-light)',
         'warning': 'var(--color-warning)',
         'buttons': 'var(--color-buttons)',
         'nav-icon': 'var(--color-nav-icon)',

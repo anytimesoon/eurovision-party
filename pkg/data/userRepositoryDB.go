@@ -2,13 +2,14 @@ package data
 
 import (
 	"errors"
-	"github.com/anytimesoon/eurovision-party/pkg/api/enum/authLvl"
-	"github.com/anytimesoon/eurovision-party/pkg/data/dao"
-	"github.com/google/uuid"
-	"github.com/timshannon/bolthold"
 	"log"
 	"strconv"
 	"strings"
+
+	"github.com/anytimesoon/eurovision-party/pkg/data/dao"
+	"github.com/anytimesoon/eurovision-party/pkg/enum/authLvl"
+	"github.com/google/uuid"
+	"github.com/timshannon/bolthold"
 )
 
 type UserRepository interface {
@@ -159,9 +160,9 @@ func (db UserRepositoryDb) GetRegisteredUsers(user dao.User) (*[]dao.User, error
 	var err error
 
 	if user.AuthLvl == authLvl.ADMIN {
-		err = db.store.Find(&users, bolthold.Where("AuthLvl").Ne(authLvl.BOT))
+		err = db.store.Find(&users, bolthold.Where("AuthLvl").Ne(authLvl.BOT).SortBy("Name"))
 	} else {
-		err = db.store.Find(&users, bolthold.Where("CreatedBy").Eq(user.UUID))
+		err = db.store.Find(&users, bolthold.Where("CreatedBy").Eq(user.UUID).SortBy("Name"))
 	}
 	if err != nil {
 		log.Println("Error while querying user table for registered users", err)

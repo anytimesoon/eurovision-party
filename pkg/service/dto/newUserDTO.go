@@ -1,11 +1,12 @@
 package dto
 
 import (
-	"github.com/anytimesoon/eurovision-party/pkg/api/enum/authLvl"
-	"github.com/google/uuid"
 	"log"
 	"regexp"
 	"strings"
+
+	"github.com/anytimesoon/eurovision-party/pkg/enum/authLvl"
+	"github.com/google/uuid"
 )
 
 type NewUser struct {

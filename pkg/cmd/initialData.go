@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/anytimesoon/eurovision-party/pkg/api/enum/authLvl"
 	"github.com/anytimesoon/eurovision-party/pkg/data/dao"
+	"github.com/anytimesoon/eurovision-party/pkg/enum/authLvl"
 	"github.com/google/uuid"
 )
 

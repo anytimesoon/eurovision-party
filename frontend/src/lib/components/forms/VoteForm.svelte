@@ -121,7 +121,7 @@
                                {shouldRotate}
                                cursor-pointer
                                before:content-['\2606']
-                               peer-checked:before:content-['\2B50']"
+                               peer-checked:before:content-['⭐']"
                         for="{cat}-star-{label}"></label>
             {/each}
         </div>

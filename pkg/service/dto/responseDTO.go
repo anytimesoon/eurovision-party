@@ -4,7 +4,7 @@ import "github.com/google/uuid"
 
 type ApiResponseBody interface {
 	Comment | Country | *User | Vote | *NewUser | []*NewUser | *Session |
-		[]Comment | []Country | []User | []Vote | map[uuid.UUID]User | []Result
+		[]Comment | []Country | []User | []Vote | map[uuid.UUID]User | []Result | CommentReaction
 }
 
 type ApiPayload[T ApiResponseBody] struct {

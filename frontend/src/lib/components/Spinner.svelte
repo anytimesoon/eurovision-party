@@ -29,7 +29,8 @@
     const colorVariants = {
         primary: 'border-primary',
         secondary: 'border-secondary',
-        grey: 'border-gray-300'
+        grey: 'border-gray-300',
+        typography: 'border-typography-main'
     }
 
     let sizeClass = sizeVariants[size] || sizeVariants['l']

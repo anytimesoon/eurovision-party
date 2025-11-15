@@ -94,6 +94,19 @@
     }
 }
 
+
+emoji-picker {
+    width: 100%;
+    --background: var(--color-canvas-primary);
+    --border-color: var(--color-secondary);
+    --indicator-color: var(--color-secondary);
+    --input-border-color: var(--color-secondary);
+    --outline-color: var(--color-secondary);
+    --emoji-font-family: 'OpenMojiFont';
+    --num-columns: 6;
+    --input-font-color: var(--color-typography);
+    --input-placeholder-color: var(--color-typography);
+}
 html {
     /*
         button background color

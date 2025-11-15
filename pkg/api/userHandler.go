@@ -2,18 +2,19 @@ package api
 
 import (
 	"encoding/json"
-	"github.com/anytimesoon/eurovision-party/conf"
-	"github.com/anytimesoon/eurovision-party/pkg/api/enum/authLvl"
-	"github.com/anytimesoon/eurovision-party/pkg/errs"
-	"github.com/anytimesoon/eurovision-party/pkg/service"
-	"github.com/anytimesoon/eurovision-party/pkg/service/dto"
-	"github.com/google/uuid"
-	"github.com/gorilla/mux"
 	"io"
 	"log"
 	"mime/multipart"
 	"net/http"
 	"path/filepath"
+
+	"github.com/anytimesoon/eurovision-party/conf"
+	"github.com/anytimesoon/eurovision-party/pkg/enum/authLvl"
+	"github.com/anytimesoon/eurovision-party/pkg/errs"
+	"github.com/anytimesoon/eurovision-party/pkg/service"
+	"github.com/anytimesoon/eurovision-party/pkg/service/dto"
+	"github.com/google/uuid"
+	"github.com/gorilla/mux"
 )
 
 type UserHandler struct {

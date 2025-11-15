@@ -1,9 +1,10 @@
 package dao
 
 import (
-	"github.com/anytimesoon/eurovision-party/pkg/api/enum/authLvl"
-	"github.com/anytimesoon/eurovision-party/pkg/service/dto"
 	"time"
+
+	"github.com/anytimesoon/eurovision-party/pkg/enum/authLvl"
+	"github.com/anytimesoon/eurovision-party/pkg/service/dto"
 
 	"github.com/google/uuid"
 )

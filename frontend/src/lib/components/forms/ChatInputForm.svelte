@@ -24,6 +24,7 @@
     let fileName:string = $state("")
     let isDisabled = $state(false)
     let controller:AbortController
+    let formWrapper:HTMLDivElement
 
     function sendMsg() {
         const trimmedMessage = message.trim()
@@ -47,6 +48,16 @@
         )
         resetTextArea()
         commentQueue.addComment(comment)
+    }
+
+    function highlightForm() {
+        formWrapper.classList.remove("border-typography-main")
+        formWrapper.classList.add("border-secondary")
+    }
+
+    function unHighlightForm() {
+        formWrapper.classList.remove("border-secondary")
+        formWrapper.classList.add("border-typography-main")
     }
 
     function resetTextArea() {
@@ -195,6 +206,7 @@
 
 <div>
     <div class="flex">
+<!--        Media input        -->
         <div class="flex flex-col-reverse">
 
             <label for="upload"
@@ -211,18 +223,23 @@
             </label>
 
         </div>
+
+
+<!--        Input       -->
         <div class="flex-1
                     mx-3
                     border-solid
                     bg-canvas-secondary
                     border-2
-                    border-gray-400
+                    border-typography-main
                     p-2
                     rounded-lg
-                    shadow-sm">
+                    transition-all
+                    shadow-sm"
+                bind:this={formWrapper}>
 
-            <ReplyComment />
             <ImagePreviewGallery fileName={fileName} previewImage={previewImage} cancelUpload={cancelUpload}/>
+            <ReplyComment />
 
 
             <textarea class="text-sm
@@ -240,9 +257,13 @@
                       name="msg"
                       bind:this={textArea}
                       bind:value={message}
+                      onfocusin={highlightForm}
+                      onfocusout={unHighlightForm}
                       onkeyup={e => sendOrResize(e)}></textarea>
         </div>
 
+
+<!--        Submit button      -->
         <div class="flex flex-col-reverse">
             <button onclick={sendMsg} class="rounded-full py-3 {isDisabled}" disabled={isDisabled}>
                 {#if isDisabled}

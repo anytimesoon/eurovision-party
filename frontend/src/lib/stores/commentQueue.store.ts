@@ -7,7 +7,7 @@ import {browser} from "$app/environment";
 
 export const commentQueue = newCommentQueue()
 
-let currentQueue: Array<ChatMessageModel<CommentModel>>
+let currentQueue: ChatMessageModel<CommentModel>[]
 commentQueue.subscribe( val => {
     browser && localStorage.setItem("commentQueue", JSON.stringify(val))
     currentQueue = val

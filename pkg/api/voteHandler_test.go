@@ -4,19 +4,20 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/anytimesoon/eurovision-party/conf"
-	"github.com/anytimesoon/eurovision-party/pkg/api/enum"
-	"github.com/anytimesoon/eurovision-party/pkg/api/enum/chatMsgType"
-	"github.com/anytimesoon/eurovision-party/pkg/data/dao"
-	"github.com/anytimesoon/eurovision-party/pkg/service"
-	"github.com/anytimesoon/eurovision-party/pkg/service/dto"
-	"github.com/gorilla/mux"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/anytimesoon/eurovision-party/conf"
+	"github.com/anytimesoon/eurovision-party/pkg/data/dao"
+	"github.com/anytimesoon/eurovision-party/pkg/enum"
+	"github.com/anytimesoon/eurovision-party/pkg/enum/chatMsgType"
+	"github.com/anytimesoon/eurovision-party/pkg/service"
+	"github.com/anytimesoon/eurovision-party/pkg/service/dto"
+	"github.com/gorilla/mux"
 )
 
 func TestVoteHandler_GetResults(t *testing.T) {

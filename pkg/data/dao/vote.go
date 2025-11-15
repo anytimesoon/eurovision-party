@@ -1,14 +1,17 @@
 package dao
 
 import (
+	"fmt"
+
 	"github.com/anytimesoon/eurovision-party/pkg/service/dto"
 	"github.com/google/uuid"
 )
 
 type (
 	Vote struct {
+		Key         string    `boltholdKey:"Key"`
 		UserId      uuid.UUID `boltholdIndex:"UserId"`
-		CountrySlug string    //`boltholdKey:"CountrySlug"`
+		CountrySlug string
 		Costume     uint8
 		Song        uint8
 		Performance uint8
@@ -50,6 +53,7 @@ func (vote Vote) ToDto() dto.Vote {
 
 func (vote Vote) FromDTO(voteDTO dto.Vote) Vote {
 	return Vote{
+		Key:         GenerateVoteKey(voteDTO.UserId, voteDTO.CountrySlug),
 		UserId:      voteDTO.UserId,
 		CountrySlug: voteDTO.CountrySlug,
 		Costume:     voteDTO.Costume,
@@ -68,4 +72,8 @@ func (vote Vote) ToResult() Result {
 		Props:       int(vote.Props),
 		Total:       vote.Total,
 	}
+}
+
+func GenerateVoteKey(userId uuid.UUID, countrySlug string) string {
+	return fmt.Sprintf("%s_%s", userId.String(), countrySlug)
 }

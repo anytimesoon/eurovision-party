@@ -1,11 +1,11 @@
 package data
 
 import (
-	"fmt"
+	"log"
+
 	"github.com/anytimesoon/eurovision-party/conf"
 	"github.com/anytimesoon/eurovision-party/pkg/data/dao"
 	"github.com/timshannon/bolthold"
-	"log"
 
 	"github.com/google/uuid"
 )
@@ -36,9 +36,11 @@ func (db VoteRepositoryDb) CreateVotes(userId uuid.UUID) error {
 	}
 
 	for _, country := range countries {
+		voteKey := dao.GenerateVoteKey(userId, country.Slug)
 		err = db.store.Upsert(
-			voteKey(userId, country.Slug),
+			voteKey,
 			dao.Vote{
+				Key:         voteKey,
 				UserId:      userId,
 				CountrySlug: country.Slug,
 				Costume:     0,
@@ -56,13 +58,9 @@ func (db VoteRepositoryDb) CreateVotes(userId uuid.UUID) error {
 	return nil
 }
 
-func voteKey(userId uuid.UUID, countrySlug string) string {
-	return fmt.Sprintf("%s_%s", userId.String(), countrySlug)
-}
-
 func (db VoteRepositoryDb) UpdateVote(vote dao.Vote) (*dao.Vote, error) {
 	err := db.store.Update(
-		voteKey(vote.UserId, vote.CountrySlug),
+		vote.Key,
 		vote,
 	)
 	if err != nil {
@@ -76,7 +74,7 @@ func (db VoteRepositoryDb) UpdateVote(vote dao.Vote) (*dao.Vote, error) {
 func (db VoteRepositoryDb) GetVoteByUserAndCountry(userId uuid.UUID, countrySlug string) (*dao.Vote, error) {
 	var vote dao.Vote
 
-	err := db.store.Get(voteKey(userId, countrySlug), &vote)
+	err := db.store.Get(dao.GenerateVoteKey(userId, countrySlug), &vote)
 	if err != nil {
 		log.Printf("Error when getting vote for user %s. %s", userId.String(), err)
 		return nil, err

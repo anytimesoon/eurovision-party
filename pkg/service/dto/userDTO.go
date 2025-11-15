@@ -1,11 +1,12 @@
 package dto
 
 import (
-	"github.com/anytimesoon/eurovision-party/pkg/api/enum/authLvl"
-	"github.com/anytimesoon/eurovision-party/pkg/errs"
-	"github.com/google/uuid"
 	"image"
 	"mime/multipart"
+
+	"github.com/anytimesoon/eurovision-party/pkg/enum/authLvl"
+	"github.com/anytimesoon/eurovision-party/pkg/errs"
+	"github.com/google/uuid"
 )
 
 type User struct {
