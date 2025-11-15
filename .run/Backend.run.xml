@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Backend" type="GoApplicationRunConfiguration" factoryName="Go Application">
     <module name="eurovision-party" />
-    <working_directory value="$PROJECT_DIR$" />
+    <working_directory value="$PROJECT_DIR$/backend" />
     <kind value="PACKAGE" />
     <package value="github.com/anytimesoon/eurovision-party/pkg/cmd" />
     <directory value="$PROJECT_DIR$" />
