@@ -1,27 +1,27 @@
 # Binaries for programs and plugins
-*.exe
-*.exe~
-*.dll
-*.so
-*.dylib
+backend/*.exe
+backend/*.exe~
+backend/*.dll
+backend/*.so
+backend/*.dylib
 
 # Test binary, built with `go test -c`
-*.test
+backend/*.test
 
 # Output of the go coverage tool, specifically when used with LiteIDE
-*.out
+backend/*.out
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
 .vscode
 .idea/
-mocks/
 
-assets/img/avatars
-!assets/img/avatars/.gitkeep
-assets/img/chat/
-!assets/img/chat/.gitkeep
-storage/
+backend/assets/img/avatars
+!backend/assets/img/avatars/.gitkeep
+backend/assets/img/chat/
+!backend/assets/img/chat/.gitkeep
+backend/storage/
+!backend/storage/.gitkeep
 
 # frontend
 frontend/.DS_Store
