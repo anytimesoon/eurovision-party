@@ -13,7 +13,7 @@
 
 
 
-    let leftPadding = $derived(isCurrentUser ? "flex-row-reverse" : "ml-[2.7em]")
+    let leftPadding = $derived(isCurrentUser ? "flex-row-reverse" : "ml-5")
 </script>
 
 <div class="{leftPadding} flex -mt-1.5 overflow-auto w-[75%)">

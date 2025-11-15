@@ -50,9 +50,11 @@ export class CommentModel implements IComment {
 
 	static deserialize(input: IComment): CommentModel {
         const sMap = new SvelteMap<string, SvelteSet<string>>()
-        for (const [key, value] of Object.entries(input.reactions)) {
-            sMap.set(key, new SvelteSet(value))
-        }
+		if (input.reactions) {
+			for (const [key, value] of Object.entries(input.reactions)) {
+				sMap.set(key, new SvelteSet(value))
+			}
+		}
 		return new CommentModel(
 			input.text,
 			input.userId,
@@ -82,6 +84,7 @@ export class CommentModel implements IComment {
 
 	addOrRemoveReaction = (userId: string, reaction: string): ReactAction => {
 		if (this.reactions.get(reaction)?.has(userId)) {
+			console.log(this.reactions.get(reaction))
             this.reactions.get(reaction).delete(userId)
             if (this.reactions.get(reaction).size === 0) {
 				this.reactions.delete(reaction)

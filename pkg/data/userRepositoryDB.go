@@ -160,9 +160,9 @@ func (db UserRepositoryDb) GetRegisteredUsers(user dao.User) (*[]dao.User, error
 	var err error
 
 	if user.AuthLvl == authLvl.ADMIN {
-		err = db.store.Find(&users, bolthold.Where("AuthLvl").Ne(authLvl.BOT))
+		err = db.store.Find(&users, bolthold.Where("AuthLvl").Ne(authLvl.BOT).SortBy("Name"))
 	} else {
-		err = db.store.Find(&users, bolthold.Where("CreatedBy").Eq(user.UUID))
+		err = db.store.Find(&users, bolthold.Where("CreatedBy").Eq(user.UUID).SortBy("Name"))
 	}
 	if err != nil {
 		log.Println("Error while querying user table for registered users", err)

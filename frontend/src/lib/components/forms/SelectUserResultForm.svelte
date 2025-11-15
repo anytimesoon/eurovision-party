@@ -4,16 +4,13 @@
     import {userStore} from "$lib/stores/user.store";
     import {voteCats} from "$lib/models/enums/categories.enum";
     import {results} from "$lib/stores/results.store";
-    import {get} from "$lib/utils/genericFetch";
-    import {voteEP} from "$lib/models/enums/endpoints.enum";
-    import {ResultModel} from "$lib/models/classes/result.model";
 
     interface Props {
         showTitle?: boolean;
     }
 
     let { showTitle = false }: Props = $props();
-    let userArray = $userStore.entries()
+    let userArray = $derived($userStore.entries())
     let currentCat: string = $state()
 
     const changeCat = () => {
@@ -21,12 +18,7 @@
     }
 
     const submit = async () => {
-        const res = await get(voteEP.RESULTS + $resultPageState.userId)
-        let deserializedResults: ResultModel[] = []
-        for (let i = 0; i < res.length; i++) {
-            deserializedResults.push(ResultModel.deserialize(res[i]))
-        }
-        $results = deserializedResults
+        await results.refresh()
     }
 </script>
 

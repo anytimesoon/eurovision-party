@@ -10,6 +10,9 @@
     import {onMount} from "svelte";
     import {addClassList} from "$lib/utils/addClassList";
     import {MagicClassEnun} from "$lib/models/enums/magicClass.enun";
+    import {quintInOut} from "svelte/easing";
+    import { scale } from 'svelte/transition';
+
 
     interface Props {
         comment: CommentModel
@@ -49,12 +52,12 @@
         })
     }
 
-    let isSelected = $derived(users.has($currentUser.id) ? "border-secondary-light" : "border-canvas-secondary")
+    let isSelected = $derived(users.has($currentUser.id) ? "border-secondary" : "border-canvas-secondary")
 </script>
 
-<div class="border-2 border-canvas-secondary z-10 max-h-min rounded-xl mx-1 bg-canvas-secondary" bind:this={button}>
+<div class="border-[3px] border-canvas-secondary z-10 max-h-min rounded-xl mx-0.5 bg-canvas-secondary" bind:this={button} transition:scale|global={{ duration: 500, opacity: 0.5, easing: quintInOut }}>
     <button
-            class=" px-2 py-0.5
+            class=" px-1.5 py-0
                     bg-canvas-primary
                     rounded-xl
                     items-center
@@ -65,10 +68,10 @@
                     {isSelected}"
             onclick={(e) => handleClick(e, emoji)}
     >
-        <span class="text-lg">{emoji}</span>
+        <span class="text-xl">{emoji}</span>
 
         {#if users.size > 1}
-            <span class="text-xs pl-1">{users.size > 1 ? users.size : ""}</span>
+            <span class="text-xs pl-1" transition:scale>{users.size}</span>
         {/if}
     </button>
 </div>

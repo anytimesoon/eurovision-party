@@ -25,8 +25,6 @@
 </script>
 
 <div class="absolute
-    -top-5
-    right-1
     bg-primary
     rounded
     border

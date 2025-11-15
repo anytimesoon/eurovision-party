@@ -14,17 +14,13 @@
             <div class="grid grid-cols-2 gap-x-3">
                 <div>
                     <ul>
-                        {#each $notParticipatingCountryStore as country}
-                            <CountryParticipationForm country={country} />
-                        {/each}
+                        <CountryParticipationForm countries={$notParticipatingCountryStore} isParticipating={false}/>
                     </ul>
                 </div>
 
                 <div>
                     <ul>
-                        {#each $participatingCountryStore as country}
-                            <CountryParticipationForm country={country} />
-                        {/each}
+                        <CountryParticipationForm countries={$participatingCountryStore} isParticipating={true}/>
                     </ul>
                 </div>
             </div>

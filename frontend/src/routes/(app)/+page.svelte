@@ -13,6 +13,8 @@
     import ChatInputForm from "$lib/components/forms/ChatInputForm.svelte";
     import ImageLoader from "$lib/components/images/ImageLoader.svelte";
     import EmojiPicker from "$lib/components/chat/EmojiPicker.svelte";
+    import {flip} from "svelte/animate";
+    import {fade} from "svelte/transition";
 
     let openModal:VoidFunction = $state()
     let closeModal:VoidFunction = $state()
@@ -39,13 +41,13 @@
             <CommentQueue />
         {/if}
 
-        {#each {length: $recentComments.length} as _, index}
-            {@const reverseIndex = $recentComments.length - 1 - index}
-            {@const comment = $recentComments[reverseIndex]}
-            <ChatBubble comment={comment}
-                        user={$userStore.get(comment.userId)}
-                        isCurrentUser={($currentUser.id === comment.userId)}
-                        openAvatarModal={openAvatarModal}/>
+        {#each $recentComments as comment (comment.id)}
+            <div animate:flip={{duration: 200}} in:fade={{delay: 100, duration: 100}}>
+                <ChatBubble comment={comment}
+                                user={$userStore.get(comment.userId)}
+                                isCurrentUser={($currentUser.id === comment.userId)}
+                                openAvatarModal={openAvatarModal}/>
+            </div>
         {/each}
 
         {#if $olderComments.length > 0 && !showCommentHistory}
@@ -57,13 +59,13 @@
                 </button>
             </div>
         {:else}
-            {#each {length: $olderComments.length} as _, index}
-                {@const reverseIndex = $olderComments.length - 1 - index}
-                {@const comment = $olderComments[reverseIndex]}
-                <ChatBubble comment={comment}
-                            user={$userStore.get(comment.userId)}
-                            isCurrentUser={($currentUser.id === comment.userId)}
-                            openAvatarModal={openAvatarModal}/>
+            {#each $olderComments as comment (comment.id)}
+                <div animate:flip={{duration: 200}} in:fade>
+                    <ChatBubble comment={comment}
+                                user={$userStore.get(comment.userId)}
+                                isCurrentUser={($currentUser.id === comment.userId)}
+                                openAvatarModal={openAvatarModal}/>
+                </div>
             {/each}
         {/if}
     </div>

@@ -19,7 +19,7 @@
 
         const createdUser: NewUserModel = await post<NewUserModel, NewUserModel>(authEP.REGISTER, newUser)
             .then(res => NewUserModel.deserialize(res))
-        $newUserStore = [...$newUserStore, createdUser]
+        newUserStore.addAndSort(createdUser)
 
         form.reset()
 

@@ -76,7 +76,7 @@
 
 
 
-  <aside id="menu" class="fixed top-0 -right-[75%] w-[75%] bg-canvas-secondary z-1 flex duration-500 h-screen overflow-auto">
+  <aside id="menu" class="fixed top-0 -right-[75%] w-[75%] bg-canvas-secondary z-40 flex duration-500 h-screen overflow-auto">
     <div class="w-full flex flex-col p-5">
     {#if $currentlyVotingOn.name !== ""}
         <a href="/country/{$currentlyVotingOn.slug}" onclick={closeMenu} class="text-[1.25rem] block">

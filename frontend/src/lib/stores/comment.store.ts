@@ -9,11 +9,13 @@ const offset:number = 300
 
 export const recentComments = derived(commentStore, $commentStore => {
     const currentLength = $commentStore.size
+    let commentArray: CommentModel[]
     if (currentLength < offset) {
-        return $commentStore.values().toArray()
+        commentArray = $commentStore.values().toArray()
     } else {
-        return $commentStore.values().toArray().slice($commentStore.size - offset, $commentStore.size)
+        commentArray = $commentStore.values().toArray().slice($commentStore.size - offset, $commentStore.size)
     }
+    return commentArray.reverse()
 })
 
 export const olderComments = derived(commentStore, $commentStore => {
@@ -21,6 +23,6 @@ export const olderComments = derived(commentStore, $commentStore => {
     if (currentLength < offset) {
         return []
     } else {
-        return $commentStore.values().toArray().slice(0, $commentStore.size - offset)
+        return $commentStore.values().toArray().slice(0, $commentStore.size - offset).reverse()
     }
 })
