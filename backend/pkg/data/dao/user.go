@@ -17,6 +17,7 @@ type User struct {
 	Invites   []uuid.UUID
 	CreatedBy uuid.UUID `boltholdIndex:"CreatedBy"`
 	CanInvite bool
+	IsBanned  bool
 }
 
 func (u User) ToDto() dto2.User {

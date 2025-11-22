@@ -17,7 +17,6 @@ type UserRepository interface {
 	GetAllUsers() ([]dao.User, error)
 	GetOneUserBySlug(string) (*dao.User, error)
 	GetOneUserById(uuid.UUID) (*dao.User, error)
-	DeleteUser(string) error
 	GetRegisteredUsers(dao.User) (*[]dao.User, error)
 	UpdateUser(dao.User) (*dao.User, error)
 	UpdateUserImage(uuid.UUID) (*dao.User, error)
@@ -140,29 +139,14 @@ func (db UserRepositoryDb) UpdateUserImage(id uuid.UUID) (*dao.User, error) {
 	return &user, nil
 }
 
-func (db UserRepositoryDb) DeleteUser(slug string) error {
-	user, err := db.GetOneUserBySlug(slug)
-	if err != nil {
-		return err
-	}
-
-	err = db.store.Delete(user.UUID.String(), user)
-	if err != nil {
-		log.Println("Error when deleting user", err)
-		return err
-	}
-
-	return nil
-}
-
 func (db UserRepositoryDb) GetRegisteredUsers(user dao.User) (*[]dao.User, error) {
 	users := make([]dao.User, 0)
 	var err error
 
 	if user.AuthLvl == authLvl.ADMIN {
-		err = db.store.Find(&users, bolthold.Where("AuthLvl").Ne(authLvl.BOT).SortBy("Name"))
+		err = db.store.Find(&users, bolthold.Where("AuthLvl").Ne(authLvl.BOT).And("IsBanned").Eq(false).SortBy("Name"))
 	} else {
-		err = db.store.Find(&users, bolthold.Where("CreatedBy").Eq(user.UUID).SortBy("Name"))
+		err = db.store.Find(&users, bolthold.Where("CreatedBy").Eq(user.UUID).And("IsBanned").Eq(false).SortBy("Name"))
 	}
 	if err != nil {
 		log.Println("Error while querying user table for registered users", err)

@@ -7,8 +7,9 @@ import (
 )
 
 type SessionRepository interface {
-	UpdateSession(string, string, uuid.UUID) error
+	UpsertSession(string, string, uuid.UUID) error
 	GetSession(string) (*dao.Session, error)
+	DeleteSession(string) error
 }
 
 type SessionRepositoryDB struct {
@@ -19,7 +20,7 @@ func NewSessionRepositoryDb(store *bolthold.Store) SessionRepositoryDB {
 	return SessionRepositoryDB{store}
 }
 
-func (db SessionRepositoryDB) UpdateSession(authToken string, sessionToken string, userId uuid.UUID) error {
+func (db SessionRepositoryDB) UpsertSession(authToken string, sessionToken string, userId uuid.UUID) error {
 	err := db.store.Upsert(sessionToken, dao.Session{
 		AuthToken:    authToken,
 		SessionToken: sessionToken,
@@ -38,4 +39,8 @@ func (db SessionRepositoryDB) GetSession(sessionToken string) (*dao.Session, err
 		return nil, err
 	}
 	return &session, nil
+}
+
+func (db SessionRepositoryDB) DeleteSession(sessionToken string) error {
+	return db.store.Delete(sessionToken, dao.Session{})
 }

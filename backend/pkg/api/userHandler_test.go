@@ -715,7 +715,7 @@ func TestUserHandler_UpdateUser(t *testing.T) {
 	}
 }
 
-func TestUserHandler_DeleteUser(t *testing.T) {
+func TestUserHandler_BanUser(t *testing.T) {
 	type fields struct {
 		Service      service2.UserService
 		AssetService service2.AssetService
@@ -742,7 +742,7 @@ func TestUserHandler_DeleteUser(t *testing.T) {
 			args: args{
 				resp: httptest.NewRecorder(),
 				req: func() *http.Request {
-					req := httptest.NewRequest(http.MethodDelete, "/api/user/regular", nil)
+					req := httptest.NewRequest(http.MethodPut, "/api/user/regular", nil)
 					req = mux.SetURLVars(req, map[string]string{"slug": regularUserMock.Slug})
 					ctx := context.WithValue(req.Context(), "auth", dto2.Auth{AuthLvl: authLvl.ADMIN})
 					return req.WithContext(ctx)
@@ -761,8 +761,11 @@ func TestUserHandler_DeleteUser(t *testing.T) {
 			args: args{
 				resp: httptest.NewRecorder(),
 				req: func() *http.Request {
-					req := httptest.NewRequest(http.MethodDelete, "/api/user/regular", nil)
-					req = mux.SetURLVars(req, map[string]string{"slug": regularUserMock.Slug})
+					body, err := json.Marshal(regularUserMock)
+					if err != nil {
+						t.Fatal(err)
+					}
+					req := httptest.NewRequest(http.MethodDelete, "/api/user/regular", bytes.NewBuffer(body))
 					ctx := context.WithValue(req.Context(), "auth", dto2.Auth{AuthLvl: authLvl.USER})
 					return req.WithContext(ctx)
 				}(),
@@ -778,7 +781,7 @@ func TestUserHandler_DeleteUser(t *testing.T) {
 				UserService:  tt.fields.Service,
 				AssetService: tt.fields.AssetService,
 			}
-			uh.DeleteUser(tt.args.resp, tt.args.req)
+			uh.BanUser(tt.args.resp, tt.args.req)
 			result := tt.args.resp.(*httptest.ResponseRecorder).Result()
 			defer func(Body io.ReadCloser) {
 				err := Body.Close()
@@ -788,7 +791,7 @@ func TestUserHandler_DeleteUser(t *testing.T) {
 			}(result.Body)
 
 			if result.StatusCode != tt.expected.statusCode {
-				t.Errorf("DeleteUser return status code = %v, want %v", result.StatusCode, tt.expected.statusCode)
+				t.Errorf("BanUser return status code = %v, want %v", result.StatusCode, tt.expected.statusCode)
 			}
 		})
 	}

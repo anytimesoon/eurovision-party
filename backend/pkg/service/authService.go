@@ -54,7 +54,7 @@ func (das DefaultAuthService) Login(authDTO dto2.Auth) (*dto2.Session, *errs.App
 		return nil, errs.NewUnauthorizedError(errs.Common.Login)
 	}
 
-	err = das.sessionRepo.UpdateSession(auth.AuthToken, auth.SessionToken, authDTO.UserId)
+	err = das.sessionRepo.UpsertSession(auth.AuthToken, auth.SessionToken, authDTO.UserId)
 	if err != nil {
 		log.Printf("Unable to generate new session token for user %s. %s", authDTO.UserId, err)
 		return nil, errs.NewUnauthorizedError(errs.Common.Login)

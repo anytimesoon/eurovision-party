@@ -67,9 +67,6 @@ func (cs DefaultCommentService) FindCommentsAfter(commentIdJSON json.RawMessage)
 	}
 
 	for _, comment := range comments {
-		log.Printf("comment: %+v", comment)
-		commmentDTO := comment.ToDto()
-		log.Printf("commentDTO: %+v", commmentDTO)
 		commentsDTO = append(commentsDTO, comment.ToDto())
 	}
 

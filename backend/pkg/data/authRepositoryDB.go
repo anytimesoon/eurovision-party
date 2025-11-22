@@ -14,6 +14,7 @@ type AuthRepository interface {
 	UpdateAuth(*dao.Auth) error
 	CreateAuth(dao.Auth) (*dao.Auth, error)
 	GetAuthFromUserId(uuid uuid.UUID) (*dao.Auth, error)
+	DeleteAuth(string) error
 }
 
 type AuthRepositoryDB struct {
@@ -57,6 +58,15 @@ func (db AuthRepositoryDB) UpdateAuth(auth *dao.Auth) error {
 	err := db.store.Update(auth.AuthToken, auth)
 	if err != nil {
 		log.Println("Unable to update auth", err)
+		return err
+	}
+	return nil
+}
+
+func (db AuthRepositoryDB) DeleteAuth(authToken string) error {
+	err := db.store.Delete(authToken, dao.Auth{})
+	if err != nil {
+		log.Println("Error when deleting auth", err)
 		return err
 	}
 	return nil
