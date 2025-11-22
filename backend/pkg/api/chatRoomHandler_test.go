@@ -11,8 +11,8 @@ import (
 	"github.com/anytimesoon/eurovision-party/conf"
 	"github.com/anytimesoon/eurovision-party/pkg/data/dao"
 	"github.com/anytimesoon/eurovision-party/pkg/enum/chatMsgType"
-	service2 "github.com/anytimesoon/eurovision-party/pkg/service"
-	dto2 "github.com/anytimesoon/eurovision-party/pkg/service/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/service"
+	"github.com/anytimesoon/eurovision-party/pkg/service/dto"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
@@ -23,15 +23,15 @@ func TestChatRoomHandler_Connect(t *testing.T) {
 	regularSession := getRegularSession()
 
 	type fields struct {
-		RoomService    *service2.Room
-		CommentService service2.CommentService
-		AuthService    service2.AuthService
+		RoomService    *service.Room
+		CommentService service.CommentService
+		AuthService    service.AuthService
 	}
 
 	tests := []struct {
 		name          string
 		fields        fields
-		user          dto2.User
+		user          dto.User
 		token         string
 		expectUpgrade bool
 		expectError   bool
@@ -125,7 +125,7 @@ func TestChatRoomHandler_Connect(t *testing.T) {
 				t.Errorf("Expected status code %d but got %d", http.StatusSwitchingProtocols, resp.StatusCode)
 			}
 
-			mockComment := dto2.Comment{
+			mockComment := dto.Comment{
 				UUID:      uuid.New(),
 				UserId:    tt.user.UUID,
 				Text:      "hello",
@@ -138,7 +138,7 @@ func TestChatRoomHandler_Connect(t *testing.T) {
 				panic(err)
 			}
 
-			mockMessage := dto2.SocketMessage{
+			mockMessage := dto.SocketMessage{
 				Category: chatMsgType.COMMENT,
 				Body:     comm,
 			}

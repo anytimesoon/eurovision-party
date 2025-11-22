@@ -7,29 +7,29 @@ import (
 	"time"
 
 	"github.com/anytimesoon/eurovision-party/conf"
-	data2 "github.com/anytimesoon/eurovision-party/pkg/data"
-	dao2 "github.com/anytimesoon/eurovision-party/pkg/data/dao"
+	"github.com/anytimesoon/eurovision-party/pkg/data"
+	"github.com/anytimesoon/eurovision-party/pkg/data/dao"
 	"github.com/anytimesoon/eurovision-party/pkg/enum"
 	"github.com/anytimesoon/eurovision-party/pkg/enum/chatMsgType"
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
-	dto2 "github.com/anytimesoon/eurovision-party/pkg/service/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/service/dto"
 	"github.com/google/uuid"
 )
 
 type VoteService interface {
-	UpdateVote(dto2.VoteSingle) (*dto2.Vote, *errs.AppError)
-	GetVoteByUserAndCountry(uuid.UUID, string) (*dto2.Vote, *errs.AppError)
-	GetResults() (*[]dto2.Result, *errs.AppError)
-	GetResultsByUser(userId string) (*[]dto2.Result, *errs.AppError)
+	UpdateVote(dto.VoteSingle) (*dto.Vote, *errs.AppError)
+	GetVoteByUserAndCountry(uuid.UUID, string) (*dto.Vote, *errs.AppError)
+	GetResults() (*[]dto.Result, *errs.AppError)
+	GetResultsByUser(userId string) (*[]dto.Result, *errs.AppError)
 }
 
 type DefaultVoteService struct {
-	repo        data2.VoteRepository
-	broadcast   chan dto2.SocketMessage
-	commentRepo data2.CommentRepository
+	repo        data.VoteRepository
+	broadcast   chan dto.SocketMessage
+	commentRepo data.CommentRepository
 }
 
-func NewVoteService(repo data2.VoteRepository, broadcast chan dto2.SocketMessage, commentRepo data2.CommentRepository) DefaultVoteService {
+func NewVoteService(repo data.VoteRepository, broadcast chan dto.SocketMessage, commentRepo data.CommentRepository) DefaultVoteService {
 	return DefaultVoteService{
 		repo,
 		broadcast,
@@ -37,7 +37,7 @@ func NewVoteService(repo data2.VoteRepository, broadcast chan dto2.SocketMessage
 	}
 }
 
-func (vs DefaultVoteService) UpdateVote(voteSingleDTO dto2.VoteSingle) (*dto2.Vote, *errs.AppError) {
+func (vs DefaultVoteService) UpdateVote(voteSingleDTO dto.VoteSingle) (*dto.Vote, *errs.AppError) {
 	appErr := voteSingleDTO.Validate()
 	if appErr != nil {
 		return nil, appErr
@@ -79,7 +79,7 @@ func (vs DefaultVoteService) UpdateVote(voteSingleDTO dto2.VoteSingle) (*dto2.Vo
 	return &result, nil
 }
 
-func (vs DefaultVoteService) GetVoteByUserAndCountry(userId uuid.UUID, countrySlug string) (*dto2.Vote, *errs.AppError) {
+func (vs DefaultVoteService) GetVoteByUserAndCountry(userId uuid.UUID, countrySlug string) (*dto.Vote, *errs.AppError) {
 	vote, err := vs.repo.GetVoteByUserAndCountry(userId, countrySlug)
 	if err != nil {
 		return nil, errs.NewNotFoundError(errs.Common.NotFound + "your votes")
@@ -89,7 +89,7 @@ func (vs DefaultVoteService) GetVoteByUserAndCountry(userId uuid.UUID, countrySl
 	return &result, nil
 }
 
-func (vs DefaultVoteService) GetResults() (*[]dto2.Result, *errs.AppError) {
+func (vs DefaultVoteService) GetResults() (*[]dto.Result, *errs.AppError) {
 	results, err := vs.repo.GetResults()
 	if err != nil {
 		return nil, errs.NewUnexpectedError(errs.Common.DBFail)
@@ -98,7 +98,7 @@ func (vs DefaultVoteService) GetResults() (*[]dto2.Result, *errs.AppError) {
 	return sortResults(*results), nil
 }
 
-func (vs DefaultVoteService) GetResultsByUser(userId string) (*[]dto2.Result, *errs.AppError) {
+func (vs DefaultVoteService) GetResultsByUser(userId string) (*[]dto.Result, *errs.AppError) {
 	id, err := uuid.Parse(userId)
 	if err != nil {
 		return nil, errs.NewUnexpectedError(errs.Common.BadlyFormedObject)
@@ -112,8 +112,8 @@ func (vs DefaultVoteService) GetResultsByUser(userId string) (*[]dto2.Result, *e
 	return sortResults(*results), nil
 }
 
-func sortResults(results []dao2.Result) *[]dto2.Result {
-	sortedResultsDTO := make([]dto2.Result, 0)
+func sortResults(results []dao.Result) *[]dto.Result {
+	sortedResultsDTO := make([]dto.Result, 0)
 	for _, result := range results {
 		resultDTO := result.ToDto()
 
@@ -135,8 +135,8 @@ func sortResults(results []dao2.Result) *[]dto2.Result {
 	return &sortedResultsDTO
 }
 
-func (vs DefaultVoteService) broadcastVoting(voteTracker dto2.VoteTracker) {
-	comment := &dao2.Comment{
+func (vs DefaultVoteService) broadcastVoting(voteTracker dto.VoteTracker) {
+	comment := &dao.Comment{
 		UUID:      uuid.New(),
 		UserId:    conf.App.BotId,
 		Text:      fmt.Sprintf("People voted for %s %s", voteTracker.Country.Name, voteTracker.Country.Flag),
@@ -162,7 +162,7 @@ func (vs DefaultVoteService) broadcastVoting(voteTracker dto2.VoteTracker) {
 	}
 
 	log.Printf("Broadcasting vote tracker to all users for %s.", voteTracker.Country.Name)
-	vs.broadcast <- dto2.SocketMessage{
+	vs.broadcast <- dto.SocketMessage{
 		Category: chatMsgType.VOTE_NOTIFICATION,
 		Body:     voteTrackerJson,
 	}

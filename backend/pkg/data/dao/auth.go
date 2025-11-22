@@ -7,7 +7,7 @@ import (
 
 	"github.com/anytimesoon/eurovision-party/conf"
 	"github.com/anytimesoon/eurovision-party/pkg/enum/authLvl"
-	dto2 "github.com/anytimesoon/eurovision-party/pkg/service/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/service/dto"
 	"github.com/google/uuid"
 )
 
@@ -52,8 +52,8 @@ func generateToken(len int) string {
 	return hex.EncodeToString(b)
 }
 
-func (a *Auth) ToDTO() dto2.Auth {
-	return dto2.Auth{
+func (a *Auth) ToDTO() dto.Auth {
+	return dto.Auth{
 		Token:      a.SessionToken,
 		Expiration: a.SessionTokenExp,
 		UserId:     a.UserId,
@@ -61,8 +61,8 @@ func (a *Auth) ToDTO() dto2.Auth {
 	}
 }
 
-func (a *Auth) ToSession(token string, user *User) *dto2.Session {
-	return &dto2.Session{
+func (a *Auth) ToSession(token string, user *User) *dto.Session {
+	return &dto.Session{
 		SessionToken: token,
 		User:         user.ToDto(),
 		Bot:          conf.App.BotId,

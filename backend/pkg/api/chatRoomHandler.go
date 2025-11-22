@@ -5,15 +5,15 @@ import (
 	"net/http"
 
 	"github.com/anytimesoon/eurovision-party/conf"
-	service2 "github.com/anytimesoon/eurovision-party/pkg/service"
+	"github.com/anytimesoon/eurovision-party/pkg/service"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 )
 
 type ChatRoomHandler struct {
-	RoomService    *service2.Room
-	CommentService service2.CommentService
-	AuthService    service2.AuthService
+	RoomService    *service.Room
+	CommentService service.CommentService
+	AuthService    service.AuthService
 }
 
 var upgrader = websocket.Upgrader{
@@ -42,7 +42,7 @@ func (crh ChatRoomHandler) Connect(resp http.ResponseWriter, req *http.Request) 
 		log.Println(err)
 		return
 	}
-	client := &service2.ChatClient{Room: crh.RoomService, UserId: token.UserId, Conn: conn, Send: make(chan []byte, 256), ComServ: crh.CommentService}
+	client := &service.ChatClient{Room: crh.RoomService, UserId: token.UserId, Conn: conn, Send: make(chan []byte, 256), ComServ: crh.CommentService}
 	client.Room.Register <- client
 
 	log.Printf("user %s has connected to the chatroom", token.UserId)

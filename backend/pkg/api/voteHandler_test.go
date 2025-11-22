@@ -16,7 +16,7 @@ import (
 	"github.com/anytimesoon/eurovision-party/pkg/enum"
 	"github.com/anytimesoon/eurovision-party/pkg/enum/chatMsgType"
 	"github.com/anytimesoon/eurovision-party/pkg/service"
-	dto2 "github.com/anytimesoon/eurovision-party/pkg/service/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/service/dto"
 	"github.com/gorilla/mux"
 )
 
@@ -76,7 +76,7 @@ func TestVoteHandler_GetResults(t *testing.T) {
 				panic(err)
 			}
 
-			var resultDto dto2.ApiPayload[[]dto2.Result]
+			var resultDto dto.ApiPayload[[]dto.Result]
 			err = json.Unmarshal(resultBody, &resultDto)
 			if err != nil {
 				panic(err)
@@ -180,7 +180,7 @@ func TestVoteHandler_GetResultsByUser(t *testing.T) {
 				panic(err)
 			}
 
-			var resultDto dto2.ApiPayload[[]dto2.Result]
+			var resultDto dto.ApiPayload[[]dto.Result]
 			err = json.Unmarshal(resultBody, &resultDto)
 			if err != nil {
 				panic(err)
@@ -237,7 +237,7 @@ func TestVoteHandler_GetVoteByUserAndCountry(t *testing.T) {
 	}
 	type expected struct {
 		statusCode int
-		vote       dto2.Vote
+		vote       dto.Vote
 	}
 	tests := []struct {
 		name     string
@@ -256,7 +256,7 @@ func TestVoteHandler_GetVoteByUserAndCountry(t *testing.T) {
 			},
 			expected: expected{
 				statusCode: http.StatusOK,
-				vote: dto2.Vote{
+				vote: dto.Vote{
 					UserId:      adminUserId,
 					CountrySlug: countryNames[0],
 					Costume:     0,
@@ -273,7 +273,7 @@ func TestVoteHandler_GetVoteByUserAndCountry(t *testing.T) {
 				Service: tt.fields.Service,
 			}
 
-			mockAuth := dto2.Auth{
+			mockAuth := dto.Auth{
 				UserId: adminUserId,
 			}
 			tt.args.req = tt.args.req.WithContext(context.WithValue(context.Background(), "auth", mockAuth))
@@ -297,7 +297,7 @@ func TestVoteHandler_GetVoteByUserAndCountry(t *testing.T) {
 				panic(err)
 			}
 
-			var resultDto dto2.ApiPayload[dto2.Vote]
+			var resultDto dto.ApiPayload[dto.Vote]
 			err = json.Unmarshal(resultBody, &resultDto)
 			if err != nil {
 				panic(err)
@@ -482,7 +482,7 @@ func TestVoteHandler_UpdateVote(t *testing.T) {
 				Service: tt.fields.Service,
 			}
 
-			mockAuth := dto2.Auth{
+			mockAuth := dto.Auth{
 				UserId: adminUserId,
 			}
 			tt.args.req = tt.args.req.WithContext(context.WithValue(context.Background(), "auth", mockAuth))
@@ -599,7 +599,7 @@ func TestDefaultVoteService_UpdateVote_Broadcasting(t *testing.T) {
 			}
 
 			for i := 1; i <= tt.updateCount; i++ {
-				voteUpdate := dto2.VoteSingle{
+				voteUpdate := dto.VoteSingle{
 					UserId:      adminUserId,
 					CountrySlug: tt.countrySlug,
 					Cat:         categories[i%len(categories)],
@@ -617,7 +617,7 @@ func TestDefaultVoteService_UpdateVote_Broadcasting(t *testing.T) {
 			case msg := <-testVoteBroadcastChan:
 
 				if msg.Category == chatMsgType.VOTE_NOTIFICATION {
-					var notification dto2.VoteTracker
+					var notification dto.VoteTracker
 					err := json.Unmarshal(msg.Body, &notification)
 					if err != nil {
 						panic(err)

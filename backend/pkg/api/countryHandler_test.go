@@ -13,7 +13,7 @@ import (
 	"github.com/anytimesoon/eurovision-party/pkg/data/dao"
 	"github.com/anytimesoon/eurovision-party/pkg/enum/authLvl"
 	"github.com/anytimesoon/eurovision-party/pkg/service"
-	dto2 "github.com/anytimesoon/eurovision-party/pkg/service/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/service/dto"
 	"github.com/gorilla/mux"
 	"github.com/timshannon/bolthold"
 )
@@ -74,7 +74,7 @@ func TestCountryHandler_FindAllCountries(t *testing.T) {
 				panic(err)
 			}
 
-			var resultDto dto2.ApiPayload[[]dto2.Country]
+			var resultDto dto.ApiPayload[[]dto.Country]
 			err = json.Unmarshal(resultBody, &resultDto)
 			if err != nil {
 				panic(err)
@@ -154,7 +154,7 @@ func TestCountryHandler_FindOneCountry(t *testing.T) {
 				panic(err)
 			}
 
-			var resultDto dto2.ApiPayload[dto2.Country]
+			var resultDto dto.ApiPayload[dto.Country]
 			err = json.Unmarshal(resultBody, &resultDto)
 			if err != nil {
 				panic(err)
@@ -235,7 +235,7 @@ func TestCountryHandler_Participating(t *testing.T) {
 				panic(err)
 			}
 
-			var resultDto dto2.ApiPayload[[]dto2.Country]
+			var resultDto dto.ApiPayload[[]dto.Country]
 			err = json.Unmarshal(resultBody, &resultDto)
 			if err != nil {
 				panic(err)
@@ -343,7 +343,7 @@ func TestCountryHandler_UpdateCountry(t *testing.T) {
 				Service: tt.fields.Service,
 			}
 
-			mockAuth := dto2.Auth{
+			mockAuth := dto.Auth{
 				AuthLvl: tt.args.authLvl,
 			}
 			tt.args.req = tt.args.req.WithContext(context.WithValue(context.Background(), "auth", mockAuth))

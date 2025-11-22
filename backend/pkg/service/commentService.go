@@ -9,29 +9,29 @@ import (
 	"github.com/anytimesoon/eurovision-party/pkg/data/dao"
 	"github.com/anytimesoon/eurovision-party/pkg/enum/chatMsgType"
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
-	dto2 "github.com/anytimesoon/eurovision-party/pkg/service/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/service/dto"
 	"github.com/google/uuid"
 )
 
 type CommentService interface {
-	FindAllComments() ([]dto2.Comment, *errs.AppError)
-	CreateComment([]byte) (*dto2.Comment, *errs.AppError)
+	FindAllComments() ([]dto.Comment, *errs.AppError)
+	CreateComment([]byte) (*dto.Comment, *errs.AppError)
 	DeleteComment(string) *errs.AppError
 	FindCommentsAfter(json.RawMessage) ([]byte, *errs.AppError)
-	UpdateReaction(dto2.CommentReaction) (*dto2.CommentReaction, *errs.AppError)
+	UpdateReaction(dto.CommentReaction) (*dto.CommentReaction, *errs.AppError)
 }
 
 type DefaultCommentService struct {
 	repo      data.CommentRepository
-	broadcast chan dto2.SocketMessage
+	broadcast chan dto.SocketMessage
 }
 
-func NewCommentService(repo data.CommentRepository, broadcast chan dto2.SocketMessage) DefaultCommentService {
+func NewCommentService(repo data.CommentRepository, broadcast chan dto.SocketMessage) DefaultCommentService {
 	return DefaultCommentService{repo, broadcast}
 }
 
-func (cs DefaultCommentService) FindAllComments() ([]dto2.Comment, *errs.AppError) {
-	commentsDTO := make([]dto2.Comment, 0)
+func (cs DefaultCommentService) FindAllComments() ([]dto.Comment, *errs.AppError) {
+	commentsDTO := make([]dto.Comment, 0)
 
 	commentData, err := cs.repo.GetAllComments()
 	if err != nil {
@@ -48,7 +48,7 @@ func (cs DefaultCommentService) FindAllComments() ([]dto2.Comment, *errs.AppErro
 func (cs DefaultCommentService) FindCommentsAfter(commentIdJSON json.RawMessage) ([]byte, *errs.AppError) {
 	var commentId string
 	var comments []dao.Comment
-	commentsDTO := make([]dto2.Comment, 0)
+	commentsDTO := make([]dto.Comment, 0)
 
 	err := json.Unmarshal(commentIdJSON, &commentId)
 	if err != nil {
@@ -79,8 +79,8 @@ func (cs DefaultCommentService) FindCommentsAfter(commentIdJSON json.RawMessage)
 	return commentsJSON, nil
 }
 
-func (cs DefaultCommentService) CreateComment(body []byte) (*dto2.Comment, *errs.AppError) {
-	commentDTO := dto2.Comment{}
+func (cs DefaultCommentService) CreateComment(body []byte) (*dto.Comment, *errs.AppError) {
+	commentDTO := dto.Comment{}
 	err := json.Unmarshal(body, &commentDTO)
 	if err != nil {
 		log.Println("Failed to unmarshal comment.", err)
@@ -117,7 +117,7 @@ func (cs DefaultCommentService) DeleteComment(uuid string) *errs.AppError {
 	return nil
 }
 
-func (cs DefaultCommentService) UpdateReaction(reaction dto2.CommentReaction) (*dto2.CommentReaction, *errs.AppError) {
+func (cs DefaultCommentService) UpdateReaction(reaction dto.CommentReaction) (*dto.CommentReaction, *errs.AppError) {
 	_, err := cs.repo.UpdateReaction(reaction.CommentId, reaction.UserId, reaction.Action, reaction.Reaction)
 	if err != nil {
 		return nil, errs.NewUnexpectedError(errs.Common.NotUpdated + "your reaction")
@@ -128,7 +128,7 @@ func (cs DefaultCommentService) UpdateReaction(reaction dto2.CommentReaction) (*
 	return &reaction, nil
 }
 
-func (cs DefaultCommentService) broadcastUpdate(reaction dto2.CommentReaction) {
-	socketMessage := dto2.NewSocketMessage[dto2.CommentReaction](chatMsgType.UPDATE_COMMENT, reaction)
+func (cs DefaultCommentService) broadcastUpdate(reaction dto.CommentReaction) {
+	socketMessage := dto.NewSocketMessage[dto.CommentReaction](chatMsgType.UPDATE_COMMENT, reaction)
 	cs.broadcast <- socketMessage
 }
