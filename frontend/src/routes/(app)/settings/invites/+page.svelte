@@ -4,9 +4,10 @@
     import {NewUserModel} from "$lib/models/classes/newUser.model";
     import ContentCopy from "svelte-material-icons/ContentCopy.svelte";
     import {onMount} from "svelte";
-    import {get} from "$lib/utils/genericFetch";
+    import {get, putWithError} from "$lib/utils/genericFetch";
     import FriendForm from "$lib/components/forms/FriendForm.svelte";
     import {newUserStore} from "$lib/stores/newUser.store";
+    import {errorStore} from "$lib/stores/error.store";
     import type {INewUser} from "$lib/models/interfaces/inewUser.interface";
     import { userStore, currentUser } from "$lib/stores/user.store";
     import {flip} from "svelte/animate";
@@ -27,6 +28,16 @@
         setTimeout(function(){
             button.innerHTML = content
         }, 1000);
+    }
+
+    const banUser = async (user: NewUserModel) => {
+        const result = await putWithError<NewUserModel, NewUserModel>(userEP.BAN, user)
+        console.log(result)
+        if (user.id === result.body.id) {
+            $newUserStore = $newUserStore.filter(u => u.id !== user.id)
+        } else {
+            $errorStore = result.error
+        }
     }
 
     function getUserName(user: NewUserModel): string {
@@ -76,6 +87,9 @@
                             <div class="text-right">
                                 <button onclick={(e) => copyLink(user, e)}>
                                     <span class="flex"><ContentCopy size="1.4em"/> Copy ✨</span>
+                                </button>
+                                <button onclick={() => banUser(user)}>
+                                    <span class="flex">Ban</span>
                                 </button>
                             </div>
                         </div>

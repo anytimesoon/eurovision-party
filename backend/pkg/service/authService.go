@@ -12,25 +12,25 @@ import (
 	"log"
 	"time"
 
-	data2 "github.com/anytimesoon/eurovision-party/pkg/data"
+	"github.com/anytimesoon/eurovision-party/pkg/data"
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
-	dto2 "github.com/anytimesoon/eurovision-party/pkg/service/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/service/dto"
 )
 
 type AuthService interface {
-	Login(dto2.Auth) (*dto2.Session, *errs.AppError)
-	Authorize(string) (*dto2.Auth, *errs.AppError)
+	Login(dto.Auth) (*dto.Session, *errs.AppError)
+	Authorize(string) (*dto.Auth, *errs.AppError)
 }
 
 type DefaultAuthService struct {
-	authRepo    data2.AuthRepository
-	sessionRepo data2.SessionRepository
-	userRepo    data2.UserRepository
+	authRepo    data.AuthRepository
+	sessionRepo data.SessionRepository
+	userRepo    data.UserRepository
 }
 
 var secretKey []byte
 
-func NewAuthService(authRepo data2.AuthRepositoryDB, sessionRepo data2.SessionRepositoryDB, userRepo data2.UserRepositoryDb, secretKeyString string) DefaultAuthService {
+func NewAuthService(authRepo data.AuthRepositoryDB, sessionRepo data.SessionRepositoryDB, userRepo data.UserRepositoryDb, secretKeyString string) DefaultAuthService {
 	var err error
 
 	secretKey, err = hex.DecodeString(secretKeyString)
@@ -40,7 +40,7 @@ func NewAuthService(authRepo data2.AuthRepositoryDB, sessionRepo data2.SessionRe
 	return DefaultAuthService{authRepo, sessionRepo, userRepo}
 }
 
-func (das DefaultAuthService) Login(authDTO dto2.Auth) (*dto2.Session, *errs.AppError) {
+func (das DefaultAuthService) Login(authDTO dto.Auth) (*dto.Session, *errs.AppError) {
 	auth, appErr := das.authRepo.GetAuth(authDTO.Token)
 	if appErr != nil {
 		return nil, appErr
@@ -54,7 +54,7 @@ func (das DefaultAuthService) Login(authDTO dto2.Auth) (*dto2.Session, *errs.App
 		return nil, errs.NewUnauthorizedError(errs.Common.Login)
 	}
 
-	err = das.sessionRepo.UpdateSession(auth.AuthToken, auth.SessionToken, authDTO.UserId)
+	err = das.sessionRepo.UpsertSession(auth.AuthToken, auth.SessionToken, authDTO.UserId)
 	if err != nil {
 		log.Printf("Unable to generate new session token for user %s. %s", authDTO.UserId, err)
 		return nil, errs.NewUnauthorizedError(errs.Common.Login)
@@ -83,7 +83,7 @@ func (das DefaultAuthService) Login(authDTO dto2.Auth) (*dto2.Session, *errs.App
 	return session, nil
 }
 
-func (das DefaultAuthService) Authorize(token string) (*dto2.Auth, *errs.AppError) {
+func (das DefaultAuthService) Authorize(token string) (*dto.Auth, *errs.AppError) {
 	authDTO, appErr := decrypt(token)
 	if appErr != nil {
 		return nil, appErr
@@ -141,7 +141,7 @@ func encrypt(auth string) (string, error) {
 	return base64Value, nil
 }
 
-func decrypt(base64Token string) (*dto2.Auth, *errs.AppError) {
+func decrypt(base64Token string) (*dto.Auth, *errs.AppError) {
 	token, err := base64.RawURLEncoding.DecodeString(base64Token)
 	if err != nil {
 		log.Println("Failed to decode base 64", err)
@@ -185,7 +185,7 @@ func decrypt(base64Token string) (*dto2.Auth, *errs.AppError) {
 		return nil, errs.NewUnexpectedError(errs.Common.Login)
 	}
 
-	var auth dto2.Auth
+	var auth dto.Auth
 	err = json.Unmarshal(plaintext, &auth)
 	if err != nil {
 		log.Printf("Failed to unmarshal %s token %s", plaintext, err)

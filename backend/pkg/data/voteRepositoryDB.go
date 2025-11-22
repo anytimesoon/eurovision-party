@@ -4,7 +4,7 @@ import (
 	"log"
 
 	"github.com/anytimesoon/eurovision-party/conf"
-	dao2 "github.com/anytimesoon/eurovision-party/pkg/data/dao"
+	"github.com/anytimesoon/eurovision-party/pkg/data/dao"
 	"github.com/timshannon/bolthold"
 
 	"github.com/google/uuid"
@@ -12,11 +12,11 @@ import (
 
 type VoteRepository interface {
 	CreateVotes(uuid.UUID) error
-	UpdateVote(dao2.Vote) (*dao2.Vote, error)
-	GetVoteByUserAndCountry(uuid.UUID, string) (*dao2.Vote, error)
-	GetResults() (*[]dao2.Result, error)
-	GetResultsByUser(uuid.UUID) (*[]dao2.Result, error)
-	GetTotalVotesForCountry(string) (*dao2.VoteTracker, error)
+	UpdateVote(dao.Vote) (*dao.Vote, error)
+	GetVoteByUserAndCountry(uuid.UUID, string) (*dao.Vote, error)
+	GetResults() (*[]dao.Result, error)
+	GetResultsByUser(uuid.UUID) (*[]dao.Result, error)
+	GetTotalVotesForCountry(string) (*dao.VoteTracker, error)
 }
 
 type VoteRepositoryDb struct {
@@ -28,7 +28,7 @@ func NewVoteRepositoryDb(store *bolthold.Store) VoteRepositoryDb {
 }
 
 func (db VoteRepositoryDb) CreateVotes(userId uuid.UUID) error {
-	countries := make([]dao2.Country, 0)
+	countries := make([]dao.Country, 0)
 	err := db.store.Find(&countries, &bolthold.Query{})
 	if err != nil {
 		log.Println("Error while querying country table during vote creation.", err)
@@ -36,10 +36,10 @@ func (db VoteRepositoryDb) CreateVotes(userId uuid.UUID) error {
 	}
 
 	for _, country := range countries {
-		voteKey := dao2.GenerateVoteKey(userId, country.Slug)
+		voteKey := dao.GenerateVoteKey(userId, country.Slug)
 		err = db.store.Upsert(
 			voteKey,
-			dao2.Vote{
+			dao.Vote{
 				Key:         voteKey,
 				UserId:      userId,
 				CountrySlug: country.Slug,
@@ -58,7 +58,7 @@ func (db VoteRepositoryDb) CreateVotes(userId uuid.UUID) error {
 	return nil
 }
 
-func (db VoteRepositoryDb) UpdateVote(vote dao2.Vote) (*dao2.Vote, error) {
+func (db VoteRepositoryDb) UpdateVote(vote dao.Vote) (*dao.Vote, error) {
 	err := db.store.Update(
 		vote.Key,
 		vote,
@@ -71,10 +71,10 @@ func (db VoteRepositoryDb) UpdateVote(vote dao2.Vote) (*dao2.Vote, error) {
 	return &vote, nil
 }
 
-func (db VoteRepositoryDb) GetVoteByUserAndCountry(userId uuid.UUID, countrySlug string) (*dao2.Vote, error) {
-	var vote dao2.Vote
+func (db VoteRepositoryDb) GetVoteByUserAndCountry(userId uuid.UUID, countrySlug string) (*dao.Vote, error) {
+	var vote dao.Vote
 
-	err := db.store.Get(dao2.GenerateVoteKey(userId, countrySlug), &vote)
+	err := db.store.Get(dao.GenerateVoteKey(userId, countrySlug), &vote)
 	if err != nil {
 		log.Printf("Error when getting vote for user %s. %s", userId.String(), err)
 		return nil, err
@@ -83,9 +83,9 @@ func (db VoteRepositoryDb) GetVoteByUserAndCountry(userId uuid.UUID, countrySlug
 	return &vote, nil
 }
 
-func (db VoteRepositoryDb) GetResults() (*[]dao2.Result, error) {
-	votes := make([]dao2.Vote, 0)
-	resultsMap := make(map[string]*dao2.Result)
+func (db VoteRepositoryDb) GetResults() (*[]dao.Result, error) {
+	votes := make([]dao.Vote, 0)
+	resultsMap := make(map[string]*dao.Result)
 
 	err := db.store.Find(&votes, &bolthold.Query{})
 	if err != nil {
@@ -105,7 +105,7 @@ func (db VoteRepositoryDb) GetResults() (*[]dao2.Result, error) {
 			resultsMap[vote.CountrySlug].Total += int(vote.Costume) + int(vote.Song) + int(vote.Performance) + int(vote.Props)
 		}
 	}
-	results := make([]dao2.Result, 0, len(resultsMap))
+	results := make([]dao.Result, 0, len(resultsMap))
 	for _, res := range resultsMap {
 		results = append(results, *res)
 	}
@@ -113,9 +113,9 @@ func (db VoteRepositoryDb) GetResults() (*[]dao2.Result, error) {
 	return &results, nil
 }
 
-func (db VoteRepositoryDb) GetResultsByUser(userId uuid.UUID) (*[]dao2.Result, error) {
-	votes := make([]dao2.Vote, 0)
-	results := make([]dao2.Result, 0)
+func (db VoteRepositoryDb) GetResultsByUser(userId uuid.UUID) (*[]dao.Result, error) {
+	votes := make([]dao.Vote, 0)
+	results := make([]dao.Result, 0)
 
 	err := db.store.Find(&votes, bolthold.Where("UserId").Eq(userId).Index("UserId"))
 	if err != nil {
@@ -130,8 +130,8 @@ func (db VoteRepositoryDb) GetResultsByUser(userId uuid.UUID) (*[]dao2.Result, e
 	return &results, nil
 }
 
-func (db VoteRepositoryDb) GetTotalVotesForCountry(countrySlug string) (*dao2.VoteTracker, error) {
-	var voteCount dao2.VoteTracker
+func (db VoteRepositoryDb) GetTotalVotesForCountry(countrySlug string) (*dao.VoteTracker, error) {
+	var voteCount dao.VoteTracker
 	err := db.store.Get(countrySlug, &voteCount)
 	if err != nil {
 		log.Println("Error while querying vote count table", err)

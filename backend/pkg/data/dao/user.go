@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/anytimesoon/eurovision-party/pkg/enum/authLvl"
-	dto2 "github.com/anytimesoon/eurovision-party/pkg/service/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/service/dto"
 	"github.com/google/uuid"
 )
 
@@ -17,10 +17,11 @@ type User struct {
 	Invites   []uuid.UUID
 	CreatedBy uuid.UUID `boltholdIndex:"CreatedBy"`
 	CanInvite bool
+	IsBanned  bool
 }
 
-func (u User) ToDto() dto2.User {
-	return dto2.User{
+func (u User) ToDto() dto.User {
+	return dto.User{
 		Name:      u.Name,
 		Slug:      u.Slug,
 		UUID:      u.UUID,
@@ -32,7 +33,7 @@ func (u User) ToDto() dto2.User {
 	}
 }
 
-func (u User) FromDTO(userDTO dto2.User) *User {
+func (u User) FromDTO(userDTO dto.User) *User {
 	return &User{
 		UUID:      userDTO.UUID,
 		AuthLvl:   userDTO.AuthLvl,
@@ -45,8 +46,8 @@ func (u User) FromDTO(userDTO dto2.User) *User {
 	}
 }
 
-func (u User) ToNewUserDTO(auth Auth) *dto2.NewUser {
-	return &dto2.NewUser{
+func (u User) ToNewUserDTO(auth Auth) *dto.NewUser {
+	return &dto.NewUser{
 		UUID:      u.UUID,
 		AuthLvl:   u.AuthLvl,
 		Name:      u.Name,
@@ -56,7 +57,7 @@ func (u User) ToNewUserDTO(auth Auth) *dto2.NewUser {
 	}
 }
 
-func (u User) FromNewUserDTO(newUser dto2.NewUser, requestingUser *User) *User {
+func (u User) FromNewUserDTO(newUser dto.NewUser, requestingUser *User) *User {
 	newAuthLvl := authLvl.USER
 	if requestingUser.AuthLvl == authLvl.USER {
 		newAuthLvl = authLvl.FRIEND_OF_FRIEND

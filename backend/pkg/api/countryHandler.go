@@ -8,7 +8,7 @@ import (
 	"github.com/anytimesoon/eurovision-party/pkg/enum/authLvl"
 	"github.com/anytimesoon/eurovision-party/pkg/errs"
 	"github.com/anytimesoon/eurovision-party/pkg/service"
-	dto2 "github.com/anytimesoon/eurovision-party/pkg/service/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/service/dto"
 	"github.com/gorilla/mux"
 )
 
@@ -18,7 +18,7 @@ type CountryHandler struct {
 
 func (ch *CountryHandler) GetAllCountries(resp http.ResponseWriter, req *http.Request) {
 	var err *errs.AppError
-	var countries *[]dto2.Country
+	var countries *[]dto.Country
 	countries, err = ch.Service.GetAllCountries()
 
 	if err != nil {
@@ -52,8 +52,8 @@ func (ch *CountryHandler) GetParticipatingCountries(resp http.ResponseWriter, re
 
 func (ch *CountryHandler) UpdateCountry(resp http.ResponseWriter, req *http.Request) {
 	var appErr *errs.AppError
-	country := &dto2.Country{}
-	if req.Context().Value("auth").(dto2.Auth).AuthLvl == authLvl.ADMIN {
+	country := &dto.Country{}
+	if req.Context().Value("auth").(dto.Auth).AuthLvl == authLvl.ADMIN {
 		body, err := io.ReadAll(req.Body)
 		if err != nil {
 			log.Println("FAILED to read body of COUNTRY UPDATE.", err)

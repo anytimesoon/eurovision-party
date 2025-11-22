@@ -27,7 +27,7 @@ let botUserId:string
 botId.subscribe(val => botUserId = val)
 
 let commentLog: Array<CommentModel>
-commentStore.subscribe(val => commentLog = val.values().toArray())
+commentStore.subscribe(val => commentLog = Array.from(val.values()))
 
 let thisUser: UserModel
 currentUser.subscribe(val => thisUser = val)
@@ -106,7 +106,10 @@ function connectToSocket(url: string){
                         let updateMessage:UpdateMessageModel = chatMessage.body
                         // a user needs to be updated before a message gets published
                         userStore.update(users => {
-                            const user = users.get(updateMessage.updatedUser.id)
+                            let user = users.get(updateMessage.updatedUser.id)
+                            if (!user) {
+                                user = users[updateMessage.updatedUser.id]
+                            }
                             if (user.icon === updateMessage.updatedUser.icon) {
                                 updateMessage.updatedUser.icon += `?${Date.now()}`
                             }

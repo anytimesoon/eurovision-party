@@ -36,6 +36,10 @@ export async function put<T, K>(url: string, body: K): Promise<T> {
     return await postOrPut<T, K>("PUT", url, body) as Promise<T>
 }
 
+export async function putWithError<T, K>(url: string, body: K): Promise<ResponseModel<T>> {
+    return await postOrPut<T, K>("PUT", url, body, true) as Promise<ResponseModel<T>>
+}
+
 async function postOrPut<T, K>(method: string, url: string, body: K, withError: boolean = false): Promise<T | ResponseModel<T>> {
     const response = await fetch(url, {
         method: method,
@@ -47,14 +51,15 @@ async function postOrPut<T, K>(method: string, url: string, body: K, withError: 
         body: JSON.stringify(body)
     })
     const json: ResponseModel<T> = await response.json()
+
+    if (withError) {
+        return json
+    }
+
     if (response.ok) {
         return json.body
     } else {
-        if (withError) {
-            return json
-        } else {
-            handleError(response.status, json.error)
-        }
+        handleError(response.status, json.error)
     }
 }
 

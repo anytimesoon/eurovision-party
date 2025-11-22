@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/anytimesoon/eurovision-party/conf"
-	dao2 "github.com/anytimesoon/eurovision-party/pkg/data/dao"
+	"github.com/anytimesoon/eurovision-party/pkg/data/dao"
 	"github.com/anytimesoon/eurovision-party/pkg/enum/authLvl"
 	"github.com/timshannon/bolthold"
 )
@@ -49,7 +49,7 @@ func addCountries(store *bolthold.Store) {
 			log.Printf("Skipping %s %s: already exists in country table", country.Flag, country.Name)
 		}
 
-		err = store.Insert(country.Slug, dao2.VoteTracker{
+		err = store.Insert(country.Slug, dao.VoteTracker{
 			Count:           0,
 			HasBeenNotified: false,
 			Country:         country,
@@ -61,7 +61,7 @@ func addCountries(store *bolthold.Store) {
 }
 
 func addUsers(store *bolthold.Store) {
-	admins := make([]dao2.User, 0)
+	admins := make([]dao.User, 0)
 	err := store.Find(
 		&admins,
 		bolthold.
@@ -77,7 +77,7 @@ func addUsers(store *bolthold.Store) {
 			log.Printf("%s alread exists in user table", initAdminUser.Name)
 		}
 
-		adminAuth := dao2.Auth{
+		adminAuth := dao.Auth{
 			UserId:       initAdminUser.UUID,
 			AuthTokenExp: time.Now().Add(time.Hour * 24 * 100),
 			AuthLvl:      authLvl.ADMIN,
@@ -92,7 +92,7 @@ func addUsers(store *bolthold.Store) {
 		for _, country := range initCountriesWithParticipating {
 			err = store.Upsert(
 				fmt.Sprintf("%s_%s", initAdminUser.UUID, country.Slug),
-				dao2.Vote{
+				dao.Vote{
 					UserId:      initAdminUser.UUID,
 					CountrySlug: country.Slug,
 					Costume:     0,
@@ -108,7 +108,7 @@ func addUsers(store *bolthold.Store) {
 
 		log.Printf("%s%s/login/%s/%s", conf.App.HttpProto, conf.App.Domain, adminAuth.AuthToken, initAdminUser.UUID)
 	}
-	bots := make([]dao2.User, 0)
+	bots := make([]dao.User, 0)
 	err = store.Find(
 		&bots,
 		bolthold.

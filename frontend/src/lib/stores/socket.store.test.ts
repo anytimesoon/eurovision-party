@@ -32,8 +32,8 @@ describe.sequential('Socket Store', () => {
         mockServer = new WS(wsURL+session, {jsonProtocol: true})
 
         sessionStore.set(session)
-        commentStore.set([])
-        commentStore.subscribe(val => currentComments = val)
+        commentStore.set(new Map<string, CommentModel>)
+        commentStore.subscribe(val => currentComments = Array.from(val.values()))
         socketStateStore.subscribe(val => currentState = val)
 
         socketStore.connect(wsURL)
@@ -44,7 +44,7 @@ describe.sequential('Socket Store', () => {
         vi.restoreAllMocks()
         socketStore.set(null)
         socketStateStore.set(false)
-        commentStore.set([])
+        commentStore.set(new Map<string, CommentModel>)
         mockServer.close()
         WS.clean()
     })
@@ -78,6 +78,9 @@ describe.sequential('Socket Store', () => {
         // await expect(mockServer).toReceiveMessage(chatMessage)
 
         mockServer.send(chatMessage)
+
+        commentStore.subscribe(val => currentComments = Array.from(val.values()))
+
         expect(currentComments).toHaveLength(1)
         expect(currentComments[0].text).toBe(testComment.text)
         expect(currentComments[0].id).toBe(testComment.id)

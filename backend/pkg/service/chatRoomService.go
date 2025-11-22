@@ -5,22 +5,22 @@ import (
 	"log"
 
 	"github.com/anytimesoon/eurovision-party/pkg/enum/chatMsgType"
-	dto2 "github.com/anytimesoon/eurovision-party/pkg/service/dto"
+	"github.com/anytimesoon/eurovision-party/pkg/service/dto"
 	"github.com/google/uuid"
 )
 
 type Room struct {
 	clients              map[uuid.UUID]*ChatClient
-	broadcastChatMessage chan *dto2.Comment
-	BroadcastUpdate      chan dto2.SocketMessage
+	broadcastChatMessage chan *dto.Comment
+	BroadcastUpdate      chan dto.SocketMessage
 	Register             chan *ChatClient
 	unregister           chan *ChatClient
 }
 
 func NewRoom() *Room {
 	return &Room{
-		broadcastChatMessage: make(chan *dto2.Comment),
-		BroadcastUpdate:      make(chan dto2.SocketMessage),
+		broadcastChatMessage: make(chan *dto.Comment),
+		BroadcastUpdate:      make(chan dto.SocketMessage),
 		Register:             make(chan *ChatClient),
 		unregister:           make(chan *ChatClient),
 		clients:              make(map[uuid.UUID]*ChatClient),
@@ -39,7 +39,7 @@ func (r *Room) Run() {
 				close(client.Send)
 			}
 		case commentJSON := <-r.broadcastChatMessage:
-			chatMessage := dto2.NewSocketMessage(
+			chatMessage := dto.NewSocketMessage(
 				chatMsgType.COMMENT,
 				commentJSON,
 			)
@@ -56,7 +56,7 @@ func (r *Room) Run() {
 	}
 }
 
-func (r *Room) broadcast(msg dto2.SocketMessage) {
+func (r *Room) broadcast(msg dto.SocketMessage) {
 	message, err := json.Marshal(msg)
 	if err != nil {
 		log.Printf("failed to encode message to chatMessage")

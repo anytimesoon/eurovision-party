@@ -31,7 +31,7 @@ export const userEP = {
     UPDATE: userURL,
     UPDATE_IMAGE: userURL + "image",
     FIND_ONE: userURL, //append with user slug
-    REMOVE: userURL,
+    BAN: userURL + "ban/",
     REGISTERED: userURL + "registered/"
 }
 
