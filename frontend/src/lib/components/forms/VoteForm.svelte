@@ -120,7 +120,7 @@
                         class="text-2xl
                                {shouldRotate}
                                cursor-pointer
-                               before:content-['\2606']
+                               before:content-['\u2606']
                                peer-checked:before:content-['⭐']"
                         for="{cat}-star-{label}"></label>
             {/each}
