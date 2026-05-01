@@ -7,7 +7,6 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
-	"fmt"
 	"io"
 	"log"
 	"time"
@@ -46,35 +45,40 @@ func (das DefaultAuthService) Login(authDTO dto.Auth) (*dto.Session, *errs.AppEr
 		return nil, appErr
 	}
 
+	if auth.UserId != authDTO.UserId {
+		log.Printf("User %s tried to login as user %s", authDTO.UserId, auth.UserId)
+		return nil, errs.NewUnauthorizedError(errs.Common.Unauthorized)
+	}
+
 	auth.GenerateSecureSessionToken(20)
 	auth.SessionTokenExp = time.Now().Add(7 * 24 * time.Hour)
 	err := das.authRepo.UpdateAuth(auth)
 	if err != nil {
-		log.Printf("Unable to find auth for user %s. %s", authDTO.UserId, err)
+		log.Printf("Unable to find auth for user %s. %s", auth.UserId, err)
 		return nil, errs.NewUnauthorizedError(errs.Common.Login)
 	}
 
-	err = das.sessionRepo.UpsertSession(auth.AuthToken, auth.SessionToken, authDTO.UserId)
+	err = das.sessionRepo.UpsertSession(auth.AuthToken, auth.SessionToken, auth.UserId)
 	if err != nil {
-		log.Printf("Unable to generate new session token for user %s. %s", authDTO.UserId, err)
+		log.Printf("Unable to generate new session token for user %s. %s", auth.UserId, err)
 		return nil, errs.NewUnauthorizedError(errs.Common.Login)
 	}
 
-	user, err := das.userRepo.GetOneUserById(authDTO.UserId)
+	user, err := das.userRepo.GetOneUserById(auth.UserId)
 	if err != nil {
-		log.Printf("Unable to find user %s when logging in. %s", authDTO.UserId, err)
+		log.Printf("Unable to find user %s when logging in. %s", auth.UserId, err)
 		return nil, appErr
 	}
 
 	authJson, err := json.Marshal(auth.ToDTO())
 	if err != nil {
-		log.Printf("Failed to marshall auth %+v %s", auth, err)
+		log.Printf("Failed to marshall auth %s: %s", auth.UserId, err)
 		return nil, errs.NewUnexpectedError(errs.Common.Login)
 	}
 
 	e, err := encrypt(string(authJson))
 	if err != nil {
-		log.Printf("Couldn't encrypt the creds for %+v", auth)
+		log.Printf("Couldn't encrypt the creds for %s: %s", auth.UserId, err)
 		return nil, errs.NewUnexpectedError(errs.Common.Login)
 	}
 
@@ -94,9 +98,14 @@ func (das DefaultAuthService) Authorize(token string) (*dto.Auth, *errs.AppError
 		return nil, errs.NewUnauthorizedError(errs.Common.Login)
 	}
 
-	_, err := das.sessionRepo.GetSession(authDTO.Token)
+	session, err := das.sessionRepo.GetSession(authDTO.Token)
 	if err != nil {
 		log.Println("Unable to find session", err)
+		return nil, errs.NewUnauthorizedError(errs.Common.Login)
+	}
+
+	if session.UserId != authDTO.UserId {
+		log.Printf("User %s tried to authorize as user %s", authDTO.UserId, authDTO.UserId)
 		return nil, errs.NewUnauthorizedError(errs.Common.Login)
 	}
 
@@ -122,20 +131,18 @@ func encrypt(auth string) (string, error) {
 		return "", err
 	}
 
-	// Create a unique nonce containing 12 random bytes.
+	// Create unique nonce containing 12 random bytes.
 	nonce := make([]byte, aesGCM.NonceSize())
 	_, err = io.ReadFull(rand.Reader, nonce)
 	if err != nil {
 		return "", err
 	}
 
-	plaintext := fmt.Sprintf("%+v", auth)
-
 	// Encrypt the data using aesGCM.Seal(). By passing the nonce as the first
 	// parameter, the encrypted data will be appended to the nonce — meaning
 	// that the returned encryptedValue variable will be in the format
 	// "{nonce}{encrypted plaintext data}".
-	encryptedValue := aesGCM.Seal(nonce, nonce, []byte(plaintext), nil)
+	encryptedValue := aesGCM.Seal(nonce, nonce, []byte(auth), nil)
 
 	base64Value := base64.RawURLEncoding.EncodeToString(encryptedValue)
 	return base64Value, nil
@@ -188,7 +195,7 @@ func decrypt(base64Token string) (*dto.Auth, *errs.AppError) {
 	var auth dto.Auth
 	err = json.Unmarshal(plaintext, &auth)
 	if err != nil {
-		log.Printf("Failed to unmarshal %s token %s", plaintext, err)
+		log.Printf("Failed to unmarshal decrypted auth token: %s", err)
 		return nil, errs.NewUnexpectedError(errs.Common.Login)
 	}
 
