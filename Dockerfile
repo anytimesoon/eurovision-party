@@ -31,10 +31,10 @@ COPY frontend ./
 RUN npm run build
 
 # STAGE 3: Create runtime environment with both applications
-FROM node:19 AS final
+FROM node:19-alpine AS final
 LABEL maintainer="anytimesoon"
 
-RUN #apk add --no-cache ca-certificates bash
+RUN apk add --no-cache bash caddy
 
 # Create directories for both applications
 RUN mkdir -p /backend /frontend
@@ -64,15 +64,13 @@ VOLUME /backend/storage
 # Set environment variables
 ENV BODY_SIZE_LIMIT=0
 ENV NODE_ENV=production
-ENV PUBLIC_GO_HOST=http://localhost:8080
-ENV PUBLIC_CHAT=ws://localhost:8080
 
-ENV PUBLIC_DOMAIN_NAME=http://localhost:3000
+ENV DOMAIN_NAME=localhost
 ENV BACKEND_HOST=0.0.0.0:8080
 ENV CHAT_BOT_NAME=Eurobot
 ENV MAX_INVITES=5
 ENV VOTE_COUNT_TRIGGER=5
 
-EXPOSE 3000 8080
+EXPOSE 80
 
 ENTRYPOINT ["/start.sh"]
