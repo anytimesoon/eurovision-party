@@ -68,13 +68,13 @@ func (das DefaultAuthService) Login(authDTO dto.Auth) (*dto.Session, *errs.AppEr
 
 	authJson, err := json.Marshal(auth.ToDTO())
 	if err != nil {
-		log.Printf("Failed to marshall auth %+v %s", auth, err)
+		log.Printf("Failed to marshall auth %s: %s", auth.UserId, err)
 		return nil, errs.NewUnexpectedError(errs.Common.Login)
 	}
 
 	e, err := encrypt(string(authJson))
 	if err != nil {
-		log.Printf("Couldn't encrypt the creds for %+v", auth)
+		log.Printf("Couldn't encrypt the creds for %s: %s", auth.UserId, err)
 		return nil, errs.NewUnexpectedError(errs.Common.Login)
 	}
 
@@ -188,7 +188,7 @@ func decrypt(base64Token string) (*dto.Auth, *errs.AppError) {
 	var auth dto.Auth
 	err = json.Unmarshal(plaintext, &auth)
 	if err != nil {
-		log.Printf("Failed to unmarshal %s token %s", plaintext, err)
+		log.Printf("Failed to unmarshal decrypted auth token: %s", err)
 		return nil, errs.NewUnexpectedError(errs.Common.Login)
 	}
 
