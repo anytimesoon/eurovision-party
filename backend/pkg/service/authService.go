@@ -7,7 +7,6 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
-	"fmt"
 	"io"
 	"log"
 	"time"
@@ -122,20 +121,18 @@ func encrypt(auth string) (string, error) {
 		return "", err
 	}
 
-	// Create a unique nonce containing 12 random bytes.
+	// Create unique nonce containing 12 random bytes.
 	nonce := make([]byte, aesGCM.NonceSize())
 	_, err = io.ReadFull(rand.Reader, nonce)
 	if err != nil {
 		return "", err
 	}
 
-	plaintext := fmt.Sprintf("%+v", auth)
-
 	// Encrypt the data using aesGCM.Seal(). By passing the nonce as the first
 	// parameter, the encrypted data will be appended to the nonce — meaning
 	// that the returned encryptedValue variable will be in the format
 	// "{nonce}{encrypted plaintext data}".
-	encryptedValue := aesGCM.Seal(nonce, nonce, []byte(plaintext), nil)
+	encryptedValue := aesGCM.Seal(nonce, nonce, []byte(auth), nil)
 
 	base64Value := base64.RawURLEncoding.EncodeToString(encryptedValue)
 	return base64Value, nil
