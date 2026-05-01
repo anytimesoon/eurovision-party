@@ -1,0 +1,16 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: app
+    ports:
+      - "3000:3000"
+      - "8080:8080"
+    restart: unless-stopped
+    environment:
+      - PUBLIC_DOMAIN_NAME=http://localhost:3000
+    volumes:
+      - ./volumes/conf:/backend/conf
+      - ./volumes/img:/backend/assets/img
+      - ./volumes/storage:/backend/storage

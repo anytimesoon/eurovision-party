@@ -23,14 +23,6 @@ RUN CGO_ENABLED=0 go build \
 FROM node:19 as frontend-build
 ENV NODE_ENV=production
 
-ARG GO_HOST=localhost
-ARG GO_PORT=8080
-ARG CHAT=true
-
-ENV PUBLIC_GO_HOST=$GO_HOST
-ENV PUBLIC_GO_PORT=$GO_PORT
-ENV PUBLIC_CHAT=$CHAT
-
 WORKDIR /app
 COPY frontend/package.json frontend/package-lock.json ./
 RUN npm install
@@ -51,27 +43,36 @@ RUN mkdir -p /backend /frontend
 COPY --from=backend-build /app /backend/app
 COPY --from=backend-build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=backend-build /etc/passwd /etc/passwd
+ADD backend/assets/img.tar.gz /backend/assets
+
 
 # Copy frontend build
 COPY --from=frontend-build /app /frontend
 
 # Copy startup script
 COPY start.sh /start.sh
+
+# Set permissions
+RUN chmod +x /backend/app
 RUN chmod +x /start.sh
 
 # Create volumes for backend
-VOLUME /conf
-VOLUME /tmp  
-VOLUME /storage
-
-COPY backend/assets/img.tar.gz /backend/app
+VOLUME /backend/conf
+VOLUME /backend/tmp
+VOLUME /backend/storage
 
 # Set environment variables
 ENV BODY_SIZE_LIMIT=0
 ENV NODE_ENV=production
+ENV PUBLIC_GO_HOST=http://localhost:8080
+ENV PUBLIC_CHAT=ws://localhost:8080
 
-# Expose ports (adjust as needed)
-EXPOSE 8080 3000
+ENV PUBLIC_DOMAIN_NAME=http://localhost:3000
+ENV BACKEND_HOST=0.0.0.0:8080
+ENV CHAT_BOT_NAME=Eurobot
+ENV MAX_INVITES=5
+ENV VOTE_COUNT_TRIGGER=5
 
-# Use the startup script as entrypoint
+EXPOSE 3000 8080
+
 ENTRYPOINT ["/start.sh"]

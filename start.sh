@@ -1,16 +1,29 @@
 #!/bin/bash
 
-# Start the backend in the background
+set -e
+
+echo "Building config"
+mkdir -p /backend/conf
+echo "
+ASSET_DIR=/backend/assets/img
+BACKEND_HOST=${BACKEND_HOST:-0.0.0.0:8080}
+BOT_ID=${BOT_ID:-}
+CHAT_BOT_NAME=${CHAT_BOT_NAME:-Eurobot}
+DB_PATH=storage/
+PUBLIC_DOMAIN_NAME=${DOMAIN_NAME}
+MAX_INVITES=${MAX_INVITES:-5}
+SECRET=${SECRET:-}
+VOTE_COUNT_TRIGGER=${VOTE_COUNT_TRIGGER:-5}
+" > /backend/conf/app.env
+
 echo "Starting backend..."
-/backend/app &
+cd /backend && ./app &
 BACKEND_PID=$!
 
-# Start the frontend in the background
 echo "Starting frontend..."
 cd /frontend && node -r dotenv/config build &
 FRONTEND_PID=$!
 
-# Wait for both processes and exit if any one fails
 wait_for_process() {
     local pid=$1
     local name=$2

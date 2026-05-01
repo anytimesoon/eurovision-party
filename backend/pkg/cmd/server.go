@@ -112,7 +112,7 @@ func StartServer(store *bolthold.Store) {
 	voteRouter.HandleFunc("/countryanduser/{slug}", voteHandler.GetVoteByUserAndCountry).Methods(http.MethodGet) // current user only
 
 	headersOk := handlers.AllowedHeaders([]string{"Content-type", "Authorization", "Origin", "Accept", "Options", "X-Requested-With"})
-	originsOk := handlers.AllowedOrigins([]string{conf.App.HttpProto + conf.App.Domain})
+	originsOk := handlers.AllowedOrigins([]string{conf.App.Domain})
 	methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
 	credentials := handlers.AllowCredentials()
 
