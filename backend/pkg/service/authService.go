@@ -98,9 +98,14 @@ func (das DefaultAuthService) Authorize(token string) (*dto.Auth, *errs.AppError
 		return nil, errs.NewUnauthorizedError(errs.Common.Login)
 	}
 
-	_, err := das.sessionRepo.GetSession(authDTO.Token)
+	session, err := das.sessionRepo.GetSession(authDTO.Token)
 	if err != nil {
 		log.Println("Unable to find session", err)
+		return nil, errs.NewUnauthorizedError(errs.Common.Login)
+	}
+
+	if session.UserId != authDTO.UserId {
+		log.Printf("User %s tried to authorize as user %s", authDTO.UserId, authDTO.UserId)
 		return nil, errs.NewUnauthorizedError(errs.Common.Login)
 	}
 
