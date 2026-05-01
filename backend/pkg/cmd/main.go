@@ -106,7 +106,7 @@ func addUsers(store *bolthold.Store) {
 			}
 		}
 
-		log.Printf("%s%s/login/%s/%s", conf.App.HttpProto, conf.App.Domain, adminAuth.AuthToken, initAdminUser.UUID)
+		log.Printf("%s/login/%s/%s", conf.App.Domain, adminAuth.AuthToken, initAdminUser.UUID)
 	}
 	bots := make([]dao.User, 0)
 	err = store.Find(

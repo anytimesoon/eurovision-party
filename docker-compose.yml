@@ -1,0 +1,15 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: app
+    ports:
+      - "3000:80"
+    restart: unless-stopped
+    environment:
+      - DOMAIN_NAME=localhost:3000
+    volumes:
+      - ./volumes/conf:/backend/conf
+      - ./volumes/img:/backend/assets/img
+      - ./volumes/storage:/backend/storage

@@ -17,8 +17,7 @@ var v = viper.New()
 type AppConf struct {
 	DbPath           string `mapstructure:"DB_PATH"`
 	ServHost         string `mapstructure:"BACKEND_HOST"`
-	HttpProto        string `mapstructure:"HTTP_PROTOCOL"`
-	Domain           string `mapstructure:"DOMAIN_NAME"`
+	Domain           string `mapstructure:"PUBLIC_DOMAIN_NAME"`
 	BotId            uuid.UUID
 	BotIdString      string `mapstructure:"BOT_ID"`
 	BotName          string `mapstructure:"CHAT_BOT_NAME"`
@@ -45,7 +44,6 @@ func LoadConfig() {
 
 	v.SetDefault("DB_PATH", "storage/")
 	v.SetDefault("BACKEND_HOST", "localhost:8080")
-	v.SetDefault("HTTP_PROTOCOL", "http://")
 	v.SetDefault("CHAT_BOT_NAME", "Eurobot")
 	v.SetDefault("MAX_INVITES", 5)
 	v.SetDefault("VOTE_COUNT_TRIGGER", 5)
