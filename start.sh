@@ -2,10 +2,22 @@
 
 set -e
 
+if [ "${INSECURE}" = "true" ]; then
+  echo "Insecure config"
+  PUBLIC_SCHEME="http"
+  PUBLIC_WS_SCHEME="ws"
+else
+  echo "Secure config"
+  PUBLIC_SCHEME="https"
+  PUBLIC_WS_SCHEME="wss"
+fi
+
+echo
+
 DOMAIN_NAME="${DOMAIN_NAME:-localhost}"
-PUBLIC_DOMAIN_NAME="http://${DOMAIN_NAME}"
-PUBLIC_GO_HOST="http://${DOMAIN_NAME}"
-PUBLIC_CHAT="ws://${DOMAIN_NAME}"
+PUBLIC_DOMAIN_NAME="${PUBLIC_SCHEME}://${DOMAIN_NAME}"
+PUBLIC_GO_HOST="${PUBLIC_SCHEME}://${DOMAIN_NAME}"
+PUBLIC_CHAT="${PUBLIC_WS_SCHEME}://${DOMAIN_NAME}"
 CONFIG_FILE=/backend/conf/app.env
 
 export PUBLIC_DOMAIN_NAME
