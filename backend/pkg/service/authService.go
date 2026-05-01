@@ -45,23 +45,28 @@ func (das DefaultAuthService) Login(authDTO dto.Auth) (*dto.Session, *errs.AppEr
 		return nil, appErr
 	}
 
+	if auth.UserId != authDTO.UserId {
+		log.Printf("User %s tried to login as user %s", authDTO.UserId, auth.UserId)
+		return nil, errs.NewUnauthorizedError(errs.Common.Unauthorized)
+	}
+
 	auth.GenerateSecureSessionToken(20)
 	auth.SessionTokenExp = time.Now().Add(7 * 24 * time.Hour)
 	err := das.authRepo.UpdateAuth(auth)
 	if err != nil {
-		log.Printf("Unable to find auth for user %s. %s", authDTO.UserId, err)
+		log.Printf("Unable to find auth for user %s. %s", auth.UserId, err)
 		return nil, errs.NewUnauthorizedError(errs.Common.Login)
 	}
 
-	err = das.sessionRepo.UpsertSession(auth.AuthToken, auth.SessionToken, authDTO.UserId)
+	err = das.sessionRepo.UpsertSession(auth.AuthToken, auth.SessionToken, auth.UserId)
 	if err != nil {
-		log.Printf("Unable to generate new session token for user %s. %s", authDTO.UserId, err)
+		log.Printf("Unable to generate new session token for user %s. %s", auth.UserId, err)
 		return nil, errs.NewUnauthorizedError(errs.Common.Login)
 	}
 
-	user, err := das.userRepo.GetOneUserById(authDTO.UserId)
+	user, err := das.userRepo.GetOneUserById(auth.UserId)
 	if err != nil {
-		log.Printf("Unable to find user %s when logging in. %s", authDTO.UserId, err)
+		log.Printf("Unable to find user %s when logging in. %s", auth.UserId, err)
 		return nil, appErr
 	}
 
